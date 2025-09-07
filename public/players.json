@@ -1,12 +1,22 @@
 [
     {
-        "clase": "Guerrero",
+        "class": "Mago",
+        "name": "Akarman",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Guerrero",
         "name": "Deathclaw",
-        "rango": "Recluta"
+        "rank": "Recluta"
     },
     {
         "class": "Guerrero",
         "name": "Dulceotruco",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Toritodorito",
         "rank": "Recluta"
     },
     {
