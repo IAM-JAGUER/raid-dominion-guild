@@ -1,5 +1,30 @@
 [
     {
+        "class": "Cazador",
+        "name": "Arelyz",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Falfurt",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Sacerdote",
+        "name": "Pzycoqt",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Voidhammer",
+        "rank": "Oficial"
+    },
+    {
+        "class": "Brujo",
+        "name": "Stormgrim",
+        "rank": "Guild Master"
+    },
+    {
         "class": "Guerrero",
         "name": "Tatow",
         "rank": "Recluta"
@@ -60,18 +85,8 @@
         "rank": "Oficial"
     },
     {
-        "class": "Paladín",
-        "name": "Voidhammer",
-        "rank": "Oficial"
-    },
-    {
         "class": "Guerrero",
         "name": "Vorthrak",
         "rank": "Oficial"
-    },
-    {
-        "class": "Brujo",
-        "name": "Stormgrim",
-        "rank": "Guild Master"
     }
 ]
