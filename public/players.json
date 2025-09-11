@@ -1,7 +1,22 @@
 [
     {
+        "class": "Guerrero",
+        "name": "Tatow",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Chamán",
+        "name": "Blackerk",
+        "rank": "Recluta"
+    },
+    {
         "class": "Mago",
         "name": "Akarman",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Pícaro",
+        "name": "Autist",
         "rank": "Recluta"
     },
     {
@@ -15,8 +30,18 @@
         "rank": "Recluta"
     },
     {
+        "class": "Cazador",
+        "name": "Nosequeponer",
+        "rank": "Recluta"
+    },
+    {
         "class": "Druida",
         "name": "Toritodorito",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Caballero de la Muerte",
+        "name": "Unholywoman",
         "rank": "Recluta"
     },
     {
