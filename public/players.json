@@ -1,28 +1,8 @@
 [
     {
-        "class": "Cazador",
-        "name": "Arelyz",
+        "class": "Chamán",
+        "name": "Blackerk",
         "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Falfurt",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Sacerdote",
-        "name": "Pzycoqt",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Voidhammer",
-        "rank": "Oficial"
-    },
-    {
-        "class": "Brujo",
-        "name": "Stormgrim",
-        "rank": "Guild Master"
     },
     {
         "class": "Guerrero",
@@ -30,9 +10,19 @@
         "rank": "Recluta"
     },
     {
-        "class": "Chamán",
-        "name": "Blackerk",
+        "class": "Brujo",
+        "name": "Retroxlock",
         "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Valiris",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Guerrero",
+        "name": "Vorthrak",
+        "rank": "Oficial"
     },
     {
         "class": "Mago",
@@ -40,8 +30,8 @@
         "rank": "Recluta"
     },
     {
-        "class": "Pícaro",
-        "name": "Autist",
+        "class": "Guerrero",
+        "name": "Alejandrojjd",
         "rank": "Recluta"
     },
     {
@@ -50,13 +40,18 @@
         "rank": "Recluta"
     },
     {
-        "class": "Guerrero",
-        "name": "Dulceotruco",
+        "class": "Cazador",
+        "name": "Nosequeponer",
         "rank": "Recluta"
     },
     {
-        "class": "Cazador",
-        "name": "Nosequeponer",
+        "class": "Sacerdote",
+        "name": "Pzycoqt",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Solariana",
         "rank": "Recluta"
     },
     {
@@ -85,8 +80,13 @@
         "rank": "Oficial"
     },
     {
-        "class": "Guerrero",
-        "name": "Vorthrak",
+        "class": "Paladín",
+        "name": "Voidhammer",
         "rank": "Oficial"
+    },
+    {
+        "class": "Brujo",
+        "name": "Stormgrim",
+        "rank": "Guild Master"
     }
 ]
