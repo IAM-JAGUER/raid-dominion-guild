@@ -2,9 +2,17 @@
 export interface Props {
   imageName: string;
   classes?: string;
+  altText?: string;
 }
 
-const { imageName, classes = "" } = Astro.props;
+const { imageName, classes = "", altText = imageName } = Astro.props;
+
 ---
 
-<img src={`/gallery/${imageName}`} class={classes} alt={imageName} />
+<img 
+  src={`/gallery/${imageName}`} 
+  class={classes} 
+  alt={altText}
+  loading="lazy"
+  decoding="async"
+/>
