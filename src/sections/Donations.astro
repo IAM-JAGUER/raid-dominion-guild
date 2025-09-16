@@ -43,7 +43,7 @@ const accounts = [
                 <ImageComponent 
                   classes="w-32 h-32 sm:w-36 sm:h-36 object-contain" 
                   imageName={account.service.toLowerCase().replace(" ", "_") + "qr.jpeg"}
-                  alt={`Código QR de ${account.name}`}
+                  altText={`Código QR de ${account.name}`}
                 />
               </div>
             </div>
@@ -52,7 +52,7 @@ const accounts = [
               <ImageComponent 
                 classes="h-16 object-contain" 
                 imageName={account.service.toLowerCase().replace(" ", "_") + ".png"}
-                alt={`Logo de ${account.name}`}
+                altText={`Logo de ${account.name}`}
               />
             </div>
           )}
