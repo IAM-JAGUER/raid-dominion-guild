@@ -1,49 +1,80 @@
 ---
 import ImageComponent from "@/components/ImageComponent.astro";
 
-// Ejemplo de array con nombres, servicios, y enlaces
+// Array con métodos de pago disponibles
 const accounts = [
     {
-        name: "Paypal",
-        service: "Paypal",
+        name: "PayPal",
+        service: "PayPal",
         link: "https://paypal.me/iamdev88"
     },
     {
         name: "Nequi",
         service: "Nequi",
         qr: true
+    },
+    {
+        name: "Wompi",
+        service: "Wompi",
+        link: "https://checkout.wompi.co/l/PXF3MZ",
+        qr: true
     }
 ]
 ---
 
-<section
-  class="mt-8 bg-txtbg1 flex flex-col flex-wrap lg:flex-row shadow-3xl border-y-2 border-primary py-2 px-2"
->
-  <div class="w-full text-center py-2">
-    <span
-      class="text-[1.5rem] uppercase text-normal border-b-2 border-primary mb-1 md:font-medium mt-2"
-      >Invite un café</span
-    >
+<section class="mt-8 bg-gradient-to-br mb-8 from-gray-900 to-gray-800 flex flex-col flex-wrap lg:flex-row shadow-2xl rounded-lg overflow-hidden border border-gray-700 py-6 px-4">
+  <div class="w-full text-center mb-6">
+    <h2 class="text-3xl font-bold text-white mb-2">¡Apóyanos!</h2>
+    <p class="text-gray-300 mb-4">Tu contribución nos ayuda a seguir mejorando</p>
+    <div class="w-20 h-1 bg-amber-500 mx-auto rounded-full"></div>
   </div>
-  <div class="flex flex-wrap flex-1 flex-col md:flex-row gap-x-10 py-2 mx-2 gap-2 justify-center items-center">
-    {accounts.map(account => (
-      <div class="transition flex flex-row flex-wrap justify-center items-center w-[100%] md:w-[28%] min-h-[90px] text-normal text-center py-2 shadow-3xl px-2 bg-txtbg1">
-        <div class="grow text-bold text-[1.5rem]">
-          {account.link ? (
-            <a href={account.link} target="_blank" rel="noopener noreferrer">
-              {account.name}
-            </a>
+  <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2 sm:px-4">
+    {accounts.map((account) => (
+      <div 
+        class="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/10 border border-gray-700 hover:border-amber-500 flex flex-col"
+      >
+        <h3 class="text-lg sm:text-xl font-bold text-white mb-4 text-center">{account.name}</h3>
+        
+        <div class="flex-grow flex flex-col items-center">
+          {account.qr ? (
+            <div class="mb-4">
+              <p class="text-sm text-gray-400 mb-2">Escanea el código QR</p>
+              <div class="bg-white p-2 rounded-lg">
+                <ImageComponent 
+                  classes="w-32 h-32 sm:w-36 sm:h-36 object-contain" 
+                  imageName={account.service.toLowerCase().replace(" ", "_") + "qr.jpeg"}
+                  alt={`Código QR de ${account.name}`}
+                />
+              </div>
+            </div>
           ) : (
-            account.name
+            <div class="mb-4 flex items-center justify-center h-36">
+              <ImageComponent 
+                classes="h-16 object-contain" 
+                imageName={account.service.toLowerCase().replace(" ", "_") + ".png"}
+                alt={`Logo de ${account.name}`}
+              />
+            </div>
           )}
-          {account.qr && (
-            <ImageComponent classes="max-w-[200px] mx-auto" imageName={account.service.toLowerCase().replace(" ", "_") + "qr.jpeg"} />
+          
+          {account.link && (
+            <div class="mt-auto w-full">
+              <a 
+                href={account.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors duration-300 text-center"
+              >
+                Donar con {account.service}
+                <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
           )}
         </div>
-        <div class="flex flex-col">
-          <ImageComponent classes="max-w-[40px]" imageName={account.service.toLowerCase().replace(" ", "_") + ".png"} />
-          <div>{account.service}</div>
-        </div>
+        
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     ))}
   </div>
