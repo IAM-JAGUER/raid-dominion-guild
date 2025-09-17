@@ -1,12 +1,12 @@
 [
     {
         "class": "Guerrero",
-        "name": "Axive",
+        "name": "Orcrok",
         "rank": "Recluta"
     },
     {
-        "class": "Cazador",
-        "name": "Cayacoa",
+        "class": "Brujo",
+        "name": "Arshock",
         "rank": "Recluta"
     },
     {
@@ -15,8 +15,23 @@
         "rank": "Recluta"
     },
     {
-        "class": "Caballero de la Muerte",
-        "name": "Osulivan",
+        "class": "Druida",
+        "name": "Golemdp",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Palagabriel",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Sacerdote",
+        "name": "Putifarra",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Pícaro",
+        "name": "Unpicarotrol",
         "rank": "Recluta"
     },
     {
@@ -25,13 +40,18 @@
         "rank": "Oficial"
     },
     {
+        "class": "Druida",
+        "name": "Smarty",
+        "rank": "Recluta"
+    },
+    {
         "class": "Cazador",
         "name": "Totooporto",
         "rank": "Recluta"
     },
     {
-        "class": "Druida",
-        "name": "Smarty",
+        "class": "Guerrero",
+        "name": "Ichigamix",
         "rank": "Recluta"
     },
     {
@@ -60,13 +80,28 @@
         "rank": "Recluta"
     },
     {
+        "class": "Guerrero",
+        "name": "Axive",
+        "rank": "Recluta"
+    },
+    {
         "class": "Sacerdote",
         "name": "Barsacer",
         "rank": "Recluta"
     },
     {
+        "class": "Cazador",
+        "name": "Cayacoa",
+        "rank": "Recluta"
+    },
+    {
         "class": "Guerrero",
         "name": "Deathclaw",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Guerrero",
+        "name": "Fracturadoor",
         "rank": "Recluta"
     },
     {
@@ -115,6 +150,11 @@
         "rank": "Recluta"
     },
     {
+        "class": "Guerrero",
+        "name": "Molioda",
+        "rank": "Recluta"
+    },
+    {
         "class": "Caballero de la Muerte",
         "name": "Muerdenucas",
         "rank": "Recluta"
@@ -122,6 +162,11 @@
     {
         "class": "Cazador",
         "name": "Nosequeponer",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Caballero de la Muerte",
+        "name": "Osulivan",
         "rank": "Recluta"
     },
     {
@@ -137,6 +182,11 @@
     {
         "class": "Paladín",
         "name": "Slaashh",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Snirh",
         "rank": "Recluta"
     },
     {
