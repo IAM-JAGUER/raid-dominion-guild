@@ -1,10 +1,8 @@
----
-  ---
-
 <section class="flex flex-col justify-center items-center relative">  
-  <div class="relative mt-20 group animate-fade-in-delayed text-center">  
-    <div class="relative mt-8 px-6 py-2 pb-2">
-      <div class="relative mt-2 inline-block">
+  <!-- Título -->
+  <div class="relative mt-20 group text-center">  
+    <div class="relative px-6 py-2 pb-2 animate-fade-in-1">
+      <div class="relative mt-4 inline-block">
         <!-- Outline text -->
         <span class="text-outline text-white/90 text-lg sm:text-xl font-bold uppercase tracking-widest font-['Arial_Black']">
           <span class="relative inline-block">
@@ -25,29 +23,33 @@
       <div class="absolute bottom-0 left-1/2 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent transform -translate-x-1/2"></div>
     </div>
   </div>
-  <div class="relative">
+  
+  <!-- Logo -->
+  <div class="relative mt-2 mb-6 animate-fade-in-1" style="animation-delay: 0.3s">
     <img
-      class="animate-slide-up-fade drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]"
       src="gallery/lider.png"
       alt="Raid Dominion"
-      width="450"
+      width="350"
       height="auto"
     />
-    <div class="absolute -inset-4 -z-10 bg-gradient-to-r from-amber-500/20 to-amber-600/20 rounded-full blur-xl opacity-70 animate-pulse"></div>
   </div>
   <style>
-    @keyframes fadeInDelayed {
-      0% { opacity: 0; transform: translateY(5px); }
-      100% { opacity: 1; transform: translateY(0); }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    .animate-fade-in-delayed {
-      animation: fadeInDelayed 0.8s ease-out 0.3s forwards;
+    
+    .animate-fade-in-1 {
+      opacity: 0;
+      animation: fadeIn 1s ease-out forwards;
     }
+    
     @keyframes text-shimmer {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    
     .animate-text-shimmer {
       animation: text-shimmer 8s ease-in-out infinite;
     }
