@@ -37,7 +37,7 @@ loader.load("/smoke.webp", (texture) => {
     const particle = new THREE.Mesh(smokeGeo, smokeMaterial);
     particle.position.set(
       Math.random() * 100 - 50,
-      Math.random() * -80 - 10,
+      Math.random() * -130 + -130,  // Ajustado para aparecer mucho más abajo, cerca del fondo
       0
     );
     particle.rotation.z = Math.random() * -360 - 360;

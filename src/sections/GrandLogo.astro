@@ -1,36 +1,40 @@
 ---
   ---
 
-<section class="flex flex-col justify-center items-center relative">
-  <div class="relative">
-    <img
-      class="mt-8 animate-slide-up-fade drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]"
-      src="gallery/lider.png"
-      alt="Raid Dominion"
-      width="230"
-      height="230"
-    />
-    <div class="absolute -inset-4 -z-10 bg-gradient-to-r from-amber-500/20 to-amber-600/20 rounded-full blur-xl opacity-70 animate-pulse"></div>
-  </div>
-  
-  <div class="relative mt-6 group opacity-0 animate-fade-in-delayed">
-    <div class="absolute -inset-1 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition-all duration-300 group-hover:opacity-30"></div>
-    <div class="relative">
-      <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500 text-sm font-bold uppercase tracking-wider font-['Arial_Black']">
-        <span class="relative">
-          <span class="text-outline">Colmillo de Acero</span>
-          <span class="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-white animate-text-shimmer bg-[length:200%_auto] bg-clip-text animation-delay-200">
+<section class="flex flex-col justify-center items-center relative">  
+  <div class="relative mt-20 group animate-fade-in-delayed text-center">  
+    <div class="relative mt-8 px-6 py-2 pb-2">
+      <div class="relative mt-2 inline-block">
+        <!-- Outline text -->
+        <span class="text-outline text-white/90 text-lg sm:text-xl font-bold uppercase tracking-widest font-['Arial_Black']">
+          <span class="relative inline-block">
+            Hermandad
+          </span>
+        </span>
+        <!-- Animated gradient overlay -->
+        <span class="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-100 bg-[length:200%_auto] animate-text-shimmer">
+          <span class="relative inline-block">
+            Hermandad
+            <span aria-hidden class="inline-block mx-2">&bull;</span>
             Colmillo de Acero
           </span>
         </span>
-      </span>
+      </div>
       
-      <div class="absolute -bottom-2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
+      <!-- Permanent underline -->
+      <div class="absolute bottom-0 left-1/2 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent transform -translate-x-1/2"></div>
     </div>
-    
-    <div class="absolute -bottom-3 left-1/2 w-16 h-1 bg-amber-400 transform -translate-x-1/2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
   </div>
-  
+  <div class="relative">
+    <img
+      class="animate-slide-up-fade drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]"
+      src="gallery/lider.png"
+      alt="Raid Dominion"
+      width="450"
+      height="auto"
+    />
+    <div class="absolute -inset-4 -z-10 bg-gradient-to-r from-amber-500/20 to-amber-600/20 rounded-full blur-xl opacity-70 animate-pulse"></div>
+  </div>
   <style>
     @keyframes fadeInDelayed {
       0% { opacity: 0; transform: translateY(5px); }

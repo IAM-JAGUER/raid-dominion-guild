@@ -1,32 +1,22 @@
 [
     {
+        "class": "Guerrero",
+        "name": "Axive",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Cazador",
+        "name": "Cayacoa",
+        "rank": "Recluta"
+    },
+    {
         "class": "Paladín",
         "name": "Faisin",
         "rank": "Recluta"
     },
     {
-        "class": "Pícaro",
-        "name": "Lalimonada",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Chamán",
-        "name": "Mariguaniel",
-        "rank": "Recluta"
-    },
-    {
         "class": "Caballero de la Muerte",
         "name": "Osulivan",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Slaashh",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Yame",
         "rank": "Recluta"
     },
     {
@@ -42,11 +32,6 @@
     {
         "class": "Druida",
         "name": "Smarty",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Cazador",
-        "name": "Mazapanh",
         "rank": "Recluta"
     },
     {
@@ -75,11 +60,6 @@
         "rank": "Recluta"
     },
     {
-        "class": "Guerrero",
-        "name": "Axive",
-        "rank": "Recluta"
-    },
-    {
         "class": "Sacerdote",
         "name": "Barsacer",
         "rank": "Recluta"
@@ -96,17 +76,27 @@
     },
     {
         "class": "Druida",
-        "name": "Golemdp",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
         "name": "Hanabata",
         "rank": "Recluta"
     },
     {
         "class": "Caballero de la Muerte",
         "name": "Hannibaldk",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Cazador",
+        "name": "Hunterpipa",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Sacerdote",
+        "name": "Kinimaroo",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Pícaro",
+        "name": "Lalimonada",
         "rank": "Recluta"
     },
     {
@@ -120,6 +110,11 @@
         "rank": "Recluta"
     },
     {
+        "class": "Chamán",
+        "name": "Mariguaniel",
+        "rank": "Recluta"
+    },
+    {
         "class": "Caballero de la Muerte",
         "name": "Muerdenucas",
         "rank": "Recluta"
@@ -130,8 +125,18 @@
         "rank": "Recluta"
     },
     {
+        "class": "Paladín",
+        "name": "Pipazon",
+        "rank": "Recluta"
+    },
+    {
         "class": "Sacerdote",
         "name": "Pzycoqt",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Slaashh",
         "rank": "Recluta"
     },
     {
