@@ -9,47 +9,7 @@ import AboutAddon from '@/sections/AboutAddon.astro';
 import Donations from '@/sections/Donations.astro';
 import AboutCommunity from '@/sections/AboutCommunity.astro';
 import Footer from '@/sections/Footer.astro';
-
 ---
-
-<style is:global>
-  html {
-    font-family: "Jost Variable", system-ui, sans-serif;
-    background:
-      url("/background.png") no-repeat,
-      #111;
-    overflow-x: hidden;
-    background-size: 100% 100vh;
-    background-position: center top;
-    opacity: 0;
-    animation: fadeIn 1s ease-out 0.2s forwards;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .animate-fade-in-1 {
-    opacity: 0;
-    animation: fadeIn 1s ease-out 0.7s forwards;
-  }
-
-  .animate-fade-in-2 {
-    opacity: 0;
-    animation: fadeIn 1s ease-out 1.7s forwards;
-  }
-
-  /* Asegurar que el contenedor del humo esté correctamente posicionado */
-  #smoke-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 300px;
-    z-index: -10;
-  }
-</style>
 
 <Layout title="Comunidad Colmillo de Acero - Addon World of Warcraft">
 	<main class="relative">
@@ -82,5 +42,30 @@ import Footer from '@/sections/Footer.astro';
 		});
 	</script>
 
+	<style is:global>
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
 
+		.animate-fade-in-1 {
+			opacity: 0;
+			animation: fadeIn 1s ease-out 0.5s forwards;
+		}
+
+		.animate-fade-in-2 {
+			opacity: 0;
+			animation: fadeIn 1s ease-out 1.5s forwards;
+		}
+
+		/* Asegurar que el contenedor del humo esté correctamente posicionado */
+		#smoke-container {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 300px;
+			z-index: -10;
+		}
+	</style>
 </Layout>
