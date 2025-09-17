@@ -1,17 +1,22 @@
 [
     {
-        "class": "Druida",
-        "name": "Nandoh",
+        "class": "Paladín",
+        "name": "Faisin",
         "rank": "Recluta"
     },
     {
-        "class": "Guerrero",
-        "name": "Axive",
+        "class": "Pícaro",
+        "name": "Lalimonada",
         "rank": "Recluta"
     },
     {
-        "class": "Mago",
-        "name": "Magodelmal",
+        "class": "Chamán",
+        "name": "Mariguaniel",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Caballero de la Muerte",
+        "name": "Osulivan",
         "rank": "Recluta"
     },
     {
@@ -20,14 +25,34 @@
         "rank": "Recluta"
     },
     {
+        "class": "Paladín",
+        "name": "Yame",
+        "rank": "Recluta"
+    },
+    {
         "class": "Druida",
         "name": "Sargorath",
         "rank": "Oficial"
     },
     {
-        "class": "Brujo",
-        "name": "Stormgrim",
-        "rank": "Guild Master"
+        "class": "Cazador",
+        "name": "Totooporto",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Smarty",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Cazador",
+        "name": "Mazapanh",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Nandoh",
+        "rank": "Recluta"
     },
     {
         "class": "Chamán",
@@ -51,7 +76,22 @@
     },
     {
         "class": "Guerrero",
+        "name": "Axive",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Sacerdote",
+        "name": "Barsacer",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Guerrero",
         "name": "Deathclaw",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Glowstorm",
         "rank": "Recluta"
     },
     {
@@ -60,8 +100,28 @@
         "rank": "Recluta"
     },
     {
+        "class": "Druida",
+        "name": "Hanabata",
+        "rank": "Recluta"
+    },
+    {
         "class": "Caballero de la Muerte",
         "name": "Hannibaldk",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Cazador",
+        "name": "Lykam",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Mago",
+        "name": "Magodelmal",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Caballero de la Muerte",
+        "name": "Muerdenucas",
         "rank": "Recluta"
     },
     {
@@ -95,11 +155,6 @@
         "rank": "Recluta"
     },
     {
-        "class": "Paladín",
-        "name": "Yame",
-        "rank": "Recluta"
-    },
-    {
         "class": "Chamán",
         "name": "Howlshade",
         "rank": "Oficial"
@@ -118,5 +173,10 @@
         "class": "Guerrero",
         "name": "Vorthrak",
         "rank": "Oficial"
+    },
+    {
+        "class": "Brujo",
+        "name": "Stormgrim",
+        "rank": "Guild Master"
     }
 ]
