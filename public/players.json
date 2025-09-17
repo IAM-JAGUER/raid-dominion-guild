@@ -1,5 +1,35 @@
 [
     {
+        "class": "Druida",
+        "name": "Nandoh",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Guerrero",
+        "name": "Axive",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Mago",
+        "name": "Magodelmal",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Slaashh",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Sargorath",
+        "rank": "Oficial"
+    },
+    {
+        "class": "Brujo",
+        "name": "Stormgrim",
+        "rank": "Guild Master"
+    },
+    {
         "class": "Chamán",
         "name": "Blackerk",
         "rank": "Recluta"
@@ -8,21 +38,6 @@
         "class": "Guerrero",
         "name": "Tatow",
         "rank": "Recluta"
-    },
-    {
-        "class": "Brujo",
-        "name": "Retroxlock",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Valiris",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Vorthrak",
-        "rank": "Oficial"
     },
     {
         "class": "Mago",
@@ -37,6 +52,16 @@
     {
         "class": "Guerrero",
         "name": "Deathclaw",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Druida",
+        "name": "Golemdp",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Caballero de la Muerte",
+        "name": "Hannibaldk",
         "rank": "Recluta"
     },
     {
@@ -65,6 +90,16 @@
         "rank": "Recluta"
     },
     {
+        "class": "Paladín",
+        "name": "Valiris",
+        "rank": "Recluta"
+    },
+    {
+        "class": "Paladín",
+        "name": "Yame",
+        "rank": "Recluta"
+    },
+    {
         "class": "Chamán",
         "name": "Howlshade",
         "rank": "Oficial"
@@ -75,18 +110,13 @@
         "rank": "Oficial"
     },
     {
-        "class": "Druida",
-        "name": "Sargorath",
-        "rank": "Oficial"
-    },
-    {
         "class": "Paladín",
         "name": "Voidhammer",
         "rank": "Oficial"
     },
     {
-        "class": "Brujo",
-        "name": "Stormgrim",
-        "rank": "Guild Master"
+        "class": "Guerrero",
+        "name": "Vorthrak",
+        "rank": "Oficial"
     }
 ]
