@@ -2,6 +2,10 @@
   "name": "raid-dominion-guild",
   "type": "module",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
