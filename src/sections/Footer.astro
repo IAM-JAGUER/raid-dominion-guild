@@ -2,40 +2,33 @@
 import YoutubeIcon from '@/components/YoutubeIcon.astro'
 ---
 
-<footer class="relative w-full backdrop-blur-sm border-t-2 border-primary/50 pt-12 pb-8 px-4 overflow-hidden">
-    <!-- Efecto de partículas sutiles -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-1/2 left-1/4 w-64 h-64 bg-primary/5 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div class="absolute top-1/2 right-1/4 w-64 h-64 bg-txtbg/5 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-    </div>
-
-    <div class="container mx-auto px-4 relative z-10">
+<footer class="relative w-full pt-12 pb-8 px-4">
+    <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-center gap-8">
             <!-- Información de derechos de autor -->
             <div class="text-center md:text-left">
-                <h3 class="text-xl font-bold text-primary mb-2">Colmillo de Acero</h3>
-                <p class="text-normal/80 text-sm">
+                <h3 class="text-xl font-bold text-amber-400 mb-2">Colmillo de Acero</h3>
+                <p class="text-gray-300 text-sm">
                     &copy; 2025 Todos los derechos reservados
                 </p>
-                <p class="text-xs text-normal/60 mt-1">
+                <p class="text-xs text-gray-400 mt-1">
                     Una comunidad de World of Warcraft
                 </p>
             </div>
 
             <!-- Redes sociales -->
             <div class="flex flex-col items-center md:items-end">
-                <h4 class="text-normal text-sm font-medium mb-3">Síguenos</h4>
+                <h4 class="text-gray-300 text-sm font-medium mb-3">Síguenos</h4>
                 <ul class="flex space-x-6">
                     <li>
                         <a 
                             href="https://www.youtube.com/@IAM-GAMECODE" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            class="group relative p-2 block text-primary hover:text-white transition-colors duration-300"
+                            class="p-2 block text-amber-400 hover:text-amber-300 transition-colors"
                             aria-label="Canal de YouTube"
                         >
-                            <div class="absolute inset-0 bg-primary/10 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-                            <YoutubeIcon class="w-6 h-6 relative z-10 group-hover:scale-110 transition-transform duration-300" />
+                            <YoutubeIcon class="w-6 h-6" />
                             <span class="sr-only">YouTube</span>
                         </a>
                     </li>
@@ -44,30 +37,15 @@ import YoutubeIcon from '@/components/YoutubeIcon.astro'
         </div>
         
         <!-- Línea divisoria -->
-        <div class="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-8"></div>
+        <div class="w-full h-px bg-amber-600/30 my-8"></div>
         
         <!-- Enlaces adicionales -->
         <div class="text-center">
             <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-                <li><a href="#" class="text-normal/70 hover:text-primary transition-colors">Inicio</a></li>
-                <li><a href="#about_community" class="text-normal/70 hover:text-primary transition-colors">Comunidad</a></li>
-                <li><a href="#about_addon" class="text-normal/70 hover:text-primary transition-colors">Addon</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-amber-400 transition-colors">Inicio</a></li>
+                <li><a href="#about_community" class="text-gray-300 hover:text-amber-400 transition-colors">Comunidad</a></li>
+                <li><a href="#about_addon" class="text-gray-300 hover:text-amber-400 transition-colors">Addon</a></li>
             </ul>
         </div>
     </div>
 </footer>
-
-<style>
-    @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-    }
-    .animate-blob {
-        animation: blob 7s infinite;
-    }
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-</style>

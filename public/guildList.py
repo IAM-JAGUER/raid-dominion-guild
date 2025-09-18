@@ -17,12 +17,17 @@ def lua_to_json(lua_file, json_file):
         entry = {}
 
         # Buscar ["clave"] = "valor"
-        matches = re.findall(r'\["(.*?)"\]\s*=\s*"([^"]+)"', block)
+        matches = re.findall(r'\["(.*?)"\]\s*=\s*"([^"]*)"', block)
         for key, value in matches:
             entry[key] = value
 
-        # Validar que tenga los tres campos
+        # Validar que tenga los campos obligatorios
         if all(k in entry for k in ("class", "name", "rank")):
+            # Asegurar que los campos de notas existan
+            if "publicNote" not in entry:
+                entry["publicNote"] = ""
+            if "officerNote" not in entry:
+                entry["officerNote"] = ""
             players.append(entry)
 
     # Guardar en JSON

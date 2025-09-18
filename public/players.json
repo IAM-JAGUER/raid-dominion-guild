@@ -1,237 +1,380 @@
 [
     {
-        "class": "Guerrero",
         "name": "Orcrok",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Brujo",
-        "name": "Arshock",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Faisin",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Golemdp",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Palagabriel",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Sacerdote",
-        "name": "Putifarra",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Pícaro",
-        "name": "Unpicarotrol",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Sargorath",
-        "rank": "Oficial"
-    },
-    {
-        "class": "Druida",
-        "name": "Smarty",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Cazador",
-        "name": "Totooporto",
-        "rank": "Recluta"
-    },
-    {
+        "officerNote": "",
         "class": "Guerrero",
-        "name": "Ichigamix",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "class": "Druida",
-        "name": "Nandoh",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Chamán",
-        "name": "Blackerk",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Tatow",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Mago",
-        "name": "Akarman",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Alejandrojjd",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Axive",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Sacerdote",
         "name": "Barsacer",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "class": "Cazador",
-        "name": "Cayacoa",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Deathclaw",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Fracturadoor",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
         "name": "Glowstorm",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "Heler 5.7",
         "rank": "Recluta"
     },
     {
-        "class": "Druida",
-        "name": "Hanabata",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Caballero de la Muerte",
         "name": "Hannibaldk",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "class": "Cazador",
         "name": "Hunterpipa",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Sacerdote",
-        "name": "Kinimaroo",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Pícaro",
-        "name": "Lalimonada",
-        "rank": "Recluta"
-    },
-    {
+        "officerNote": "",
         "class": "Cazador",
-        "name": "Lykam",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "class": "Mago",
-        "name": "Magodelmal",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Chamán",
-        "name": "Mariguaniel",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Guerrero",
-        "name": "Molioda",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Caballero de la Muerte",
-        "name": "Muerdenucas",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Cazador",
-        "name": "Nosequeponer",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Caballero de la Muerte",
         "name": "Osulivan",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Pipazon",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Sacerdote",
-        "name": "Pzycoqt",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Paladín",
-        "name": "Slaashh",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Snirh",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Solariana",
-        "rank": "Recluta"
-    },
-    {
-        "class": "Druida",
-        "name": "Toritodorito",
-        "rank": "Recluta"
-    },
-    {
+        "officerNote": "",
         "class": "Caballero de la Muerte",
-        "name": "Unholywoman",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
+        "name": "Renald",
+        "officerNote": "",
         "class": "Paladín",
-        "name": "Valiris",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "class": "Chamán",
-        "name": "Howlshade",
-        "rank": "Oficial"
-    },
-    {
-        "class": "Pícaro",
-        "name": "Ravenguard",
-        "rank": "Oficial"
-    },
-    {
-        "class": "Paladín",
         "name": "Voidhammer",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
         "rank": "Oficial"
     },
     {
+        "name": "Rimurukamado",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Smarty",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Ichigamix",
+        "officerNote": "",
         "class": "Guerrero",
-        "name": "Vorthrak",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Totooporto",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Nandoh",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Blackerk",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Tatow",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Aguila",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "Tank 5.3",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Akarman",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Alejandrojjd",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Arshock",
+        "officerNote": "",
+        "class": "Brujo",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Axive",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Cayacoa",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Deathclaw",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Duduss",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "pollo 5.4 tank oso en proceso 5",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Faisin",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Fracturadoor",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Gleamy",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "Elemental 5.4",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Golemdp",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Hanabata",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Jhonnycuro",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Kinimaroo",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Lalimonada",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "Paletera ",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Lykam",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Magodelmal",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Mariguaniel",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Molioda",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Muerdenucas",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Nosequeponer",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Palagabriel",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Pipazon",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Putifarra",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Pzycoqt",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Slaashh",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Smoktheweed",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Snirh",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Solariana",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Toritodorito",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Unholywoman",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Unpicarotrol",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Valiris",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Howlshade",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "",
         "rank": "Oficial"
     },
     {
-        "class": "Brujo",
+        "name": "Ravenguard",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "",
+        "rank": "Oficial"
+    },
+    {
+        "name": "Sargorath",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Oficial"
+    },
+    {
+        "name": "Vorthrak",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Oficial"
+    },
+    {
         "name": "Stormgrim",
+        "officerNote": "",
+        "class": "Brujo",
+        "publicNote": "",
         "rank": "Guild Master"
     }
 ]

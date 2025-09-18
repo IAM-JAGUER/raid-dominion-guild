@@ -1,6 +1,6 @@
 ---
 import "@fontsource-variable/jost";
-import PortalEffect from "../components/PortalEffect.astro";
+
 interface Props {
   title: string;
 }
@@ -68,14 +68,13 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body class="relative">
-    <PortalEffect />
     <div class="max-w-6xl px-8 mx-auto relative">
       <slot />
-      <div
-        style="position:absolute;"
-        class="bg-gradient-to-b from-.2% from-[rgba(255,255,255,.01)] from-15% to-[rgba(17,17,17,1)] w-100 h-40 inset-x-0 bottom-[0px] max-[420px]:bottom-[-60px] z-[-2]"
-      >
-      </div>
+    </div>
+    <div
+      style="position:absolute;"
+      class="bg-gradient-to-b from-.2% from-[rgba(255,255,255,.01)] from-15% to-[rgba(17,17,17,1)] w-[100vw] h-[100vh] inset-x-0 top-[0px] z-[-2]"
+    >
     </div>
   </body>
 </html>
@@ -93,6 +92,7 @@ const { title } = Astro.props;
       #111;
     overflow-x: hidden;
     background-size: 100vw 100vh;
+    /* background-attachment: fixed; */
     background-position: center top;
     animation: fadeIn 1.5s ease-in-out;
   }

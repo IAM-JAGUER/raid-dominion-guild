@@ -1,31 +1,28 @@
-<section class="flex flex-col justify-center items-center relative">  
+<section class="flex flex-col justify-center items-center relative">
   <!-- Título -->
-  <div class="relative mt-20 group text-center">  
-    <div class="relative px-6 py-2 pb-2 animate-fade-in-1">
+  <div class="relative group text-center">
+    <div class="relative mt-6 px-6 py-2 pb-2 animate-fade-in-1">
       <div class="relative mt-4 inline-block">
         <!-- Outline text -->
-        <span class="text-outline text-white/90 text-lg sm:text-xl font-bold uppercase tracking-widest font-['Arial_Black']">
-          <span class="relative inline-block">
-            Hermandad
-          </span>
-        </span>
-        <!-- Animated gradient overlay -->
-        <span class="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-100 bg-[length:200%_auto] animate-text-shimmer">
-          <span class="relative inline-block">
-            Hermandad
-            <span aria-hidden class="inline-block mx-2">&bull;</span>
-            Colmillo de Acero
-          </span>
+        <span
+          class="text-outline text-white/90 text-lg sm:text-xl font-bold uppercase tracking-widest font-['Arial_Black']"
+        >
+          <span class="relative inline-block"> Hermandad </span>
         </span>
       </div>
-      
+
       <!-- Permanent underline -->
-      <div class="absolute bottom-0 left-1/2 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent transform -translate-x-1/2"></div>
+      <div
+        class="absolute bottom-0 left-1/2 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent transform -translate-x-1/2"
+      >
+      </div>
     </div>
   </div>
-  
   <!-- Logo -->
-  <div class="relative mt-2 mb-16 animate-fade-in-1" style="animation-delay: 0.3s">
+  <div
+    class="relative mt-2 animate-fade-in-1"
+    style="animation-delay: 0.3s"
+  >
     <img
       src="gallery/lider.png"
       alt="Raid Dominion"
@@ -33,23 +30,34 @@
       height="auto"
     />
   </div>
+  
   <style>
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
-    
+
     .animate-fade-in-1 {
       opacity: 0;
       animation: fadeIn 1s ease-out forwards;
     }
-    
+
     @keyframes text-shimmer {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
-    
+
     .animate-text-shimmer {
       animation: text-shimmer 8s ease-in-out infinite;
     }

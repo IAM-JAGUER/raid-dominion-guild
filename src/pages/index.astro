@@ -1,6 +1,5 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import PortalEffect from '@/components/PortalEffect.astro';
 
 import GrandLogo from '@/sections/GrandLogo.astro';
 import CallToAction from '@/sections/CallToAction.astro';
@@ -11,17 +10,12 @@ import AboutCommunity from '@/sections/AboutCommunity.astro';
 import Footer from '@/sections/Footer.astro';
 ---
 
-<Layout title="Comunidad Colmillo de Acero - Addon World of Warcraft">
+<Layout title="Comunidad Colmillo de Acero - Hermandad World of Warcraft">
 	<main class="relative">
-		<!-- Efecto de humo (oculto inicialmente) -->
-		<div id="smoke-container" class="opacity-0 transition-opacity duration-1000 absolute bottom-0 w-full h-64 -z-20 overflow-hidden">
-			<PortalEffect />
-		</div>
-
 		<!-- Contenido principal -->
-		<div class="relative z-10">
+		<div class="relative">
 			<GrandLogo></GrandLogo>
-			<CallToAction class="opacity-0 animate-fade-in-2"></CallToAction>
+			<!-- <CallToAction class="opacity-0 animate-fade-in-2"></CallToAction> -->
 			<AboutCommunity></AboutCommunity>
 			<AboutAddon></AboutAddon>
 			<YoutubeBanner></YoutubeBanner>
