@@ -1,23 +1,23 @@
 [
     {
-        "name": "Sashu",
-        "officerNote": "",
-        "class": "Druida",
-        "publicNote": "pollo - futuro enchant ",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Longranger",
+        "name": "Paladinhc",
         "officerNote": "",
         "class": "Paladín",
         "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "name": "Mimarin",
+        "name": "Aguila",
         "officerNote": "",
-        "class": "Pícaro",
-        "publicNote": "",
+        "class": "Paladín",
+        "publicNote": "Tank 5.3",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Beido",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "heal 6.3 ingeniero",
         "rank": "Recluta"
     },
     {
@@ -28,8 +28,15 @@
         "rank": "Recluta"
     },
     {
-        "name": "Tiernis",
+        "name": "Solariana",
         "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Tiernis",
+        "officerNote": "ESPIRITU",
         "class": "Guerrero",
         "publicNote": "war dps 6.6k sastre y herrero ",
         "rank": "Recluta"
@@ -105,10 +112,17 @@
         "rank": "Recluta"
     },
     {
-        "name": "Aguila",
+        "name": "Sashu",
         "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "Tank 5.3",
+        "class": "Druida",
+        "publicNote": "pollo - futuro enchant ",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Actrizz",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
@@ -238,6 +252,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Longranger",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "pala heal 6k dps 5.8",
+        "rank": "Recluta"
+    },
+    {
         "name": "Lykam",
         "officerNote": "",
         "class": "Cazador",
@@ -259,6 +280,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Mimarin",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Muerdenucas",
         "officerNote": "",
         "class": "Caballero de la Muerte",
@@ -270,6 +298,20 @@
         "officerNote": "",
         "class": "Cazador",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Nypth",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Octriz",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "heal 6.2  pollo 5.8",
         "rank": "Recluta"
     },
     {
@@ -291,6 +333,13 @@
         "officerNote": "",
         "class": "Paladín",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Pliklin",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "low   alter de octriz",
         "rank": "Recluta"
     },
     {
@@ -323,13 +372,6 @@
     },
     {
         "name": "Snirh",
-        "officerNote": "",
-        "class": "Druida",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Solariana",
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
