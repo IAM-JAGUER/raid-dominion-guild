@@ -2,8 +2,8 @@
 import ImageComponent from "@/components/ImageComponent.astro";
 ---
 
-<section id="about_community" class="mt-4 max-w-7xl mx-auto">
-  <div class="max-w-4xl mx-auto">
+<section id="about_community" class="mt-4 w-full overflow-x-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
 <!-- Raid Schedule Card -->
 <div class="w-full">
@@ -100,7 +100,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
             </div>
             <div>
               <h4 class="font-semibold text-amber-300">Discord en Raids</h4>
-              <p class="text-gray-300 text-xs">Obligatorio para raids. Micrófono funcional y silencio cuando no hables.</p>
+              <p class="text-gray-300 text-xs">Obligatorio para raids. Micrófono funcional y silencio cuando no debas hablar.</p>
             </div>
           </div>
           
@@ -234,23 +234,49 @@ import ImageComponent from "@/components/ImageComponent.astro";
 
     
 
-    <div id="player-info" class="w-full max-w-6xl mx-auto text-white mt-4">
-      <div class="overflow-x-auto overflow-y-hidden rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-800/80">
-        <div class="min-w-max w-full">
-          <table id="player-table" class="min-w-full divide-y divide-amber-600/30">
-          <thead class="bg-gray-800/80">
-            <tr>
-              <th data-column="class" class="px-6 py-3 text-left text-xs font-medium text-amber-300 uppercase tracking-wider cursor-pointer">Clase</th>
-              <th data-column="rank" class="px-6 py-3 text-left text-xs font-medium text-amber-300 uppercase tracking-wider cursor-pointer">Rango</th>
-              <th data-column="name" class="px-6 py-3 text-left text-xs font-medium text-amber-300 uppercase tracking-wider cursor-pointer">Nombre</th>
-              <th data-column="publicNote" class="px-6 py-3 text-left text-xs font-medium text-amber-300 uppercase tracking-wider cursor-pointer">Función GS & Profesión</th>
+    <div id="player-info" class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-white mt-6">
+      <div class="overflow-x-auto rounded-xl bg-gray-900/70 backdrop-blur-sm border border-amber-600/30 shadow-lg hover:shadow-amber-500/20 transition-all duration-300">
+        <table id="player-table" class="w-full">
+          <thead class="bg-gradient-to-r from-amber-900/50 to-amber-800/30">
+            <tr class="text-sm font-medium">
+              <th data-column="class" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center">
+                  <span>Clase</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+              </th>
+              <th data-column="rank" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center">
+                  <span>Rango</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+              </th>
+              <th data-column="name" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center">
+                  <span>Nombre</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+              </th>
+              <th data-column="publicNote" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center">
+                  <span>Spec & Profesión</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+              </th>
             </tr>
           </thead>
-          <tbody class="bg-gray-900/50 divide-y divide-amber-600/20">
+          <tbody class="divide-y divide-amber-600/10">
             <!-- Las filas se agregarán aquí dinámicamente -->
           </tbody>
         </table>
-        </div>
       </div>
     </div>
 
@@ -258,13 +284,37 @@ import ImageComponent from "@/components/ImageComponent.astro";
       <!-- Los controles de paginación se insertarán aquí -->
     </div>
 
-    <div id="indicators" class="bg-gray-900/70 border border-amber-600/30 rounded-xl p-3 mt-6 max-w-4xl mx-auto backdrop-blur-sm">
-      <!-- Indicadores de la cantidad total de jugadores, por clase y por rango -->
+    <div id="indicators" class="bg-gray-900/70 border border-amber-600/30 rounded-xl p-4 sm:p-6 mt-6 w-full max-w-6xl mx-auto backdrop-blur-sm">
+      <h2 class="text-xl font-bold text-amber-300 mb-6 text-center uppercase tracking-wider">Distribución de la Hermandad</h2>
+      
+      <!-- Distribución por Clases -->
+      <div class="mb-8">
+        <h3 class="text-sm font-semibold text-amber-300 mb-4 uppercase tracking-wider">Clases</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4" id="class-distribution">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+      
+      <!-- Distribución por Rangos -->
+      <div class="mb-8 pt-6 border-t border-amber-600/20">
+        <h3 class="text-sm font-semibold text-amber-300 mb-4 uppercase tracking-wider">Rangos</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4" id="rank-distribution">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+      
+      <!-- Reconocimientos de la Hermandad -->
+      <div class="pt-6 border-t border-amber-600/20">
+        <h3 class="text-sm font-semibold text-amber-300 mb-4 uppercase tracking-wider">Reconocimientos</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4" id="achievements">
+          <!-- Se llenará dinámicamente con los reconocimientos -->
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Sección de Hitos Destacados -->
-  <div class="w-full max-w-6xl mx-auto mt-16 mb-12">
+  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-12">
     <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-6 text-center">
       Hitos de la Hermandad
     </h2>
@@ -282,10 +332,15 @@ import ImageComponent from "@/components/ImageComponent.astro";
 <!-- Modal de Reconocimiento Oficial -->
 <div id="officerNoteModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4">
   <div class="bg-gradient-to-br from-amber-900 via-amber-800 to-amber-900 rounded-xl border-2 border-amber-500 p-6 max-w-md w-full mx-4 relative overflow-hidden">
-    <!-- Botón de cierre -->
-    <button id="closeModalButton" class="absolute top-4 right-4 text-amber-300 hover:text-white transition-colors z-10">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    <!-- Botón de cierre extra grande y fácil de hacer clic -->
+    <button 
+      id="closeModalButton" 
+      aria-label="Cerrar modal"
+      title="Cerrar"
+      class="absolute -top-3 -right-3 w-16 h-16 bg-amber-600/80 hover:bg-amber-500 text-white rounded-full flex items-center justify-center shadow-lg z-50 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
     
@@ -615,7 +670,105 @@ import ImageComponent from "@/components/ImageComponent.astro";
   }
   
   // Inicializar cuando el DOM esté listo
+  // Función para manejar los filtros
+  function setupFilters() {
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const filterBtn = target.closest('.filter-btn') as HTMLElement;
+      if (!filterBtn) return;
+      
+      e.preventDefault();
+      
+      const filterType = filterBtn.getAttribute('data-filter');
+      const filterValue = filterBtn.getAttribute('data-value');
+      if (!filterType || !filterValue) return;
+      
+      // Alternar filtro
+      if (filterBtn.classList.contains('active')) {
+        filterBtn.classList.remove('active');
+        filterBtn.classList.remove('bg-amber-700/50', 'border-amber-500', 'text-white');
+        filterBtn.classList.add('border-gray-600', 'text-gray-300');
+      } else {
+        filterBtn.classList.add('active');
+        filterBtn.classList.remove('border-gray-600', 'text-gray-300');
+        filterBtn.classList.add('bg-amber-700/50', 'border-amber-500', 'text-white');
+      }
+      
+      // Aplicar filtros
+      applyFilters();
+    });
+    
+    // Configurar clics en los contadores principales
+    const mainCounters = document.querySelectorAll('[data-filter]');
+    mainCounters.forEach(counter => {
+      counter.addEventListener('click', (e) => {
+        e.preventDefault();
+        const filterType = counter.getAttribute('data-filter');
+        if (!filterType) return;
+        
+        // Limpiar otros filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.remove('active', 'bg-amber-700/50', 'border-amber-500', 'text-white');
+          btn.classList.add('border-gray-600', 'text-gray-300');
+        });
+        
+        // Aplicar filtro específico
+        if (filterType === 'officer') {
+          filteredPlayers = players.filter(p => p.rank?.toLowerCase().includes('oficial'));
+        } else if (filterType === 'spirit') {
+          filteredPlayers = players.filter(p => 
+            p.publicNote?.toLowerCase().includes('espíritu') || 
+            p.publicNote?.toLowerCase().includes('espiritu')
+          );
+        } else {
+          filteredPlayers = [...players];
+        }
+        
+        currentPage = 1;
+        renderTable();
+      });
+    });
+  }
+  
+  function applyFilters() {
+    const activeFilters = {
+      class: [] as string[],
+      rank: [] as string[]
+    };
+    
+    // Obtener filtros activos
+    document.querySelectorAll('.filter-btn.active').forEach(btn => {
+      const type = btn.getAttribute('data-filter');
+      const value = btn.getAttribute('data-value');
+      if (type && value) {
+        activeFilters[type as keyof typeof activeFilters]?.push(value);
+      }
+    });
+    
+    // Aplicar filtros
+    filteredPlayers = players.filter(player => {
+      const classMatch = activeFilters.class.length === 0 || activeFilters.class.includes(player.class);
+      const rankMatch = activeFilters.rank.length === 0 || activeFilters.rank.includes(player.rank);
+      return classMatch && rankMatch;
+    });
+    
+    currentPage = 1;
+    renderTable();
+  }
+  
+  function updateActiveFilters() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.add('border-gray-600', 'text-gray-300', 'hover:border-amber-500/50', 'hover:text-amber-200');
+      if (btn.classList.contains('active')) {
+        btn.classList.add('bg-amber-700/50', 'border-amber-500', 'text-white');
+        btn.classList.remove('border-gray-600', 'text-gray-300');
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    // Configurar filtros
+    setupFilters();
     // Renderizar hitos
     renderMilestones();
     
@@ -656,65 +809,95 @@ import ImageComponent from "@/components/ImageComponent.astro";
       const end = start + playersPerPage;
       const paginatedPlayers = sortedPlayers.slice(start, end);
 
-      paginatedPlayers.forEach((player, index) => {
+      paginatedPlayers.forEach((player) => {
         const row = document.createElement("tr");
-        row.className = index % 2 === 0 ? "bg-gray-900" : "bg-gray-700";
+        row.className = "group hover:bg-amber-900/20 transition-colors duration-200 border-b border-amber-900/20 last:border-0";
         
-        // Crear la celda del nombre con el botón de reconocimiento
+        // Celda de Clase
+        const classCell = document.createElement("td");
+        classCell.className = "px-4 py-3 whitespace-nowrap";
+        classCell.innerHTML = `
+          <div class="flex items-center">
+            <img class="w-6 h-6 rounded-sm object-cover border border-amber-600/30" 
+                 src="gallery/class_${player.class}.jpg" 
+                 alt="${player.class}"
+                 title="${player.class}">
+            <span class="ml-2 text-sm font-medium text-gray-200 hidden sm:inline">${player.class}</span>
+          </div>
+        `;
+        
+        // Celda de Rango
+        const rankCell = document.createElement("td");
+        rankCell.className = "px-4 py-3 whitespace-nowrap";
+        rankCell.innerHTML = `
+          <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-amber-900/50 text-amber-200 border border-amber-700/50">
+            ${player.rank}
+          </span>
+        `;
+        
+        // Celda de Nombre
         const nameCell = document.createElement("td");
-        nameCell.className = "text-white text-left truncate max-w-[200px] flex items-center";
-        nameCell.title = player.name;
+        nameCell.className = "px-4 py-3 whitespace-nowrap";
+        
+        const nameContainer = document.createElement("div");
+        nameContainer.className = "flex items-center";
         
         const nameSpan = document.createElement("span");
+        nameSpan.className = "text-sm font-medium text-white group-hover:text-amber-100 transition-colors";
         nameSpan.textContent = player.name;
         
-        nameCell.appendChild(nameSpan);
+        nameContainer.appendChild(nameSpan);
         
-        // Agregar botón de reconocimiento si hay una nota de oficial
+        // Botón de reconocimiento si hay nota de oficial
         if (player.officerNote) {
           const button = document.createElement("button");
-          button.className = "ml-2 text-amber-400 hover:text-yellow-300 transition-colors";
+          button.className = "ml-2 text-amber-400 hover:text-yellow-300 transition-colors transform hover:scale-110";
           button.title = "Ver reconocimiento oficial";
           button.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
           `;
           
           button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar que el clic se propague a la fila
+            e.stopPropagation();
             showOfficerNote(player.officerNote || '', player.name, player.rank);
           });
           
-          nameCell.appendChild(button);
+          nameContainer.appendChild(button);
         }
         
-        // Crear la fila completa
-        row.innerHTML = `
-          <td class="text-white flex items-center">
-            <img class="max-w-[25px] drop-shadow-4xl px-1 dsm:pt-1 sm:mx-0 dsm:mx-auto sm:pb-1" 
-                 src="gallery/class_${player.class}.jpg" 
-                 alt="${player.class}">
-            <span class="sm:inline hidden pr-4">${player.class}</span>
-          </td>
-          <td class="text-white text-left">${player.rank}</td>
-        `;
+        nameCell.appendChild(nameContainer);
         
-        // Agregar la celda del nombre que ya creamos
-        row.appendChild(nameCell);
-        
-        // Agregar celda de nota pública
+        // Celda de Especificación y Profesión
         const noteCell = document.createElement("td");
-        noteCell.className = "text-white text-left px-2";
-        noteCell.title = player.publicNote || '';
-        noteCell.textContent = player.publicNote || '';
+        noteCell.className = "px-4 py-3";
+        
+        if (player.publicNote) {
+          const noteParts = player.publicNote.split('|').map(part => part.trim());
+          noteCell.innerHTML = `
+            <div class="flex flex-wrap gap-1.5">
+              ${noteParts.map(part => 
+                `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-900/30 text-amber-100 border border-amber-700/50">
+                  ${part}
+                </span>`
+              ).join('')}
+            </div>
+          `;
+        } else {
+          noteCell.innerHTML = '<span class="text-gray-400 text-sm">-</span>';
+        }
+        
+        // Ensamblar la fila
+        row.appendChild(classCell);
+        row.appendChild(rankCell);
+        row.appendChild(nameCell);
         row.appendChild(noteCell);
         
         playerTableBody.appendChild(row);
       });
 
       updatePagination();
-      updateIndicators();
     }
 
     function updatePagination() {
@@ -766,41 +949,244 @@ import ImageComponent from "@/components/ImageComponent.astro";
 
     function updateIndicators() {
       if (!indicators) return;
-      const totalPlayers = filteredPlayers.length;
-      const classes = [...new Set(filteredPlayers.map((player) => player.class))];
-      const ranks = [...new Set(filteredPlayers.map((player) => player.rank))];
-
-      const totalByClass = classes.map((c) => ({
-        class: c,
-        count: filteredPlayers.filter((player) => player.class === c).length,
-      }));
-
-      const totalByRank = ranks.map((r) => ({
-        rank: r,
-        count: filteredPlayers.filter((player) => player.rank === r).length,
-      }));
-
-      indicators.innerHTML = `
-        <div class="flex flex-wrap items-center justify-center gap-2 text-sm">
-          <div class="bg-gray-800/80 px-3 py-1.5 rounded-lg border border-amber-600/30 text-amber-300 font-medium">
-            Total: <span class="text-yellow-400 font-bold">${totalPlayers}</span>
+      
+      // Usar TODOS los jugadores, no los filtrados
+      const totalPlayers = players.length;
+      const classes = [...new Set(players.map((player) => player.class))];
+      const ranks = [...new Set(players.map((player) => player.rank))];
+      
+      // Contar miembros por categoría
+      const officers = players.filter(p => p.rank?.toLowerCase().includes('oficial')).length;
+      const spirits = players.filter(p => {
+        const note = p.publicNote?.toLowerCase() || '';
+        return note.includes('espíritu de la hermandad') || note.includes('espiritu de la hermandad');
+      }).length;
+      
+      // Actualizar distribución de clases
+      const classDistribution = document.getElementById('class-distribution');
+      if (classDistribution) {
+        const classCounts: Record<string, number> = {};
+        players.forEach(player => {
+          classCounts[player.class] = (classCounts[player.class] || 0) + 1;
+        });
+        
+        // Ordenar clases por cantidad (de mayor a menor)
+        const sortedClasses = Object.entries(classCounts)
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+        
+        classDistribution.innerHTML = sortedClasses.map(([className, count]) => `
+          <div class="bg-amber-900/30 rounded-lg p-3 border border-amber-700/30 hover:border-amber-500/50 transition-colors">
+            <div class="flex items-center justify-center mb-2">
+              <img class="w-8 h-8 rounded-sm object-cover border border-amber-600/30" 
+                   src="gallery/class_${className}.jpg" 
+                   alt="${className}"
+                   title="${className}">
+            </div>
+            <div class="text-2xl font-bold text-amber-400 text-center">${count}</div>
+            <div class="text-xs font-medium text-amber-200 text-center mt-1">${className}</div>
+            <div class="h-1 bg-amber-900/50 rounded-full mt-2 overflow-hidden">
+              <div class="h-full bg-amber-500/80" style="width: ${(count / totalPlayers * 100).toFixed(0)}%"></div>
+            </div>
           </div>
-          ${totalByClass
-            .map((c) => `
-              <div class="bg-gray-800/80 px-2.5 py-1 rounded-lg border border-amber-600/30 flex items-center">
-                <img src="gallery/class_${c.class}.jpg" alt="${c.class}" class="w-4 h-4 mr-1.5 rounded-sm" />
-                <span class="text-amber-100">${c.class}:</span>
-                <span class="ml-1 font-semibold text-yellow-400">${c.count}</span>
+        `).join('');
+      }
+      
+      // Actualizar distribución de rangos
+      const rankDistribution = document.getElementById('rank-distribution');
+      if (rankDistribution) {
+        const rankCounts: Record<string, number> = {};
+        players.forEach(player => {
+          rankCounts[player.rank] = (rankCounts[player.rank] || 0) + 1;
+        });
+        
+        // Ordenar rangos por jerarquía definida
+        const rankOrder = [
+          'Guild Master',
+          'Oficial',
+          'Comandante',
+          'Guerrero Elite',
+          'Recluta'
+        ];
+        
+        const sortedRanks = Object.entries(rankCounts)
+          .sort((a, b) => {
+            const indexA = rankOrder.indexOf(a[0]);
+            const indexB = rankOrder.indexOf(b[0]);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a[0].localeCompare(b[0]);
+          });
+        
+        rankDistribution.innerHTML = sortedRanks.map(([rank, count]) => `
+          <div class="bg-amber-900/30 rounded-lg p-3 border border-amber-700/30 hover:border-amber-500/50 transition-colors">
+            <div class="text-2xl font-bold text-amber-400 text-center">${count}</div>
+            <div class="text-xs font-medium text-amber-200 text-center mt-1">${rank}</div>
+            <div class="h-1 bg-amber-900/50 rounded-full mt-2 overflow-hidden">
+              <div class="h-full bg-amber-500/80" style="width: ${(count / totalPlayers * 100).toFixed(0)}%"></div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Actualizar contadores principales
+      const totalMembersEl = document.getElementById('total-members');
+      const totalOfficersEl = document.getElementById('total-officers');
+      const totalProgressEl = document.getElementById('total-progress');
+      const officerProgressEl = document.getElementById('officer-progress');
+      
+      if (totalMembersEl) totalMembersEl.textContent = totalPlayers.toString();
+      if (totalOfficersEl) totalOfficersEl.textContent = officers.toString();
+      if (officerProgressEl && totalPlayers > 0) {
+        const officerPercentage = (officers / totalPlayers) * 100;
+        officerProgressEl.style.width = `${officerPercentage}%`;
+      }
+      
+      // Actualizar filtros de clase
+      const classFilters = document.getElementById('class-filters');
+      if (classFilters) {
+        classFilters.innerHTML = classes.map(c => {
+          const count = filteredPlayers.filter(p => p.class === c).length;
+          return `
+            <button class="filter-btn px-3 py-1.5 text-xs rounded-full border border-gray-600 text-gray-300 hover:border-amber-500/50 hover:text-amber-200 transition-colors" 
+                    data-filter="class" 
+                    data-value="${c}"
+                    title="Filtrar por ${c}">
+              ${c} <span class="bg-amber-900/50 text-amber-200 rounded-full px-1.5 py-0.5 ml-1 text-xs">${count}</span>
+            </button>
+          `;
+        }).join('');
+      }
+      
+      // Actualizar filtros de rango
+      const rankFilters = document.getElementById('rank-filters');
+      if (rankFilters) {
+        rankFilters.innerHTML = ranks.map(r => {
+          const count = filteredPlayers.filter(p => p.rank === r).length;
+          return `
+            <button class="filter-btn px-3 py-1.5 text-xs rounded-full border border-gray-600 text-gray-300 hover:border-amber-500/50 hover:text-amber-200 transition-colors" 
+                    data-filter="rank" 
+                    data-value="${r}"
+                    title="Filtrar por ${r}">
+              ${r} <span class="bg-amber-900/50 text-amber-200 rounded-full px-1.5 py-0.5 ml-1 text-xs">${count}</span>
+            </button>
+          `;
+        }).join('');
+      }
+      
+      // Actualizar logros
+      const achievementsEl = document.getElementById('achievements');
+      if (achievementsEl) {
+        // Contar reconocimientos (insensible a mayúsculas/minúsculas)
+        // Buscamos en officerNote que es donde están los reconocimientos
+        const dominionCount = players.filter(p => {
+          const note = p.officerNote?.toLowerCase() || '';
+          return note.includes('dominion');
+        }).length;
+        
+        const guardianCount = players.filter(p => {
+          const note = p.officerNote?.toLowerCase() || '';
+          return note.includes('guardián') || note.includes('guardian');
+        }).length;
+        
+        const cazadorCount = players.filter(p => {
+          const note = p.officerNote?.toLowerCase() || '';
+          return note.includes('cazador');
+        }).length;
+        
+        const sabioCount = players.filter(p => {
+          const note = p.officerNote?.toLowerCase() || '';
+          return note.includes('sabio');
+        }).length;
+        
+        const espirituCount = players.filter(p => {
+          const note = p.officerNote?.toLowerCase() || '';
+          return note.includes('espíritu') || note.includes('espiritu');
+        }).length;
+        
+        const achievements = [
+          { 
+            title: 'Dominion', 
+            subtitle: 'de la Hermandad',
+            icon: '👑',
+            count: dominionCount,
+            color: 'text-yellow-400',
+            bg: 'bg-gradient-to-br from-yellow-900/30 to-amber-900/20',
+            border: 'border-yellow-600/30',
+            iconBg: 'from-yellow-600 to-amber-500'
+          },
+          { 
+            title: 'Guardián', 
+            subtitle: 'de la Hermandad',
+            icon: '🛡️',
+            count: guardianCount,
+            color: 'text-blue-400',
+            bg: 'bg-gradient-to-br from-blue-900/30 to-indigo-900/20',
+            border: 'border-blue-600/30',
+            iconBg: 'from-blue-600 to-indigo-500'
+          },
+          { 
+            title: 'Cazador', 
+            subtitle: 'de la Hermandad',
+            icon: '🏹',
+            count: cazadorCount,
+            color: 'text-green-400',
+            bg: 'bg-gradient-to-br from-green-900/30 to-emerald-900/20',
+            border: 'border-green-600/30',
+            iconBg: 'from-green-600 to-emerald-500'
+          },
+          { 
+            title: 'Sabio', 
+            subtitle: 'de la Hermandad',
+            icon: '📚',
+            count: sabioCount,
+            color: 'text-purple-400',
+            bg: 'bg-gradient-to-br from-purple-900/30 to-violet-900/20',
+            border: 'border-purple-600/30',
+            iconBg: 'from-purple-600 to-violet-500'
+          },
+          { 
+            title: 'Espíritu', 
+            subtitle: 'de la Hermandad',
+            icon: '✨',
+            count: espirituCount,
+            color: 'text-pink-400',
+            bg: 'bg-gradient-to-br from-pink-900/30 to-rose-900/20',
+            border: 'border-pink-600/30',
+            iconBg: 'from-pink-600 to-rose-500'
+          }
+        ];
+        
+        achievementsEl.innerHTML = achievements.map(ach => `
+          <div class="relative overflow-hidden rounded-xl border ${ach.border} ${ach.bg} group hover:shadow-lg transition-all duration-300">
+            <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-gradient-to-br ${ach.iconBg} opacity-20 transform group-hover:scale-110 transition-transform"></div>
+            <div class="relative z-10 p-4">
+              <div class="w-12 h-12 rounded-lg bg-gradient-to-br ${ach.iconBg} flex items-center justify-center text-white text-2xl mb-3">
+                ${ach.icon}
               </div>
-            `).join('')}
-          ${totalByRank
-            .map((r) => `
-              <div class="bg-gray-800/80 px-2.5 py-1 rounded-lg border border-amber-600/30 text-amber-100">
-                ${r.rank}: <span class="font-semibold text-yellow-400">${r.count}</span>
+              <div class="text-sm font-medium text-gray-300">${ach.title}</div>
+              <div class="text-xs text-gray-400 mb-2">${ach.subtitle}</div>
+              <div class="text-2xl font-bold ${ach.color}">${ach.count}</div>
+              <div class="h-1 bg-amber-900/30 rounded-full mt-2 overflow-hidden">
+                <div class="h-full ${ach.color.replace('text-', 'bg-')} opacity-70" style="width: ${(totalPlayers > 0 ? (ach.count / totalPlayers * 100) : 0).toFixed(0)}%"></div>
               </div>
-            `).join('')}
-        </div>
-      `;
+            </div>
+          </div>
+        `).join('');
+        
+        // Mostrar en consola para depuración
+        console.log('Reconocimientos contados:', {
+          dominion: dominionCount,
+          guardian: guardianCount,
+          cazador: cazadorCount,
+          sabio: sabioCount,
+          espiritu: espirituCount,
+          totalPlayers: totalPlayers
+        });
+      }
+      
+      // Aplicar estilos a los botones de filtro activos
+      updateActiveFilters();
     }
 
     function filterPlayers() {
@@ -892,18 +1278,23 @@ import ImageComponent from "@/components/ImageComponent.astro";
       .then((response) => response.json())
       .then((data: Player[]) => {
         players = data;
-        filteredPlayers = players;
+        filteredPlayers = [...players];
         updateSelectOptions();
+        
+        // Actualizar primero los indicadores con TODOS los jugadores
+        updateIndicators();
+        
+        // Luego renderizar la tabla con los jugadores filtrados
         renderTable();
         
-        // Update member count with animation
+        // Actualizar contador de miembros con animación
         const playerCount = players.length;
         const memberCountElement = document.getElementById("member-count");
         
         if (memberCountElement) {
-          // Animate the counter
+          // Animar el contador
           let current = 0;
-          const duration = 2000; // 2 seconds
+          const duration = 2000; // 2 segundos
           const increment = playerCount / (duration / 16); // 60fps
           
           const updateCount = () => {
