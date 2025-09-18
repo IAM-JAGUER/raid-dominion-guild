@@ -2,7 +2,7 @@
 import ImageComponent from "@/components/ImageComponent.astro";
 ---
 
-<section id="about_community" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+<section id="about_community" class="mt-4 max-w-7xl mx-auto">
   <div class="max-w-4xl mx-auto">
 
 <!-- Raid Schedule Card -->
@@ -87,7 +87,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
             </div>
             <div>
               <h4 class="font-semibold text-amber-300">Notas Públicas</h4>
-              <p class="text-gray-300 text-xs">Mantén actualizada tu nota con tu rol principal (DPS/Heal/Tank) y profesiones.</p>
+              <p class="text-gray-300 text-xs">Mantén actualizada tu nota con tu rol principal (DPS/Heal/Tank) GS y profesiones.</p>
             </div>
           </div>
           
@@ -235,8 +235,9 @@ import ImageComponent from "@/components/ImageComponent.astro";
     
 
     <div id="player-info" class="w-full max-w-6xl mx-auto text-white mt-4">
-      <div class="overflow-hidden rounded-xl border border-amber-600/30 bg-gradient-to-br from-gray-900/80 to-gray-800/80">
-        <table id="player-table" class="min-w-full divide-y divide-amber-600/30">
+      <div class="overflow-x-auto overflow-y-hidden rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-800/80">
+        <div class="min-w-max w-full">
+          <table id="player-table" class="min-w-full divide-y divide-amber-600/30">
           <thead class="bg-gray-800/80">
             <tr>
               <th data-column="class" class="px-6 py-3 text-left text-xs font-medium text-amber-300 uppercase tracking-wider cursor-pointer">Clase</th>
@@ -249,6 +250,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
             <!-- Las filas se agregarán aquí dinámicamente -->
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -270,7 +272,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
       Reconocimientos otorgados a los miembros que han demostrado un compromiso excepcional con la Hermandad.
     </p>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 px-4" id="milestonesContainer">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6" id="milestonesContainer">
       <!-- Los hitos se cargarán dinámicamente con JavaScript -->
     </div>
   </div>
@@ -436,9 +438,9 @@ import ImageComponent from "@/components/ImageComponent.astro";
 
     container.innerHTML = RECOGNITIONS.map(recognition => `
       <div class="bg-gradient-to-br from-amber-900/50 to-amber-800/30 border border-amber-700/30 rounded-xl p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-amber-500/10">
-        <div class="text-4xl mb-3">${recognition.icon}</div>
-        <h3 class="text-xl font-bold text-amber-300 mb-2">${recognition.title}</h3>
-        <p class="text-sm text-amber-100/80">${recognition.description}</p>
+        <div class="text-4xl text-center mb-3">${recognition.icon}</div>
+        <h3 class="text-xl font-bold text-amber-300 mb-2 text-center">${recognition.title}</h3>
+        <p class="text-sm text-amber-100/80 text-center">${recognition.description}</p>
         </div>
       </div>
     `).join('');
