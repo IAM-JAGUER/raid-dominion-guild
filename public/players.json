@@ -1,43 +1,22 @@
 [
     {
-        "name": "Orcrok",
+        "name": "Sashu",
         "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "",
+        "class": "Druida",
+        "publicNote": "pollo - futuro enchant ",
         "rank": "Recluta"
     },
     {
-        "name": "Barsacer",
-        "officerNote": "",
-        "class": "Sacerdote",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Glowstorm",
+        "name": "Longranger",
         "officerNote": "",
         "class": "Paladín",
-        "publicNote": "Heler 5.7",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Hannibaldk",
-        "officerNote": "",
-        "class": "Caballero de la Muerte",
         "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "name": "Hunterpipa",
+        "name": "Mimarin",
         "officerNote": "",
-        "class": "Cazador",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Osulivan",
-        "officerNote": "",
-        "class": "Caballero de la Muerte",
+        "class": "Pícaro",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -49,11 +28,25 @@
         "rank": "Recluta"
     },
     {
-        "name": "Voidhammer",
+        "name": "Tiernis",
         "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "",
+        "class": "Guerrero",
+        "publicNote": "war dps 6.6k sastre y herrero ",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Sargorath",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "heal 5.9, alquimia herbo",
         "rank": "Oficial"
+    },
+    {
+        "name": "Stormgrim",
+        "officerNote": "",
+        "class": "Brujo",
+        "publicNote": "afli 5.9, sastre enchant",
+        "rank": "Guild Master"
     },
     {
         "name": "Rimurukamado",
@@ -87,6 +80,13 @@
         "name": "Nandoh",
         "officerNote": "",
         "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Orcrok",
+        "officerNote": "",
+        "class": "Guerrero",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -140,6 +140,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Barsacer",
+        "officerNote": "",
+        "class": "Sacerdote",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Cayacoa",
         "officerNote": "",
         "class": "Cazador",
@@ -182,6 +189,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Glowstorm",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "Heler 5.7",
+        "rank": "Recluta"
+    },
+    {
         "name": "Golemdp",
         "officerNote": "",
         "class": "Druida",
@@ -192,6 +206,13 @@
         "name": "Hanabata",
         "officerNote": "",
         "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Hunterpipa",
+        "officerNote": "",
+        "class": "Cazador",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -238,13 +259,6 @@
         "rank": "Recluta"
     },
     {
-        "name": "Molioda",
-        "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
         "name": "Muerdenucas",
         "officerNote": "",
         "class": "Caballero de la Muerte",
@@ -255,6 +269,13 @@
         "name": "Nosequeponer",
         "officerNote": "",
         "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Osulivan",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -343,38 +364,38 @@
         "rank": "Recluta"
     },
     {
+        "name": "Velfor",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "Mi gs es de 5.2 ",
+        "rank": "Recluta"
+    },
+    {
         "name": "Howlshade",
         "officerNote": "",
         "class": "Chamán",
-        "publicNote": "",
+        "publicNote": "heal 5.7, escriba enchant",
         "rank": "Oficial"
     },
     {
         "name": "Ravenguard",
         "officerNote": "",
         "class": "Pícaro",
-        "publicNote": "",
+        "publicNote": "combate 5.8, peletero desuello",
         "rank": "Oficial"
     },
     {
-        "name": "Sargorath",
+        "name": "Voidhammer",
         "officerNote": "",
-        "class": "Druida",
-        "publicNote": "",
+        "class": "Paladín",
+        "publicNote": "retri 5.8, joyero minero",
         "rank": "Oficial"
     },
     {
         "name": "Vorthrak",
         "officerNote": "",
         "class": "Guerrero",
-        "publicNote": "",
+        "publicNote": "fury 5.9, herrero enchant",
         "rank": "Oficial"
-    },
-    {
-        "name": "Stormgrim",
-        "officerNote": "DOMINION GUARDIAN CAZADOR SABIO ESPIRITU",
-        "class": "Brujo",
-        "publicNote": "",
-        "rank": "Guild Master"
     }
 ]
