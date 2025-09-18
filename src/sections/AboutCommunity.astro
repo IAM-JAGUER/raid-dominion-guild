@@ -192,7 +192,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
       </h2>
       <div class="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-600 mx-auto my-3 rounded-full"></div>
       <p class="text-gray-300 max-w-2xl mx-auto">
-        Filtra por nombre, clase o rango para encontrar a tus compañeros de manada.
+        Filtra por nombre, clase, rango o reconocimiento para encontrar a tus compañeros de la hermandad.
       </p>
     </div>
     <div class="flex flex-wrap mt-6 space-y-4">
@@ -214,14 +214,14 @@ import ImageComponent from "@/components/ImageComponent.astro";
 
       <div class="flex w-full flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4 max-w-2xl mx-auto">
         <div class="w-full sm:w-1/3">
-          <label class="block text-amber-300 text-sm font-medium mb-1">Filtrar por Rango:</label>
+          <label class="block text-amber-300 text-sm font-medium mb-1">Rango o Reconocimiento:</label>
           <select id="rank-filter" class="w-full px-4 py-2 bg-gray-800/80 border border-amber-600/30 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
             <option value="">Todos los rangos</option>
             <option value="RECONOCIMIENTO">Reconocimiento Oficial</option>
           </select>
         </div>
         <div class="w-full sm:w-1/2">
-          <label class="block text-amber-300 text-sm font-medium mb-1">Filtrar por Clase:</label>
+          <label class="block text-amber-300 text-sm font-medium mb-1">Clase:</label>
           <select
             id="class-filter"
             class="w-full px-4 py-2 bg-gray-800/80 border border-amber-600/30 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -306,10 +306,13 @@ import ImageComponent from "@/components/ImageComponent.astro";
         ¡Reconocimiento Oficial!
       </h3>
       
-      <!-- Nombre del jugador -->
-      <div class="mb-4">
-        <p class="text-amber-200 text-sm">Para:</p>
-        <p id="playerName" class="text-xl font-semibold text-white"></p>
+      <!-- Nombre y rango del jugador -->
+      <div class="mb-4 text-center">
+        <p class="text-amber-200 text-sm">Para</p>
+        <p id="playerName" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-yellow-400"></p>
+        <div id="playerRank" class="inline-block mt-1 px-3 py-1 text-xs font-medium rounded-full bg-amber-900/50 text-amber-200 border border-amber-700/50">
+          <!-- El rango se llenará dinámicamente -->
+        </div>
       </div>
       
       <!-- Contenido del reconocimiento -->
@@ -351,10 +354,22 @@ import ImageComponent from "@/components/ImageComponent.astro";
   }
 
   // Definir la estructura de reconocimientos
+  // Función para obtener el ícono según el rango
+  function getRankIcon(rank: string): string {
+    const rankIcons: Record<string, string> = {
+      'Guild Master': '👑',
+      'Oficial': '⚔️',
+      'Comandante': '🎖️',
+      'Guerrero Elite': '🛡️',
+      'Recluta': '🔰'
+    };
+    return rankIcons[rank] || '🔸';
+  }
+
   const RECOGNITIONS: Recognition[] = [
     {
       id: 'dominion',
-      title: 'Dominion del León',
+      title: 'Dominion de la Hermandad',
       keyword: 'DOMINION',
       icon: '👑',
       color: 'from-amber-400 to-yellow-500',
@@ -362,7 +377,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
     },
     {
       id: 'guardian',
-      title: 'Guardián de la Manada',
+      title: 'Guardián de la Hermandad',
       keyword: 'GUARDIAN',
       icon: '🛡️',
       color: 'from-blue-400 to-cyan-500',
@@ -370,7 +385,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
     },
     {
       id: 'cazador',
-      title: 'Cazador de Trofeos',
+      title: 'Cazador de la Hermandad',
       keyword: 'CAZADOR',
       icon: '🏹',
       color: 'from-red-400 to-orange-500',
@@ -378,7 +393,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
     },
     {
       id: 'sabio',
-      title: 'Sabio de la Manada',
+      title: 'Sabio de la Hermandad',
       keyword: 'SABIO',
       icon: '📚',
       color: 'from-purple-400 to-indigo-500',
@@ -386,7 +401,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
     },
     {
       id: 'espiritu',
-      title: 'Espíritu de la Manada',
+      title: 'Espíritu de la Hermandad',
       keyword: 'ESPIRITU',
       icon: '✨',
       color: 'from-green-400 to-emerald-500',
@@ -453,7 +468,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
   }
 
   // Función para mostrar la nota del oficial con reconocimientos
-  function showOfficerNote(note: string, playerName: string) {
+  function showOfficerNote(note: string, playerName: string, playerRank?: string) {
     // Obtener elementos del DOM
     const modal = document.getElementById('officerNoteModal');
     const playerNameElement = document.getElementById('playerName');
@@ -470,6 +485,15 @@ import ImageComponent from "@/components/ImageComponent.astro";
       // Actualizar el contenido del modal
       playerNameElement.textContent = playerName || 'Jugador';
       officerNoteContent.textContent = note || 'Sin nota oficial';
+      
+      // Actualizar el rango del jugador
+      const playerRankElement = document.getElementById('playerRank');
+      if (playerRankElement) {
+        const rankText = playerRank || 'Recluta';
+        const rankIcon = getRankIcon(rankText);
+        playerRankElement.innerHTML = `${rankIcon} ${rankText}`;
+        playerRankElement.className = 'inline-flex items-center gap-1.5 mt-1 px-3 py-1 text-xs font-medium rounded-full bg-amber-900/50 text-amber-200 border border-amber-700/50';
+      }
       
       // Obtener reconocimientos de la nota
       const recognitions = getPlayerRecognitions(note);
@@ -658,8 +682,8 @@ import ImageComponent from "@/components/ImageComponent.astro";
           `;
           
           button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            showOfficerNote(player.officerNote || '', player.name);
+            e.stopPropagation(); // Evitar que el clic se propague a la fila
+            showOfficerNote(player.officerNote || '', player.name, player.rank);
           });
           
           nameCell.appendChild(button);
@@ -807,6 +831,7 @@ import ImageComponent from "@/components/ImageComponent.astro";
       const classes: Record<string, number> = {};
       let hasOfficerNotes = false;
 
+      // Contar rangos y clases
       players.forEach((player) => {
         ranks[player.rank] = (ranks[player.rank] || 0) + 1;
         classes[player.class] = (classes[player.class] || 0) + 1;
@@ -816,14 +841,32 @@ import ImageComponent from "@/components/ImageComponent.astro";
       const currentRankValue = rankFilter.value;
       const currentClassValue = classFilter.value;
 
+      // Orden jerárquico de rangos
+      const rankOrder = [
+        'Guild Master',
+        'Oficial',
+        'Comandante',
+        'Guerrero Elite',
+        'Recluta'
+      ];
+
       rankFilter.innerHTML = `
         <option value="">Todos los rangos</option>
         ${hasOfficerNotes ? '<option value="RECONOCIMIENTO">Reconocimiento Oficial</option>' : ''}
       `;
       
-      // Agregar rangos existentes
+      // Agregar rangos en orden jerárquico
+      rankOrder.forEach(rank => {
+        if (ranks[rank]) {
+          rankFilter.innerHTML += `<option value="${rank}">${rank}</option>`;
+        }
+      });
+      
+      // Agregar cualquier otro rango que no esté en la lista ordenada
       Object.entries(ranks).forEach(([rank]) => {
-        rankFilter.innerHTML += `<option value="${rank}">${rank}</option>`;
+        if (!rankOrder.includes(rank)) {
+          rankFilter.innerHTML += `<option value="${rank}">${rank}</option>`;
+        }
       });
 
       classFilter.innerHTML = `<option value="">Todas las clases</option>`;

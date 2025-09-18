@@ -106,7 +106,7 @@
     },
     {
         "name": "Aguila",
-        "officerNote": "Gran jugador.",
+        "officerNote": "",
         "class": "Paladín",
         "publicNote": "Tank 5.3",
         "rank": "Recluta"
@@ -372,7 +372,7 @@
     },
     {
         "name": "Stormgrim",
-        "officerNote": "",
+        "officerNote": "DOMINION GUARDIAN CAZADOR SABIO ESPIRITU",
         "class": "Brujo",
         "publicNote": "",
         "rank": "Guild Master"
