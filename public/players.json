@@ -1,24 +1,66 @@
 [
     {
-        "name": "Exud",
+        "name": "Axive",
         "officerNote": "",
-        "class": "Cazador",
+        "class": "Guerrero",
+        "publicNote": "5.3 dps pve - Herrero",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Jmdk",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
         "publicNote": "",
         "rank": "Recluta"
+    },
+    {
+        "name": "Mograck",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "retry 5.2",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Paladinhc",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "pala retry en proceso",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Pliklin",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "low   alter de octriz",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Killerfly",
+        "officerNote": "ESPIRITU",
+        "class": "Cazador",
+        "publicNote": "Minera/Ingeniera",
+        "rank": "Guerrero Élite"
+    },
+    {
+        "name": "Pladobrazer",
+        "officerNote": "ESPIRITU",
+        "class": "Caballero de la Muerte",
+        "publicNote": "tanke 5.5 profano 5.5",
+        "rank": "Guerrero Élite"
     },
     {
         "name": "Renald",
         "officerNote": "",
         "class": "Paladín",
         "publicNote": "Holy 5.0 minero/herrero",
-        "rank": "Recluta"
+        "rank": "Guerrero Élite"
     },
     {
-        "name": "Snirh",
+        "name": "Vorthrak",
         "officerNote": "",
-        "class": "Druida",
-        "publicNote": "",
-        "rank": "Recluta"
+        "class": "Guerrero",
+        "publicNote": "fury 5.9, herrero enchant",
+        "rank": "Oficial"
     },
     {
         "name": "Stormgrim",
@@ -84,6 +126,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Jmkiuu",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Orcrok",
         "officerNote": "",
         "class": "Guerrero",
@@ -98,16 +147,16 @@
         "rank": "Recluta"
     },
     {
-        "name": "Remydj",
+        "name": "Tatow",
         "officerNote": "",
-        "class": "Paladín",
+        "class": "Guerrero",
         "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "name": "Tatow",
+        "name": "Remydj",
         "officerNote": "",
-        "class": "Guerrero",
+        "class": "Paladín",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -168,13 +217,6 @@
         "rank": "Recluta"
     },
     {
-        "name": "Axive",
-        "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "5.3 pve - Herrero",
-        "rank": "Recluta"
-    },
-    {
         "name": "Azhaiel",
         "officerNote": "",
         "class": "Pícaro",
@@ -214,6 +256,13 @@
         "officerNote": "",
         "class": "Druida",
         "publicNote": "pollo 5.4 tank oso en proceso 5",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Exud",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
@@ -276,7 +325,7 @@
         "name": "Kinimaroo",
         "officerNote": "",
         "class": "Sacerdote",
-        "publicNote": "",
+        "publicNote": "Dps5.2 ",
         "rank": "Recluta"
     },
     {
@@ -364,13 +413,6 @@
         "rank": "Recluta"
     },
     {
-        "name": "Paladinhc",
-        "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "pala retry en proceso",
-        "rank": "Recluta"
-    },
-    {
         "name": "Palagabriel",
         "officerNote": "",
         "class": "Paladín",
@@ -382,13 +424,6 @@
         "officerNote": "",
         "class": "Paladín",
         "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Pliklin",
-        "officerNote": "",
-        "class": "Mago",
-        "publicNote": "low   alter de octriz",
         "rank": "Recluta"
     },
     {
@@ -420,17 +455,17 @@
         "rank": "Recluta"
     },
     {
-        "name": "Solariana",
+        "name": "Snirh",
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
         "rank": "Recluta"
     },
     {
-        "name": "Tiernis",
-        "officerNote": "ESPIRITU",
-        "class": "Guerrero",
-        "publicNote": "war dps 6.6k sastre y herrero ",
+        "name": "Solariana",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
@@ -469,6 +504,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Tiernis",
+        "officerNote": "ESPIRITU",
+        "class": "Guerrero",
+        "publicNote": "war dps 6.6k sastre y herrero ",
+        "rank": "Guerrero Élite"
+    },
+    {
         "name": "Howlshade",
         "officerNote": "",
         "class": "Chamán",
@@ -494,13 +536,6 @@
         "officerNote": "",
         "class": "Paladín",
         "publicNote": "retri 5.8, joyero minero",
-        "rank": "Oficial"
-    },
-    {
-        "name": "Vorthrak",
-        "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "fury 5.9, herrero enchant",
         "rank": "Oficial"
     }
 ]
