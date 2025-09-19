@@ -42,15 +42,8 @@
         "rank": "Guerrero Élite"
     },
     {
-        "name": "Pladobrazer",
-        "officerNote": "ESPIRITU",
-        "class": "Caballero de la Muerte",
-        "publicNote": "tanke 5.5 profano 5.5",
-        "rank": "Guerrero Élite"
-    },
-    {
         "name": "Renald",
-        "officerNote": "",
+        "officerNote": "ESPIRITU",
         "class": "Paladín",
         "publicNote": "Holy 5.0 minero/herrero",
         "rank": "Guerrero Élite"
@@ -502,6 +495,13 @@
         "class": "Mago",
         "publicNote": "",
         "rank": "Recluta"
+    },
+    {
+        "name": "Pladobrazer",
+        "officerNote": "ESPIRITU",
+        "class": "Caballero de la Muerte",
+        "publicNote": "tanke 5.5 profano 5.5",
+        "rank": "Guerrero Élite"
     },
     {
         "name": "Tiernis",
