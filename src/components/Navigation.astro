@@ -1,0 +1,302 @@
+---
+// Este componente incluye la barra de navegación y los botones de desplazamiento
+---
+
+<!-- Barra de navegación fija en la parte superior -->
+<nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-gray-900/95 to-amber-900/95 backdrop-blur border-b border-amber-600/30 shadow-lg transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex-shrink-0">
+        <a href="#inicio" class="site-logo flex items-center">
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500">
+            Colmillo de Acero
+          </span>
+        </a>
+      </div>
+      <div class="hidden md:block">
+        <div class="ml-10 flex items-baseline space-x-4">
+          <a href="#inicio" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Inicio</a>
+          <a href="#comunidad" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Comunidad</a>
+          <a href="#addon" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Addon</a>
+          <a href="#youtube" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">YouTube</a>
+          <a href="#donaciones" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Donaciones</a>
+        </div>
+      </div>
+      <div class="md:hidden">
+        <!-- Botón para menú móvil -->
+        <button id="mobile-menu-button" class="text-amber-200 hover:text-white focus:outline-none">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Menú móvil -->
+  <div id="mobile-menu" class="md:hidden hidden bg-gray-900/95">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      <a href="#inicio" class="block px-3 py-2 rounded-md text-base font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Inicio</a>
+      <a href="#comunidad" class="block px-3 py-2 rounded-md text-base font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Comunidad</a>
+      <a href="#addon" class="block px-3 py-2 rounded-md text-base font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Addon</a>
+      <a href="#youtube" class="block px-3 py-2 rounded-md text-base font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">YouTube</a>
+      <a href="#donaciones" class="block px-3 py-2 rounded-md text-base font-medium text-amber-200 hover:bg-amber-800/30 hover:text-white transition-colors">Donaciones</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Botones de navegación flotantes -->
+<div class="fixed right-1 bottom-1 z-40 flex flex-col space-y-3">
+  <button id="scroll-up" class="bg-amber-600 hover:bg-amber-500 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+  <button id="scroll-down" class="bg-amber-600 hover:bg-amber-500 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+</div>
+
+<!-- Script para la funcionalidad de navegación -->
+<script>
+  // Esperar a que el DOM esté completamente cargado
+  document.addEventListener('DOMContentLoaded', () => {
+    // Obtener referencias a los elementos del DOM
+    const mobileMenuButton = document.getElementById('mobile-menu-button') as HTMLButtonElement | null;
+    const mobileMenu = document.getElementById('mobile-menu') as HTMLElement | null;
+    const scrollUpBtn = document.getElementById('scroll-up') as HTMLButtonElement | null;
+    const scrollDownBtn = document.getElementById('scroll-down') as HTMLButtonElement | null;
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]'));
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
+    
+    // Variable para rastrear la sección actual
+    let currentSectionIndex = 0;
+    
+    // Verificar que los elementos existen antes de usarlos
+    if (!mobileMenuButton || !mobileMenu || !scrollUpBtn || !scrollDownBtn) {
+      console.error('No se pudieron encontrar todos los elementos necesarios para la navegación');
+      return;
+    }
+    
+    // Asegurarse de que los botones sean del tipo correcto
+    const upButton = scrollUpBtn;
+    const downButton = scrollDownBtn;
+
+    // Mostrar/ocultar menú móvil
+    mobileMenuButton.addEventListener('click', () => {
+      const isHidden = mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden', !isHidden);
+      mobileMenu.classList.toggle('block', isHidden);
+    });
+
+    // Cerrar menú móvil al hacer clic en un enlace
+    const mobileMenuLinks = document.querySelectorAll<HTMLAnchorElement>('#mobile-menu a');
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        mobileMenu.classList.remove('block');
+      });
+    });
+
+    // Función para desplazamiento suave
+    function scrollToSection(sectionId: string): void {
+      const element = document.querySelector<HTMLElement>(sectionId);
+      if (!element) return;
+      
+      const headerOffset = 80; // Ajusta según la altura de tu barra de navegación
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth' as ScrollBehavior
+      });
+    }
+
+    // Navegación por enlaces
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        if (targetId && typeof targetId === 'string') {
+          scrollToSection(targetId);
+        }
+      });
+    });
+
+    // Navegación con botones flotantes
+    if (sections.length > 0) {
+      // Mostrar/ocultar botones con animación
+      function updateButtonVisibility(): void {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const scrollThreshold = 100;
+
+        // Mostrar/ocultar botón de subir
+        if (scrollY > scrollThreshold) {
+          upButton.classList.remove('opacity-0', 'translate-y-4');
+          upButton.classList.add('opacity-100', 'translate-y-0');
+        } else {
+          upButton.classList.add('opacity-0', 'translate-y-4');
+          upButton.classList.remove('opacity-100', 'translate-y-0');
+        }
+
+        // Mostrar/ocultar botón de bajar
+        if (scrollY < documentHeight - windowHeight - scrollThreshold) {
+          downButton.classList.remove('opacity-0', 'translate-y-4');
+          downButton.classList.add('opacity-100', 'translate-y-0');
+        } else {
+          downButton.classList.add('opacity-0', 'translate-y-4');
+          downButton.classList.remove('opacity-100', 'translate-y-0');
+        }
+      }
+
+      // Actualizar visibilidad de botones al cargar y hacer scroll
+      window.addEventListener('scroll', updateButtonVisibility);
+      window.addEventListener('resize', updateButtonVisibility);
+      updateButtonVisibility();
+
+      // Navegar a la siguiente sección
+      downButton.addEventListener('click', () => {
+        if (currentSectionIndex < sections.length - 1) {
+          currentSectionIndex++;
+          const nextSection = sections[currentSectionIndex];
+          if (nextSection) {
+            scrollToSection(`#${nextSection.id}`);
+          }
+        }
+      });
+
+      // Navegar a la sección anterior
+      upButton.addEventListener('click', () => {
+        if (currentSectionIndex > 0) {
+          currentSectionIndex--;
+          const prevSection = sections[currentSectionIndex];
+          if (prevSection) {
+            scrollToSection(`#${prevSection.id}`);
+          }
+        } else {
+          // Si está en la primera sección, ir al inicio
+          window.scrollTo({ top: 0, behavior: 'smooth' as ScrollBehavior });
+        }
+      });
+    }
+
+    // Actualizar sección actual al hacer scroll
+    function updateCurrentSection(): void {
+      const scrollPosition = window.scrollY + 100; // Ajuste para la detección
+      let currentSection = sections[0]; // Por defecto, la primera sección
+      
+      // Encontrar la sección actual basada en la posición de desplazamiento
+      for (const section of sections) {
+        const sectionTop = section.offsetTop - 150; // Añadir un pequeño margen superior
+        const sectionHeight = section.offsetHeight;
+        const sectionBottom = sectionTop + sectionHeight;
+        
+        // Si la posición de desplazamiento está dentro de los límites de la sección
+        if (scrollPosition >= sectionTop && scrollPosition <= sectionBottom) {
+          currentSection = section;
+          break;
+        }
+        
+        // Si hemos pasado la sección actual, actualizamos la sección actual
+        if (sectionTop <= scrollPosition) {
+          currentSection = section;
+        }
+      }
+      
+      // Actualizar el índice de la sección actual
+      currentSectionIndex = Array.from(sections).indexOf(currentSection);
+      
+      // Actualizar todos los enlaces del menú (excluyendo el logo)
+      if (currentSection) {
+        // Primero, quitar la clase activa de todos los enlaces de navegación
+        document.querySelectorAll<HTMLAnchorElement>('.nav-link, #mobile-menu a:not(.site-logo)').forEach(link => {
+          link.classList.remove('bg-amber-800/50', 'text-white');
+          link.classList.add('text-amber-200');
+        });
+        
+        // Luego, agregar la clase activa a los enlaces de navegación correspondientes
+        const desktopLinks = document.querySelectorAll<HTMLAnchorElement>(`.nav-link[href="#${currentSection.id}"]`);
+        const mobileLinks = document.querySelectorAll<HTMLAnchorElement>(`#mobile-menu a[href="#${currentSection.id}"]:not(.site-logo)`);
+        
+        [...desktopLinks, ...mobileLinks].forEach(activeLink => {
+          activeLink.classList.add('bg-amber-800/50', 'text-white');
+          activeLink.classList.remove('text-amber-200');
+        });
+        
+        // Depuración: mostrar la sección actual en la consola
+        console.log('Sección activa:', currentSection.id);
+      }
+    }
+
+    // Actualizar sección actual al cargar y hacer scroll
+    window.addEventListener('scroll', updateCurrentSection);
+    updateCurrentSection();
+  });
+</script>
+
+<style>
+  /* Estilos para la transición de los botones flotantes */
+  #scroll-up, #scroll-down {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Asegurar que el menú esté por encima del contenido */
+  #main-nav {
+    z-index: 1000;
+  }
+  
+  /* Ajustar el padding superior del contenido principal para la barra de navegación */
+  main {
+    padding-top: 4rem;
+  }
+  
+  /* Estilos para el menú móvil */
+  #mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+  }
+  
+  #mobile-menu.block {
+    max-height: 500px; /* Ajusta según sea necesario */
+    transition: max-height 0.5s ease-in-out;
+  }
+  
+  /* Efecto hover para los enlaces del menú */
+  .nav-link {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  
+  .nav-link:hover::after,
+  .nav-link.bg-amber-800/50::after {
+    width: 70%;
+  }
+  
+  /* Asegurar que los botones flotantes sean accesibles en móviles */
+  @media (max-width: 768px) {
+    #scroll-up, #scroll-down {
+      right: 1rem;
+      bottom: 5rem;
+    }
+    #scroll-down {
+      bottom: 1rem;
+    }
+  }
+</style>

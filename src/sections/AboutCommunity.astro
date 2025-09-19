@@ -2,8 +2,8 @@
 // ImageComponent no se está utilizando
 ---
 
-<section id="about_community" class="mt-4 w-full overflow-x-hidden">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section id="about_community" class="mt-4 w-full overflow-hidden">
+  <div class="max-w-7xl mx-auto">
 
 <!-- Raid Schedule Card -->
 <div class="w-full">
@@ -188,7 +188,7 @@
     <!-- Members Table Title -->
     <div class="w-full max-w-4xl mx-auto mt-12 mb-6 text-center">
       <h2 class="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-2">
-        Miembros de la Hermandad
+        Miembros de Colmillo de Acero
       </h2>
       <div class="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-600 mx-auto my-3 rounded-full"></div>
       <p class="text-gray-300 max-w-2xl mx-auto">
@@ -234,38 +234,72 @@
 
     
 
-    <div id="player-info" class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-white mt-6">
-      <div class="overflow-x-auto rounded-xl bg-gray-900/70 backdrop-blur-sm border border-amber-600/30 shadow-lg hover:shadow-amber-500/20 transition-all duration-300">
-        <table id="player-table" class="w-full">
+    <div id="player-info" class="w-full max-w-6xl mx-auto text-white mt-6">
+      <div class="w-full overflow-hidden rounded-xl bg-gray-900/70 backdrop-blur-sm border border-amber-600/30 shadow-lg hover:shadow-amber-500/20 transition-all duration-300">
+        <style>
+          /* Contenedor con scroll horizontal */
+          .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          /* Estilos para la barra de desplazamiento */
+          .table-container::-webkit-scrollbar {
+            height: 8px;
+          }
+          .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+          }
+          .table-container::-webkit-scrollbar-thumb {
+            background: rgba(217, 119, 6, 0.5);
+            border-radius: 4px;
+          }
+          .table-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(217, 119, 6, 0.7);
+          }
+          /* Asegurar que la tabla sea lo suficientemente ancha */
+          #player-table {
+            min-width: 100%;
+            table-layout: auto;
+            width: max-content;
+          }
+          #player-table th, #player-table td {
+            padding: 0.5rem 0.75rem;
+            white-space: nowrap;
+          }
+        </style>
+        <div class="table-container">
+          <table id="player-table">
           <thead class="bg-gradient-to-r from-amber-900/50 to-amber-800/30">
             <tr class="text-sm font-medium">
-              <th data-column="class" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
-                <div class="flex items-center">
-                  <span>Clase</span>
+              <th data-column="class" class="text-center text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center justify-center">
+                  <span class="py-2">Clase</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                   </svg>
                 </div>
               </th>
-              <th data-column="rank" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
-                <div class="flex items-center">
-                  <span>Rango</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                  </svg>
-                </div>
-              </th>
-              <th data-column="name" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
-                <div class="flex items-center">
+              <th data-column="name" class="text-center text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center justify-center">
                   <span>Nombre</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                   </svg>
                 </div>
               </th>
-              <th data-column="publicNote" class="px-4 py-3 text-left text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
-                <div class="flex items-center">
+              <th data-column="publicNote" class="text-center text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center justify-center">
                   <span>Spec & Profesión</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </div>
+              </th>
+              <th data-column="rank" class="text-center text-xs font-semibold text-amber-300/90 uppercase tracking-wider cursor-pointer hover:text-amber-200 transition-colors">
+                <div class="flex items-center justify-center">
+                  <span>Rango</span>
                   <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                   </svg>
@@ -276,7 +310,8 @@
           <tbody class="divide-y divide-amber-600/10">
             <!-- Las filas se agregarán aquí dinámicamente -->
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -314,7 +349,7 @@
   </div>
 
   <!-- Sección de Hitos Destacados -->
-  <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-12">
+  <div class="w-full max-w-6xl mx-auto mt-16 mb-12">
     <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-6 text-center">
       Hitos de la Hermandad
     </h2>
@@ -877,34 +912,25 @@
         
         // Celda de Clase
         const classCell = document.createElement("td");
-        classCell.className = "px-4 py-3 whitespace-nowrap";
+        classCell.className = "whitespace-nowrap text-center";
         classCell.innerHTML = `
-          <div class="flex items-center">
-            <img class="w-6 h-6 rounded-sm object-cover border border-amber-600/30" 
+          <div class="flex flex-row items-center">
+            <img class="w-6 h-6 rounded m-1 object-cover border border-amber-600/30 mb-1" 
                  src="gallery/class_${player.class}.jpg" 
                  alt="${player.class}"
                  title="${player.class}">
-            <span class="ml-2 text-sm font-medium text-gray-200 hidden sm:inline">${player.class}</span>
+            <span class="text-xs font-medium text-gray-200">${player.class}</span>
           </div>
-        `;
-        
-        // Celda de Rango
-        const rankCell = document.createElement("td");
-        rankCell.className = "px-4 py-3 whitespace-nowrap";
-        rankCell.innerHTML = `
-          <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-amber-900/50 text-amber-200 border border-amber-700/50">
-            ${player.rank}
-          </span>
         `;
         
         // Celda de Nombre
         const nameCell = document.createElement("td");
-        nameCell.className = "px-4 py-3 whitespace-nowrap";
+        nameCell.className = "whitespace-nowrap text-center";
         
         const nameContainer = document.createElement("div");
-        nameContainer.className = "flex items-center";
+        nameContainer.className = "flex flex-row gap-2 items-center";
         
-        const nameSpan = document.createElement("span");
+        const nameSpan = document.createElement("div");
         nameSpan.className = "text-sm font-medium text-white group-hover:text-amber-100 transition-colors";
         nameSpan.textContent = player.name;
         
@@ -913,12 +939,15 @@
         // Botón de reconocimiento si hay nota de oficial
         if (player.officerNote) {
           const button = document.createElement("button");
-          button.className = "ml-2 text-amber-400 hover:text-yellow-300 transition-colors transform hover:scale-110";
+          button.className = "text-amber-400 hover:text-yellow-300";
           button.title = "Ver reconocimiento oficial";
           button.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
+            <div class="flex items-center text-xs text-amber-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              Ver reconocimiento
+            </div>
           `;
           
           button.addEventListener('click', (e) => {
@@ -933,12 +962,16 @@
         
         // Celda de Especificación y Profesión
         const noteCell = document.createElement("td");
-        noteCell.className = "px-4 py-3";
+        noteCell.className = "text-center";
+        
+        // Celda de Rango (movida después de Spec & Profesión)
+        const rankCell = document.createElement("td");
+        rankCell.className = "whitespace-nowrap text-center";
         
         if (player.publicNote) {
           const noteParts = player.publicNote.split('|').map(part => part.trim());
           noteCell.innerHTML = `
-            <div class="flex flex-wrap gap-1.5">
+            <div class="flex flex-wrap justify-center gap-1 max-w-full">
               ${noteParts.map(part => 
                 `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-900/30 text-amber-100 border border-amber-700/50">
                   ${part}
@@ -950,11 +983,20 @@
           noteCell.innerHTML = '<span class="text-gray-400 text-sm">-</span>';
         }
         
+        // Rango (ahora después de Spec & Profesión)
+        rankCell.innerHTML = `
+          <div class="flex justify-center">
+            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-900/50 text-amber-200 border border-amber-700/50">
+              ${player.rank}
+            </span>
+          </div>
+        `;
+        
         // Ensamblar la fila
         row.appendChild(classCell);
-        row.appendChild(rankCell);
         row.appendChild(nameCell);
         row.appendChild(noteCell);
+        row.appendChild(rankCell);
         
         playerTableBody.appendChild(row);
       });

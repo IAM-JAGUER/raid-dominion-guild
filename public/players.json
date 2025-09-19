@@ -1,52 +1,24 @@
 [
     {
-        "name": "Paladinhc",
+        "name": "Exud",
         "officerNote": "",
-        "class": "Paladín",
+        "class": "Cazador",
         "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Aguila",
-        "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "Tank 5.3",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Beido",
-        "officerNote": "",
-        "class": "Chamán",
-        "publicNote": "heal 6.3 ingeniero",
         "rank": "Recluta"
     },
     {
         "name": "Renald",
         "officerNote": "",
         "class": "Paladín",
-        "publicNote": "",
+        "publicNote": "Holy 5.0 minero/herrero",
         "rank": "Recluta"
     },
     {
-        "name": "Solariana",
+        "name": "Snirh",
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
         "rank": "Recluta"
-    },
-    {
-        "name": "Tiernis",
-        "officerNote": "ESPIRITU",
-        "class": "Guerrero",
-        "publicNote": "war dps 6.6k sastre y herrero ",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Sargorath",
-        "officerNote": "",
-        "class": "Druida",
-        "publicNote": "heal 5.9, alquimia herbo",
-        "rank": "Oficial"
     },
     {
         "name": "Stormgrim",
@@ -56,9 +28,23 @@
         "rank": "Guild Master"
     },
     {
+        "name": "Kpillo",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Rimurukamado",
         "officerNote": "",
         "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Johanz",
+        "officerNote": "",
+        "class": "Paladín",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -70,6 +56,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Totooporto",
+        "officerNote": "",
+        "class": "Cazador",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Ichigamix",
         "officerNote": "",
         "class": "Guerrero",
@@ -77,10 +70,10 @@
         "rank": "Recluta"
     },
     {
-        "name": "Totooporto",
+        "name": "Minecraftlow",
         "officerNote": "",
-        "class": "Cazador",
-        "publicNote": "",
+        "class": "Brujo",
+        "publicNote": "mi hermano brujo pvp en proceso",
         "rank": "Recluta"
     },
     {
@@ -101,6 +94,13 @@
         "name": "Blackerk",
         "officerNote": "",
         "class": "Chamán",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Remydj",
+        "officerNote": "",
+        "class": "Paladín",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -126,6 +126,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Aguila",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "Tank 5.3",
+        "rank": "Recluta"
+    },
+    {
         "name": "Akarman",
         "officerNote": "",
         "class": "Mago",
@@ -140,6 +147,20 @@
         "rank": "Recluta"
     },
     {
+        "name": "Angelyss",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Annytm",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Arshock",
         "officerNote": "",
         "class": "Brujo",
@@ -150,14 +171,28 @@
         "name": "Axive",
         "officerNote": "",
         "class": "Guerrero",
-        "publicNote": "",
+        "publicNote": "5.3 pve - Herrero",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Azhaiel",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "asesinato",
         "rank": "Recluta"
     },
     {
         "name": "Barsacer",
         "officerNote": "",
         "class": "Sacerdote",
-        "publicNote": "",
+        "publicNote": "sastre y encantador 5.1 sombra ",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Beido",
+        "officerNote": "",
+        "class": "Chamán",
+        "publicNote": "heal 6.3 ingeniero",
         "rank": "Recluta"
     },
     {
@@ -283,6 +318,13 @@
         "name": "Mimarin",
         "officerNote": "",
         "class": "Pícaro",
+        "publicNote": "combat 5.7 / assa 5.8 alq full",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Morien",
+        "officerNote": "",
+        "class": "Guerrero",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -304,7 +346,7 @@
         "name": "Nypth",
         "officerNote": "",
         "class": "Cazador",
-        "publicNote": "",
+        "publicNote": "5.78",
         "rank": "Recluta"
     },
     {
@@ -319,6 +361,13 @@
         "officerNote": "",
         "class": "Caballero de la Muerte",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Paladinhc",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "pala retry en proceso",
         "rank": "Recluta"
     },
     {
@@ -371,10 +420,17 @@
         "rank": "Recluta"
     },
     {
-        "name": "Snirh",
+        "name": "Solariana",
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Tiernis",
+        "officerNote": "ESPIRITU",
+        "class": "Guerrero",
+        "publicNote": "war dps 6.6k sastre y herrero ",
         "rank": "Recluta"
     },
     {
@@ -388,13 +444,6 @@
         "name": "Unholywoman",
         "officerNote": "",
         "class": "Caballero de la Muerte",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Unpicarotrol",
-        "officerNote": "",
-        "class": "Pícaro",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -413,6 +462,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Xelvara",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Howlshade",
         "officerNote": "",
         "class": "Chamán",
@@ -424,6 +480,13 @@
         "officerNote": "",
         "class": "Pícaro",
         "publicNote": "combate 5.8, peletero desuello",
+        "rank": "Oficial"
+    },
+    {
+        "name": "Sargorath",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "heal 5.9, alquimia herbo",
         "rank": "Oficial"
     },
     {

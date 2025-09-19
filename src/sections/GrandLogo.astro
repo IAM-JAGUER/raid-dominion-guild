@@ -1,43 +1,62 @@
-<section class="flex flex-col justify-center items-center relative">
-  <!-- Título -->
-  <div class="relative group text-center">
-    <div class="relative mt-6 pb-2 animate-fade-in-1">
-      <div class="relative mt-4 inline-block">
-        <!-- Outline text -->
-        <span
-          class="text-outline text-white/90 text-lg sm:text-xl font-bold uppercase tracking-widest font-['Arial_Black']"
-        >
-          <span class="relative inline-block"> Hermandad </span>
-        </span>
-      </div>
-
-      <!-- Permanent underline -->
-      <div
-        class="absolute bottom-0 left-1/2 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent transform -translate-x-1/2"
-      >
-      </div>
-    </div>
+<section class="flex flex-col justify-center items-center relative py-12">
+  <!-- Lore Text -->
+  <div class="text-center mt-10 mb-8 max-w-2xl px-4">
+    <p class="text-amber-400 text-xl md:text-2xl font-medium mb-6 italic animate-fade-in-1">
+      "Raid Dominion — El codex de La Hermandad"
+    </p>
   </div>
+
   <!-- Logo -->
-  <div
-    class="relative mt-2 animate-fade-in-1"
-    style="animation-delay: 0.3s"
-  >
+  <div class="relative mb-8 animate-fade-in-1" style="animation-delay: 0.3s">
     <img
       src="gallery/lider.png"
       alt="Raid Dominion"
-      width="300"
+      width="280"
       height="auto"
+      class="drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
     />
+  </div>
+
+  <!-- Call to Action -->
+  <div class="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in-1" style="animation-delay: 0.6s">
+    <a
+      href="https://github.com/IAM-DEV88/RaidDominion/archive/refs/heads/main.zip"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 md:py-4 md:text-lg md:px-10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>
+      Descargar Ahora
+    </a>
+  </div>
+
+  <!-- Quick Features -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl px-4 mb-12 text-center">
+    <div class="bg-gray-800/50 p-4 rounded-lg border border-amber-900/30">
+      <div class="text-amber-400 text-2xl mb-2">⚔️</div>
+      <p class="text-white font-medium">Asigna roles y buffs facilmente</p>
+    </div>
+    <div class="bg-gray-800/50 p-4 rounded-lg border border-amber-900/30">
+      <div class="text-amber-400 text-2xl mb-2">📜</div>
+      <p class="text-white font-medium">Comunica facilmente con el grupo</p>
+    </div>
+    <div class="bg-gray-800/50 p-4 rounded-lg border border-amber-900/30">
+      <div class="text-amber-400 text-2xl mb-2">📊</div>
+      <p class="text-white font-medium">Codex de mecánicas y reglas</p>
+    </div>
   </div>
   
   <style>
     @keyframes fadeIn {
       from {
         opacity: 0;
+        transform: translateY(10px);
       }
       to {
         opacity: 1;
+        transform: translateY(0);
       }
     }
 
@@ -61,12 +80,19 @@
     .animate-text-shimmer {
       animation: text-shimmer 8s ease-in-out infinite;
     }
+    
     .text-outline {
       -webkit-text-stroke: 1px rgba(245, 158, 11, 0.5);
       text-stroke: 1px rgba(245, 158, 11, 0.5);
     }
+    
     .animation-delay-200 {
       animation-delay: 0.2s;
+    }
+    
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
     }
   </style>
 </section>

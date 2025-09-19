@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-
+import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
 import CallToAction from '@/sections/CallToAction.astro';
 import YoutubeBanner from '@/sections/YoutubeBanner.astro';
@@ -11,15 +11,26 @@ import Footer from '@/sections/Footer.astro';
 ---
 
 <Layout title="Comunidad Colmillo de Acero - Hermandad World of Warcraft">
+	<Navigation />
 	<main class="relative">
 		<!-- Contenido principal -->
 		<div class="relative">
-			<GrandLogo></GrandLogo>
+			<section id="inicio" class="scroll-mt-16">
+				<GrandLogo></GrandLogo>
+			</section>
 			<!-- <CallToAction class="opacity-0 animate-fade-in-2"></CallToAction> -->
-			<AboutCommunity></AboutCommunity>
-			<AboutAddon></AboutAddon>
-			<YoutubeBanner></YoutubeBanner>
-			<Donations></Donations>
+			<section id="comunidad" class="scroll-mt-16">
+				<AboutCommunity></AboutCommunity>
+			</section>
+			<section id="addon" class="scroll-mt-16">
+				<AboutAddon></AboutAddon>
+			</section>
+			<section id="youtube" class="scroll-mt-16">
+				<YoutubeBanner></YoutubeBanner>
+			</section>
+			<section id="donaciones" class="scroll-mt-16">
+				<Donations></Donations>
+			</section>
 		</div>
 	</main>
 	<Footer></Footer>
