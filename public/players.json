@@ -1,40 +1,5 @@
 [
     {
-        "name": "Blackborne",
-        "officerNote": "",
-        "class": "Caballero de la Muerte",
-        "publicNote": "Profano 5.6 Joyeria",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Octriz",
-        "officerNote": "",
-        "class": "Druida",
-        "publicNote": "heal 6.2  pollo 5.8",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Palagabriel",
-        "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Hungdaddy",
-        "officerNote": "ESPIRITU",
-        "class": "Brujo",
-        "publicNote": "",
-        "rank": "Guerrero Élite"
-    },
-    {
-        "name": "Voidhammer",
-        "officerNote": "",
-        "class": "Paladín",
-        "publicNote": "retri 5.8, joyero minero",
-        "rank": "Oficial"
-    },
-    {
         "name": "Montriuk",
         "officerNote": "",
         "class": "Druida",
@@ -45,6 +10,13 @@
         "name": "Diozz",
         "officerNote": "",
         "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Pikantus",
+        "officerNote": "",
+        "class": "Pícaro",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -70,9 +42,30 @@
         "rank": "Recluta"
     },
     {
+        "name": "Marculin",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "Alter Sashu - minero joyero",
+        "rank": "Recluta"
+    },
+    {
         "name": "Johanz",
         "officerNote": "",
         "class": "Paladín",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Xjavi",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Ichigamix",
+        "officerNote": "",
+        "class": "Guerrero",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -91,10 +84,10 @@
         "rank": "Recluta"
     },
     {
-        "name": "Ichigamix",
+        "name": "Minecraftlow",
         "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "",
+        "class": "Brujo",
+        "publicNote": "...",
         "rank": "Recluta"
     },
     {
@@ -108,6 +101,13 @@
         "name": "Nandoh",
         "officerNote": "",
         "class": "Druida",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Deathxil",
+        "officerNote": "",
+        "class": "Brujo",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -147,6 +147,20 @@
         "rank": "Recluta"
     },
     {
+        "name": "Kitoz",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Adcurry",
+        "officerNote": "",
+        "class": "Pícaro",
+        "publicNote": "Cobmate 3.7gs sin profesion aun",
+        "rank": "Recluta"
+    },
+    {
         "name": "Aguila",
         "officerNote": "",
         "class": "Paladín",
@@ -175,24 +189,10 @@
         "rank": "Recluta"
     },
     {
-        "name": "Annytm",
-        "officerNote": "",
-        "class": "Caballero de la Muerte",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
         "name": "Arshock",
         "officerNote": "",
         "class": "Brujo",
         "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Axive",
-        "officerNote": "",
-        "class": "Guerrero",
-        "publicNote": "5.3 dps pve - Herrero",
         "rank": "Recluta"
     },
     {
@@ -228,6 +228,13 @@
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Blackborne",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "Profano 5.6 Joyeria",
         "rank": "Recluta"
     },
     {
@@ -308,6 +315,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Goldenwarr",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Golemdp",
         "officerNote": "",
         "class": "Druida",
@@ -336,6 +350,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Ivanovaa",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Jhonnycuro",
         "officerNote": "",
         "class": "Chamán",
@@ -350,10 +371,24 @@
         "rank": "Recluta"
     },
     {
+        "name": "Jinoradk",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "profano 6.0",
+        "rank": "Recluta"
+    },
+    {
         "name": "Jmdk",
         "officerNote": "",
         "class": "Caballero de la Muerte",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Kharkhar",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "war dps 6.0",
         "rank": "Recluta"
     },
     {
@@ -368,6 +403,13 @@
         "officerNote": "",
         "class": "Pícaro",
         "publicNote": "Paletera ",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Larrikapinga",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "",
         "rank": "Recluta"
     },
     {
@@ -427,10 +469,24 @@
         "rank": "Recluta"
     },
     {
+        "name": "Nhayely",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "5.7 FIRE",
+        "rank": "Recluta"
+    },
+    {
         "name": "Nosequeponer",
         "officerNote": "",
         "class": "Cazador",
         "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Noxblack",
+        "officerNote": "",
+        "class": "Mago",
+        "publicNote": "Mago fuego 6gs ing y sastre",
         "rank": "Recluta"
     },
     {
@@ -441,9 +497,23 @@
         "rank": "Recluta"
     },
     {
+        "name": "Octriz",
+        "officerNote": "",
+        "class": "Druida",
+        "publicNote": "heal 6.2  pollo 5.8",
+        "rank": "Recluta"
+    },
+    {
         "name": "Osulivan",
         "officerNote": "",
         "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
+        "name": "Palagabriel",
+        "officerNote": "",
+        "class": "Paladín",
         "publicNote": "",
         "rank": "Recluta"
     },
@@ -476,6 +546,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Shaaynaa",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Slaashh",
         "officerNote": "",
         "class": "Paladín",
@@ -491,13 +568,6 @@
     },
     {
         "name": "Solariana",
-        "officerNote": "",
-        "class": "Druida",
-        "publicNote": "",
-        "rank": "Recluta"
-    },
-    {
-        "name": "Toritodorito",
         "officerNote": "",
         "class": "Druida",
         "publicNote": "",
@@ -525,6 +595,13 @@
         "rank": "Recluta"
     },
     {
+        "name": "Wzzeta",
+        "officerNote": "",
+        "class": "Caballero de la Muerte",
+        "publicNote": "",
+        "rank": "Recluta"
+    },
+    {
         "name": "Xelvara",
         "officerNote": "",
         "class": "Mago",
@@ -539,81 +616,88 @@
         "rank": "Recluta"
     },
     {
-        "name": "Minecraftlow",
-        "officerNote": "",
-        "class": "Brujo",
-        "publicNote": "RED FLAG DE MAL USO, PRIMER ADVERTENCIA",
-        "rank": "Recluta"
-    },
-    {
         "name": "Killerfly",
         "officerNote": "ESPIRITU",
         "class": "Cazador",
         "publicNote": "Minera/Ingeniera",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Sashu",
         "officerNote": "ESPIRITU",
         "class": "Druida",
-        "publicNote": "pollo - futuro enchant ",
-        "rank": "Guerrero Élite"
+        "publicNote": "",
+        "rank": "Élite"
     },
     {
         "name": "Actrizz",
         "officerNote": "ESPIRITU",
         "class": "Sacerdote",
         "publicNote": "",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
+    },
+    {
+        "name": "Axive",
+        "officerNote": "",
+        "class": "Guerrero",
+        "publicNote": "5.3 dps pve - Herrero",
+        "rank": "Élite"
     },
     {
         "name": "Falfurt",
         "officerNote": "ESPIRITU",
         "class": "Druida",
         "publicNote": "soy pollo 5.8 ayudo a lows",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
+    },
+    {
+        "name": "Hungdaddy",
+        "officerNote": "ESPIRITU",
+        "class": "Brujo",
+        "publicNote": "",
+        "rank": "Élite"
     },
     {
         "name": "Mograck",
         "officerNote": "ESPIRITU",
         "class": "Paladín",
         "publicNote": "retry 5.2 enchanting tailoring",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Paladinhc",
         "officerNote": "ESPIRITU",
         "class": "Paladín",
         "publicNote": "pala retry en proceso",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Pladobrazer",
         "officerNote": "ESPIRITU",
         "class": "Caballero de la Muerte",
         "publicNote": "tanke 5.5 profano 5.5",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Renald",
         "officerNote": "ESPIRITU",
         "class": "Paladín",
         "publicNote": "Holy 5.0 minero/herrero",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Tiernis",
         "officerNote": "ESPIRITU",
         "class": "Guerrero",
         "publicNote": "war dps 6.6k sastre y herrero ",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Zumbie",
         "officerNote": "ESPIRITU",
         "class": "Mago",
         "publicNote": "",
-        "rank": "Guerrero Élite"
+        "rank": "Élite"
     },
     {
         "name": "Howlshade",
@@ -634,6 +718,13 @@
         "officerNote": "",
         "class": "Druida",
         "publicNote": "heal 5.9, alquimia herbo",
+        "rank": "Oficial"
+    },
+    {
+        "name": "Voidhammer",
+        "officerNote": "",
+        "class": "Paladín",
+        "publicNote": "retri 5.8, joyero minero",
         "rank": "Oficial"
     },
     {
