@@ -1,0 +1,551 @@
+---
+// Tipos de datos
+type RaidEvent = {
+  raidName: string;
+  difficulty: string;
+  leader: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  dateTime: Date;
+};
+
+type RaidLeader = {
+  name: string;
+  schedule: string[];
+};
+
+type RaidDifficulty = {
+  name: string;
+  leaders: RaidLeader[];
+  waitingList: Array<{
+    playerName: string;
+    role: string;
+    note?: string;
+  }>;
+};
+
+type Raid = {
+  id: string;
+  name: string;
+  difficulties: {
+    '10n': RaidDifficulty;
+    '10h': RaidDifficulty;
+    '25n': RaidDifficulty;
+    '25h': RaidDifficulty;
+  };
+};
+
+// Type for difficulty keys
+type DifficultyKey = '10n' | '10h' | '25n' | '25h';
+
+// Importar los datos directamente desde el archivo JSON
+import raidsData from '../../data/raids.json';
+const raids: Raid[] = raidsData;
+
+// Función para analizar los horarios de las raids
+function parseRaidSchedules(raids: Raid[]): RaidEvent[] {
+  const events: RaidEvent[] = [];
+  const daysMap: Record<string, number> = {
+    'lunes': 1, 'martes': 2, 'miércoles': 3, 'jueves': 4,
+    'viernes': 5, 'sábado': 6, 'domingo': 0
+  };
+  
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 (domingo) a 6 (sábado)
+  const currentHour = now.getHours();
+  const currentMinutes = now.getMinutes();
+  
+  raids.forEach(raid => {
+    Object.entries(raid.difficulties).forEach(([difficultyKey, difficulty]) => {
+      difficulty.leaders.forEach(leader => {
+        leader.schedule.forEach(schedule => {
+          // Formato esperado: "Día HH:MM - HH:MM"
+          const [dayPart, timeRange] = schedule.split(' ');
+          const [startTime, endTime] = timeRange.split('-').map(t => t.trim());
+          const [startHour, startMinute] = startTime.split(':').map(Number);
+          
+          // Calcular el día de la semana (0-6, donde 0 es domingo)
+          const dayName = dayPart.toLowerCase().replace(/[^a-záéíóú]/g, '');
+          const targetDay = daysMap[dayName];
+          
+          // Calcular la fecha del próximo evento
+          let daysToAdd = (targetDay + 7 - currentDay) % 7;
+          // Si ya pasó la hora de hoy, programar para la próxima semana
+          if (daysToAdd === 0 && (startHour < currentHour || (startHour === currentHour && startMinute <= currentMinutes))) {
+            daysToAdd = 7;
+          }
+          
+          const nextDate = new Date(now);
+          nextDate.setDate(now.getDate() + daysToAdd);
+          nextDate.setHours(startHour, startMinute, 0, 0);
+          
+          events.push({
+            raidName: raid.name,
+            difficulty: difficulty.name,
+            leader: leader.name,
+            day: dayPart,
+            startTime: startTime,
+            endTime: endTime,
+            dateTime: nextDate
+          });
+        });
+      });
+    });
+  });
+  
+  // Ordenar eventos por fecha/hora
+  return events.sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime());
+}
+
+// Obtener eventos de raid
+const raidEvents = parseRaidSchedules(raids);
+const nextRaid = raidEvents[0];
+const raidsThisWeek = raidEvents.filter(event => {
+  const now = new Date();
+  const nextWeek = new Date(now);
+  nextWeek.setDate(now.getDate() + 7);
+  return event.dateTime >= now && event.dateTime < nextWeek;
+}).length;
+---
+
+<div class="max-w-6xl mx-auto">
+  <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-xl p-2 mb-6">
+    <h2 class="text-2xl font-bold text-center bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent mb-2">RAIDEO DISPONIBLE</h2>
+    <div class="flex flex-wrap justify-center gap-4 mb-4">
+      <div class="bg-amber-900/30 px-4 py-2 rounded-lg border border-amber-800/50">
+        <p class="text-xs text-amber-200/80">Próxima raid</p>
+        <p class="text-amber-300 font-medium">
+          {nextRaid ? 
+            `${nextRaid.day} ${nextRaid.startTime} - ${nextRaid.raidName} (${nextRaid.difficulty})` : 
+            'No hay raids programadas'}
+        </p>
+      </div>
+      <div class="bg-amber-900/30 px-4 py-2 rounded-lg border border-amber-800/50">
+        <p class="text-xs text-amber-200/80">Raids esta semana</p>
+        <p class="text-amber-300 font-medium text-center text-xl">{raidsThisWeek}</p>
+      </div>
+    </div>
+    <p class="text-center text-amber-100/80 text-sm mb-4">Selecciona una raid y dificultad para ver los detalles</p>
+    
+    <!-- Mensaje informativo -->
+    <div class="max-w-3xl mx-auto mb-6 px-4">
+      <div class="text-xs text-amber-100/70 bg-amber-900/20 border-l-2 border-amber-600/50 px-4 py-3 rounded-r">
+        <div class="flex items-end">
+          <svg class="w-4 h-4 flex-shrink-0 mr-2 mt-0.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p>Para registrar tus raid o solicitar turnos para misiones, contacta al Guild Master o a un Oficial en el juego.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Raid Tabs -->
+    <div class="mb-6">
+      <div class="flex flex-wrap gap-2 justify-center" id="raid-tabs" role="tablist">
+        {raids.map((raid: Raid, index: number) => (
+          <button
+            class={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              index === 0 
+                ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/30' 
+                : 'bg-gray-800/80 text-amber-100/90 hover:bg-amber-900/60 hover:text-white'
+            }`}
+            data-tab-target={`#${raid.id}`}
+            role="tab"
+            aria-selected={index === 0}
+            aria-controls={raid.id}
+          >
+            {raid.name}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Raid Content -->
+    <div id="raid-content">
+      {raids.map((raid: Raid, raidIndex: number) => {
+        const difficulties = Object.entries(raid.difficulties) as [DifficultyKey, RaidDifficulty][];
+        
+        return (
+          <div 
+            id={raid.id} 
+            class={`${raidIndex === 0 ? 'block' : 'hidden'} raid-panel`}
+            role="tabpanel"
+            aria-labelledby={`${raid.id}-tab`}
+          >
+            <!-- Difficulty Tabs -->
+            <div class="mb-6">
+              <div class="flex flex-wrap gap-2 justify-center mb-6" role="tablist">
+                {difficulties.map(([key, difficulty], diffIndex) => {
+                  const buttonId = `${raid.id}-${key}-tab`;
+                  const isActive = diffIndex === 0;
+                  return (
+                    <button
+                      id={buttonId}
+                      class="px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 tab-button"
+                      data-difficulty={key}
+                      data-raid={raid.id}
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`${raid.id}-${key}-content`}
+                      tabindex={diffIndex === 0 ? 0 : -1}
+                    >
+                      {difficulty.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <!-- Difficulty Content -->
+            <div class="difficulty-content-container">
+              {difficulties.map(([key, difficulty], diffIndex) => {
+                const contentId = `${raid.id}-${key}-content`;
+                const tabId = `${raid.id}-${key}-tab`;
+                return (
+                  <div 
+                    id={contentId}
+                    class={`difficulty-content ${diffIndex === 0 ? 'block' : 'hidden'}`}
+                    data-difficulty={key}
+                    data-raid={raid.id}
+                    role="tabpanel"
+                    aria-labelledby={tabId}
+                  >
+                    <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 overflow-hidden">
+                      <div class="p-1 bg-gradient-to-r from-amber-900/40 to-amber-800/30">
+                        <h3 class="text-lg font-bold text-center text-white py-2 bg-gradient-to-r from-amber-900/60 to-amber-800/50 rounded-t-lg">
+                          {raid.name} - {difficulty.name}
+                        </h3>
+                      </div>
+                      
+                      <div class="p-4 space-y-4">
+                        <!-- Leaders Section -->
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                          <h4 class="text-base font-semibold text-amber-300 mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Lideres y horarios
+                          </h4>
+                          {difficulty.leaders.length > 0 ? (
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              {difficulty.leaders.map((leader, leaderIndex) => {
+                                const leaderId = `${raid.id}-${key}-leader-${leaderIndex}`;
+                                return (
+                                  <div id={leaderId} class="bg-gray-700/30 p-3 rounded-lg border-l-2 border-amber-600/80 hover:bg-gray-700/50 transition-colors duration-200">
+                                    <h5 class="text-amber-300 font-medium text-sm flex items-center">
+                                      <span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                                      {leader.name}
+                                    </h5>
+                                    <ul class="mt-2 space-y-1.5 pl-4">
+                                      {leader.schedule.map((time, timeIndex) => {
+                                        const timeId = `${leaderId}-time-${timeIndex}`;
+                                        return (
+                                          <li id={timeId} class="text-gray-300 text-sm flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 flex-shrink-0"></span>
+                                            <span class="text-gray-300/90">{time}</span>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div class="text-center py-4 text-gray-400">
+                              <p>No hay líderes asignados actualmente.</p>
+                              <p class="text-sm mt-1">Si deseas organizar esta raid, contacta a un oficial.</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <!-- Waiting List -->
+                        <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                          <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-base font-semibold text-amber-300 flex items-center">
+                              <svg class="w-4 h-4 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                              </svg>
+                              Lista de Espera
+                              {difficulty.waitingList.length > 0 && (
+                                <span class="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-amber-900/50 text-amber-300">
+                                  {difficulty.waitingList.length}
+                                </span>
+                              )}
+                            </h4>
+                          </div>
+
+                          
+                          {difficulty.waitingList.length > 0 ? (
+                            <ul class="space-y-2">
+                              {difficulty.waitingList.map((player, playerIndex) => {
+                                const playerId = `${raid.id}-${key}-player-${playerIndex}`;
+                                return (
+                                  <li id={playerId} class="group flex justify-between items-center p-2 rounded-lg hover:bg-gray-700/40 transition-colors duration-200 border border-transparent hover:border-gray-600/50">
+                                    <div class="flex items-center min-w-0">
+                                      <span class="font-medium text-amber-50 text-sm truncate">{player.playerName}</span>
+                                      <span class={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                                        player.role === 'Tanque' ? 'bg-gray-700/50 text-gray-300 border border-gray-600/50' :
+                                        player.role === 'Sanador' ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' :
+                                        'bg-red-900/50 text-red-300 border border-red-700/50'
+                                      } whitespace-nowrap`}>
+                                        {player.role}
+                                      </span>
+                                    </div>
+                                    {player.note && (
+                                      <span class="text-xs text-yellow-300/90 ml-2 truncate max-w-[40%] flex items-center" title={player.note}>
+                                        <svg class="w-3.5 h-3.5 mr-1 text-yellow-400/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="truncate">{player.note}</span>
+                                      </span>
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          ) : (
+                            <div class="text-center py-4 text-gray-400">
+                              <p>No hay jugadores en lista de espera actualmente.</p>
+                              <p class="text-sm mt-1">Si deseas unirte, contacta a un oficial.</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    
+    <!-- Footer Note -->
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500">Actualizado: {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab switching functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    // Raid tabs
+    const raidTabs = document.querySelectorAll<HTMLElement>('[data-tab-target]');
+    
+    // Function to update raid tab active state
+    const updateRaidTabActiveState = (activeTab: HTMLElement) => {
+      // Remove active state from all raid tabs
+      document.querySelectorAll<HTMLElement>('[data-tab-target]').forEach((tab: HTMLElement) => {
+        tab.classList.remove(
+          'bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 'shadow-amber-900/30', 'shadow-md'
+        );
+        tab.classList.add('bg-gray-800/80', 'text-amber-100/90', 'hover:bg-amber-900/60');
+        tab.setAttribute('aria-selected', 'false');
+      });
+      
+      if (activeTab) {
+        // Add active state to clicked tab
+        activeTab.classList.remove('bg-gray-800/80', 'hover:bg-amber-900/60');
+        activeTab.classList.add(
+          'bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 'shadow-amber-900/30', 'shadow-md'
+        );
+        activeTab.setAttribute('aria-selected', 'true');
+      }
+    };
+    
+    // Function to update difficulty tab active state
+    const updateDifficultyTabActiveState = (activeTab: HTMLElement, raidId: string) => {
+      if (!raidId) return;
+      
+      // Reset all difficulty tabs for this raid
+      document.querySelectorAll<HTMLElement>(`[data-raid="${raidId}"][data-difficulty]`).forEach((tab: HTMLElement) => {
+        // Remove all active classes
+        tab.classList.remove(
+          'bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 
+          'shadow-amber-900/30', 'shadow-md', 'active-difficulty'
+        );
+        // Add inactive classes
+        tab.classList.add('bg-gray-800/80', 'text-amber-100/90', 'hover:bg-amber-900/60');
+        tab.setAttribute('aria-selected', 'false');
+        
+        // Hide all content panels for this raid
+        const difficulty = tab.getAttribute('data-difficulty');
+        if (difficulty) {
+          const panel = document.querySelector<HTMLElement>(`#${raidId}-${difficulty}-content`);
+          if (panel) {
+            panel.classList.add('hidden');
+            panel.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+      
+      // Set the active tab and show its content
+      if (activeTab) {
+        // Remove any lingering classes first
+        activeTab.classList.remove('bg-gray-800/80', 'hover:bg-amber-900/60');
+        // Add active classes
+        activeTab.classList.add(
+          'bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 
+          'shadow-amber-900/30', 'shadow-md', 'active-difficulty'
+        );
+        activeTab.setAttribute('aria-selected', 'true');
+        
+        // Show the active panel
+        const difficulty = activeTab.getAttribute('data-difficulty');
+        if (difficulty) {
+          const panel = document.querySelector<HTMLElement>(`#${raidId}-${difficulty}-content`);
+          if (panel) {
+            panel.classList.remove('hidden');
+            panel.setAttribute('aria-hidden', 'false');
+          }
+        }
+      }
+    };
+    
+    // Handle raid tab clicks
+    raidTabs.forEach((tab: HTMLElement) => {
+      tab.addEventListener('click', () => {
+        updateRaidTabActiveState(tab);
+        
+        // Hide all raid panels
+        document.querySelectorAll<HTMLElement>('.raid-panel').forEach((panel: HTMLElement) => {
+          panel.classList.add('hidden');
+        });
+        
+        // Show selected raid panel
+        const targetId = tab.getAttribute('data-tab-target')?.substring(1);
+        if (targetId) {
+          const targetPanel = document.getElementById(targetId);
+          if (targetPanel) {
+            targetPanel.classList.remove('hidden');
+            // Reset difficulty tabs for the new raid
+            resetDifficultyTabs(targetId);
+          }
+        }
+      });
+    });
+
+    // Handle difficulty tab clicks
+    document.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest<HTMLElement>('[data-difficulty]');
+      if (!btn) return;
+      
+      const raidId = btn.getAttribute('data-raid');
+      const difficulty = btn.getAttribute('data-difficulty');
+      
+      if (!raidId || !difficulty) return;
+      
+      // Update active state of difficulty tabs
+      updateDifficultyTabActiveState(btn, raidId);
+    });
+    
+    // Initialize first tab and its first difficulty on load
+    if (raidTabs.length > 0) {
+      const firstRaidId = raidTabs[0].getAttribute('data-tab-target')?.substring(1);
+      if (firstRaidId) {
+        // Set first raid tab as active
+        updateRaidTabActiveState(raidTabs[0]);
+        // Initialize first difficulty tab
+        resetDifficultyTabs(firstRaidId);
+      }
+    }
+  });
+  
+  function resetDifficultyTabs(raidId: string) {
+    if (!raidId) return;
+    
+    // Find the first difficulty tab for this raid
+    const firstDiffBtn = document.querySelector<HTMLElement>(
+      `[data-raid="${raidId}"][data-difficulty]`
+    );
+    
+    if (firstDiffBtn) {
+      // Manually update the active state without triggering another event
+      const raidId = firstDiffBtn.getAttribute('data-raid');
+      if (raidId) {
+        // Update all tabs to inactive first
+        document.querySelectorAll<HTMLElement>(`[data-raid="${raidId}"][data-difficulty]`).forEach(tab => {
+          tab.classList.remove('bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 
+            'shadow-amber-900/30', 'shadow-md', 'active-difficulty');
+          tab.classList.add('bg-gray-800/80', 'text-amber-100/90', 'hover:bg-amber-900/60');
+          tab.setAttribute('aria-selected', 'false');
+        });
+        
+        // Set first tab as active
+        firstDiffBtn.classList.remove('bg-gray-800/80', 'hover:bg-amber-900/60');
+        firstDiffBtn.classList.add('bg-gradient-to-r', 'from-amber-600', 'to-amber-700', 'text-white', 
+          'shadow-amber-900/30', 'shadow-md', 'active-difficulty');
+        firstDiffBtn.setAttribute('aria-selected', 'true');
+        
+        // Show the corresponding content
+        const difficulty = firstDiffBtn.getAttribute('data-difficulty');
+        if (difficulty) {
+          // Hide all content panels for this raid first
+          document.querySelectorAll<HTMLElement>(`.difficulty-content[data-raid="${raidId}"]`).forEach(panel => {
+            panel.classList.add('hidden');
+            panel.setAttribute('aria-hidden', 'true');
+          });
+          
+          // Show the selected panel
+          const panel = document.querySelector<HTMLElement>(`#${raidId}-${difficulty}-content`);
+          if (panel) {
+            panel.classList.remove('hidden');
+            panel.setAttribute('aria-hidden', 'false');
+          }
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  /* Tab button base styles */
+  .tab-button {
+    background-color: rgba(31, 41, 55, 0.8); /* bg-gray-800/80 */
+    color: rgba(254, 243, 199, 0.9); /* text-amber-100/90 */
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* Inactive tab button hover */
+  .tab-button:hover {
+    background-color: rgba(146, 64, 14, 0.6); /* hover:bg-amber-900/60 */
+    color: white;
+  }
+
+  /* Active tab button */
+  .tab-button[aria-selected="true"],
+  .tab-button.active-difficulty {
+    background: linear-gradient(to right, #d97706, #b45309);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Content panel styles */
+  .difficulty-content {
+    background-color: rgba(17, 24, 39, 0.5); /* bg-gray-900/50 */
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(31, 41, 55, 0.8); /* border-gray-800 */
+    border-radius: 0.75rem; /* rounded-xl */
+    color: rgba(254, 243, 199, 0.9); /* text-amber-100/90 */
+  }
+
+  /* Reset any hover effects on content */
+  .difficulty-content,
+  .difficulty-content * {
+    pointer-events: none;
+  }
+  
+  .difficulty-content * {
+    transition: none !important;
+  }
+</style>

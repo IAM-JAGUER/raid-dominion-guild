@@ -1,0 +1,182 @@
+[
+  {
+    "id": "icc",
+    "name": "Icecrown Citadel",
+    "difficulties": {
+      "10n": {
+        "name": "10 Normal",
+        "leaders": [
+          {
+            "name": "Sargorath",
+            "schedule": ["Lunes 18:00 - 21:00"]
+          },
+          {
+            "name": "Vorthrak",
+            "schedule": ["Martes 18:00 - 21:00"]
+          },
+          {
+            "name": "Stormgrim",
+            "schedule": ["Miércoles 18:00 - 21:00"]
+          },
+          {
+            "name": "Ravenguard",
+            "schedule": ["Jueves 18:00 - 21:00"]
+          },
+          {
+            "name": "Voidhammer",
+            "schedule": ["Viernes 18:00 - 21:00"]
+          },
+          {
+            "name": "Howlshade",
+            "schedule": ["Domingo 18:00 - 21:00"]
+          }
+        ],
+        "waitingList": []
+      },
+      "10h": {
+        "name": "10 Heroico",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25n": {
+        "name": "25 Normal",
+        "leaders": [
+          {
+            "name": "Sargorath",
+            "schedule": ["Lunes 18:00 - 21:00"]
+          },
+          {
+            "name": "Vorthrak",
+            "schedule": ["Martes 18:00 - 21:00"]
+          },
+          {
+            "name": "Stormgrim",
+            "schedule": ["Miércoles 18:00 - 21:00"]
+          },
+          {
+            "name": "Ravenguard",
+            "schedule": ["Jueves 18:00 - 21:00"]
+          },
+          {
+            "name": "Voidhammer",
+            "schedule": ["Viernes 18:00 - 21:00"]
+          },
+          {
+            "name": "Howlshade",
+            "schedule": ["Domingo 18:00 - 21:00"]
+          }
+        ],
+        "waitingList": []
+      },
+      "25h": {
+        "name": "25 Heroico",
+        "leaders": [],
+        "waitingList": []
+      }
+    }
+  },
+  {
+    "id": "toc",
+    "name": "Trial of the Crusader",
+    "difficulties": {
+      "10n": {
+        "name": "10 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "10h": {
+        "name": "10 Heroico",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25n": {
+        "name": "25 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25h": {
+        "name": "25 Heroico",
+        "leaders": [],
+        "waitingList": []
+      }
+    }
+  },
+  {
+    "id": "ulduar",
+    "name": "Ulduar",
+    "difficulties": {
+      "10n": {
+        "name": "10 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "10h": {
+        "name": "10 Heroico",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25n": {
+        "name": "25 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25h": {
+        "name": "25 Heroico",
+        "leaders": [],
+        "waitingList": []
+      }
+    }
+  },
+  {
+    "id": "naxxramas",
+    "name": "Naxxramas",
+    "difficulties": {
+      "10n": {
+        "name": "10 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "10h": {
+        "name": "10 Heroico",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25n": {
+        "name": "25 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25h": {
+        "name": "25 Heroico",
+        "leaders": [],
+        "waitingList": []
+      }
+    }
+  },
+  {
+    "id": "ruby-sanctum",
+    "name": "Ruby Sanctum",
+    "difficulties": {
+      "10n": {
+        "name": "10 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "10h": {
+        "name": "10 Heroico",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25n": {
+        "name": "25 Normal",
+        "leaders": [],
+        "waitingList": []
+      },
+      "25h": {
+        "name": "25 Heroico",
+        "leaders": [],
+        "waitingList": []
+      }
+    }
+  }
+]
