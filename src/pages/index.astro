@@ -16,22 +16,40 @@ import RaidSection from '@/components/raids/RaidSection.astro';
 	<main class="relative">
 		<!-- Contenido principal -->
 		<div class="relative">
+			<!-- Sección Inicio -->
 			<section id="inicio" class="scroll-mt-16">
 				<GrandLogo></GrandLogo>
 			</section>
-			<!-- <CallToAction class="opacity-0 animate-fade-in-2"></CallToAction> -->
-			<section id="comunidad" class="scroll-mt-16">
+
+			<!-- Sección Raids -->
+			<section id="raids" class="scroll-mt-16 py-12">
+				<div class="max-w-7xl mx-auto">
+					<RaidSection />
+				</div>
+			</section>
+
+			<!-- Sección Comunidad -->
+			<section id="comunidad" class="scroll-mt-16 py-12">
 				<AboutCommunity></AboutCommunity>
 			</section>
-			<section id="addon" class="scroll-mt-16">
-        <RaidSection />
-				<AboutAddon></AboutAddon>
+
+			<!-- Sección Guías -->
+			<section id="guias" class="scroll-mt-16 py-12">
+				<div class="max-w-7xl mx-auto">
+					<AboutAddon></AboutAddon>
+				</div>
 			</section>
-			<section id="youtube" class="scroll-mt-16">
+
+			<!-- Sección Media -->
+			<section id="media" class="scroll-mt-16 py-12">
 				<YoutubeBanner></YoutubeBanner>
 			</section>
-			<section id="donaciones" class="scroll-mt-16">
-				<Donations></Donations>
+
+			<!-- Sección Donaciones -->
+			<section id="donaciones" class="scroll-mt-16 py-12">
+				<div class="max-w-7xl mx-auto">
+					<Donations></Donations>
+				</div>
 			</section>
 		</div>
 	</main>

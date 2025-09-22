@@ -107,20 +107,41 @@ const raidsThisWeek = raidEvents.filter(event => {
   nextWeek.setDate(now.getDate() + 7);
   return event.dateTime >= now && event.dateTime < nextWeek;
 }).length;
+const nextRaids = raidEvents.slice(1, 4);
+
 ---
 
 <div class="max-w-6xl mx-auto">
   <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-xl p-2 mb-6">
     <h2 class="text-2xl font-bold text-center bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent mb-2">RAIDEO DISPONIBLE</h2>
+    
+    <!-- Próximas 3 raids -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {nextRaids.map((raid, index) => (
+        <div class="bg-amber-900/20 p-4 rounded-lg border border-amber-800/30">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-amber-200/80">
+              {index === 0 ? 'PRÓXIMA RAID' : `RAID ${index + 1}`}
+            </span>
+            <span class="text-xs px-2 py-1 bg-amber-900/40 rounded text-amber-200">
+              {raid.day}
+            </span>
+          </div>
+          <h3 class="text-lg font-bold text-amber-300 mb-1">{raid.raidName}</h3>
+          <p class="text-sm text-amber-100/90">{raid.difficulty}</p>
+          <div class="mt-2 pt-2 border-t border-amber-800/30">
+            <p class="text-xs text-amber-200/70">Líder:</p>
+            <p class="text-sm font-medium text-amber-300">{raid.leader}</p>
+          </div>
+          <div class="flex items-center justify-between mt-2 text-xs">
+            <span class="text-amber-200/80">{raid.startTime} - {raid.endTime}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+    
     <div class="flex flex-wrap justify-center gap-4 mb-4">
-      <div class="bg-amber-900/30 px-4 py-2 rounded-lg border border-amber-800/50">
-        <p class="text-xs text-amber-200/80">Próxima raid</p>
-        <p class="text-amber-300 font-medium">
-          {nextRaid ? 
-            `${nextRaid.day} ${nextRaid.startTime} - ${nextRaid.raidName} (${nextRaid.difficulty})` : 
-            'No hay raids programadas'}
-        </p>
-      </div>
+      
       <div class="bg-amber-900/30 px-4 py-2 rounded-lg border border-amber-800/50">
         <p class="text-xs text-amber-200/80">Raids esta semana</p>
         <p class="text-amber-300 font-medium text-center text-xl">{raidsThisWeek}</p>
@@ -147,7 +168,7 @@ const raidsThisWeek = raidEvents.filter(event => {
       <div class="flex flex-wrap gap-2 justify-center" id="raid-tabs" role="tablist">
         {raids.map((raid: Raid, index: number) => (
           <button
-            class={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+            class={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 relative group ${
               index === 0 
                 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/30' 
                 : 'bg-gray-800/80 text-amber-100/90 hover:bg-amber-900/60 hover:text-white'
@@ -157,7 +178,12 @@ const raidsThisWeek = raidEvents.filter(event => {
             aria-selected={index === 0}
             aria-controls={raid.id}
           >
-            {raid.name}
+            <div class="flex items-center gap-2">
+              <span>{raid.name}</span>
+              <span class="text-xs bg-amber-900/50 text-amber-200 rounded-full px-2 py-0.5">
+                {raidEvents.filter(e => e.raidName === raid.name).length}
+              </span>
+            </div>
           </button>
         ))}
       </div>
@@ -184,7 +210,7 @@ const raidsThisWeek = raidEvents.filter(event => {
                   return (
                     <button
                       id={buttonId}
-                      class="px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 tab-button"
+                      class="px-3 py-1.5 text-sm rounded-md font-medium transition-all duration-200 tab-button flex items-center gap-1.5 group"
                       data-difficulty={key}
                       data-raid={raid.id}
                       role="tab"
@@ -192,7 +218,13 @@ const raidsThisWeek = raidEvents.filter(event => {
                       aria-controls={`${raid.id}-${key}-content`}
                       tabindex={diffIndex === 0 ? 0 : -1}
                     >
-                      {difficulty.name}
+                      <span>{difficulty.name}</span>
+                      <span class="text-[10px] bg-amber-900/50 text-amber-200 rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                        {raidEvents.filter(e => 
+                          e.raidName === raid.name && 
+                          e.difficulty === difficulty.name
+                        ).length}
+                      </span>
                     </button>
                   );
                 })}

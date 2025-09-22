@@ -2,157 +2,139 @@
 // ImageComponent no se está utilizando
 ---
 
-<section id="about_community" class="mt-4 w-full overflow-hidden">
+<section id="about_community" class="mt-4 w-full">
   <div class="max-w-7xl mx-auto">
 
-<!-- Raid Schedule Card -->
-<div class="w-full">
-  <div class="flex flex-col items-center mb-6">
-    <div class="w-full max-w-2xl p-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-amber-600/30 transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20 text-center">
-      <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-2">¡Bienvenidos!</h3>
-      <div id="player-count" class="text-lg">
-        <span class="font-bold text-amber-300">¡Ya somos <span id="member-count" class="text-3xl text-yellow-400">0</span> miembros!</span>
+<!-- Community Section -->
+<div class="w-full max-w-7xl mx-auto py-12">
+  <!-- Welcome Card -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Welcome Message -->
+    <div class="lg:col-span-2 p-6 rounded-xl border border-amber-600/30 bg-gray-900/50 backdrop-blur-sm transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20">
+      <div class="flex flex-col h-full justify-center">
+        <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-4">
+          ¡Bienvenidos a Colmillo de Acero!
+        </h2>
+        <p class="text-gray-300 mb-6">
+          Una comunidad apasionada de World of Warcraft dedicada al progreso en raid y al juego en equipo. 
+          Únete a nosotros en nuestras aventuras épicas y forma parte de nuestra familia de jugadores.
+        </p>
+        <div id="player-count" class="mt-auto">
+          <span class="font-bold text-amber-300">¡Ya somos <span id="member-count" class="text-4xl text-yellow-400">0</span> miembros!</span>
+          <p class="text-sm text-amber-100/70 mt-2">Actualizado diariamente</p>
+        </div>
       </div>
     </div>
+
+    <!-- Discord CTA -->
+    <div class="p-6 rounded-xl border border-amber-600/30 bg-amber-900/20 backdrop-blur-sm transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20 flex flex-col">
+      <div class="mb-6">
+        <h3 class="text-2xl font-bold text-amber-300 mb-2">¡Únete a nuestro Discord!</h3>
+        <p class="text-gray-300">Conéctate con la comunidad, organiza raids y mantente al día con todos los eventos.</p>
+      </div>
+      <a 
+        href="https://discord.gg/BwdpNV9sky"
+        target="_blank"
+        rel="noopener noreferrer" 
+        class="mt-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-medium rounded-lg hover:from-amber-500 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/30"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.872-1.295 1.226-1.994a.076.076 0 00-.041-.1 13.107 13.107 0 01-1.872-1.077.078.078 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.192.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873 1.08.077.077 0 00-.04.1c.36.698.77 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.053-.838-9.588-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.95-2.419 2.157-2.419 1.21 0 2.175 1.1 2.157 2.42 0 1.333-.95 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.949-2.419 2.157-2.419 1.21 0 2.175 1.1 2.157 2.42 0 1.333-.95 2.418-2.157 2.418z"/>
+        </svg>
+        Unirse al Discord
+      </a>
+    </div>
   </div>
-  <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-xl overflow-hidden border border-amber-600/30 transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20">
-    <div class="p-6 sm:p-8">
+
+  <!-- Guild Rules -->
+  <div class="">
+    <!-- Guild Rules -->
+    <div class="p-6 rounded-xl border border-amber-600/30 bg-gray-900/50 backdrop-blur-sm transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20">
       <div class="text-center mb-6">
-        <h2 class="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-2">
-          Horario de Raids
-        </h2>
+        <h2 class="text-2xl font-bold text-amber-300 mb-2">Normas de la Hermandad</h2>
         <div class="h-1 w-20 bg-gradient-to-r from-amber-500 to-yellow-600 mx-auto my-3 rounded-full"></div>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <div class="space-y-4">
-          <div class="flex items-center space-x-3">
-            <div class="p-2 bg-amber-900/50 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-amber-300">Horarios</h3>
-              <p class="text-gray-300">18:00 - 21:00 - 00:00</p>
-              <p class="text-sm text-amber-100/80">Hora del servidor</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center space-x-3">
-            <div class="p-2 bg-amber-900/50 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-amber-300">Comunidad Activa</h3>
-              <p class="text-gray-300">Únete a nuestra hermandad</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="text-center md:border-l md:border-amber-700/50 md:pl-8">
-          <h3 class="text-xl font-bold text-amber-300 mb-4">¡Únete a nuestro Discord!</h3>
-          <p class="text-gray-300 mb-6">Conéctate con la comunidad, organiza raids y mantente al día con todos los eventos.</p>
-          <a 
-            href="https://discord.gg/BwdpNV9sky"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-medium rounded-lg hover:from-amber-500 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/30"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.872-1.295 1.226-1.994a.076.076 0 00-.041-.1 13.107 13.107 0 01-1.872-1.077.078.078 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.192.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873 1.08.077.077 0 00-.04.1c.36.698.77 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.053-.838-9.588-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.95-2.419 2.157-2.419 1.21 0 2.175 1.1 2.157 2.42 0 1.333-.95 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.949-2.419 2.157-2.419 1.21 0 2.175 1.1 2.157 2.42 0 1.333-.95 2.418-2.157 2.418z"/>
-            </svg>
-            Unirse al Discord
-          </a>
-        </div>
-      </div>
-    </div>
 
     <!-- Guild Rules Section - Compacta -->
-    <div class="w-full max-w-4xl mx-auto mb-8 overflow-hidden">
-      <div class="p-6">
-        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-500 mb-4 text-center">
-          Normas de la Hermandad
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <div class="w-full max-w-4xl mx-auto mb-8">
+      <div>        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Norma 1 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">1</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">1</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Notas Públicas</h4>
-              <p class="text-gray-300 text-xs">Mantén actualizada tu nota con tu rol principal (DPS/Heal/Tank) GS y profesiones.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Notas Públicas</h4>
+              <p class="text-gray-300">Mantén actualizada tu nota con tu rol principal (DPS/Heal/Tank) GS y profesiones.</p>
             </div>
           </div>
           
           <!-- Norma 2 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">2</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">2</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Discord en Raids</h4>
-              <p class="text-gray-300 text-xs">Obligatorio para raids. Micrófono funcional y silencio cuando no debas hablar.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Discord en Raids</h4>
+              <p class="text-gray-300">Obligatorio para raids. Micrófono funcional y silencio cuando no debas hablar.</p>
             </div>
           </div>
           
           <!-- Norma 3 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">3</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">3</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Puntualidad</h4>
-              <p class="text-gray-300 text-xs">Asistencia puntual a eventos. Avisar con anticipación si no puedes asistir.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Puntualidad</h4>
+              <p class="text-gray-300">Asistencia puntual a eventos. Avisar con anticipación si no puedes asistir.</p>
             </div>
           </div>
           
           <!-- Norma 4 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">4</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">4</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Preparación</h4>
-              <p class="text-gray-300 text-xs">Consumibles, reparaciones y conocimiento de mecánicas listos.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Preparación</h4>
+              <p class="text-gray-300">Consumibles, reparaciones y conocimiento de mecánicas listos.</p>
             </div>
           </div>
           
           <!-- Norma 5 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">5</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">5</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Trabajo en Equipo</h4>
-              <p class="text-gray-300 text-xs">Respeto y colaboración con todos los miembros de la hermandad.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Trabajo en Equipo</h4>
+              <p class="text-gray-300">Respeto y colaboración con todos los miembros de la hermandad.</p>
             </div>
           </div>
           
           <!-- Norma 6 -->
-          <div class="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg">
+          <div class="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
             <div class="flex-shrink-0 mt-0.5">
-              <div class="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center">
-                <span class="text-amber-400 text-xs font-bold">6</span>
+              <div class="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <span class="text-amber-400 text-sm font-bold">6</span>
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-amber-300">Conducta</h4>
-              <p class="text-gray-300 text-xs">No se tolera acoso, lenguaje ofensivo o comportamiento tóxico.</p>
+              <h4 class="font-semibold text-amber-300 text-base">Conducta</h4>
+              <p class="text-gray-300">No se tolera acoso, lenguaje ofensivo o comportamiento tóxico.</p>
             </div>
           </div>
         </div>

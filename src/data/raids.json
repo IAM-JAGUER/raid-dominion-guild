@@ -7,28 +7,28 @@
         "name": "10 Normal",
         "leaders": [
           {
-            "name": "Sargorath",
-            "schedule": ["Lunes 18:00 - 21:00"]
-          },
-          {
-            "name": "Vorthrak",
-            "schedule": ["Martes 18:00 - 21:00"]
+            "name": "Voidhammer",
+            "schedule": ["Lunes 18:00-21:00"]
           },
           {
             "name": "Stormgrim",
-            "schedule": ["Miércoles 18:00 - 21:00"]
-          },
-          {
-            "name": "Ravenguard",
-            "schedule": ["Jueves 18:00 - 21:00"]
-          },
-          {
-            "name": "Voidhammer",
-            "schedule": ["Viernes 18:00 - 21:00"]
+            "schedule": ["Lunes 21:00-00:00"]
           },
           {
             "name": "Howlshade",
-            "schedule": ["Domingo 18:00 - 21:00"]
+            "schedule": ["Martes 18:00-21:00"]
+          },
+          {
+            "name": "Vorthrak",
+            "schedule": ["Martes 21:00-00:00"]
+          },
+          {
+            "name": "Ravenguard",
+            "schedule": ["Miércoles 18:00-21:00"]
+          },
+          {
+            "name": "Sargorath",
+            "schedule": ["Miércoles 21:00-00:00"]
           }
         ],
         "waitingList": []
@@ -42,28 +42,28 @@
         "name": "25 Normal",
         "leaders": [
           {
-            "name": "Sargorath",
-            "schedule": ["Lunes 18:00 - 21:00"]
-          },
-          {
-            "name": "Vorthrak",
-            "schedule": ["Martes 18:00 - 21:00"]
+            "name": "Voidhammer",
+            "schedule": ["Jueves 18:00-21:00"]
           },
           {
             "name": "Stormgrim",
-            "schedule": ["Miércoles 18:00 - 21:00"]
-          },
-          {
-            "name": "Ravenguard",
-            "schedule": ["Jueves 18:00 - 21:00"]
-          },
-          {
-            "name": "Voidhammer",
-            "schedule": ["Viernes 18:00 - 21:00"]
+            "schedule": ["Jueves 21:00-00:00"]
           },
           {
             "name": "Howlshade",
-            "schedule": ["Domingo 18:00 - 21:00"]
+            "schedule": ["Viernes 18:00-21:00"]
+          },
+          {
+            "name": "Vorthrak",
+            "schedule": ["Viernes 21:00-00:00"]
+          },
+          {
+            "name": "Ravenguard",
+            "schedule": ["Domingo 18:00-21:00"]
+          },
+          {
+            "name": "Sargorath",
+            "schedule": ["Domingo 21:00-00:00"]
           }
         ],
         "waitingList": []
@@ -102,59 +102,7 @@
     }
   },
   {
-    "id": "ulduar",
-    "name": "Ulduar",
-    "difficulties": {
-      "10n": {
-        "name": "10 Normal",
-        "leaders": [],
-        "waitingList": []
-      },
-      "10h": {
-        "name": "10 Heroico",
-        "leaders": [],
-        "waitingList": []
-      },
-      "25n": {
-        "name": "25 Normal",
-        "leaders": [],
-        "waitingList": []
-      },
-      "25h": {
-        "name": "25 Heroico",
-        "leaders": [],
-        "waitingList": []
-      }
-    }
-  },
-  {
-    "id": "naxxramas",
-    "name": "Naxxramas",
-    "difficulties": {
-      "10n": {
-        "name": "10 Normal",
-        "leaders": [],
-        "waitingList": []
-      },
-      "10h": {
-        "name": "10 Heroico",
-        "leaders": [],
-        "waitingList": []
-      },
-      "25n": {
-        "name": "25 Normal",
-        "leaders": [],
-        "waitingList": []
-      },
-      "25h": {
-        "name": "25 Heroico",
-        "leaders": [],
-        "waitingList": []
-      }
-    }
-  },
-  {
-    "id": "ruby-sanctum",
+    "id": "rs",
     "name": "Ruby Sanctum",
     "difficulties": {
       "10n": {
