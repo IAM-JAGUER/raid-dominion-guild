@@ -40,7 +40,7 @@ type Raid = {
 type DifficultyKey = '10n' | '10h' | '25n' | '25h';
 
 // Importar los datos directamente desde el archivo JSON
-import raidsData from '../../data/raids.json';
+import raidsData from '../../../data/raids.json';
 const raids: Raid[] = raidsData;
 
 // Función para analizar los horarios de las raids
@@ -112,8 +112,11 @@ const nextRaids = raidEvents.slice(1, 4);
 ---
 
 <div class="max-w-6xl mx-auto">
-  <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-xl p-2 mb-6">
-    <h2 class="text-2xl font-bold text-center bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent mb-2">RAIDEO DISPONIBLE</h2>
+  <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-xl mb-6 p-6">
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold text-amber-300 mb-2">RAIDS DE HERMANDAD</h2>
+      <div class="h-1 w-20 bg-gradient-to-r from-amber-500 to-yellow-600 mx-auto my-3 rounded-full"></div>
+    </div>
     
     <!-- Próximas 3 raids -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -151,13 +154,13 @@ const nextRaids = raidEvents.slice(1, 4);
     
     <!-- Mensaje informativo -->
     <div class="max-w-3xl mx-auto mb-6 px-4">
-      <div class="text-xs text-amber-100/70 bg-amber-900/20 border-l-2 border-amber-600/50 px-4 py-3 rounded-r">
+      <div class="text-xs text-amber-100/70 bg-amber-900/20 border-l-2 border-amber-600/50 px-4 py-3 rounded-lg">
         <div class="flex items-end">
           <svg class="w-4 h-4 flex-shrink-0 mr-2 mt-0.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <div>
-            <p>Para registrar tus raid o solicitar turnos para misiones, contacta al Guild Master o a un Oficial en el juego.</p>
+            <p>Para registrar aqui sus horarios de raid como líderes o solicitar turnos para misiones, contacten al Guild Master o a un Oficial en el juego.</p>
           </div>
         </div>
       </div>

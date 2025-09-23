@@ -2,13 +2,10 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
-import CallToAction from '@/sections/CallToAction.astro';
-import YoutubeBanner from '@/sections/YoutubeBanner.astro';
-import AboutAddon from '@/sections/AboutAddon.astro';
 import Donations from '@/sections/Donations.astro';
 import AboutCommunity from '@/sections/AboutCommunity.astro';
-import Footer from '@/sections/Footer.astro';
-import RaidSection from '@/components/raids/RaidSection.astro';
+import RaidSection from '@/components/features/raids/RaidSection.astro';
+import AddonSection from '@/sections/AddonSection.astro';
 ---
 
 <Layout title="Comunidad Colmillo de Acero - Hermandad World of Warcraft">
@@ -22,38 +19,28 @@ import RaidSection from '@/components/raids/RaidSection.astro';
 			</section>
 
 			<!-- Sección Raids -->
-			<section id="raids" class="scroll-mt-16 py-12">
+			<section id="raids" class="scroll-mt-16">
 				<div class="max-w-7xl mx-auto">
 					<RaidSection />
 				</div>
 			</section>
 
 			<!-- Sección Comunidad -->
-			<section id="comunidad" class="scroll-mt-16 py-12">
+			<section id="comunidad" class="scroll-mt-16">
 				<AboutCommunity></AboutCommunity>
 			</section>
 
-			<!-- Sección Guías -->
-			<section id="guias" class="scroll-mt-16 py-12">
-				<div class="max-w-7xl mx-auto">
-					<AboutAddon></AboutAddon>
-				</div>
-			</section>
-
-			<!-- Sección Media -->
-			<section id="media" class="scroll-mt-16 py-12">
-				<YoutubeBanner></YoutubeBanner>
-			</section>
+			<!-- Sección Addon -->
+			<AddonSection />
 
 			<!-- Sección Donaciones -->
-			<section id="donaciones" class="scroll-mt-16 py-12">
+			<section id="donaciones" class="scroll-mt-16">
 				<div class="max-w-7xl mx-auto">
 					<Donations></Donations>
 				</div>
 			</section>
 		</div>
 	</main>
-	<Footer></Footer>
 
 	<script>
 		// Mostrar el humo después de que cargue la página
