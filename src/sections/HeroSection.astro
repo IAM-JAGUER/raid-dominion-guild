@@ -1,0 +1,88 @@
+---
+// HeroSection.astro - Componente para la sección principal de la página de inicio
+import { SITE_CONFIG, SOCIAL_LINKS } from '@/utils/constants';
+import { theme } from '@/theme/theme.config';
+---
+
+<div class="text-center px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Logo y título -->
+    <div class="mb-8 animate-fade-in-1">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4 text-amber-400">
+        {SITE_CONFIG.TITLE}
+      </h1>
+      <p class="text-xl md:text-2xl text-amber-200 max-w-3xl mx-auto">
+        Hermandad de World of Warcraft - Reinos Latinos
+      </p>
+    </div>
+
+    <!-- Llamado a la acción -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-fade-in-2">
+      <a 
+        href={SOCIAL_LINKS.discord} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 flex items-center justify-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.319 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.8 8.18 1.8 12.061 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.6 12.6 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.548-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.158-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.158 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418z"></path>
+        </svg>
+        <span>Únete a nuestro Discord</span>
+      </a>
+      
+      <a 
+        href="#addon" 
+        class="px-8 py-3 bg-transparent border-2 border-amber-400 text-amber-400 hover:bg-amber-400/10 font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
+      >
+        Descarga el Addon
+      </a>
+    </div>
+
+    <!-- Contador de miembros y en línea -->
+    <div class="flex flex-wrap justify-center gap-6 text-amber-100 text-sm mb-8 animate-fade-in-3">
+      <div class="flex items-center">
+        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+        <span>200+ Miembros</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+        <span>50+ En línea</span>
+      </div>
+      <div class="flex items-center">
+        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+        <span>Activos diariamente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Imagen de fondo temática -->
+  <div class="mt-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent z-10"></div>
+    <img 
+      src="/images/wow-dragonflight-hero.jpg" 
+      alt="World of Warcraft Dragonflight" 
+      class="w-full max-w-4xl mx-auto rounded-lg shadow-2xl opacity-80"
+      loading="lazy"
+    />
+  </div>
+</div>
+
+<style>
+  .animate-fade-in-1 {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+  .animate-fade-in-2 {
+    animation: fadeIn 1s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+  .animate-fade-in-3 {
+    animation: fadeIn 1s ease-out 0.6s forwards;
+    opacity: 0;
+  }
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
