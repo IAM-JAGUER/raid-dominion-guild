@@ -812,81 +812,77 @@
   const playerSelect = document.getElementById('player-select') as HTMLInputElement;
 
   // Funciones de utilidad
-  const renderTable = (): void => {
+  function updatePagination() {
+    if (!pagination) return;
+    pagination.innerHTML = "";
+    const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    function createPageLink(page: number, text: string | number = page) {
+      const link = document.createElement("button");
+      link.textContent = text.toString();
+      link.className = `px-3 py-1 mx-0.5 rounded-md ${currentPage === page ? 'bg-amber-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`;
+      link.addEventListener("click", () => {
+        currentPage = page;
+        renderTable();
+      });
+      return link;
+    }
+
+    if (currentPage > 1) {
+      const firstLink = createPageLink(1, '«');
+      pagination.appendChild(firstLink);
+    }
+
+    if (startPage > 1) {
+      const ellipsis = document.createElement("span");
+      ellipsis.textContent = "...";
+      ellipsis.className = "flex items-center px-2 text-gray-400 text-sm";
+      pagination.appendChild(ellipsis);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const link = createPageLink(i);
+      pagination.appendChild(link);
+    }
+
+    if (endPage < totalPages) {
+      const ellipsis = document.createElement("span");
+      ellipsis.textContent = "...";
+      ellipsis.className = "flex items-center px-2 text-gray-400 text-sm";
+      pagination.appendChild(ellipsis);
+    }
+
+    if (currentPage < totalPages) {
+      const lastLink = createPageLink(totalPages, '»');
+      pagination.appendChild(lastLink);
+    }
+  }
+
+  function renderTable() {
     if (!playerTableBody) return;
-    
-    // Lógica de renderizado de la tabla
-    playerTableBody.innerHTML = '';
-    
-    // Ordenar jugadores
+    playerTableBody.innerHTML = "";
+
     const sortedPlayers = [...filteredPlayers].sort((a, b) => {
-      const aValue = a[sortBy] || '';
-      const bValue = b[sortBy] || '';
-      
-      if (sortOrder === 'asc') {
+      const aValue = a[sortBy] ?? '';
+      const bValue = b[sortBy] ?? '';
+      if (sortOrder === "asc") {
         return String(aValue).localeCompare(String(bValue));
       } else {
         return String(bValue).localeCompare(String(aValue));
       }
     });
-    
-    // Paginación
+
     const start = (currentPage - 1) * playersPerPage;
-    const paginatedPlayers = sortedPlayers.slice(start, start + playersPerPage);
-    
-    // Renderizar filas
-    // ... (código existente de renderizado de filas)
-  }
-
-  // Inicialización
-  document.addEventListener('DOMContentLoaded', () => {
-    // Configurar filtros
-    if (typeof setupFilters === 'function') {
-      setupFilters();
-    }
-    
-    // Renderizar re
-    if (typeof renderMilestones === 'function') {
-      renderMilestones();
-    }
-    
-    // Inicializar el modal
-    if (typeof setupModal === 'function') {
-      setupModal();
-    }
-    
-    // Obtener elementos del DOM
-    const resetButton = document.querySelector('input[type="reset"]') as HTMLInputElement;
-    
-    // Inicializar eventos
-    if (resetButton) {
-      resetButton.addEventListener('click', () => {
-        if (classFilter) classFilter.value = '';
-        if (rankFilter) rankFilter.value = '';
-        if (searchInput) searchInput.value = '';
-        filteredPlayers = [...players];
-        currentPage = 1;
-        renderTable();
-      });
-    }
-
-    function renderTable() {
-      if (!playerTableBody) return;
-      playerTableBody.innerHTML = "";
-
-      const sortedPlayers = [...filteredPlayers].sort((a, b) => {
-        const aValue = a[sortBy] ?? '';
-        const bValue = b[sortBy] ?? '';
-        if (sortOrder === "asc") {
-          return String(aValue).localeCompare(String(bValue));
-        } else {
-          return String(bValue).localeCompare(String(aValue));
-        }
-      });
-
-      const start = (currentPage - 1) * playersPerPage;
-      const end = start + playersPerPage;
-      const paginatedPlayers = sortedPlayers.slice(start, end);
+    const end = start + playersPerPage;
+    const paginatedPlayers = sortedPlayers.slice(start, end);
 
       paginatedPlayers.forEach((player) => {
         const row = document.createElement("tr");
@@ -984,6 +980,67 @@
       });
 
       updatePagination();
+    }
+    
+    // Inicialización
+  // Inicialización
+  document.addEventListener('DOMContentLoaded', () => {
+    // Configurar filtros
+    if (typeof setupFilters === 'function') {
+      setupFilters();
+    }
+    
+    // Renderizar milestones
+    if (typeof renderMilestones === 'function') {
+      renderMilestones();
+    }
+    
+    // Inicializar el modal
+    if (typeof setupModal === 'function') {
+      setupModal();
+    }
+    
+    // Obtener elementos del DOM
+    const resetButton = document.querySelector('input[type="reset"]') as HTMLInputElement;
+    
+    // Inicializar eventos
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        if (classFilter) classFilter.value = '';
+        if (rankFilter) rankFilter.value = '';
+        if (searchInput) searchInput.value = '';
+        filteredPlayers = [...players];
+        currentPage = 1;
+        renderTable();
+      });
+    }
+    
+    // Renderizar la tabla inicialmente
+    renderTable();
+    
+    // Configurar eventos de ordenación
+    document.querySelectorAll('th[data-column]').forEach(th => {
+      th.addEventListener('click', () => {
+        const column = th.getAttribute('data-column') as keyof PlayerType;
+        handleSort(column);
+      });
+    });
+    
+    // Configurar eventos de filtrado
+    if (rankFilter) rankFilter.addEventListener('change', filterPlayers);
+    if (classFilter) classFilter.addEventListener('change', filterPlayers);
+    if (playerSelect) playerSelect.addEventListener('input', filterPlayers);
+    
+    // Configurar evento de reinicio
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        if (playerSelect) playerSelect.value = '';
+        if (classFilter) classFilter.value = '';
+        if (rankFilter) rankFilter.value = '';
+        filteredPlayers = [...players];
+        currentPage = 1;
+        renderTable();
+      });
     }
 
     function updatePagination() {

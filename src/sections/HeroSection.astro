@@ -1,7 +1,6 @@
 ---
 // HeroSection.astro - Componente para la sección principal de la página de inicio
 import { SITE_CONFIG, SOCIAL_LINKS } from '@/utils/constants';
-import { theme } from '@/theme/theme.config';
 ---
 
 <div class="text-center px-4 sm:px-6 lg:px-8">
@@ -19,7 +18,7 @@ import { theme } from '@/theme/theme.config';
     <!-- Llamado a la acción -->
     <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-fade-in-2">
       <a 
-        href={SOCIAL_LINKS.discord} 
+        href={SOCIAL_LINKS.discord.url} 
         target="_blank" 
         rel="noopener noreferrer"
         class="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-500/20 flex items-center justify-center space-x-2"

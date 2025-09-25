@@ -57,7 +57,7 @@ function parseRaidSchedules(raids: Raid[]): RaidEvent[] {
   const currentMinutes = now.getMinutes();
   
   raids.forEach(raid => {
-    Object.entries(raid.difficulties).forEach(([difficultyKey, difficulty]) => {
+    Object.entries(raid.difficulties).forEach(([_, difficulty]) => {
       difficulty.leaders.forEach(leader => {
         leader.schedule.forEach(schedule => {
           // Formato esperado: "Día HH:MM - HH:MM"
@@ -100,7 +100,6 @@ function parseRaidSchedules(raids: Raid[]): RaidEvent[] {
 
 // Obtener eventos de raid
 const raidEvents = parseRaidSchedules(raids);
-const nextRaid = raidEvents[0];
 const raidsThisWeek = raidEvents.filter(event => {
   const now = new Date();
   const nextWeek = new Date(now);
