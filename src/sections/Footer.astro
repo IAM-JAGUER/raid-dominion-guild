@@ -8,9 +8,18 @@ import { SITE_CONFIG } from '@/utils/constants'
         <div class="flex flex-col md:flex-row justify-between items-center">
             <!-- Información de derechos de autor -->
             <div class="text-center md:text-left">
-                <h3 class="text-lg font-bold bg-clip-text text-amber-200 bg-gradient-to-r from-amber-400 to-yellow-500">
-                    {SITE_CONFIG.TITLE}
-                </h3>
+                <div class="flex items-center justify-center md:justify-start">
+                    <img
+                        src="/logo.png"
+                        alt="Logo RaidDominion"
+                        class="h-8 w-auto mr-2 rounded"
+                        loading="lazy"
+                        decoding="async"
+                    />
+                    <h3 class="text-lg font-bold bg-clip-text text-amber-200 bg-gradient-to-r from-amber-400 to-yellow-500">
+                        {SITE_CONFIG.TITLE}
+                    </h3>
+                </div>
                 <p class="text-xs text-gray-300 mt-1">
                     &copy; 2025 Todos los derechos reservados
                 </p>
@@ -47,8 +56,6 @@ import { SITE_CONFIG } from '@/utils/constants'
         <div class="mt-4 pt-4 border-t border-amber-600/20">
             <ul class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm">
                 <li><a href="#inicio" class="text-amber-200 hover:text-white transition-colors font-medium">Inicio</a></li>
-                <li><a href="#raids" class="text-amber-200 hover:text-white transition-colors font-medium">Raids</a></li>
-                <li><a href="#comunidad" class="text-amber-200 hover:text-white transition-colors font-medium">Comunidad</a></li>
                 <li><a href="#addon" class="text-amber-200 hover:text-white transition-colors font-medium">Addon</a></li>
                 <li><a href="#donaciones" class="text-amber-200 hover:text-white transition-colors font-medium">Donaciones</a></li>
             </ul>

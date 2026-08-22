@@ -1,0 +1,179 @@
+---
+// Grid de guías del addon con lector interno.
+// La guía activa se muestra en la parte SUPERIOR (antes de la lista de guías),
+// sin recargar página. Se navega internamente vía accordion.
+import { guides, colorClasses } from '@/data/addonGuides';
+---
+
+<div class="mt-8" id="addon-guides">
+  <h3 class="text-2xl font-bold text-amber-300 mb-2 text-center">RaidDominion</h3>
+  <p class="text-gray-400 text-sm text-center mb-8 italic">
+    Aprende a usar RaidDominion: menú flotante, bandas, botín, spammers y comandos.
+  </p>
+
+  <!-- Lector interno: la guía activa se muestra ARRIBA, antes de la lista -->
+  <div class="mb-10 space-y-6">
+    {guides.map((guide, index) => {
+      const c = colorClasses[guide.color] || colorClasses.amber;
+      return (
+        <section
+          id={`guide-panel-${guide.id}`}
+          class="guide-panel hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-lg overflow-hidden"
+          data-guide-index={index}
+        >
+          <!-- Header del panel -->
+          <div class="px-6 py-5 bg-gradient-to-r from-gray-900/80 to-gray-800/40 border-b border-amber-600/30 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class={`p-2.5 rounded-lg ${c.iconBg} border ${c.iconBorder} w-fit`}>
+                <span class="text-xl">{guide.icon}</span>
+              </div>
+              <div>
+                <h4 class="text-xl font-bold text-amber-300">{guide.title}</h4>
+                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                  {guide.category}
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="guide-close px-4 py-2 rounded-lg bg-gray-800/80 border border-amber-600/30 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest"
+              data-guide-index={index}
+            >
+              ✕ Cerrar
+            </button>
+          </div>
+
+          <!-- Contenido (accordion de secciones) -->
+          <div class="p-6">
+            <p class="text-gray-400 text-sm italic mb-6">{guide.description}</p>
+            <div class="space-y-4">
+              {guide.sections.map((section, sIdx) => (
+                <details
+                  class="group bg-gray-800/50 border border-amber-600/30 rounded-lg overflow-hidden"
+                  open={sIdx === 0}
+                >
+                  <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between text-amber-200 font-bold text-sm hover:bg-amber-900/10 transition-all">
+                    <span>{section.title}</span>
+                    <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div class="px-5 pb-4">
+                    <ul class="space-y-3">
+                      {section.content.map((line) => (
+                        <li class="flex items-start text-sm text-gray-300 font-medium leading-relaxed">
+                          <span class="text-amber-600 mr-2 mt-0.5">›</span>
+                          <span>{line}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    })}
+  </div>
+
+  <!-- Grid de guías (cards → abren el lector interno arriba) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {guides.map((guide, index) => {
+      const c = colorClasses[guide.color] || colorClasses.amber;
+      return (
+        <button
+          type="button"
+          class="addon-guide-card relative group bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-lg p-5 transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/10 hover:-translate-y-1 overflow-hidden text-left cursor-pointer"
+          data-guide-index={index}
+          aria-expanded="false"
+          aria-controls={`guide-panel-${guide.id}`}
+        >
+          <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+          <div class="relative z-10 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-3">
+              <div class={`p-2.5 rounded-lg ${c.iconBg} border ${c.iconBorder} w-fit`}>
+                <span class="text-lg">{guide.icon}</span>
+              </div>
+              <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">
+                {guide.category}
+              </span>
+            </div>
+            <h4 class="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition-colors leading-tight">
+              {guide.title}
+            </h4>
+            <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic">
+              {guide.description}
+            </p>
+            <div class="pt-3 border-t border-amber-600/20">
+              <span class={`text-[10px] font-black uppercase tracking-widest ${c.btnText}`}>
+                Leer Guía →
+              </span>
+            </div>
+          </div>
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+<script>
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('.addon-guide-card'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.guide-panel'));
+
+  function closeAll(): void {
+    panels.forEach((p) => {
+      p.classList.add('hidden');
+    });
+    cards.forEach((card) => card.setAttribute('aria-expanded', 'false'));
+  }
+
+  function openGuide(index: number): void {
+    closeAll();
+    const panel = panels[index];
+    if (!panel) return;
+    panel.classList.remove('hidden');
+    const card = cards[index];
+    if (card) card.setAttribute('aria-expanded', 'true');
+    // El panel está arriba; hacer scroll al inicio de la sección de guías
+    const container = document.getElementById('addon-guides');
+    if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  cards.forEach((card, i) => {
+    card.addEventListener('click', () => openGuide(i));
+  });
+
+  document.querySelectorAll<HTMLElement>('.guide-close').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAll();
+      const card = cards[Number(btn.getAttribute('data-guide-index'))];
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // Soporte a #guide-<id> para abrir directo desde un enlace
+  const onHash = (): void => {
+    const id = window.location.hash.replace(/^#/, '');
+    if (!id.startsWith('guide-')) return;
+    const panel = document.getElementById(id);
+    if (!panel) return;
+    const idx = Number(panel.getAttribute('data-guide-index'));
+    if (!Number.isNaN(idx)) openGuide(idx);
+  };
+  window.addEventListener('hashchange', onHash);
+  onHash();
+</script>
+
+<style>
+  .bg-grid-pattern {
+    background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Ocultar el marcador por defecto de <summary> */
+  .guide-panel summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

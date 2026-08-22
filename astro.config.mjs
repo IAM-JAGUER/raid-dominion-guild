@@ -8,5 +8,16 @@ export default defineConfig({
   // Desactivar la barra de desarrollo de Astro
   devToolbar: {
     enabled: false
-  }
+  },
+
+  vite: {
+    server: {
+      watch: {
+        // DrvFs/WSL2: inotify no funciona confiablemente sobre /mnt/d/.
+        // Con polling el dev server detecta cambios y recarga (HMR).
+        usePolling: true,
+        interval: 300,
+      },
+    },
+  },
 });

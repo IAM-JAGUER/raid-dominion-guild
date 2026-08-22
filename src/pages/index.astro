@@ -3,12 +3,10 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
 import Donations from '@/sections/Donations.astro';
-import AboutCommunity from '@/sections/AboutCommunity.astro';
-import RaidSection from '@/components/features/raids/RaidSection.astro';
 import AddonSection from '@/sections/AddonSection.astro';
 ---
 
-<Layout title="Comunidad Colmillo de Acero - Hermandad World of Warcraft">
+<Layout title="RaidDominion - Addon World of Warcraft 3.3.5a">
 	<Navigation />
 	<main class="relative">
 		<!-- Contenido principal -->
@@ -16,18 +14,6 @@ import AddonSection from '@/sections/AddonSection.astro';
 			<!-- Sección Inicio -->
 			<section id="inicio" class="scroll-mt-16">
 				<GrandLogo></GrandLogo>
-			</section>
-
-			<!-- Sección Raids -->
-			<section id="raids" class="scroll-mt-16">
-				<div class="max-w-7xl mx-auto">
-					<RaidSection />
-				</div>
-			</section>
-
-			<!-- Sección Comunidad -->
-			<section id="comunidad" class="scroll-mt-16">
-				<AboutCommunity></AboutCommunity>
 			</section>
 
 			<!-- Sección Addon -->

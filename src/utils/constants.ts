@@ -1,39 +1,35 @@
 // URLs de la aplicación
 export const APP_URLS = {
   HOME: '/',
-  RAIDS: '/raids',
-  PLAYERS: '/players',
-  ADMIN: '/admin',
-  DONATE: '/donate',
+  ADDON: '/#addon',
+  GUIDES: '/#addon',
+  DONATE: '/#donaciones',
   DISCORD: 'https://discord.gg/BwdpNV9sky',
   YOUTUBE: 'https://www.youtube.com/@IAM-GAMECODE',
   GITHUB: 'https://github.com/IAM-DEV88/raid-dominion-guild',
+  DOWNLOAD: 'https://github.com/IAM-DEV88/RaidDominion/archive/refs/heads/main.zip',
 };
 
 // Nombres de rutas para el menú
 export const ROUTE_NAMES = {
   HOME: 'Inicio',
-  RAIDS: 'Raids',
-  COMMUNITY: 'Comunidad',
-  ADDON: 'Addon',
+  ADDON: 'Guía',
   DONATIONS: 'Donaciones',
 };
 
 // Rutas de navegación
 export const NAV_ITEMS = [
-  { name: ROUTE_NAMES.HOME, href: '#inicio' },
-  { name: ROUTE_NAMES.RAIDS, href: '#raids' },
-  { name: ROUTE_NAMES.COMMUNITY, href: '#comunidad' },
-  { name: ROUTE_NAMES.ADDON, href: '#addon' },
-  { name: ROUTE_NAMES.DONATIONS, href: '#donaciones' },
+  { name: ROUTE_NAMES.HOME, href: '/#inicio' },
+  { name: ROUTE_NAMES.ADDON, href: '/#addon' },
+  { name: ROUTE_NAMES.DONATIONS, href: '/#donaciones' },
 ];
 
 // Configuración del sitio
 export const SITE_CONFIG = {
-  TITLE: 'Colmillo de Acero',
-  DESCRIPTION: 'Hermandad de World of Warcraft WotLK enfocada en el contenido PvE de alto nivel.',
-  KEYWORDS: ['wow', 'wotlk', 'raids', 'pve', 'hermandad', 'wow classic', 'wotlk classic'],
-  AUTHOR: 'Colmillo de Acero',
+  TITLE: 'RaidDominion',
+  DESCRIPTION: 'Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar.',
+  KEYWORDS: ['wow', 'wotlk', 'addon', 'raid', '3.3.5a', 'bandas', 'pve', 'roles', 'buffs', 'raiddominion'],
+  AUTHOR: 'RaidDominion',
   THEME_COLOR: '#d97706', // Color ámbar-600
   LOCALE: 'es-ES',
 };

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "agent": {
+    "build": {
+      "permission": {
+        "task": "allow"
+      }
+    },
+    "ui-ux": {
+      "description": "UX division — accesibilidad, responsive, consistencia del tema WoW, i18n",
+      "mode": "subagent",
+      "steps": 12,
+      "permission": { "edit": "allow", "bash": "allow", "glob": "allow", "grep": "allow" },
+      "prompt": "{file:agents/ui-ux.md}"
+    },
+    "product": {
+      "description": "Product division — features de comunidad, flujo member→guild_master, conversión",
+      "mode": "subagent",
+      "steps": 12,
+      "permission": { "edit": "allow", "bash": "allow", "glob": "allow", "grep": "allow" },
+      "prompt": "{file:agents/product.md}"
+    },
+    "development": {
+      "description": "Development division — Supabase, parser de SavedVariables, dashboards, rutas",
+      "mode": "subagent",
+      "steps": 12,
+      "permission": { "edit": "allow", "bash": "allow", "glob": "allow", "grep": "allow" },
+      "prompt": "{file:agents/development.md}"
+    },
+    "refactorer": {
+      "description": "Refactoring division — refactor seguro que preserva comportamiento, split de archivos",
+      "mode": "subagent",
+      "steps": 12,
+      "permission": { "edit": "allow", "bash": "allow", "glob": "allow", "grep": "allow" },
+      "prompt": "{file:agents/refactorer.md}"
+    },
+    "qa": {
+      "description": "QA division — types, build, RLS, reglas multi-app, límites del parser",
+      "mode": "subagent",
+      "steps": 12,
+      "permission": { "edit": "deny", "bash": "allow", "glob": "allow", "grep": "allow" },
+      "prompt": "{file:agents/qa.md}"
+    }
+  }
+}

@@ -1,66 +1,35 @@
 ---
 import ImageComponent from "@/components/shared/ImageComponent.astro";
-import AddonGallery from "@/components/features/addon/AddonGallery.astro";
+import AddonGuidesGrid from "@/components/features/addon/AddonGuidesGrid.astro";
 import SectionHeader from '@/components/ui/SectionHeader.astro';
-import FeatureCard from '@/components/ui/cards/FeatureCard.astro';
-import { features } from '@/data/features';
 import YoutubeIcon from "@/components/shared/icons/YoutubeIcon.astro";
 ---
 
 <section id="addon" class="scroll-mt-16 py-8">
   <div class="max-w-7xl mx-auto">
-    
+
     <div class="w-full">
-      <!-- Main Content -->
       <div class="w-full">
-        <div class="rounded-xl overflow-hidden border border-amber-600/30 transform transition-all duration-300 hover:shadow-amber-500/20 bg-gray-900/50 backdrop-blur-sm p-6 sm:p-8">
+        <div class="rounded-lg overflow-hidden border border-amber-600/30 transform transition-all duration-300 hover:shadow-amber-500/20 bg-gray-900/50 backdrop-blur-sm p-6 sm:p-8">
           <!-- Header with Logo -->
           <div class="text-center mb-10">
             <div class="mb-6">
               <ImageComponent classes="h-16 mx-auto drop-shadow-lg" imageName="logo.png" />
             </div>
-            <SectionHeader title="Raid Dominion - Addon" />
-          </div>
-          <!-- Introduction -->
-          <div class="prose prose-invert max-w-none mb-8">
-            <p class="text-gray-300 leading-relaxed">
-              <span class="text-amber-300 font-semibold">Raid Dominion</span> es un addon especialmente diseñado para 
-              <span class="text-amber-300 font-semibold">World of Warcraft 3.3.5a</span>, creado por el maestro de la hermandad Colmillo de Acero. 
-              Este potente addon está destinado a facilitar la gestión, control y comunicación en las bandas, permitiendo a los líderes de banda 
-              una organización más efectiva de roles, buffs y habilidades.
-            </p>
+            <SectionHeader title="Guía del Addon" />
           </div>
 
-          <!-- Gallery -->
-          <div class="mb-10">
-            <AddonGallery />
-          </div>
-
-          <!-- Features -->
-          <div class="mb-8">
-            <h3 class="text-2xl font-bold text-amber-300 mb-6 text-center">Características Clave</h3>
-            
-            <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-              {features.map((feature, index) => (
-                <FeatureCard 
-                  title={feature.title} 
-                  icon={feature.icon}
-                >
-                  {feature.description}
-                </FeatureCard>
-              ))}
-            </div>
-          </div>
-          <!-- YouTube Banner -->
-          <div class="mt-8 w-full max-w-lg mx-auto">
-            <article class="animate-blurred-fade-in rounded-xl overflow-hidden border border-amber-600/30 bg-gradient-to-br from-gray-900 to-gray-800 transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20">
+          <!-- Guías del Addon -->
+          <AddonGuidesGrid />
+          <div class="mt-10 w-full max-w-lg mx-auto">
+            <article class="animate-blurred-fade-in rounded-lg overflow-hidden border border-amber-600/30 bg-gradient-to-br from-gray-900 to-gray-800 transform transition-all duration-300 hover:scale-[1.01] hover:shadow-amber-500/20">
               <!-- Header -->
               <div class="bg-gradient-to-r from-amber-600/80 to-amber-800/80 px-6 py-2">
                 <h2 class="text-center text-sm font-bold text-white tracking-wider">
                   ADDON WOW 3.3.5A
                 </h2>
               </div>
-              
+
               <!-- YouTube Button -->
               <a
                 href="https://www.youtube.com/@IAM-GAMECODE"
@@ -81,7 +50,7 @@ import YoutubeIcon from "@/components/shared/icons/YoutubeIcon.astro";
                   Aprende a aprovechar al máximo el addon con nuestros tutoriales
                 </p>
               </a>
-              
+
               <!-- Discord Button -->
               <a
                 href="https://discord.gg/BwdpNV9sky"

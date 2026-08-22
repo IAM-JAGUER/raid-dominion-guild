@@ -22,10 +22,17 @@ const { currentPath = '/', className = '' } = Astro.props;
       <!-- Logo -->
       <div class="flex-shrink-0">
         <a 
-          href="#inicio" 
+          href="/" 
           class="site-logo flex items-center"
           aria-label="Ir al inicio"
         >
+          <img
+            src="/logo.png"
+            alt="Logo RaidDominion"
+            class="h-9 w-auto mr-2 rounded"
+            loading="eager"
+            decoding="async"
+          />
           <span class="text-xl font-bold bg-clip-text text-amber-200 bg-gradient-to-r from-amber-400 to-yellow-500">
             {SITE_CONFIG.TITLE}
           </span>
@@ -75,40 +82,26 @@ const { currentPath = '/', className = '' } = Astro.props;
       {NAV_ITEMS.map((item) => {
         let icon;
         
-        // Asignar icono según la ruta
+// Asignar icono según la ruta
         switch(item.href) {
-          case '#inicio':
+          case '/#inicio':
             icon = (
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
               </svg>
             );
             break;
-          case '#raids':
+          case '/#addon':
             icon = (
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             );
             break;
-          case '#comunidad':
+          case '/#donaciones':
             icon = (
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-            );
-            break;
-          case '#addon':
-            icon = (
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            );
-            break;
-          case '#donaciones':
-            icon = (
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             );
             break;
@@ -156,7 +149,7 @@ const { currentPath = '/', className = '' } = Astro.props;
     const mobileMenu = document.getElementById('mobile-menu') as HTMLElement | null;
     const scrollUpBtn = document.getElementById('scroll-up') as HTMLButtonElement | null;
     const scrollDownBtn = document.getElementById('scroll-down') as HTMLButtonElement | null;
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]'));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]:not(.guide-panel)'));
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
     
     // Variable para rastrear la sección actual
@@ -205,7 +198,6 @@ const { currentPath = '/', className = '' } = Astro.props;
 
     // Manejar clic en los enlaces de navegación con scroll suave
     function handleNavClick(e: Event) {
-      e.preventDefault();
       const target = e.target as HTMLElement;
       const link = target.closest('a');
       
@@ -213,30 +205,32 @@ const { currentPath = '/', className = '' } = Astro.props;
       
       const targetId = link.getAttribute('href');
       if (!targetId || targetId === '#') return;
-      
-      const targetElement = document.querySelector(targetId);
-      if (!targetElement) return;
-      
-      // Cerrar menú móvil si está abierto
-      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-        mobileMenu.classList.add('hidden');
-        mobileMenu.classList.remove('block');
+
+      // Anclas del home: "/#seccion" o "#seccion" → scroll suave
+      const anchorMatch = targetId.match(/^(?:\/#)?#([\w-]+)$/);
+      if (anchorMatch) {
+        const targetElement = document.getElementById(anchorMatch[1]);
+        if (!targetElement) return;
+        e.preventDefault();
+        // Cerrar menú móvil si está abierto
+        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+          mobileMenu.classList.add('hidden');
+          mobileMenu.classList.remove('block');
+        }
+        const headerOffset = 80;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        history.pushState(null, '', `#${anchorMatch[1]}`);
+        return;
       }
-      
-      // Scroll suave al elemento objetivo
-      const headerOffset = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      
-      // Actualizar URL sin recargar la página
-      history.pushState(null, '', targetId);
+
+      // Las rutas de página navegan normal (no son anclas del home)
+      if (targetId.startsWith('/')) {
+        return;
+      }
     }
-    
+
     // Añadir manejadores de eventos a los enlaces de navegación
     navLinks.forEach(link => {
       link.addEventListener('click', handleNavClick);
@@ -257,8 +251,8 @@ const { currentPath = '/', className = '' } = Astro.props;
         const documentHeight = document.documentElement.scrollHeight;
         const scrollThreshold = 100;
 
-        // Mostrar/ocultar botón de subir
-        if (scrollY > scrollThreshold) {
+        // Botón subir: visible si hay sección anterior o ya se hizo scroll
+        if (scrollY > scrollThreshold || currentSectionIndex > 0) {
           upButton.classList.remove('opacity-0', 'translate-y-4');
           upButton.classList.add('opacity-100', 'translate-y-0');
         } else {
@@ -266,8 +260,10 @@ const { currentPath = '/', className = '' } = Astro.props;
           upButton.classList.remove('opacity-100', 'translate-y-0');
         }
 
-        // Mostrar/ocultar botón de bajar
-        if (scrollY < documentHeight - windowHeight - scrollThreshold) {
+        // Botón bajar: oculto en la última sección (donaciones) — no hay destino
+        const haySiguiente = currentSectionIndex < sections.length - 1 &&
+          scrollY < documentHeight - windowHeight - scrollThreshold;
+        if (haySiguiente) {
           downButton.classList.remove('opacity-0', 'translate-y-4');
           downButton.classList.add('opacity-100', 'translate-y-0');
         } else {
@@ -276,10 +272,17 @@ const { currentPath = '/', className = '' } = Astro.props;
         }
       }
 
-      // Actualizar visibilidad de botones al cargar y hacer scroll
-      window.addEventListener('scroll', updateButtonVisibility);
-      window.addEventListener('resize', updateButtonVisibility);
-      updateButtonVisibility();
+      // Actualizar detección de sección y visibilidad en un solo handler,
+      // para que la visibilidad use el índice recién calculado
+      function onScrollOrUpdate(): void {
+        updateCurrentSection();
+        updateButtonVisibility();
+      }
+
+      // Actualizar al cargar, hacer scroll y redimensionar
+      window.addEventListener('scroll', onScrollOrUpdate);
+      window.addEventListener('resize', onScrollOrUpdate);
+      onScrollOrUpdate();
 
       // Navegar a la siguiente sección
       downButton.addEventListener('click', () => {
@@ -342,22 +345,18 @@ const { currentPath = '/', className = '' } = Astro.props;
         });
         
         // Luego, agregar la clase activa a los enlaces de navegación correspondientes
-        const desktopLinks = document.querySelectorAll<HTMLAnchorElement>(`.nav-link[href="#${currentSection.id}"]`);
-        const mobileLinks = document.querySelectorAll<HTMLAnchorElement>(`#mobile-menu a[href="#${currentSection.id}"]:not(.site-logo)`);
+        const desktopLinks = document.querySelectorAll<HTMLAnchorElement>(`.nav-link[href="#${currentSection.id}"], .nav-link[href="/#${currentSection.id}"]`);
+        const mobileLinks = document.querySelectorAll<HTMLAnchorElement>(`#mobile-menu a[href="#${currentSection.id}"]:not(.site-logo), #mobile-menu a[href="/#${currentSection.id}"]:not(.site-logo)`);
         
         [...desktopLinks, ...mobileLinks].forEach(activeLink => {
           activeLink.classList.add('bg-amber-800/50', 'text-white');
           activeLink.classList.remove('text-amber-200');
         });
-        
-        // Depuración: mostrar la sección actual en la consola
-        console.log('Sección activa:', currentSection.id);
       }
     }
 
-    // Actualizar sección actual al cargar y hacer scroll
-    window.addEventListener('scroll', updateCurrentSection);
-    updateCurrentSection();
+    // La detección de sección y visibilidad de botones se registran juntas
+    // en onScrollOrUpdate (definido arriba, tras declarar las funciones)
   });
 </script>
 

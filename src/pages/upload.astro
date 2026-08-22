@@ -1,0 +1,327 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+
+<Layout title="Sube tu SavedVariables - RaidDominion" description="Sube tu RaidDominionDB.lua y visualiza el roster y las bandas de tu hermandad.">
+  <Navigation currentPath="/upload" />
+  <main class="relative py-16">
+    <div class="max-w-4xl mx-auto px-4">
+      <!-- Header -->
+      <header class="text-center mb-12 animate-fade-in-1">
+        <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
+          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">
+          Sube tu SavedVariables
+        </h1>
+        <p class="text-gray-400 mt-3 text-sm max-w-lg mx-auto italic">
+          Carga tu <code class="text-amber-300">RaidDominionDB.lua</code> para ver el roster, las bandas y los roles de tu hermandad.
+        </p>
+        <div class="w-48 h-0.5 bg-gradient-to-r from-amber-900/0 via-amber-500/80 to-amber-900/0 mx-auto my-6"></div>
+      </header>
+
+      <!-- Dropzone -->
+      <section class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6 sm:p-8 mb-8">
+        <label
+          for="sv-file"
+          id="dropzone"
+          class="flex flex-col items-center justify-center border-2 border-dashed border-amber-600/40 rounded-lg p-10 cursor-pointer hover:border-amber-500/70 hover:bg-amber-900/10 transition-all"
+        >
+          <svg class="w-10 h-10 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <span class="text-sm text-amber-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
+          <span class="text-xs text-gray-500 mt-1">RaidDominionDB.lua · máx. 2 MB</span>
+          <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" />
+        </label>
+
+        <div id="status" class="mt-4 text-sm text-gray-400 text-center" aria-live="polite"></div>
+
+        <!-- Advertencias -->
+        <div id="warnings" class="mt-4 space-y-2"></div>
+      </section>
+
+      <!-- Resultado -->
+      <section id="result" class="hidden space-y-6">
+        <!-- Claim de maestro -->
+        <div id="claim-banner" class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-lg p-6">
+          <h2 class="text-xl font-bold text-amber-300 mb-2">¡Eres candidato a maestro de hermandad!</h2>
+          <p class="text-sm text-gray-300 mb-4">
+            Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
+            Registra tu hermandad para recibir un portal web gratuito.
+          </p>
+          <div id="claim-pending" class="hidden">
+            <p class="text-xs text-amber-200/70">Tu rango no es de liderazgo; un moderador revisará tu solicitud.</p>
+          </div>
+        </div>
+
+        <!-- Resumen -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-guild-size">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-bands">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-roles">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Roles</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-mechanics">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Mecánicas</p>
+          </div>
+        </div>
+
+        <!-- Bandas -->
+        <div id="bands-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
+          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+            Bandas
+          </h2>
+          <div id="bands-list" class="space-y-4"></div>
+        </div>
+
+        <!-- Reglas -->
+        <div id="rules-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
+          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+            Reglas de banda
+          </h2>
+          <ul id="rules-list" class="space-y-3"></ul>
+        </div>
+
+        <!-- Roster preview -->
+        <div id="roster-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
+          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+            Roster de la hermandad
+          </h2>
+          <div id="roster-table-wrap" class="overflow-x-auto"></div>
+        </div>
+      </section>
+
+      <!-- Error -->
+      <section id="error" class="hidden bg-red-950/40 border border-red-600/40 rounded-lg p-6">
+        <h2 class="text-lg font-bold text-red-300 mb-2">No se pudo procesar el archivo</h2>
+        <p id="error-msg" class="text-sm text-red-200/80"></p>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { parseSavedVariables } from '@/lib/parser/savedVariables';
+  import type { ParsedSavedVariables } from '@/types/parser';
+
+  const fileInput = document.getElementById('sv-file') as HTMLInputElement;
+  const dropzone = document.getElementById('dropzone') as HTMLElement;
+  const statusEl = document.getElementById('status') as HTMLElement;
+  const warningsEl = document.getElementById('warnings') as HTMLElement;
+  const resultEl = document.getElementById('result') as HTMLElement;
+  const errorEl = document.getElementById('error') as HTMLElement;
+  const errorMsg = document.getElementById('error-msg') as HTMLElement;
+
+  function setStatus(msg: string): void {
+    statusEl.textContent = msg;
+  }
+
+  function showError(msg: string): void {
+    errorEl.classList.remove('hidden');
+    errorMsg.textContent = msg;
+    resultEl.classList.add('hidden');
+  }
+
+  function clearWarnings(): void {
+    warningsEl.innerHTML = '';
+  }
+
+  function addWarning(msg: string): void {
+    const w = document.createElement('div');
+    w.className = 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg';
+    w.textContent = '⚠ ' + msg;
+    warningsEl.appendChild(w);
+  }
+
+  function el(tag: string, cls: string, text?: string): HTMLElement {
+    const node = document.createElement(tag);
+    node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLElement {
+    const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4');
+    const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
+    header.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
+
+    const meta = el('div', 'flex flex-wrap gap-2');
+    if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', band.schedule));
+    if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `GS ${band.minGS}`));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.players.length} jugadores`));
+    if (band.attendance.length > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.attendance.length} registros`));
+    header.appendChild(meta);
+    card.appendChild(header);
+
+    if (band.players.length > 0) {
+      const roles = new Map<string, number>();
+      band.players.forEach((p) => {
+        const r = p.role || 'sin rol';
+        roles.set(r, (roles.get(r) || 0) + 1);
+      });
+      const chips = el('div', 'flex flex-wrap gap-2');
+      Array.from(roles.entries()).forEach(([role, count]) => {
+        chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
+      });
+      card.appendChild(chips);
+    }
+
+    return card;
+  }
+
+  function renderRoster(members: ParsedSavedVariables['guild']['members']): void {
+    const wrap = document.getElementById('roster-table-wrap') as HTMLElement;
+    if (!members || members.length === 0) {
+      wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'w-full text-left text-sm';
+    table.innerHTML = `
+      <thead>
+        <tr class="border-b border-amber-600/20">
+          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nombre</th>
+          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Clase</th>
+          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Rango</th>
+          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nota pública</th>
+        </tr>
+      </thead>
+    `;
+    const tbody = document.createElement('tbody');
+    tbody.className = 'divide-y divide-amber-600/5';
+
+    // Mostrar hasta 50 para el preview
+    const slice = members.slice(0, 50);
+    slice.forEach((m) => {
+      const row = document.createElement('tr');
+      row.className = 'hover:bg-amber-600/5 transition-colors';
+      const cell = (text: string, cls = '') => `<td class="px-3 py-2 text-gray-300 ${cls}">${text || '—'}</td>`;
+      row.innerHTML =
+        cell(m.name, 'font-bold text-white') +
+        cell(m.class) +
+        cell(m.rank, 'text-amber-300') +
+        cell(m.publicNote);
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    wrap.innerHTML = '';
+    wrap.appendChild(table);
+
+    if (members.length > 50) {
+      wrap.appendChild(el('p', 'mt-2 text-xs text-gray-500 italic', `Mostrando 50 de ${members.length} miembros.`));
+    }
+  }
+
+  function renderResult(data: ParsedSavedVariables): void {
+    (document.getElementById('stat-guild-size') as HTMLElement).textContent = String(data.guild.members.length);
+    (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length || data.coreBands.length);
+    (document.getElementById('stat-roles') as HTMLElement).textContent = String(data.roles.length);
+    (document.getElementById('stat-mechanics') as HTMLElement).textContent = String(data.mechanics.length);
+
+    // Bandas
+    const bandsList = document.getElementById('bands-list') as HTMLElement;
+    bandsList.innerHTML = '';
+    const allBands = data.bands.length > 0 ? data.bands : data.coreBands.map((cb) => ({
+      name: cb.name,
+      schedule: cb.schedule,
+      minGS: cb.minGS,
+      players: cb.members || [],
+      attendance: [],
+    }));
+    (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBands.length === 0);
+    allBands.forEach((b) => bandsList.appendChild(renderBand(b)));
+
+    // Reglas
+    const rulesList = document.getElementById('rules-list') as HTMLElement;
+    rulesList.innerHTML = '';
+    (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
+    data.rules.slice(0, 20).forEach((r) => {
+      const li = el('li', 'flex items-start text-sm text-gray-300');
+      li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
+      const inner = el('div', '');
+      const title = el('span', 'font-bold text-amber-200', r.title || 'Regla');
+      inner.appendChild(title);
+      if (r.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', r.content));
+      li.appendChild(inner);
+      rulesList.appendChild(li);
+    });
+
+    // Roster
+    renderRoster(data.guild.members);
+
+    // Claim de maestro
+    const claimBanner = document.getElementById('claim-banner') as HTMLElement;
+    const claimPending = document.getElementById('claim-pending') as HTMLElement;
+    if (data.generatedBy) {
+      claimBanner.classList.remove('hidden');
+      (document.getElementById('claim-char') as HTMLElement).textContent = data.generatedBy;
+      if (data.guild.isLeaderRank) {
+        claimPending.classList.add('hidden');
+      } else {
+        claimPending.classList.remove('hidden');
+      }
+    } else {
+      claimBanner.classList.add('hidden');
+    }
+
+    errorEl.classList.add('hidden');
+    resultEl.classList.remove('hidden');
+  }
+
+  function handleFile(file: File): void {
+    clearWarnings();
+    if (file.size > 2 * 1024 * 1024) {
+      showError('El archivo supera el límite de 2 MB.');
+      return;
+    }
+    setStatus('Leyendo archivo…');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || '');
+      setStatus('Parseando RaidDominionDB…');
+      try {
+        const result = parseSavedVariables(text);
+        if (!result.ok) {
+          showError(result.errors.join(' '));
+          return;
+        }
+        result.warnings.forEach(addWarning);
+        renderResult(result.data as ParsedSavedVariables);
+        setStatus('Archivo procesado correctamente.');
+      } catch (e) {
+        showError('Error inesperado al parsear: ' + String(e));
+      }
+    };
+    reader.onerror = () => showError('No se pudo leer el archivo.');
+    reader.readAsText(file);
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (file) handleFile(file);
+  });
+
+  ['dragover', 'drop'].forEach((evt) => {
+    dropzone.addEventListener(evt, (e) => e.preventDefault());
+  });
+  dropzone.addEventListener('drop', (e) => {
+    const file = (e as DragEvent).dataTransfer?.files?.[0];
+    if (file) handleFile(file);
+  });
+</script>
