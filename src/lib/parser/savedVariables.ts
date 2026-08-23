@@ -3,18 +3,22 @@
 // D:\WowClient esMX\Interface\AddOns\RaidDominion y perfiles como JUNGJX):
 //
 //   RaidDominionDB = {
-//     Guild = { lastUpdate, generatedBy, memberList = { {name, class, rank, race, publicNote, officerNote} } },
-//     Core = { { name, schedule, minGS, withNote, members = { {name, class, role, isLeader, isSanctioned} } } },
-//     bands = { { name, icon, schedule, minGS, attendance, players = { {name, class, role, dual, gearScore, leader, banned, sanction, notes, points} }, spammer } },
+//     registry.player = { name, realm, race, raceFile, class, classFile, level,
+//       talentSpec, talentTree, avgIlvl, equipmentCount, equipment = { {slot,name,ilvl,quality} } },
+//     registry["Char-Realm"].guild = { name, numMembers, isGM, rankIndex, rank,
+//       memberList = { {name, rank, rankIndex, level, class, classFile, online} } } (roster GM),
+//     registry.savedAt,
+//     Guild (legacy) = { lastUpdate, generatedBy, memberList = { {name, class, rank, publicNote, officerNote} } },
+//     bands = { { name, icon, schedule, minGS, players = { {name, class, role, dual, leader, banned, sanction, notes, points} }, spammer } },
 //     roles / buffs / auras / abilities = { { name, icon } },
 //     mechanics / rules = { { title, content, icon } },
 //     assignments = { roles = { nombre = jugador }, buffs, abilities, auras },
 //     ui / chat / loot / general / ...
 //   }
 //
-// NOTA: la v2 guardaba Guild.memberList como strings planos y bandas en Core;
-// la v3 mantiene Guild/Core PERO la fuente principal de bandas vivas es `bands`
-// (con players y attendance). Este parser prioriza el formato v3.
+// NOTA verificado en SV reales: los archivos actuales ya NO traen Core ni
+// attendance ni gearScore; Guild.memberList persiste solo como evidencia
+// legacy de membresía. Este parser descarta esas rutas muertas.
 //
 // NO usa regex de `{}` (el de guildList.py): tokeniza el Lua respetando
 // anidación y strings con comillas escapadas.
@@ -23,7 +27,12 @@ import {
   type GuildMember,
   type Band,
   type BandPlayer,
-  type CoreBand,
+  type PlayerCharacter,
+  type EquipmentPiece,
+  type AccountCharacter,
+  type RegistryGuild,
+  type GuildMemberSummary,
+  type CharacterRegistry,
   type ConfigListItem,
   type ContentItem,
   type Assignments,
@@ -312,6 +321,113 @@ function asStringArray(v: unknown): string[] {
     .filter(Boolean);
 }
 
+function asEquipmentPieces(raw: unknown): EquipmentPiece[] {
+  return asArray(raw)
+    .map((entry) => {
+      const e = asObj(entry);
+      if (!e) return null;
+      const name = toStr(e['name']).trim();
+      if (!name) return null;
+      const slot = toNum(e['slot']);
+      if (slot === undefined) return null;
+      return {
+        slot,
+        name,
+        ilvl: toNum(e['ilvl']) ?? 0,
+        quality: toNum(e['quality']) ?? 0,
+      };
+    })
+    .filter((x): x is EquipmentPiece => x !== null);
+}
+
+// registry.player — personaje propio del archivo actual
+function asPlayerCharacter(raw: unknown): PlayerCharacter | null {
+  const e = asObj(raw);
+  if (!e) return null;
+  const name = toStr(e['name']).trim();
+  if (!name) return null;
+  const equipment = asEquipmentPieces(e['equipment']);
+  return {
+    name,
+    realm: toStr(e['realm']).trim(),
+    race: toStr(e['race']) || undefined,
+    raceFile: toStr(e['raceFile']) || undefined,
+    class: toStr(e['class']) || undefined,
+    classFile: toStr(e['classFile']) || undefined,
+    level: toNum(e['level']),
+    talentSpec: toStr(e['talentSpec']) || undefined,
+    talentTree: toNum(e['talentTree']),
+    avgIlvl: toNum(e['avgIlvl']),
+    equipmentCount: toNum(e['equipmentCount']) ?? equipment.length,
+    equipment,
+  };
+}
+
+// characters["Nombre-Reino"] — todos los personajes de la cuenta
+function asAccountCharacters(raw: unknown): AccountCharacter[] {
+  const map = asObj(raw);
+  if (!map) return [];
+  return Object.entries(map)
+    .map(([key, entry]) => {
+      const e = asObj(entry);
+      if (!e) return null;
+      const name = toStr(e['name']).trim();
+      if (!name) return null;
+      return {
+        key,
+        name,
+        realm: toStr(e['realm']).trim() || undefined,
+        faction: toStr(e['faction']).trim() || undefined,
+        class: toStr(e['className']).trim() || undefined,
+        classFile: toStr(e['classFile']).trim() || undefined,
+        race: toStr(e['raceName']).trim() || undefined,
+        level: toNum(e['level']),
+        firstSeen: toNum(e['firstSeen']),
+        lastSeen: toNum(e['lastSeen']),
+      };
+    })
+    .filter((c): c is AccountCharacter => c !== null);
+}
+
+function asRegistryGuild(raw: unknown): RegistryGuild | null {
+  const e = asObj(raw);
+  if (!e) return null;
+  const name = toStr(e['name']).trim();
+  if (!name) return null;
+  const memberList = asGuildMemberSummaries(e['memberList']);
+  return {
+    name,
+    numMembers: toNum(e['numMembers']),
+    isGM: toBool(e['isGM']),
+    rankIndex: toNum(e['rankIndex']),
+    rank: toStr(e['rank']).trim() || undefined,
+    memberList: memberList.length > 0 ? memberList : undefined,
+  };
+}
+
+// roster GM v3 (registry.*.guild.memberList): {name, rank, rankIndex, level,
+// class, classFile, online} — sin notas pública/oficial por diseño
+function asGuildMemberSummaries(raw: unknown): GuildMemberSummary[] {
+  return asArray(raw)
+    .map((entry) => {
+      const e = asObj(entry);
+      if (!e) return null;
+      const name = toStr(e['name']).trim();
+      if (!name) return null;
+      const onlineRaw = e['online'];
+      return {
+        name,
+        rank: toStr(e['rank']).trim() || undefined,
+        rankIndex: toNum(e['rankIndex']),
+        level: toNum(e['level']),
+        class: toStr(e['class']) || undefined,
+        classFile: toStr(e['classFile']) || undefined,
+        online: onlineRaw === undefined ? undefined : toBool(onlineRaw),
+      };
+    })
+    .filter((m): m is GuildMemberSummary => m !== null);
+}
+
 function asGuildMembers(raw: unknown): GuildMember[] {
   return asArray(raw)
     .map((entry) => {
@@ -369,10 +485,7 @@ function asBandPlayers(raw: unknown): BandPlayer[] {
         class: toStr(e['class']) || undefined,
         role: toStr(e['role']) || undefined,
         dual: toStr(e['dual']) || undefined,
-        gearScore: toNum(e['gearScore']),
         leader: toStr(e['leader']) || undefined,
-        isLeader: toBool(e['isLeader']),
-        isSanctioned: toBool(e['isSanctioned']),
         banned: toBool(e['banned']),
         sanction: toStr(e['sanction']) || undefined,
         notes: toStr(e['notes']) || undefined,
@@ -382,19 +495,6 @@ function asBandPlayers(raw: unknown): BandPlayer[] {
     .filter((p): p is BandPlayer => p !== null);
 }
 
-function asAttendance(raw: unknown): Band['attendance'] {
-  return asArray(raw)
-    .map((entry) => {
-      const e = asObj(entry);
-      if (!e) return null;
-      return {
-        date: toStr(e['date']) || undefined,
-        present: asStringArray(e['present']),
-        absent: asStringArray(e['absent']),
-      };
-    })
-    .filter((a): a is NonNullable<Band['attendance']>[number] => a !== null);
-}
 
 function asBands(raw: unknown): Band[] {
   return asArray(raw)
@@ -410,7 +510,6 @@ function asBands(raw: unknown): Band[] {
         schedule: toStr(e['schedule']) || undefined,
         minGS: toNum(e['minGS']),
         players: asBandPlayers(e['players']),
-        attendance: asAttendance(e['attendance']),
         spammer: spammer
           ? {
               channels:
@@ -424,23 +523,6 @@ function asBands(raw: unknown): Band[] {
     .filter((b): b is Band => b !== null);
 }
 
-function asCoreBands(raw: unknown): CoreBand[] {
-  return asArray(raw)
-    .map((entry) => {
-      const e = asObj(entry);
-      if (!e) return null;
-      const name = toStr(e['name']).trim();
-      if (!name) return null;
-      return {
-        name,
-        schedule: toStr(e['schedule']) || undefined,
-        minGS: toNum(e['minGS']),
-        withNote: toBool(e['withNote']),
-        members: asBandPlayers(e['members']),
-      };
-    })
-    .filter((b): b is CoreBand => b !== null);
-}
 
 function asAssignments(raw: unknown): Assignments {
   const obj = asObj(raw);
@@ -459,6 +541,17 @@ function asAssignments(raw: unknown): Assignments {
     abilities: toMap(obj?.['abilities']),
     auras: toMap(obj?.['auras']),
   };
+}
+
+// Submenús visibles del addon (ui.show*Menu = true)
+function asMenus(uiRaw: unknown): Record<string, boolean> {
+  const ui = asObj(uiRaw);
+  if (!ui) return {};
+  const out: Record<string, boolean> = {};
+  Object.entries(ui).forEach(([k, v]) => {
+    if (k.startsWith('show') && k.endsWith('Menu')) out[k] = v === true;
+  });
+  return out;
 }
 
 function isLeaderRank(rank: string): boolean {
@@ -496,13 +589,70 @@ export function parseSavedVariables(rawText: string): ParseResult {
     };
   }
 
+  const registries: CharacterRegistry[] = [];
+  // registry admite DOS formas reales del addon:
+  //  a) objeto único con .player/.savedAt/.guild (formato previo)
+  //  b) mapa "Nombre-Reino" → snapshot por personaje (config compartida v3)
+  const registryRaw = asObj(root['registry']);
+  let registryEntry: Record<string, unknown> | null = null;
+  if (registryRaw && 'player' in registryRaw) {
+    registryEntry = registryRaw;
+    registries.push({
+      key: `${toStr(registryEntry['player'] && asObj(registryEntry['player'])?.['name'])}-${
+        toStr(asObj(registryEntry['player'])?.['realm'])}`,
+      player: asPlayerCharacter(registryEntry['player']),
+      guild: asRegistryGuild(registryEntry['guild']),
+      savedAt: toStr(registryEntry['savedAt']).trim() || null,
+    });
+  } else if (registryRaw && Object.keys(registryRaw).length > 0) {
+    const charsMap = asAccountCharacters(root['characters']);
+    const entries = Object.entries(registryRaw)
+      .map(([key, val]) => ({ key, val: asObj(val) }))
+      .filter((e): e is { key: string; val: Record<string, unknown> } => e.val !== null);
+    if (entries.length > 0) {
+      // Activo = mayor lastSeen en el roster de la cuenta; si no, savedAt más reciente
+      const byKey = new Map(charsMap.map((c) => [c.key.toLowerCase(), c.lastSeen ?? 0]));
+      entries.sort((a, b) => {
+        const la = byKey.get(a.key.toLowerCase()) ?? 0;
+        const lb = byKey.get(b.key.toLowerCase()) ?? 0;
+        if (la !== lb) return lb - la;
+        return (toStr(b.val['savedAt']) || '').localeCompare(toStr(a.val['savedAt']) || '');
+      });
+      registryEntry = entries[0].val;
+      for (const e of entries) {
+        registries.push({
+          key: e.key,
+          player: asPlayerCharacter(e.val['player']),
+          guild: asRegistryGuild(e.val['guild']),
+          savedAt: toStr(e.val['savedAt']).trim() || null,
+        });
+      }
+    }
+  }
+  const player = asPlayerCharacter(registryEntry?.['player']);
+  const savedAt = toStr(registryEntry?.['savedAt']).trim() || null;
+
+  // Hermandad validante: cualquier personaje del SV con isGM gana;
+  // si ninguno es GM, se usa la hermandad del personaje activo.
+  let registryGuild = asRegistryGuild(registryEntry?.['guild']);
+  if (registryRaw && !('player' in registryRaw)) {
+    for (const val of Object.values(registryRaw)) {
+      const e = asObj(val);
+      const g = asRegistryGuild(e?.['guild']);
+      if (g?.isGM) { registryGuild = g; break; }
+    }
+  }
+  if (!player) {
+    warnings.push('El archivo no trae registry.player: abre el addon en el juego y exporta tu personaje.');
+  }
+
   const guildRaw = asObj(root['Guild']) ?? {};
   const members = asGuildMembers(guildRaw['memberList']);
   const generatedBy = toStr(guildRaw['generatedBy']).trim() || null;
   const lastUpdate = toNum(guildRaw['lastUpdate']) ?? null;
 
   if (members.length === 0) {
-    warnings.push('No se encontró memberList válido en Guild; el addon aún no ha exportado la hermandad.');
+    warnings.push('Sin Guild.memberList (sección legacy): la verificación de membresía usará rosters subidos por otros miembros.');
   }
 
   // Claim de maestro: el personaje que generó + su rango en memberList
@@ -514,11 +664,15 @@ export function parseSavedVariables(rawText: string): ParseResult {
     if (!entry) warnings.push(`generatedBy "${generatedBy}" no está en memberList; no se puede verificar el rango.`);
   }
 
-  const coreBands = asCoreBands(root['Core']);
   const bands = asBands(root['bands']);
 
   const data: ParsedSavedVariables = {
     version: PARSER_VERSION,
+    player,
+    savedAt,
+    characters: asAccountCharacters(root['characters']),
+    registries,
+    registryGuild,
     generatedBy,
     lastUpdate,
     guild: {
@@ -526,7 +680,6 @@ export function parseSavedVariables(rawText: string): ParseResult {
       leaderCandidate,
       isLeaderRank: confirmedLeaderRank,
     },
-    coreBands,
     bands,
     roles: asConfigList(root['roles']),
     buffs: asConfigList(root['buffs']),
@@ -535,15 +688,16 @@ export function parseSavedVariables(rawText: string): ParseResult {
     mechanics: asContentItems(root['mechanics']),
     rules: asContentItems(root['rules']),
     assignments: asAssignments(root['assignments']),
+    menus: asMenus(root['ui']),
     chat: {
       channel: toStr(asObj(root['chat'])?.['channel']) || undefined,
       discordLink: toStr(asObj(root['chat'])?.['discordLink']) || undefined,
     },
     raw: {
       guildSize: members.length,
-      hasCore: coreBands.length > 0,
       hasBands: bands.length > 0,
       hasUi: Boolean(root['ui']),
+      hasRegistry: Boolean(player),
     },
   };
 

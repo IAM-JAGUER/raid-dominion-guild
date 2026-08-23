@@ -1,0 +1,258 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+
+<Layout title="Moderación - RaidDominion" description="Panel de moderación: verificación de hermandades y control de portales públicos.">
+  <Navigation currentPath="/moderate" />
+  <main class="relative py-16">
+    <div class="max-w-5xl mx-auto px-4">
+
+      <!-- Cargando -->
+      <div id="loading" class="text-center py-20">
+        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm text-gray-400 italic mt-4">Verificando permisos…</p>
+      </div>
+
+      <!-- Sin autorización -->
+      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+        <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <h1 class="text-xl font-bold text-white mb-2">Acceso restringido</h1>
+        <p id="denied-msg" class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta área es solo para moderadores y administradores.</p>
+        <a href="/" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
+      </div>
+
+      <!-- Panel -->
+      <div id="panel" class="hidden space-y-8">
+        <header class="animate-fade-in-1">
+          <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Moderación</h1>
+          <p class="text-sm text-gray-400 italic mt-2">Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
+        </header>
+
+        <!-- Cola de claims -->
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Claims pendientes
+          </h2>
+          <p id="claims-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <ul id="claims-list" class="space-y-4"></ul>
+        </section>
+
+        <!-- Hermandades verificadas -->
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades verificadas
+          </h2>
+          <p id="verified-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <ul id="verified-list" class="space-y-3"></ul>
+        </section>
+
+        <!-- Auditoría -->
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.2s">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bitácora reciente
+          </h2>
+          <p id="audit-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <ul id="audit-list" class="space-y-2"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { getMyProfile, staffListGuilds, verifyClaim, staffSetGuildPublic, listAuditLog, type StaffGuildRow } from '@/lib/api';
+  import { isStaff } from '@/lib/roles';
+
+  function msgCls(ok: boolean): string {
+    return ok
+      ? 'mt-2 text-xs rounded-lg px-3 py-2 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300'
+      : 'mt-2 text-xs rounded-lg px-3 py-2 bg-red-950/40 border border-red-600/40 text-red-300';
+  }
+
+  const res = await getMyProfile();
+  const loading = document.getElementById('loading') as HTMLElement;
+  loading.classList.add('hidden');
+
+  if (!res.ok || !res.profile || !isStaff(res.profile.role)) {
+    if (res.ok && !res.profile) {
+      window.location.replace('/login?next=%2Fmoderate');
+    } else {
+      document.getElementById('denied')?.classList.remove('hidden');
+    }
+  } else {
+    document.getElementById('panel')?.classList.remove('hidden');
+    void loadClaims();
+    void loadAudit();
+  }
+
+  async function loadClaims(): Promise<void> {
+    const statusEl = document.getElementById('claims-status') as HTMLElement;
+    const listEl = document.getElementById('claims-list') as HTMLElement;
+    const vStatusEl = document.getElementById('verified-status') as HTMLElement;
+    const vListEl = document.getElementById('verified-list') as HTMLElement;
+
+    const res = await staffListGuilds();
+    if (!res.ok) {
+      statusEl.textContent = res.error || 'No se pudo cargar la cola.';
+      vStatusEl.classList.add('hidden');
+      return;
+    }
+
+    const guilds = res.guilds ?? [];
+    const pending = guilds.filter((g) => g.claim_status === 'pending');
+    const verified = guilds.filter((g) => g.claim_status === 'verified');
+    statusEl.classList.toggle('hidden', pending.length > 0);
+    statusEl.textContent = 'Sin claims pendientes. Todo en orden.';
+
+    pending.forEach((g) => listEl.appendChild(claimCard(g)));
+
+    if (verified.length === 0) {
+      vStatusEl.textContent = 'Sin hermandades verificadas aún.';
+    } else {
+      vStatusEl.classList.add('hidden');
+      verified.forEach((g) => vListEl.appendChild(verifiedRow(g)));
+    }
+  }
+
+  function claimCard(g: StaffGuildRow): HTMLElement {
+    const li = document.createElement('li');
+    li.className = 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4';
+    li.dataset.guildId = g.id;
+
+    const head = document.createElement('div');
+    head.className = 'flex flex-wrap items-start justify-between gap-2 mb-2';
+    const title = document.createElement('div');
+    const name = document.createElement('p');
+    name.className = 'font-bold text-white';
+    name.textContent = g.name;
+    const meta = document.createElement('p');
+    meta.className = 'text-xs text-gray-400 mt-0.5';
+    meta.textContent = `/${g.slug} · ${g.realm || 'sin reino'} · ${g.owner_email ?? 'sin correo'}`;
+    title.append(name, meta);
+
+    const badge = document.createElement('span');
+    badge.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-amber-950/30 border-amber-600/40 text-amber-300 shrink-0';
+    badge.textContent = 'Pendiente';
+    head.append(title, badge);
+    li.appendChild(head);
+
+    if (g.description) {
+      const desc = document.createElement('p');
+      desc.className = 'text-sm text-gray-400 italic mb-3 line-clamp-2';
+      desc.textContent = g.description;
+      li.appendChild(desc);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'flex flex-wrap items-center gap-2';
+
+    const approve = document.createElement('button');
+    approve.type = 'button';
+    approve.className = 'px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50';
+    approve.textContent = '✓ Aprobar';
+    const reject = document.createElement('button');
+    reject.type = 'button';
+    reject.className = 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50';
+    reject.textContent = '✕ Rechazar';
+
+    const out = document.createElement('p');
+    out.className = 'hidden w-full';
+
+    approve.addEventListener('click', () => void act(true));
+    reject.addEventListener('click', () => void act(false));
+
+    async function act(approved: boolean): Promise<void> {
+      approve.disabled = true; reject.disabled = true;
+      const r = await verifyClaim(g.id, approved);
+      out.className = msgCls(r.ok);
+      if (r.ok) {
+        out.textContent = approved ? 'Claim aprobado; portal publicado y roster sincronizado.' : 'Claim rechazado.';
+        li.classList.add('opacity-50', 'pointer-events-none');
+      } else {
+        out.textContent = r.error || 'Error.';
+        approve.disabled = false; reject.disabled = false;
+      }
+    }
+
+    actions.append(approve, reject, out);
+    li.appendChild(actions);
+    return li;
+  }
+
+  function verifiedRow(g: StaffGuildRow): HTMLElement {
+    const li = document.createElement('li');
+    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-lg px-4 py-3';
+
+    const info = document.createElement('div');
+    const name = document.createElement('p');
+    name.className = 'text-sm font-bold text-white';
+    name.textContent = g.name;
+    const meta = document.createElement('p');
+    meta.className = 'text-xs text-gray-500 mt-0.5';
+    meta.textContent = `/${g.slug} · ${g.is_public ? 'Pública' : 'Retirada'}`;
+    info.append(name, meta);
+    li.appendChild(info);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = g.is_public
+      ? 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
+      : 'px-4 py-2 rounded-lg border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
+    btn.textContent = g.is_public ? 'Retirar del directorio' : 'Republicar';
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const r = await staffSetGuildPublic(g.id, !g.is_public);
+      if (r.ok) {
+        meta.textContent = `/${g.slug} · ${!g.is_public ? 'Pública' : 'Retirada'}`;
+        btn.textContent = !g.is_public ? 'Retirar del directorio' : 'Republicar';
+        btn.className = !g.is_public
+          ? 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
+          : 'px-4 py-2 rounded-lg border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
+      }
+      btn.disabled = false;
+    });
+
+    li.appendChild(btn);
+    return li;
+  }
+
+  async function loadAudit(): Promise<void> {
+    const statusEl = document.getElementById('audit-status') as HTMLElement;
+    const listEl = document.getElementById('audit-list') as HTMLElement;
+
+    const res = await listAuditLog();
+    if (!res.ok) {
+      statusEl.textContent = 'No se pudo cargar la bitácora.';
+      return;
+    }
+    const items = res.items ?? [];
+    if (items.length === 0) {
+      statusEl.textContent = 'Sin acciones registradas todavía.';
+      return;
+    }
+    statusEl.classList.add('hidden');
+
+    const LABELS: Record<string, string> = {
+      guild_claim_verified: 'Claim aprobado',
+      guild_claim_rejected: 'Claim rechazado',
+      guild_published: 'Portal republicado',
+      guild_takedown: 'Portal retirado',
+      user_role_changed: 'Rol cambiado',
+    };
+
+    items.forEach((a) => {
+      const li = document.createElement('li');
+      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-amber-600/10 pb-2';
+      const action = document.createElement('span');
+      action.className = 'font-bold text-amber-200';
+      action.textContent = LABELS[a.action] ?? a.action;
+      const when = new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+      const meta = document.createElement('span');
+      meta.textContent = `${a.target ? '· ' + a.target.slice(0, 8) : ''} · ${when}`;
+      li.append(action, meta);
+      listEl.appendChild(li);
+    });
+  }
+</script>

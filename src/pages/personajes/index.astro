@@ -1,0 +1,157 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+
+<Layout title="Personajes - RaidDominion" description="Navegador público de personajes validados de la comunidad RaidDominion: clase, nivel, ilvl y hermandad de cada jugador.">
+  <Navigation currentPath="/personajes" />
+  <main class="relative py-16">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <header class="text-center mb-10 animate-fade-in-1">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Personajes</h1>
+        <p class="text-gray-400 italic mt-3 max-w-2xl mx-auto">
+          Personajes validados por evidencia cruzada de roster y hechos públicos
+          por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables.
+        </p>
+      </header>
+
+      <!-- Filtros -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="search" id="search" placeholder="Buscar por personaje, reino o hermandad…"
+            class="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+        </div>
+        <select id="class-filter"
+          class="px-4 py-2.5 rounded-lg bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm sm:w-56">
+          <option value="">Toda clase</option>
+        </select>
+      </div>
+
+      <!-- Resultados -->
+      <p id="status" class="text-sm text-gray-400 italic mb-4" aria-live="polite">Cargando personajes…</p>
+      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de personajes"></section>
+
+      <!-- Vacío -->
+      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
+        <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <p class="font-bold text-white mb-1">Aún no hay personajes públicos</p>
+        <p class="text-sm text-gray-400 max-w-md mx-auto">Sube tu SavedVariables, valida tu personaje con un compañero y activa su visibilidad desde el dashboard.</p>
+        <a href="/upload" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Sube tu SavedVariables</a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { supabase } from '@/lib/supabase';
+  import type { CharacterRow } from '@/lib/api';
+
+  const statusEl = document.getElementById('status') as HTMLElement;
+  const gridEl = document.getElementById('grid') as HTMLElement;
+  const emptyEl = document.getElementById('empty') as HTMLElement;
+  const searchEl = document.getElementById('search') as HTMLInputElement;
+  const classEl = document.getElementById('class-filter') as HTMLSelectElement;
+
+  let chars: CharacterRow[] = [];
+  const profiles = new Map<string, { slug: string | null; display_name: string | null }>();
+
+  function chip(text: string, extra = ''): HTMLElement {
+    const c = document.createElement('span');
+    c.className = 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ' +
+      (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20');
+    c.textContent = text;
+    return c;
+  }
+
+  function card(c: CharacterRow): HTMLElement {
+    const profile = profiles.get(c.user_id);
+    const link = document.createElement(profile?.slug ? 'a' : 'div');
+    if (profile?.slug) link.href = `/p/${profile.slug}`;
+    else {
+      link.classList.add('opacity-80');
+      link.title = 'El jugador mantiene su perfil privado';
+    }
+    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+
+    const head = document.createElement('div');
+    head.className = 'flex items-start justify-between gap-3 mb-3';
+    const name = document.createElement('h2');
+    name.className = 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug';
+    name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
+    head.appendChild(name);
+    if (c.sv_is_gm) head.appendChild(chip('★ Maestro', 'text-fuchsia-300 bg-fuchsia-950/40 border-fuchsia-500/40'));
+    link.appendChild(head);
+
+    const chips = document.createElement('div');
+    chips.className = 'flex flex-wrap gap-1.5';
+    if (c.class) chips.appendChild(chip(c.class));
+    if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, 'text-amber-300 bg-gray-800/60 border-amber-500/30'));
+    if (c.member_verified) chips.appendChild(chip('✓ Validado', 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40'));
+    if (c.sv_guild_name) chips.appendChild(chip(`${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
+    link.appendChild(chips);
+
+    const foot = document.createElement('p');
+    foot.className = 'text-xs text-gray-500 mt-3';
+    foot.textContent = profile?.slug
+      ? (profile.display_name ? `Por ${profile.display_name} · Ver perfil →` : 'Ver perfil →')
+      : 'Perfil privado';
+    link.appendChild(foot);
+
+    return link;
+  }
+
+  function render(): void {
+    const q = searchEl.value.trim().toLowerCase();
+    const cls = classEl.value.toLowerCase();
+    gridEl.innerHTML = '';
+    const filtered = chars.filter((c) => {
+      const hay = `${c.name} ${c.realm ?? ''} ${c.class ?? ''} ${c.sv_guild_name ?? ''}`.toLowerCase();
+      return (!q || hay.includes(q)) && (!cls || (c.class_file ?? '').toLowerCase() === cls);
+    });
+    statusEl.classList.toggle('hidden', filtered.length > 0);
+    emptyEl.classList.toggle('hidden', chars.length > 0);
+    if (filtered.length === 0 && chars.length > 0) statusEl.textContent = 'Sin resultados para tu búsqueda.';
+    filtered.forEach((c) => gridEl.appendChild(card(c)));
+  }
+
+  async function load(): Promise<void> {
+    const [charsRes, profRes] = await Promise.all([
+      supabase
+        .from('raiddominion_characters')
+        .select('*')
+        .eq('is_public', true)
+        .eq('member_verified', true)
+        .order('avg_ilvl', { ascending: false })
+        .limit(200),
+      supabase.from('raiddominion_profiles').select('id, slug, display_name').eq('is_public', true),
+    ]);
+
+    chars = (charsRes.data as CharacterRow[] | null) ?? [];
+    (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null }> | null)?.forEach((p) =>
+      profiles.set(p.id, { slug: p.slug, display_name: p.display_name })
+    );
+
+    // Filtro dinámico de clases
+    const classes = Array.from(new Set(chars.map((c) => c.class).filter(Boolean))) as string[];
+    classes.sort((a, b) => a.localeCompare(b)).forEach((cl) => {
+      const opt = document.createElement('option');
+      opt.value = cl;
+      opt.textContent = cl;
+      classEl.appendChild(opt);
+    });
+
+    if (chars.length === 0) {
+      statusEl.classList.add('hidden');
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+    render();
+  }
+
+  void load();
+  searchEl.addEventListener('input', render);
+  classEl.addEventListener('change', render);
+</script>

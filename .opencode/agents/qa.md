@@ -47,11 +47,15 @@ Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
 - [ ] Parser estructural (no regex de `{}` frágil).
 - [ ] Límite de tamaño ≤ 2 MB y sanitización.
 - [ ] `officerNote` no se expone públicamente; solo `publicNote`.
-- [ ] `generatedBy` + rank del personaje rigen el claim de maestro.
+- [ ] Claim de maestro en DOS flujos: primario v3 (`registry.*.guild.isGM=true`
+      → RPC `raiddominion_claim_from_sv`); fallback legacy SOLO para archivos
+      v2 (`generatedBy` + rank de liderazgo → `raiddominion_claim_guild`).
+- [ ] Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
+      `Guild.memberList` legacy y jugadores de banda (AGENTS.md §4).
 
 ### 5. Roles y rutas
-- [ ] Rutas protegidas según `src/lib/roles.ts` (member→/upload,/dashboard;
-      guild_master→/dashboard/guild).
+- [ ] Rutas protegidas según `src/lib/roles.ts` (visitante/member→/upload,
+      /dashboard; guild_master→/dashboard/guild).
 - [ ] `guild_master` NO se auto-asigna desde el cliente; solo vía RPC/verificación.
 
 ### 6. Seguridad / higiene

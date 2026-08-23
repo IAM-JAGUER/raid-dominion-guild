@@ -22,10 +22,10 @@
    portal lo parsea para mostrar el roster/bandas/roles de su hermandad.
 3. **Verificación de maestro de hermandad**: si se confirma maestro, se le
    invita a registrar su hermandad y recibe un portal web gratuito para su guild.
-4. **Roles progresivos** (estilo agendalisto): `member` → `guild_master` →
-   `moderator` / `admin`. El usuario empieza como `member`; al registrar su
-   hermandad y crear cuenta puede hacer su perfil/hermandad pública y
-   actualizarla desde su dashboard.
+4. **Roles progresivos** (estilo agendalisto): `visitante` → `member` →
+   `guild_master` → `moderator` / `admin`. Toda cuenta nueva nace
+   `visitante` (trigger `raiddominion_force_visitante`, migración 20260106)
+   y valida su personaje subiendo el SV; ver §4 para la promoción.
 
 ## 3. ⚠️ CRITICAL: Ecosistema Supabase multi-app
 
@@ -43,16 +43,25 @@ Este proyecto comparte la instancia Supabase con `lexigo`, `encuentrosvip`,
   **NUNCA redefinirlo.** Al añadir la app `raiddominion`, editar SOLO la
   canónica (coordinando con las 5 apps).
 - `sanitize_signup_role()` — canónico en `../supabase-shared/`. Para
-  raiddominion: roles auto `member`; `guild_master` se asigna vía RPC seguro
-  al crear/reclamar hermandad (con verificación), NO desde el cliente.
+  raiddominion el rol efectivo lo fuerza el trigger de perfiles
+  (`raiddominion_force_visitante`: toda fila nueva nace `visitante`);
+  `guild_master` se asigna vía RPC seguro al reclamar hermandad
+  (con verificación), NUNCA desde el cliente.
+- ⚠️ La canónica `handle_new_user()` aún NO tiene bloque `raiddominion`
+  (verificado 2026-08-23). Mitigación vigente: el perfil se crea al vuelo
+  vía policy INSERT propia (20260105). Coordinar el bloque con las otras
+  apps antes de añadirlo (backlog P0 en priorities.md).
 - `ensureUserApp()` — RPC anti-huérfanos (`../supabase-shared/ensure_user_app.sql`).
 
 ### Flujo de registro
 
 ```
 signUp → on_auth_user_created → handle_new_user()
-  → INSERT raiddominion_profiles (role='member')  [BEGIN/EXCEPTION]
-  → INSERT user_apps (app_slug='raiddominion', role='member')
+  → [bloque raiddominion PENDIENTE en la canónica; mientras tanto]
+    getMyProfile() crea la fila al vuelo (policy INSERT propia, 20260105)
+  → trigger raiddominion_force_visitante: toda fila nueva nace 'visitante'
+  → promoción 'member' SOLO por evidencia cruzada de roster (§4, RPC
+    raiddominion_try_promote_member) → audit log
 ```
 
 ### Reglas ABSOLUTAS
@@ -83,7 +92,7 @@ signUp → on_auth_user_created → handle_new_user()
 | `encuentrosvip` | `encuentrosvip_` | `profiles`, `media`, `reviews`, ... |
 | `agendaya` | `agendaya_` | `profiles`, `businesses`, `services`, ... |
 | `guild_portal` | `guild_portal_` | `config`, `guides`, `roster_players`, ... |
-| `raiddominion` | `raiddominion_` | `profiles`, `guilds`, `guild_members`, `saved_variables`, `guild_config` |
+| `raiddominion` | `raiddominion_` | `profiles`, `characters`, `roster_evidence`, `guilds`, `guild_members`, `saved_variables`, `guild_config`, `audit_log` |
 | Compartidas | — | `apps`, `user_apps`, `auth.users` |
 
 ### Cómo agregar una app al ecosistema
@@ -101,60 +110,100 @@ Definidos en `src/lib/roles.ts`. Comparar por índice (`ROLES.indexOf`).
 
 | Role | Índice | Auto-asignable | Acceso |
 |---|---|---|---|
-| `member` | 0 | ✅ | Landing, directorio público, `/upload`, `/dashboard` personal |
-| `guild_master` | 1 | ✅ (vía RPC + verificación) | Dashboard de su hermandad, perfil público `/g/:slug` |
-| `moderator` | 2 | ❌ (solo admin) | Revisar claims/verificaciones |
-| `admin` | 3 | ❌ (solo admin) | Acceso total |
+| `visitante` | 0 | ✅ (toda cuenta nueva) | Landing, directorio público, `/upload`, dashboard básico. Aún no usa el addon activamente |
+| `member` | 1 | ✅ (vía evidencia cruzada de roster) | Todo lo anterior + personaje validado, visibilidad pública por personaje |
+| `guild_master` | 2 | ✅ (vía RPC + verificación) | Dashboard de su hermandad, portal público en raíz `/:slug` |
+| `moderator` | 3 | ❌ (solo admin) | Revisar claims/verificaciones, moderar públicos |
+| `admin` | 4 | ❌ (solo admin, seed manual por email) | Gestión de usuarios, moderación total |
+
+### Onboarding visitante → member (anti-falseo)
+
+1. Usuario sube SV → parser extrae `registry.player` → `raiddominion_upsert_character`.
+2. **Unicidad global** `(lower(name), lower(realm))`: si el personaje ya está vinculado a
+   OTRA cuenta → `conflict` con mensaje claro (contactar moderador para liberarlo).
+3. Evidencia de membresía en `raiddominion_roster_evidence` (sirve para validar
+   a OTROS miembros), en orden de fiabilidad:
+   a) `registry.*.guild.memberList` — roster GM del formato v3 (el que el
+      addon escribe hoy; sin notas por diseño).
+   b) `Guild.memberList` — sección legacy v2 (archivos antiguos).
+   c) Jugadores de `bands[].players` (curados in-game por el líder).
+4. Promoción a `member` SOLO si el personaje del visitante aparece en evidencia
+   subida por un usuario DISTINTO (`raiddominion_try_promote_member`) → audit log.
+   Mensaje al visitante: motivar a un compañero a subir SU SV con el roster.
 
 Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
+
+### URLs públicas (decisión validada)
+
+- Portal de hermandad: **raíz `/:slug`** vía shell estática `src/pages/portal.astro`
+  + rewrite Netlify `/:slug → /portal` (los archivos reales tienen prioridad).
+  Resuelve client-side contra `raiddominion_guilds` (RLS: públicas o propias del
+  owner, con banner de vista previa); mensaje "no encontrado" si no existe.
+- Perfil de jugador: **`/p/:slug`** vía shell `src/pages/jugador.astro` +
+  rewrite Netlify `/p/* → /jugador`. Requiere migración `20260103_public_pages.sql`
+  ejecutada (columna `raiddominion_profiles.slug`, RPC `raiddominion_ensure_profile_slug`,
+  lectura pública si `is_public`).
+- Slugs reservados: `upload`, `login`, `dashboard`, `admin`, `moderate`,
+  `guilds`, `p`, `api`, `assets`, `_astro`, `portal`, `jugador`.
+- Snapshot público del portal (roster/bandas/reglas) vive en
+  `raiddominion_guild_config.config_key='portal_snapshot'`; el dashboard lo
+  sincroniza desde el análisis más reciente al guardar la ficha.
 
 ### Flujo
 
 ```
-member
-  ├─ /upload → sube SV → parser → preview
-  ├─ "Reclama tu hermandad" → createGuild() RPC → rol guild_master
-  │    └─ Perfil público is_public=true + dashboard /dashboard/guild
-  └─ /dashboard → historial de parseos, actualizar datos
+visitante / member
+  ├─ /upload → sube SV (producido con "Registrar" en el addon) → parser → preview
+  ├─ /dashboard → toggle perfil público → página viva en /p/:slug
+  ├─ "Mi Hermandad": SIN formularios. El SV es la única vía:
+  │    a) Formato nuevo: registry.guild.isGM=true + Miembro validado
+  │       → raiddominion_claim_from_sv al subir (auto GM, ficha = datos
+  │         exactos del addon; re-upload la mantiene actualizada)
+  │    b) SV legacy con rango de liderazgo → raiddominion_claim_guild
+  │    └─ slug autogenerado + dashboard /dashboard/guild
+  │         └─ toggle is_public → portal vivo en /:slug
+  └─ Re-subir SV actualiza roster/bandas del portal
 ```
 
 ## 5. Formato de SavedVariables (v3.0.0 oficial)
 
 Parser en `src/lib/parser/savedVariables.ts` (evoluciona `public/guildList.py`).
 
-### Estructura de `RaidDominionDB` (v3.0.0)
+### Estructura de `RaidDominionDB` (formato REAL verificado 2026-08-22)
 
-Formato REAL del addon v3 (referencia: perfiles JUNGJX/IAMM del WoW client
-`D:\WowClient esMX\WTF\Account\*\SavedVariables\RaidDominion.lua`).
+Referencias: `D:\WowClient esMX\WTF\Account\IAMM\SavedVariables\RaidDominion.lua`
+(formato vigente), IAMM1/JUNGJX (secciones legacy).
 
 ```lua
 RaidDominionDB = {
-  ["Guild"] = {                       -- export del roster de hermandad
-    ["lastUpdate"] = <epoch>,
-    ["generatedBy"] = "<personaje que exportó>",
-    ["memberList"] = {
-      { ["name"], ["officerNote"], ["class"], ["publicNote"], ["rank"], ["race"] },
-    },
+  ["registry"] = {                    -- ⭐ FUENTE PRINCIPAL — DOS formas reales:
+    -- a) mapa por personaje (config compartida v3, vigente):
+    ["Nombre-Reino"] = { ["spammer"], ["player"] = {...equipamiento...}, ["guild"],
+      ["assignments"], ["bands"], ["savedAt"] },
+    -- b) objeto único plano (formato intermedio): ["player"], ["savedAt"],
+    --    ["guild"] = { name, numMembers, isGM, rankIndex, rank }
+    -- En AMBAS formas, guild de un GM incluye además:
+    --    ["memberList"] = { { name, rank, rankIndex, level, class,
+    --      classFile, online } }  -- SIN notas pública/oficial (privacidad)
+  ["characters"] = {                    -- roster de TODA la cuenta (config compartida)
+    ["Nombre-Reino"] = { ["name"], ["realm"], ["faction"], ["className"], ["classFile"],
+      ["raceName"], ["level"], ["version"], ["firstSeen"], ["lastSeen"] },
   },
-  ["Core"] = {                        -- bandas Core (members, isLeader, isSanctioned, withNote)
-    { ["name"], ["schedule"], ["minGS"], ["withNote"], ["members"] = { ... } },
+  ["Guild"] = {                       -- LEGACY opcional (evidencia de membresía)
+    ["lastUpdate"], ["generatedBy"],
+    ["memberList"] = { { ["name"], ["officerNote"], ["class"], ["publicNote"], ["rank"] } },
   },
-  ["bands"] = {                       -- bandas VIVAS (fuente principal en v3)
+  ["bands"] = {                       -- bandas VIVAS
     { ["name"], ["icon"], ["schedule"], ["minGS"],
-      ["players"] = { { ["name"], ["class"], ["role"], ["dual"], ["gearScore"], ["leader"], ["banned"], ["sanction"], ["notes"], ["points"] } },
-      ["attendance"] = { { ["date"], ["present"] = {...}, ["absent"] = {...} } },
-      ["spammer"] = { ["channels"], ["duration"], ["message"] } },
+      ["players"] = { { ["name"], ["class"(FILEID)], ["role"], ["dual"], ["leader"], ["banned"], ["sanction"], ["notes"], ["points"] } },
+      ["spammer"] = { ...config... } },
   },
-  ["roles"]  = { { ["name"], ["icon"] } },    -- listas configurables {name, icon}
-  ["buffs"]  = { { ["name"], ["icon"] } },
-  ["abilities"] = { { ["name"], ["icon"] } },
-  ["auras"]  = { { ["name"], ["icon"] } },
-  ["mechanics"] = { { ["title"], ["content"], ["icon"] } },  -- listas de contenido
-  ["rules"]  = { { ["title"], ["content"], ["icon"] } },
-  ["assignments"] = {                 -- mapa nombre → jugador
-    ["roles"] = {...}, ["buffs"] = {...}, ["abilities"] = {...}, ["auras"] = {...},
-  },
-  ["ui"] / ["chat"] / ["loot"] / ["general"] / ...,
+  -- NO EXISTEN en archivos reales: attendance, gearScore, Core como fuente.
+  ["roles"/"buffs"/"abilities"/"auras"] = { { ["name"], ["icon"] } },
+  ["rules"/"mechanics"] = { { ["title"], ["content"], ["icon"] } },
+  ["assignments"] = { ["roles"], ["buffs"], ["abilities"], ["auras"] },  -- mapa nombre→jugador
+  ["ui"] = { ["showRolesMenu"], ["showBuffsMenu"], ... },   -- submenús editables
+  ["chat"] = { ["channel"], ["discordLink"] }, ["general"], ["loot"], ["modules"], ["profiles"],
 }
 ```
 
@@ -162,16 +211,24 @@ RaidDominionDB = {
 
 - Prioridad: **formato oficial v3.0.0** (el de arriba). El formato v2 (`Guild`
   como único origen, bandas solo en `Core`) NO se parsea como fuente principal.
-- `generatedBy` + `rank` del personaje en `memberList` determinan el claim de
-  maestro. Si `rank` no es de liderazgo → claim `pending` para moderador.
+- Claim de maestro en DOS flujos:
+  a) **Primario (v3):** cualquier `registry.*.guild.isGM=true` habilita
+     `raiddominion_claim_from_sv` al subir.
+  b) **Fallback legacy (v2):** `generatedBy` + `rank` de liderazgo en
+     `Guild.memberList` → `raiddominion_claim_guild` (claim `pending` si el
+     rank no es de liderazgo).
+- Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
+  `Guild.memberList` legacy y jugadores de banda.
 - Nunca parsear con regex frágil de `{}` (el de guildList.py): usar un parser
   estructural que respete anidación y strings con comillas escapadas.
 - No confiar en `officerNote` para mostrar públicamente (puede contener info
   interna) — separar campos públicos vs. privados en `raiddominion_guild_members`.
 - Límites: archivos ≤ 2 MB; sanitizar contenido; nunca volcar `raw` completo
   en la UI.
-- El rol `guild_master` se asigna SOLO vía RPC `raiddominion_claim_guild`
-  (SECURITY DEFINER), nunca desde el cliente.
+- El rol `guild_master` se asigna SOLO vía RPC SECURITY DEFINER
+  (`raiddominion_claim_from_sv` / `raiddominion_claim_guild`), nunca desde el cliente.
+- Los datos de la ficha de hermandad NO son editables en la plataforma:
+  provienen del SV y se actualizan re-subiendo.
 
 ## 6. Organización de código
 
@@ -179,7 +236,7 @@ RaidDominionDB = {
 src/
 ├── components/      # UI reutilizable (Navigation, Footer, cards, AddonGuidesGrid, ...)
 ├── layouts/         # Layout.astro (tema global)
-├── pages/           # Rutas Astro (/ index, /upload, /dashboard, /g/:slug, /guilds)
+├── pages/           # Rutas Astro (/ index, /upload, /login, /dashboard, /portal → /:slug, /jugador → /p/:slug, /guilds)
 ├── sections/        # Secciones de la landing (GrandLogo, AddonSection, Donaciones, ...)
 ├── data/            # datos estáticos (features, raids.json, addonGuides.ts)
 ├── lib/
@@ -259,3 +316,24 @@ prioridades en `.opencode/improve/priorities.md`. Cualquier agente DEBE:
 
 Flujo: `product` define → `development`/`ui-ux` implementan → `refactorer`
 mantiene → `qa` aprueba antes de commit.
+
+## 11. Producto compañero: addon RaidDominion (contrato entre repos)
+
+El addon dev vive en `D:\WowClient esMX\Interface\AddOns\RaidDominion`
+(v3.0.0, con sus propios agentes y harness). Su SavedVariables
+`RaidDominionDB` es LA API pública que este portal consume.
+
+1. **Productor del contrato:** el árbol `registry["Nombre-Reino"]` lo escribe
+   el ítem de menú **"Registrar"** (`RD_Utils_Registry.lua`) y el roster de
+   cuenta lo escribe `RD_Utils_Characters.lua`. Sin "Registrar" NO hay
+   `registry.player`: las guías y `/upload` deben guiar al usuario a pulsarlo.
+2. **Sincronía obligatoria:** renombrar/mover claves de `registry`,
+   `characters`, `bands` o `Guild` en el addon exige actualizar en el MISMO
+   ciclo `src/lib/parser/savedVariables.ts` + `src/types/parser.ts`; y viceversa.
+3. **Privacidad:** `registry.guild.memberList` (roster GM) viaja SIN notas
+   pública/oficial por diseño; jamás exponer notas de oficio en el portal.
+4. **Fuente de verdad dual:** formato vivo = este §5 + `RD_Utils_Registry.lua`.
+   Ante duda, leer ambos antes de tocar parser o guías.
+5. Slash commands vigentes del addon: `/rd`, `/rdc`, `/rdh`, `/rdloot`
+   (`RD_Init.lua`). Las guías (`src/data/addonGuides.ts`) deben reflejar
+   EXACTAMENTE menús (`MENU_DEFINITIONS`) y comandos de `RD_Constants.lua`.

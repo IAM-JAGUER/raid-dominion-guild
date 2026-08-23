@@ -29,15 +29,24 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 
 ### 2. Parser de SavedVariables (`src/lib/parser/savedVariables.ts`)
 - Entrada: texto de `RaidDominionDB` (`.lua`), formato oficial v3.0.0.
+  Fuente de verdad dual: AGENTS.md §5 + `RD_Utils_Registry.lua` del addon
+  dev (`D:\WowClient esMX\Interface\AddOns\RaidDominion`, ver §11).
 - Debe extraer de forma ESTRUCTURAL (no regex de `{}` frágil):
-  - `Guild` → `memberList` (name, class, rank, race, publicNote, officerNote),
-    `generatedBy`, `lastUpdate`.
-  - `Core` → bandas (members, isLeader, isSanctioned, class, role).
-  - `roles`, `assignments`, `rules`, `ui`, `general`.
+  - `registry` → snapshots por personaje ("Nombre-Reino"): `player`
+    (equipo incluido), `savedAt` y `guild` (name, numMembers, isGM,
+    rankIndex, rank; en GM incluye `memberList` SIN notas).
+  - `characters` → roster account-wide (name, realm, faction, className,
+    classFile, raceName, level, version, firstSeen, lastSeen).
+  - `bands` → bandas vivas (players con role/dual/leader/sanction/points).
+  - `Guild` (LEGACY v2) → `memberList`, `generatedBy`, `lastUpdate`;
+    solo como fallback/evidencia secundaria.
+  - `roles`, `assignments`, `rules`, `ui`, `chat`.
 - Devolver un objeto tipado (`types/parser.ts`) + lista de advertencias.
 - Separar campos públicos (publicNote) vs privados (officerNote).
 - Validar tamaño ≤ 2 MB y sanitizar (nunca volcar raw en la UI).
-- Fallback tolerante al formato dev (WoW client) solo como segunda opción.
+- Claim de maestro: primario `registry.*.guild.isGM=true`
+  (`raiddominion_claim_from_sv`); `generatedBy`+rank solo para archivos v2.
+- Cambios de claves/tipos del SV exigen sincronía con el addon (AGENTS.md §11).
 
 ### 3. Rutas Astro
 - `/upload` — subida del archivo + parseo en cliente + preview.

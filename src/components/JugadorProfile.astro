@@ -1,0 +1,130 @@
+
+
+
+<script>
+  import { getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser } from '@/lib/api';
+  import type { CharacterRow } from '@/lib/api';
+  import type { RaiddominionRole } from '@/types/database';
+
+  const RESERVED = new Set([
+    'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
+    'assets', '_astro', 'portal', 'jugador', 'personajes',
+  ]);
+
+  function currentSlug(): string {
+    const override = new URLSearchParams(window.location.search).get('slug');
+    if (override) return override;
+    const seg = window.location.pathname.split('/').filter(Boolean);
+    return seg.length === 2 && seg[0] === 'p' ? seg[1] : '';
+  }
+
+  function showNotFound(): void {
+    (document.getElementById('loading') as HTMLElement).classList.add('hidden');
+    document.getElementById('not-found')?.classList.remove('hidden');
+    document.title = 'Jugador no encontrado - RaidDominion';
+  }
+
+  function chip(text: string): HTMLElement {
+    const c = document.createElement('span');
+    c.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    c.textContent = text;
+    return c;
+  }
+
+  const slug = currentSlug();
+  if (!slug || RESERVED.has(slug.toLowerCase())) {
+    showNotFound();
+  } else {
+    const res = await getPublicProfileBySlug(slug);
+    if (!res.ok) {
+      showNotFound();
+    } else if (!res.profile) {
+      showNotFound();
+    } else {
+      const p = res.profile;
+      const nameSource = p.display_name || p.character_name || 'Jugador';
+      document.title = `${nameSource} - RaidDominion`;
+
+      (document.getElementById('avatar') as HTMLElement).textContent = nameSource[0].toUpperCase();
+      (document.getElementById('display-name') as HTMLElement).textContent = nameSource;
+
+      const chipsEl = document.getElementById('chips') as HTMLElement;
+      if (p.character_name) chipsEl.appendChild(chip(p.character_name));
+      if (p.realm) chipsEl.appendChild(chip(p.realm));
+
+      if ((p.role as RaiddominionRole) === 'guild_master') {
+        document.getElementById('role-badge')?.classList.remove('hidden');
+
+        const gRes = await getPublicGuildByOwner(p.id);
+        if (gRes.ok && gRes.guild?.is_public) {
+          const card = document.getElementById('guild-card') as HTMLAnchorElement;
+          card.href = `/${gRes.guild.slug}`;
+          (document.getElementById('guild-card-name') as HTMLElement).textContent = gRes.guild.name;
+          card.classList.remove('hidden');
+        }
+      }
+
+      void renderPublicCharacters(p.id);
+
+      (document.getElementById('loading') as HTMLElement).classList.add('hidden');
+      document.getElementById('profile')?.classList.remove('hidden');
+    }
+  }
+
+  function publicCharacterCard(c: CharacterRow): HTMLElement {
+    const card = document.createElement('div');
+    card.className = 'bg-gray-900/60 border border-amber-600/20 rounded-lg p-4';
+
+    const header = document.createElement('div');
+    header.className = 'flex flex-wrap items-center gap-2';
+    header.appendChild(chip(`${c.name}${c.realm ? '-' + c.realm : ''}`));
+    if (c.class) header.appendChild(chip(c.class));
+    if (typeof c.level === 'number') header.appendChild(chip(`Nivel ${c.level}`));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
+      const il = chip(`ilvl ${c.avg_ilvl}`);
+      il.classList.add('!text-amber-300', '!border-amber-500/40');
+      header.appendChild(il);
+    }
+    if (c.member_verified) {
+      const v = chip('✓ Validado');
+      v.classList.add('!text-emerald-300', '!border-emerald-600/40');
+      header.appendChild(v);
+    }
+    if (c.sv_guild_name) {
+      const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`);
+      gchip.classList.add(c.sv_is_gm ? '!text-fuchsia-300 !border-fuchsia-500/40' : '!text-sky-200 !border-sky-600/30');
+      header.appendChild(gchip);
+    }
+    card.appendChild(header);
+
+    if ((c.equipment ?? []).length > 0) {
+      const details = document.createElement('details');
+      details.className = 'mt-2';
+      const summary = document.createElement('summary');
+      summary.className = 'text-xs text-amber-300/80 cursor-pointer hover:text-amber-200';
+      summary.textContent = `Equipamiento (${c.equipment.length} piezas)`;
+      details.appendChild(summary);
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2';
+      c.equipment.forEach((piece) => {
+        const row = document.createElement('div');
+        row.className = 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1';
+        const nm = document.createElement('span'); nm.textContent = piece.name;
+        const st = document.createElement('span'); st.className = 'text-gray-500'; st.textContent = `i${piece.ilvl}`;
+        row.append(nm, st);
+        grid.appendChild(row);
+      });
+      details.appendChild(grid);
+      card.appendChild(details);
+    }
+    return card;
+  }
+
+  async function renderPublicCharacters(userId: string): Promise<void> {
+    const res = await getPublicCharactersByUser(userId);
+    if (!res.ok || !res.items || res.items.length === 0) return;
+    const wrap = document.getElementById('public-characters') as HTMLElement;
+    res.items.forEach((c) => wrap.appendChild(publicCharacterCard(c)));
+    (document.getElementById('characters-section') as HTMLElement).classList.remove('hidden');
+  }
+</script>

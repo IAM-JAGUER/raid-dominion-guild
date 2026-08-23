@@ -1,6 +1,7 @@
 ---
 // Componente SectionHeader
-// Muestra un título de sección con estilos consistentes
+// Muestra un título de sección con estilos consistentes (tokens de src/lib/ui/design.ts)
+import { ui } from '@/lib/ui/design';
 
 export interface Props {
   title: string;
@@ -22,7 +23,7 @@ const textAlign = {
 ---
 
 <div class={`${textAlign} mb-8`}>
-  <h2 class="text-3xl font-bold text-amber-400 mb-2">
+  <h2 class={`${ui.sectionTitle} mb-2`}>
     {title}
   </h2>
   {subtitle && (

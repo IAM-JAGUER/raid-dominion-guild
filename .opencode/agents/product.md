@@ -24,26 +24,36 @@ El modelo de roles, el flujo de registro y las reglas multi-app están definidos
 - **Objetivo central**: el usuario sube su `RaidDominionDB` (SavedVariables) y
   obtiene valor; si se verifica maestro, se le invita a registrar su hermandad
   y recibe un portal web gratuito.
-- **Roles**: `member` (empieza todos) → `guild_master` (reclama hermandad) →
+- **Roles**: `visitante` (toda cuenta nueva nace visitante) → `member` (vía
+  evidencia cruzada de roster) → `guild_master` (reclama hermandad) →
   `moderator`/`admin` (staff).
 - **Versión del addon**: el portal sirve la v3.0.0 oficial
-  (`D:\_DEV\RaidDominion - main`); el dev del WoW client es referencia del formato.
+  (`D:\_DEV\RaidDominion - main`); el formato vivo del SV lo produce el dev
+  en `D:\WowClient esMX\Interface\AddOns\RaidDominion` con el ítem de menú
+  **"Registrar"** (`RD_Utils_Registry.lua`, ver AGENTS.md §11). Ante duda
+  del formato, leer ese archivo antes de tocar parser o previews.
 
 ## Prioridades (en orden)
 
 1. Consulta `src/lib/roles.ts` y `PLAN_TRANSFORMACION.md` antes de implementar
    cualquier feature.
 2. **Flujo de valor inmediato del upload** — El preview del SV debe responder:
-   ¿cuántos miembros? ¿qué clases? ¿qué bandas `Core`? ¿quién lo generó
-   (`generatedBy`)? Antes de pedir registro, dar un resumen útil.
-3. **CTA "Reclama tu hermandad"** — Cuando el parser detecte rango de liderazgo
-   en `generatedBy`, el CTA debe ser claro, con pasos (registrar → reclamar →
-   publicar) y sin fricción.
-4. **Dashboard del maestro** — `/dashboard/guild`: actualizar descripción,
+   ¿qué personaje activo y qué equipamiento/iLvl trae? ¿cuántos miembros suma
+   la evidencia disponible (roster GM v3 + legacy + bandas)? ¿qué bandas vivas?
+   ¿quién acredita maestría (`registry.*.guild.isGM`)? Antes de pedir registro,
+   dar un resumen útil.
+3. **CTA "Reclama tu hermandad"** — Cuando el parser detecte
+   `registry.*.guild.isGM=true` (fallback legacy: `generatedBy` con rango de
+   liderazgo), el CTA debe ser claro, con pasos (pulsar "Registrar" en el addon
+   → subir SV → reclamar → publicar) y sin fricción.
+4. **Guías fieles al addon** — `src/data/addonGuides.ts` debe reflejar menús y
+   comandos REALES de `RD_Constants.lua`/`RD_Init.lua` (AGENTS.md §11): incluir
+   el ítem "Registrar" y su porqué; sin comandos o secciones inexistentes.
+5. **Dashboard del maestro** — `/dashboard/guild`: actualizar descripción,
    Discord, roster (re-subiendo SV), bandas y roles; publicar/ocultar el perfil.
-5. **Directorio `/guilds`** — Búsqueda por nombre/reino/facción; hermandades
+6. **Directorio `/guilds`** — Búsqueda por nombre/reino/facción; hermandades
    verificadas destacadas.
-6. **Conversión** — Desde la landing, el CTA principal "Sube tu SavedVariables"
+7. **Conversión** — Desde la landing, el CTA principal "Sube tu SavedVariables"
    debe ser visible y explicar el beneficio en 1 línea.
 
 ## Database Migrations
@@ -63,7 +73,8 @@ Si tu feature requiere cambios en base de datos:
 
 ## Reglas
 
-- NO implementar features sin entender el modelo de roles (member → guild_master).
+- NO implementar features sin entender el modelo de roles
+  (visitante → member → guild_master).
 - NO prometer "portal gratis" sin verificar el flujo completo de claim.
 - NO mostrar `officerNote` (puede ser interna); solo `publicNote` en público.
 - El rol `guild_master` se asigna vía RPC seguro, NUNCA desde el cliente directo.

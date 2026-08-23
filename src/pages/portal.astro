@@ -1,0 +1,204 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+
+<Layout title="Hermandad - RaidDominion" description="Portal público de hermandad de la comunidad RaidDominion.">
+  <Navigation />
+  <main class="relative py-16">
+    <div class="max-w-5xl mx-auto px-4">
+
+      <!-- Cargando -->
+      <div id="loading" class="text-center py-20">
+        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm text-gray-400 italic mt-4">Invocando el portal…</p>
+      </div>
+
+      <!-- No encontrado -->
+      <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+        <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <h1 class="text-xl font-bold text-white mb-2">Portal no encontrado</h1>
+        <p id="not-found-msg" class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta hermandad no existe o su portal es privado.</p>
+        <a href="/guilds" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver directorio</a>
+      </div>
+
+      <!-- Portal -->
+      <div id="portal" class="hidden space-y-8">
+
+        <!-- Vista previa privada (owner) -->
+        <div id="preview-banner" class="hidden bg-sky-950/40 border border-sky-700/40 rounded-lg p-4 flex items-start gap-3">
+          <svg class="w-5 h-5 text-sky-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <p class="text-sm text-sky-200"><span class="font-bold">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
+        </div>
+
+        <!-- Hero -->
+        <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Portal de hermandad</p>
+              <h1 id="guild-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide"></h1>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="verified-badge" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-emerald-950/30 border-emerald-600/40 text-emerald-300">✓ Verificada</span>
+              <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-lg border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest">Discord</a>
+            </div>
+          </div>
+          <p id="guild-description" class="text-sm text-gray-300 italic max-w-3xl leading-relaxed"></p>
+          <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
+          <p id="snapshot-updated" class="hidden text-xs text-gray-500 mt-4 italic"></p>
+        </header>
+
+        <!-- Métricas -->
+        <section id="stats" class="grid grid-cols-3 gap-4 animate-fade-in-1" style="animation-delay: 0.1s" aria-label="Resumen del análisis">
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+            <p class="text-3xl font-black text-amber-300" id="stat-members">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
+          </div>
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+            <p class="text-3xl font-black text-amber-300" id="stat-bands">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
+          </div>
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+            <p class="text-3xl font-black text-amber-300" id="stat-rules">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
+          </div>
+        </section>
+
+        <!-- Sin snapshot -->
+        <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-8 text-center">
+          <svg class="w-9 h-9 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
+          <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
+        </div>
+
+        <!-- Bandas -->
+        <section id="bands-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas de raid
+          </h2>
+          <div id="viewer-bands" class="space-y-4"></div>
+        </section>
+
+        <!-- Reglas -->
+        <section id="rules-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
+          </h2>
+          <ul id="viewer-rules" class="space-y-3"></ul>
+        </section>
+
+        <!-- Roster -->
+        <section id="roster-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
+          </h2>
+          <div id="viewer-roster-wrap" class="overflow-x-auto"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { getPublicGuildBySlug, getGuildSnapshot, type GuildPortalSnapshot } from '@/lib/api';
+  import { renderParsedSections } from '@/lib/ui/preview';
+
+  const RESERVED = new Set([
+    'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
+    'assets', '_astro', 'portal', 'jugador', 'personajes',
+  ]);
+
+  function currentSlug(): string {
+    const override = new URLSearchParams(window.location.search).get('slug');
+    if (override) return override;
+    const seg = window.location.pathname.split('/').filter(Boolean);
+    return seg.length === 1 ? seg[0] : '';
+  }
+
+  function showNotFound(msg?: string): void {
+    (document.getElementById('loading') as HTMLElement).classList.add('hidden');
+    const nf = document.getElementById('not-found') as HTMLElement;
+    if (msg) (document.getElementById('not-found-msg') as HTMLElement).textContent = msg;
+    nf.classList.remove('hidden');
+    document.title = 'Portal no encontrado - RaidDominion';
+  }
+
+  function metaChip(text: string): HTMLElement {
+    const chip = document.createElement('span');
+    chip.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    chip.textContent = text;
+    return chip;
+  }
+
+  const slug = currentSlug();
+  if (!slug || RESERVED.has(slug.toLowerCase())) {
+    showNotFound();
+  } else {
+    const res = await getPublicGuildBySlug(slug);
+    if (!res.ok) {
+      showNotFound('No se pudo cargar el portal. Intenta de nuevo más tarde.');
+    } else if (!res.guild) {
+      showNotFound();
+    } else {
+      const g = res.guild;
+      document.title = `${g.name} - RaidDominion`;
+
+      (document.getElementById('guild-name') as HTMLElement).textContent = g.name;
+      (document.getElementById('guild-description') as HTMLElement).textContent =
+        g.description || 'Esta hermandad aún no escribe su presentación.';
+      (document.getElementById('guild-description') as HTMLElement).classList.toggle('italic', !g.description);
+
+      const metaEl = document.getElementById('guild-meta') as HTMLElement;
+      if (g.realm) metaEl.appendChild(metaChip(g.realm));
+      if (g.faction) metaEl.appendChild(metaChip(g.faction === 'Horde' ? 'Horda' : 'Alianza'));
+
+      if (g.claim_status === 'verified') {
+        document.getElementById('verified-badge')?.classList.remove('hidden');
+      }
+      if (g.discord_link) {
+        const link = document.getElementById('discord-link') as HTMLAnchorElement;
+        link.href = g.discord_link;
+        link.classList.remove('hidden');
+      }
+      if (!g.is_public) {
+        document.getElementById('preview-banner')?.classList.remove('hidden');
+      }
+
+      // Snapshot público (roster/bandas/reglas)
+      let snapshot: GuildPortalSnapshot | undefined;
+      const snapRes = await getGuildSnapshot(g.id);
+      if (snapRes.ok) snapshot = snapRes.snapshot;
+
+      const loading = document.getElementById('loading') as HTMLElement;
+      loading.classList.add('hidden');
+      document.getElementById('portal')?.classList.remove('hidden');
+
+      if (!snapshot || (snapshot.members.length === 0 && snapshot.bands.length === 0 && snapshot.rules.length === 0)) {
+        document.getElementById('no-snapshot')?.classList.remove('hidden');
+      } else {
+        (document.getElementById('stat-members') as HTMLElement).textContent = String(snapshot.members.length);
+        (document.getElementById('stat-bands') as HTMLElement).textContent = String(snapshot.bands.length);
+        (document.getElementById('stat-rules') as HTMLElement).textContent = String(snapshot.rules.length);
+
+        if (snapshot.lastUpdate) {
+          const upd = document.getElementById('snapshot-updated') as HTMLElement;
+          upd.textContent = `Análisis actualizado el ${new Date(snapshot.lastUpdate * 1000).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+          upd.classList.remove('hidden');
+        }
+
+        if (snapshot.bands.length > 0) document.getElementById('bands-section')?.classList.remove('hidden');
+        if (snapshot.rules.length > 0) document.getElementById('rules-section')?.classList.remove('hidden');
+        if (snapshot.members.length > 0) document.getElementById('roster-section')?.classList.remove('hidden');
+
+        renderParsedSections(
+          { guild: { members: snapshot.members }, bands: snapshot.bands, rules: snapshot.rules } as never,
+          {
+            bands: document.getElementById('viewer-bands') as HTMLElement,
+            rules: document.getElementById('viewer-rules') as HTMLElement,
+            rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
+          },
+        );
+      }
+    }
+  }
+</script>

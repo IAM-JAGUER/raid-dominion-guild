@@ -3,6 +3,28 @@
 // La guía activa se muestra en la parte SUPERIOR (antes de la lista de guías),
 // sin recargar página. Se navega internamente vía accordion.
 import { guides, colorClasses } from '@/data/addonGuides';
+import { ui } from '@/lib/ui/design';
+
+// Lista blanca EXACTA de comandos del addon (verificados en addonGuides.ts),
+// más largos primero para que /rd no tape a /rdminimap o /rdloot.
+const KBD_COMMANDS = ['/rdminimap', '/rdloot', '/rdc', '/rdh', '/rd'] as const;
+
+// Escape HTML antes de cualquier set:html (los datos traen '>' literal, p. ej. "Bandas > Gestor").
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Patrón único con lookahead: evita coincidir un prefijo de otro comando (/rdX inexistente).
+const KBD_PATTERN = new RegExp(KBD_COMMANDS.map((cmd) => `${cmd}(?!\\w)`).join('|'), 'g');
+
+// Escapa la línea y envuelve solo los comandos de la lista blanca en <code> estilo kbd.
+function renderLine(line: string): string {
+  return escapeHtml(line).replace(KBD_PATTERN, (match) => `<code class="${ui.kbd}">${match}</code>`);
+}
 ---
 
 <div class="mt-8" id="addon-guides">
@@ -18,7 +40,7 @@ import { guides, colorClasses } from '@/data/addonGuides';
       return (
         <section
           id={`guide-panel-${guide.id}`}
-          class="guide-panel hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-lg overflow-hidden"
+          class={`guide-panel hidden ${ui.panel} overflow-hidden`}
           data-guide-index={index}
         >
           <!-- Header del panel -->
@@ -29,14 +51,14 @@ import { guides, colorClasses } from '@/data/addonGuides';
               </div>
               <div>
                 <h4 class="text-xl font-bold text-amber-300">{guide.title}</h4>
-                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                <span class={`${ui.chip} ${c.iconBg} ${c.iconBorder} ${c.iconText}`}>
                   {guide.category}
                 </span>
               </div>
             </div>
             <button
               type="button"
-              class="guide-close px-4 py-2 rounded-lg bg-gray-800/80 border border-amber-600/30 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest"
+              class="guide-close px-4 py-2 rounded-lg bg-gray-800/80 border border-amber-600/30 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               data-guide-index={index}
             >
               ✕ Cerrar
@@ -52,7 +74,7 @@ import { guides, colorClasses } from '@/data/addonGuides';
                   class="group bg-gray-800/50 border border-amber-600/30 rounded-lg overflow-hidden"
                   open={sIdx === 0}
                 >
-                  <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between text-amber-200 font-bold text-sm hover:bg-amber-900/10 transition-all">
+                  <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between text-amber-200 font-bold text-sm hover:bg-amber-900/10 group-open:bg-amber-900/20 border-l-2 border-l-amber-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400 transition-all">
                     <span>{section.title}</span>
                     <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
@@ -63,13 +85,19 @@ import { guides, colorClasses } from '@/data/addonGuides';
                       {section.content.map((line) => (
                         <li class="flex items-start text-sm text-gray-300 font-medium leading-relaxed">
                           <span class="text-amber-600 mr-2 mt-0.5">›</span>
-                          <span>{line}</span>
+                          <span set:html={renderLine(line)} />
                         </li>
                       ))}
                     </ul>
                   </div>
                 </details>
               ))}
+            </div>
+
+            <!-- Micro-CTA común a todos los paneles -->
+            <div class="mt-6 pt-4 border-t border-amber-600/20 flex flex-wrap items-center justify-between gap-2">
+              <p class="text-xs text-gray-400">¿Ya usas el addon? Sube tu RaidDominionDB desde el juego.</p>
+              <a href="/upload" class={`${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent`}>Subir SavedVariables</a>
             </div>
           </div>
         </section>
@@ -84,7 +112,7 @@ import { guides, colorClasses } from '@/data/addonGuides';
       return (
         <button
           type="button"
-          class="addon-guide-card relative group bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-lg p-5 transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/10 hover:-translate-y-1 overflow-hidden text-left cursor-pointer"
+          class={`addon-guide-card relative group ${ui.panel} p-5 transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/10 hover:-translate-y-1 overflow-hidden text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
           data-guide-index={index}
           aria-expanded="false"
           aria-controls={`guide-panel-${guide.id}`}
@@ -95,7 +123,7 @@ import { guides, colorClasses } from '@/data/addonGuides';
               <div class={`p-2.5 rounded-lg ${c.iconBg} border ${c.iconBorder} w-fit`}>
                 <span class="text-lg">{guide.icon}</span>
               </div>
-              <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">
+              <span class={`${ui.chip} ${c.iconBg} ${c.iconBorder} ${c.iconText}`}>
                 {guide.category}
               </span>
             </div>
@@ -107,7 +135,8 @@ import { guides, colorClasses } from '@/data/addonGuides';
             </p>
             <div class="pt-3 border-t border-amber-600/20">
               <span class={`text-[10px] font-black uppercase tracking-widest ${c.btnText}`}>
-                Leer Guía →
+                <span class="card-cta-idle">Leer Guía →</span>
+                <span class="card-cta-activa">Leyendo…</span>
               </span>
             </div>
           </div>
@@ -175,5 +204,25 @@ import { guides, colorClasses } from '@/data/addonGuides';
   /* Ocultar el marcador por defecto de <summary> */
   .guide-panel summary::-webkit-details-marker {
     display: none;
+  }
+
+  /* Card activa ↔ lector: el script existente alterna aria-expanded y el CSS
+     refleja el estado sin JS adicional. display:none oculta el texto inactivo
+     también del árbol de accesibilidad (una sola etiqueta leída por AT). */
+  .addon-guide-card .card-cta-activa {
+    display: none;
+  }
+
+  .addon-guide-card[aria-expanded='true'] {
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+  }
+
+  .addon-guide-card[aria-expanded='true'] .card-cta-idle {
+    display: none;
+  }
+
+  .addon-guide-card[aria-expanded='true'] .card-cta-activa {
+    display: inline;
   }
 </style>

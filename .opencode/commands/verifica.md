@@ -68,7 +68,10 @@ implementan → `refactorer` mantiene → `qa` aprueba.
 - NUNCA modificar `../supabase-shared/` fuera del bloque raiddominion coordinado.
 - Toda tabla/columna/policy nueva con prefijo `raiddominion_`.
 - NUNCA mostrar `officerNote` públicamente; solo `publicNote`.
-- Parser: formato v3.0.0 prioritario, estructural, ≤2 MB.
+- Parser: formato v3.0.0 prioritario, estructural, ≤2 MB; claim primario
+  `registry.*.guild.isGM` (`generatedBy` solo fallback legacy v2).
+- Contrato con el addon (AGENTS.md §11): cambios de claves del SV exigen
+  sincronía parser↔`RD_Utils_Registry.lua`; guías fieles a `RD_Constants.lua`.
 
 ## Formato de respuesta
 

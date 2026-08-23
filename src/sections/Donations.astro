@@ -1,5 +1,7 @@
 ---
 import ImageComponent from "@/components/shared/ImageComponent.astro";
+import SectionHeader from "@/components/ui/SectionHeader.astro";
+import { ui } from "@/lib/ui/design";
 
 // Array con métodos de pago disponibles
 const accounts = [
@@ -23,25 +25,21 @@ const accounts = [
 ---
 
 <section class="mt-8 mb-8 flex flex-col flex-wrap lg:flex-row overflow-hidden py-6">
-  <div class="w-full text-center mb-6">
-    <h2 class="text-3xl font-bold text-white mb-2">¡Apóyanos!</h2>
-    <p class="text-gray-300 mb-4">Tu contribución nos ayuda a seguir mejorando</p>
-    <div class="w-20 h-1 bg-amber-500 mx-auto rounded-lg"></div>
-  </div>
+  <SectionHeader title="¡Apóyanos!" subtitle="Tu contribución nos ayuda a seguir mejorando" />
   <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {accounts.map((account) => (
-      <div 
-        class="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-lg p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/10 border border-gray-700 hover:border-amber-500 flex flex-col"
+      <div
+        class={`group relative overflow-hidden ${ui.panel} ${ui.panelHover} p-5 hover:scale-[1.02] flex flex-col`}
       >
         <h3 class="text-lg sm:text-xl font-bold text-white mb-4 text-center">{account.name}</h3>
-        
+
         <div class="flex-grow flex flex-col items-center">
           {account.qr ? (
             <div class="mb-4">
               <p class="text-sm text-gray-400 mb-2">Escanea el código QR</p>
               <div class="bg-white p-2 rounded-lg">
-                <ImageComponent 
-                  classes="w-32 h-32 sm:w-36 sm:h-36 object-contain" 
+                <ImageComponent
+                  classes="w-32 h-32 sm:w-36 sm:h-36 object-contain"
                   imageName={account.service.toLowerCase().replace(" ", "_") + "qr.jpeg"}
                   altText={`Código QR de ${account.name}`}
                 />
@@ -49,21 +47,21 @@ const accounts = [
             </div>
           ) : (
             <div class="mb-4 flex items-center justify-center h-36">
-              <ImageComponent 
-                classes="h-16 object-contain" 
+              <ImageComponent
+                classes="h-16 object-contain"
                 imageName={account.service.toLowerCase().replace(" ", "_") + ".png"}
                 altText={`Logo de ${account.name}`}
               />
             </div>
           )}
-          
+
           {account.link && (
             <div class="mt-auto w-full">
-              <a 
-                href={account.link} 
-                target="_blank" 
+              <a
+                href={account.link}
+                target="_blank"
                 rel="noopener noreferrer"
-                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors duration-300 text-center"
+                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors duration-300 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               >
                 Donar con {account.service}
                 <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -73,7 +71,7 @@ const accounts = [
             </div>
           )}
         </div>
-        
+
         <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     ))}

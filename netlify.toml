@@ -5,6 +5,18 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Portal de hermandad en raíz /:slug (los archivos reales tienen prioridad)
+[[redirects]]
+  from = "/:slug"
+  to = "/portal"
+  status = 200
+
+# Perfil público de jugador /p/:slug
+[[redirects]]
+  from = "/p/*"
+  to = "/jugador"
+  status = 200
+
 # Redirecciones SPA
 [[redirects]]
   from = "/*"

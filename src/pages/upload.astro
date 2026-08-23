@@ -53,9 +53,38 @@ import Navigation from '@/components/Navigation.astro';
             Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
             Registra tu hermandad para recibir un portal web gratuito.
           </p>
-          <div id="claim-pending" class="hidden">
+
+          <!-- Reclamo con sesión activa -->
+          <form id="claim-form" class="hidden space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="claim-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Nombre de la hermandad *</label>
+                <input type="text" id="claim-name" required maxlength="60" placeholder="Colmillo de Acero"
+                  class="w-full px-3 py-2 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+              </div>
+              <div>
+                <label for="claim-discord" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Discord (opcional)</label>
+                <input type="url" id="claim-discord" placeholder="https://discord.gg/…"
+                  class="w-full px-3 py-2 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+              </div>
+            </div>
+            <button type="submit" id="claim-btn"
+              class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
+              Reclamar hermandad
+            </button>
+          </form>
+
+          <!-- Sin sesión: primero cuenta -->
+          <p id="claim-anon" class="hidden text-sm">
+            <a href="/login?next=%2Fupload" class="inline-block px-5 py-2 rounded-lg border border-amber-500/50 bg-gray-900/60 text-amber-200 hover:bg-amber-900/30 hover:text-white transition-all duration-300 text-xs font-black uppercase tracking-widest">
+              Inicia sesión para reclamarla
+            </a>
+          </p>
+
+          <div id="claim-pending" class="hidden mt-3">
             <p class="text-xs text-amber-200/70">Tu rango no es de liderazgo; un moderador revisará tu solicitud.</p>
           </div>
+          <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
         </div>
 
         <!-- Resumen -->
@@ -77,6 +106,12 @@ import Navigation from '@/components/Navigation.astro';
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Mecánicas</p>
           </div>
         </div>
+
+        <!-- Personaje propio (registry.player) -->
+        <div id="player-banner" class="hidden"></div>
+
+        <!-- Hermandad del personaje activo (registry.guild) -->
+        <div id="guild-sv-banner" class="hidden"></div>
 
         <!-- Bandas -->
         <div id="bands-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
@@ -117,7 +152,20 @@ import Navigation from '@/components/Navigation.astro';
 
 <script>
   import { parseSavedVariables } from '@/lib/parser/savedVariables';
-  import type { ParsedSavedVariables } from '@/types/parser';
+  import type { ParsedSavedVariables, GuildMember } from '@/types/parser';
+  import { el, renderParsedSections } from '@/lib/ui/preview';
+  import { supabase } from '@/lib/supabase';
+  import {
+    saveUpload,
+    claimGuild,
+    getMyProfile,
+    saveMyGuildSnapshot,
+    buildPortalSnapshot,
+    upsertMyCharacter,
+    saveRosterEvidence,
+    tryPromoteMember,
+    claimGuildFromSV,
+  } from '@/lib/api';
 
   const fileInput = document.getElementById('sv-file') as HTMLInputElement;
   const dropzone = document.getElementById('dropzone') as HTMLElement;
@@ -142,128 +190,251 @@ import Navigation from '@/components/Navigation.astro';
   }
 
   function addWarning(msg: string): void {
-    const w = document.createElement('div');
-    w.className = 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg';
-    w.textContent = '⚠ ' + msg;
-    warningsEl.appendChild(w);
+    warningsEl.appendChild(el('div', 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg', '⚠ ' + msg));
   }
 
-  function el(tag: string, cls: string, text?: string): HTMLElement {
-    const node = document.createElement(tag);
-    node.className = cls;
-    if (text !== undefined) node.textContent = text;
-    return node;
-  }
-
-  function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLElement {
-    const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4');
-    const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
-    header.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
-
-    const meta = el('div', 'flex flex-wrap gap-2');
-    if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', band.schedule));
-    if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `GS ${band.minGS}`));
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.players.length} jugadores`));
-    if (band.attendance.length > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.attendance.length} registros`));
-    header.appendChild(meta);
-    card.appendChild(header);
-
-    if (band.players.length > 0) {
-      const roles = new Map<string, number>();
-      band.players.forEach((p) => {
-        const r = p.role || 'sin rol';
-        roles.set(r, (roles.get(r) || 0) + 1);
-      });
-      const chips = el('div', 'flex flex-wrap gap-2');
-      Array.from(roles.entries()).forEach(([role, count]) => {
-        chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
-      });
-      card.appendChild(chips);
-    }
-
-    return card;
-  }
-
-  function renderRoster(members: ParsedSavedVariables['guild']['members']): void {
-    const wrap = document.getElementById('roster-table-wrap') as HTMLElement;
-    if (!members || members.length === 0) {
-      wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
+  // Persiste el parseo si hay sesión activa; si no, invita a iniciar sesión
+  async function persistIfLoggedIn(data: ParsedSavedVariables): Promise<void> {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session?.user) {
+      const info = el('div', 'text-xs text-gray-400 bg-gray-900/60 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg mt-2');
+      info.appendChild(document.createTextNode('Inicia sesión para guardar este análisis en tu historial. '));
+      const link = el('a', 'text-amber-300 underline hover:text-amber-200', 'Iniciar Sesión');
+      link.href = '/login?next=%2Fupload';
+      info.appendChild(link);
+      warningsEl.appendChild(info);
       return;
     }
 
-    const table = document.createElement('table');
-    table.className = 'w-full text-left text-sm';
-    table.innerHTML = `
-      <thead>
-        <tr class="border-b border-amber-600/20">
-          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nombre</th>
-          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Clase</th>
-          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Rango</th>
-          <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nota pública</th>
-        </tr>
-      </thead>
-    `;
-    const tbody = document.createElement('tbody');
-    tbody.className = 'divide-y divide-amber-600/5';
-
-    // Mostrar hasta 50 para el preview
-    const slice = members.slice(0, 50);
-    slice.forEach((m) => {
-      const row = document.createElement('tr');
-      row.className = 'hover:bg-amber-600/5 transition-colors';
-      const cell = (text: string, cls = '') => `<td class="px-3 py-2 text-gray-300 ${cls}">${text || '—'}</td>`;
-      row.innerHTML =
-        cell(m.name, 'font-bold text-white') +
-        cell(m.class) +
-        cell(m.rank, 'text-amber-300') +
-        cell(m.publicNote);
-      tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-    wrap.innerHTML = '';
-    wrap.appendChild(table);
-
-    if (members.length > 50) {
-      wrap.appendChild(el('p', 'mt-2 text-xs text-gray-500 italic', `Mostrando 50 de ${members.length} miembros.`));
+    setStatus('Guardando en tu historial…');
+    const saved = await saveUpload(data);
+    if (!saved.ok) {
+      setStatus('Archivo procesado, pero no se pudo guardar en el historial: ' + (saved.error || 'error desconocido'));
+      return;
     }
+
+    // Registro por personaje usando SU snapshot del registry (equipo incluido);
+    // fallback: roster de cuenta para quienes no tienen entrada propia.
+    let charStatus: string | null = null;
+    const conflicts: string[] = [];
+    const handledKeys = new Set<string>();
+    const normKey = (name: string, realm?: string): string =>
+      `${name.toLowerCase()}|${(realm ?? '').toLowerCase()}`;
+
+    for (const reg of data.registries) {
+      if (!reg.player) continue;
+      handledKeys.add(normKey(reg.player.name, reg.player.realm));
+      const up = await upsertMyCharacter(saved.id, reg.player, reg.savedAt, reg.guild);
+      const isActiveReg = Boolean(data.player &&
+        reg.player.name.toLowerCase() === data.player.name.toLowerCase() &&
+        (reg.player.realm ?? '').toLowerCase() === (data.player.realm ?? '').toLowerCase());
+      if (!up.ok || up.result === 'conflict') {
+        conflicts.push(reg.player.name);
+        if (!charStatus && (up.result === 'conflict' || isActiveReg)) charStatus = up.result === 'conflict' ? 'conflict' : null;
+      } else if (isActiveReg || !charStatus) {
+        charStatus = up.result ?? 'updated';
+      }
+    }
+
+    if (data.characters.length > 0) {
+      for (const ch of data.characters) {
+        const key = normKey(ch.name, ch.realm);
+        if (handledKeys.has(key)) continue;
+        const up = await upsertMyCharacter(saved.id, {
+          name: ch.name,
+          realm: ch.realm ?? '',
+          class: ch.class,
+          classFile: ch.classFile,
+          race: ch.race,
+          level: ch.level,
+          equipment: [],
+        });
+        if (!up.ok || up.result === 'conflict') conflicts.push(ch.name);
+      }
+    }
+    if (conflicts.length > 0) {
+      addWarning(`Sin registrar por estar vinculados a otra cuenta: ${Array.from(new Set(conflicts)).join(', ')}. Contacta a un moderador si son tuyos.`);
+      if (data.player && conflicts.some((c) => c.toLowerCase() === data.player!.name.toLowerCase())) charStatus = charStatus === 'conflict' ? 'conflict' : 'conflict';
+    }
+    if (data.player && !charStatus) charStatus = 'updated';
+
+    // Evidencia de membresía en orden de fiabilidad (AGENTS.md §4):
+    //   a) PRIMARIO: roster GM v3 (registry.*.guild.memberList) de todos los
+    //      personajes del archivo — el addon no viaja con notas (privacidad).
+    //   b) FALLBACK legacy: Guild.memberList (archivos antiguos v2).
+    //   c) BANDAS: jugadores curados in-game por el líder.
+    const evidenceRoster: GuildMember[] = [];
+    const seenNames = new Set<string>();
+    const pushEvidence = (m: GuildMember): void => {
+      const key = m.name.trim().toLowerCase();
+      if (!key || seenNames.has(key)) return;
+      seenNames.add(key);
+      evidenceRoster.push(m);
+    };
+
+    for (const reg of data.registries) {
+      reg.guild?.memberList.forEach((gm) => {
+        pushEvidence({
+          name: gm.name,
+          class: gm.class ?? gm.classFile ?? '',
+          rank: gm.rank || (typeof gm.rankIndex === 'number' ? String(gm.rankIndex) : ''),
+          publicNote: '',
+          officerNote: '',
+        });
+      });
+    }
+    data.guild.members.forEach(pushEvidence);
+    data.bands.forEach((b) =>
+      b.players.forEach((p) => {
+        if (!p.name.trim()) return;
+        pushEvidence({
+          name: p.name.trim(),
+          class: p.class ?? '',
+          rank: 'banda',
+          publicNote: '',
+          officerNote: '',
+        });
+      })
+    );
+    if (evidenceRoster.length > 0) {
+      await saveRosterEvidence(saved.id, evidenceRoster);
+    }
+
+    // guild_master: el re-upload actualiza el roster/bandas del portal público
+    let role: string | null = null;
+    const profRes = await getMyProfile();
+    role = profRes.ok ? profRes.profile?.role ?? null : null;
+
+    if (role === 'guild_master') {
+      const snap = await saveMyGuildSnapshot(buildPortalSnapshot(data));
+      setStatus(snap.ok
+        ? 'Archivo procesado y guardado. Portal de tu hermandad actualizado.'
+        : 'Archivo procesado y guardado, pero no se pudo actualizar el portal: ' + (snap.error || ''));
+      return;
+    }
+
+    // Onboarding visitante → member con evidencia cruzada
+    if (role === 'visitante' && charStatus !== 'conflict') {
+      setStatus('Validando tu personaje contra rosters de tu hermandad…');
+      const promo = await tryPromoteMember();
+      if (promo.ok && promo.data?.promoted) {
+        renderOnboardingBanner('success', `¡Bienvenido, Miembro! Tu personaje ${promo.data.character} fue validado con el roster subido por otro compañero.`);
+        role = 'member';
+      } else {
+        renderOnboardingBanner('visitor',
+          'Tu personaje quedó registrado como Visitante. Para volverte Miembro, un compañero de tu hermandad debe subir SU SavedVariables con el roster que te incluya: compártele el addon y motívalo a registrarse.');
+      }
+    }
+
+    // Reclamo estricto desde el SV: registry.guild.isGM + Miembro validado
+    if (role === 'member' && saved.id && data.registryGuild?.isGM) {
+      setStatus('El addon te reporta como Maestro: reclamando hermandad desde el SV…');
+      const claimRes = await claimGuildFromSV(saved.id);
+      if (claimRes.ok) {
+        renderOnboardingBanner('success', '¡Hermandad reclamada desde tu SavedVariables! Ya eres Maestro de Hermandad; revisa la pestaña Mi Hermandad para publicar tu portal.');
+        setStatus('Archivo procesado. Hermandad creada automáticamente con los datos del addon.');
+        return;
+      }
+      if (claimRes.error?.includes('Miembro')) {
+        addWarning('Tu SV indica maestría de hermandad, pero primero valida tu personaje (un compañero debe subir su roster incluyéndote). El reclamo se completará en tu próximo upload.');
+      } else if (claimRes.error?.includes('Ya tienes')) {
+        // inofensivo: ya es GM
+      } else {
+        addWarning('No se pudo reclamar la hermandad desde el SV: ' + (claimRes.error || ''));
+      }
+    }
+
+    setStatus('Archivo procesado y guardado en tu historial.');
+  }
+
+  function renderOnboardingBanner(kind: 'success' | 'visitor', msg: string): void {
+    const cls = kind === 'success'
+      ? 'text-emerald-200 bg-emerald-950/40 border-l-2 border-emerald-500/60'
+      : 'text-amber-100 bg-amber-950/30 border-l-2 border-amber-500/60';
+    const box = el('div', 'text-xs px-4 py-3 rounded-lg mb-2 ' + cls);
+    box.textContent = kind === 'success' ? '✓ ' + msg : '⬆ ' + msg;
+    warningsEl.prepend(box);
   }
 
   function renderResult(data: ParsedSavedVariables): void {
-    (document.getElementById('stat-guild-size') as HTMLElement).textContent = String(data.guild.members.length);
-    (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length || data.coreBands.length);
+    // Roster efectivo: memberList v3 (registries) ∪ legacy, dedupe por nombre.
+    const rosterNames = new Set<string>();
+    data.registries.forEach((reg) =>
+      reg.guild?.memberList?.forEach((gm) => rosterNames.add(gm.name.trim().toLowerCase())));
+    if (rosterNames.size === 0) {
+      data.guild.members.forEach((m) => rosterNames.add(m.name.trim().toLowerCase()));
+    }
+    (document.getElementById('stat-guild-size') as HTMLElement).textContent = String(rosterNames.size);
+    (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length);
     (document.getElementById('stat-roles') as HTMLElement).textContent = String(data.roles.length);
     (document.getElementById('stat-mechanics') as HTMLElement).textContent = String(data.mechanics.length);
 
-    // Bandas
-    const bandsList = document.getElementById('bands-list') as HTMLElement;
-    bandsList.innerHTML = '';
-    const allBands = data.bands.length > 0 ? data.bands : data.coreBands.map((cb) => ({
-      name: cb.name,
-      schedule: cb.schedule,
-      minGS: cb.minGS,
-      players: cb.members || [],
-      attendance: [],
-    }));
-    (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBands.length === 0);
-    allBands.forEach((b) => bandsList.appendChild(renderBand(b)));
+    // Tarjetas por CADA personaje del registry (activo marcado)
+    const shown = data.registries.length > 0
+      ? data.registries
+      : (data.player ? [{ key: '', player: data.player, guild: data.registryGuild, savedAt: data.savedAt }] : []);
+    const playerBanner = document.getElementById('player-banner') as HTMLElement;
+    playerBanner.innerHTML = '';
+    for (const reg of shown) {
+      const p = reg.player;
+      if (!p) continue;
+      const isActive = Boolean(data.player && p.name.toLowerCase() === data.player.name.toLowerCase()
+        && (p.realm ?? '').toLowerCase() === (data.player.realm ?? '').toLowerCase());
+      const card = el('div', 'bg-gray-800/50 border rounded-lg p-4 mb-3 ' + (isActive ? 'border-amber-500/60' : 'border-gray-700/50'));
+      const title = el('div', 'flex flex-wrap items-center gap-2 mb-2');
+      title.appendChild(el('h3', 'text-base font-bold ' + (isActive ? 'text-amber-200' : 'text-gray-200'),
+        `${p.name}${p.realm ? '-' + p.realm : ''}`));
+      if (isActive) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded-lg px-3 py-1', 'Activo'));
+      if (p.class) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', p.class));
+      if (p.race) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-gray-600/30 rounded-lg px-3 py-1', p.race));
+      if (typeof p.level === 'number') title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `Nivel ${p.level}`));
+      if (typeof p.avgIlvl === 'number') title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-gray-900/60 border border-amber-500/30 rounded-lg px-3 py-1', `ilvl ${p.avgIlvl}`));
+      card.appendChild(title);
+      if (reg.guild) {
+        card.appendChild(el('p', 'text-xs text-gray-400 mb-1',
+          `Hermandad: ${reg.guild.name}${reg.guild.rank ? ' · ' + reg.guild.rank : ''}`));
+      }
+      if (p.equipment.length > 0) {
+        const list = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1');
+        p.equipment.forEach((piece) => {
+          const row = el('div', 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1');
+          row.appendChild(el('span', '', piece.name));
+          row.appendChild(el('span', 'text-gray-500 whitespace-nowrap', `i${piece.ilvl} · slot ${piece.slot}`));
+          list.appendChild(row);
+        });
+        card.appendChild(list);
+      }
+      playerBanner.appendChild(card);
+    }
+    playerBanner.classList.toggle('hidden', shown.length === 0);
 
-    // Reglas
-    const rulesList = document.getElementById('rules-list') as HTMLElement;
-    rulesList.innerHTML = '';
-    (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
-    data.rules.slice(0, 20).forEach((r) => {
-      const li = el('li', 'flex items-start text-sm text-gray-300');
-      li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
-      const inner = el('div', '');
-      const title = el('span', 'font-bold text-amber-200', r.title || 'Regla');
-      inner.appendChild(title);
-      if (r.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', r.content));
-      li.appendChild(inner);
-      rulesList.appendChild(li);
+    // Banner de hermandad detectada por el addon
+    const guildBanner = document.getElementById('guild-sv-banner') as HTMLElement;
+    guildBanner.innerHTML = '';
+    const rg = data.registryGuild;
+    if (rg) {
+      const box = el('div', 'bg-gray-900/50 border border-amber-700/40 rounded-lg p-4');
+      const head = el('div', 'flex flex-wrap items-center justify-between gap-3');
+      head.appendChild(el('h3', 'text-sm font-bold text-amber-200',
+        `${rg.name}${rg.rank ? ' — ' + rg.rank : ''}${rg.isGM ? ' · MAESTRO' : ''}`));
+      head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500',
+        rg.isGM
+          ? 'Reclamo automático al subir siendo Miembro validado'
+          : 'El maestro de tu hermandad puede reclamarla subiendo su SV'));
+      box.appendChild(head);
+      guildBanner.appendChild(box);
+    }
+    guildBanner.classList.toggle('hidden', !rg);
+
+    // Bandas, reglas y roster vía módulo compartido
+    renderParsedSections(data, {
+      bands: document.getElementById('bands-list') as HTMLElement,
+      rules: document.getElementById('rules-list') as HTMLElement,
+      rosterWrap: document.getElementById('roster-table-wrap') as HTMLElement,
     });
-
-    // Roster
-    renderRoster(data.guild.members);
+    const allBandsCount = data.bands.length;
+    (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBandsCount === 0);
+    (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
 
     // Claim de maestro
     const claimBanner = document.getElementById('claim-banner') as HTMLElement;
@@ -271,9 +442,8 @@ import Navigation from '@/components/Navigation.astro';
     if (data.generatedBy) {
       claimBanner.classList.remove('hidden');
       (document.getElementById('claim-char') as HTMLElement).textContent = data.generatedBy;
-      if (data.guild.isLeaderRank) {
-        claimPending.classList.add('hidden');
-      } else {
+      void setupClaim(data);
+      if (!data.guild.isLeaderRank) {
         claimPending.classList.remove('hidden');
       }
     } else {
@@ -282,6 +452,65 @@ import Navigation from '@/components/Navigation.astro';
 
     errorEl.classList.add('hidden');
     resultEl.classList.remove('hidden');
+  }
+
+  // Muestra formulario de reclamo (con sesión) o CTA de login; valida el SV
+  async function setupClaim(data: ParsedSavedVariables): Promise<void> {
+    const claimForm = document.getElementById('claim-form') as HTMLFormElement;
+    const claimAnon = document.getElementById('claim-anon') as HTMLElement;
+    const claimMsg = document.getElementById('claim-msg') as HTMLElement;
+    const claimBtn = document.getElementById('claim-btn') as HTMLButtonElement;
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session?.user) {
+      claimAnon.classList.remove('hidden');
+      return;
+    }
+    if (!data.guild.isLeaderRank) return;
+
+    claimForm.classList.remove('hidden');
+    let claimed = false;
+
+    claimForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (claimed) return;
+      claimMsg.classList.add('hidden');
+
+      const name = (document.getElementById('claim-name') as HTMLInputElement).value.trim();
+      const discord = (document.getElementById('claim-discord') as HTMLInputElement).value.trim();
+      if (!name) {
+        claimMsg.textContent = 'Escribe el nombre de tu hermandad.';
+        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
+        claimMsg.classList.remove('hidden');
+        return;
+      }
+
+      // Slug kebab-case a partir del nombre
+      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'hermandad';
+
+      claimBtn.disabled = true;
+      claimBtn.textContent = 'Reclamando…';
+      const res = await claimGuild({ slug, name, discordLink: discord || null, generatedBy: data.generatedBy });
+      claimBtn.disabled = false;
+      claimBtn.textContent = 'Reclamar hermandad';
+
+      claimMsg.classList.remove('hidden');
+      if (res.ok) {
+        claimed = true;
+        claimForm.classList.add('hidden');
+        claimMsg.textContent = '¡Hermandad reclamada! Ya eres maestro de hermandad: administra tu portal desde el dashboard.';
+        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
+        const dash = document.createElement('a');
+        dash.href = '/dashboard';
+        dash.textContent = 'Ir al dashboard →';
+        dash.className = 'ml-2 underline font-bold hover:text-emerald-200';
+        claimMsg.appendChild(dash);
+      } else {
+        claimMsg.textContent = res.error || 'No se pudo reclamar la hermandad.';
+        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
+      }
+    });
   }
 
   function handleFile(file: File): void {
@@ -303,7 +532,7 @@ import Navigation from '@/components/Navigation.astro';
         }
         result.warnings.forEach(addWarning);
         renderResult(result.data as ParsedSavedVariables);
-        setStatus('Archivo procesado correctamente.');
+        void persistIfLoggedIn(result.data as ParsedSavedVariables);
       } catch (e) {
         showError('Error inesperado al parsear: ' + String(e));
       }

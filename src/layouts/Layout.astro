@@ -7,6 +7,11 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
+// En dev el pipeline cliente no expone VITE_* en import.meta.env;
+// se pasan por SSR al cliente vía window.__RD_ENV__ (ver src/lib/supabase.ts)
+const rdEnvUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? "";
+const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? "";
 ---
 
 <!doctype html>
@@ -69,6 +74,9 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body class="relative">
+    <script define:vars={{ rdEnvUrl, rdEnvKey }}>
+      window.__RD_ENV__ = { url: rdEnvUrl || "", key: rdEnvKey || "" };
+    </script>
     <div class="max-w-6xl px-8 mx-auto relative">
       <slot />
     </div>

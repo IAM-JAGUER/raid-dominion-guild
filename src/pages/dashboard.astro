@@ -1,0 +1,1078 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+import { ui } from '@/lib/ui/design';
+
+const ctaPrincipal = `${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest`;
+const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
+---
+
+<Layout title="Mi Dashboard - RaidDominion" description="Tu espacio en la comunidad RaidDominion: addon, hermandad y perfil.">
+  <Navigation currentPath="/dashboard" />
+  <main class="relative py-16">
+    <div class="max-w-5xl mx-auto px-4">
+
+      <!-- Encabezado del espacio personal -->
+      <header class="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 mb-8 animate-fade-in-1">
+        <div class="flex items-center gap-4">
+          <div id="avatar" class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black text-xl font-black shadow-lg shadow-amber-900/30 select-none">–</div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Mi Espacio</h1>
+            <p id="user-email" class="text-gray-400 text-sm italic"></p>
+          </div>
+        </div>
+        <span id="role-badge" class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300">…</span>
+      </header>
+
+      <!-- Pestañas (navegación con ←/→/Home/End; activación automática al enfocar) -->
+      <nav class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel">
+        <button id="tab-resumen" data-tab="resumen" role="tab" aria-selected="true" aria-controls="panel-resumen" tabindex="0"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Resumen</button>
+        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="false" aria-controls="panel-addon" tabindex="-1"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Addon</button>
+        <button id="tab-hermandad" data-tab="hermandad" role="tab" aria-selected="false" aria-controls="panel-hermandad" tabindex="-1"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Hermandad</button>
+        <button id="tab-perfil" data-tab="perfil" role="tab" aria-selected="false" aria-controls="panel-perfil" tabindex="-1"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-md ml-auto">Mi Perfil</button>
+      </nav>
+
+      <!-- ── Resumen ─────────────────────────────────────────────────────── -->
+      <section id="panel-resumen" role="tabpanel" aria-labelledby="tab-resumen" class="space-y-6">
+        <div class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/30 rounded-lg p-6">
+          <h2 class="text-lg font-bold text-amber-200 mb-2">Bienvenido a tu comunidad</h2>
+          <p class="text-sm text-gray-400 leading-relaxed max-w-2xl">
+            Este es tu espacio dentro del portal RaidDominion. Sube tus SavedVariables para
+            mantener tus datos al día, controla la visibilidad de tu perfil y, si lideras una
+            hermandad, administra su página pública con control total.
+          </p>
+        </div>
+
+        <!-- KPIs (solo en Resumen) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Resumen de actividad">
+          <div class={`${ui.panel} p-4`}>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Análisis guardados</p>
+            <p class="text-3xl font-black text-amber-300 mt-1" id="kpi-uploads">—</p>
+          </div>
+          <div class={`${ui.panel} p-4`}>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Último upload</p>
+            <p class="text-sm font-bold text-amber-200 mt-2" id="kpi-last">—</p>
+          </div>
+          <div class={`${ui.panel} p-4`}>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Perfil</p>
+            <p class="text-sm font-bold mt-2" id="kpi-visibility"><span class="text-gray-400">—</span></p>
+          </div>
+          <div class={`${ui.panel} p-4`}>
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Hermandad</p>
+            <p class="text-sm font-bold text-amber-200 mt-2" id="kpi-guild">—</p>
+          </div>
+        </div>
+
+        <!-- CTA primario único -->
+        <div class="flex flex-wrap items-center gap-4">
+          <a href="/upload" class={ctaPrincipal}>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            Subir SavedVariables
+          </a>
+          <p class="text-xs text-gray-500 italic">Roster, bandas y reglas se actualizan con cada archivo.</p>
+        </div>
+
+        <!-- Accesos secundarios -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button type="button" data-goto="perfil" class={`goto-btn group text-left ${ui.panel} ${ui.panelHover} p-5 transform hover:-translate-y-0.5`}>
+            <svg class="w-7 h-7 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <p class="font-bold text-white group-hover:text-amber-200 transition-colors">Mi Perfil</p>
+            <p class="text-xs text-gray-500 mt-1">Datos, personajes y seguridad.</p>
+          </button>
+          <button type="button" data-goto="hermandad" id="quick-guild" class={`hidden goto-btn group text-left ${ui.panel} ${ui.panelHover} p-5 transform hover:-translate-y-0.5`}>
+            <svg class="w-7 h-7 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <p class="font-bold text-white group-hover:text-amber-200 transition-colors">Mi Hermandad</p>
+            <p class="text-xs text-gray-500 mt-1">Portal público y ficha.</p>
+          </button>
+          <a href="/moderate" id="quick-moderate" class="hidden group bg-gray-900/60 border border-sky-700/30 hover:border-sky-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5">
+            <svg class="w-7 h-7 text-sky-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="font-bold text-white group-hover:text-sky-200 transition-colors">Moderación</p>
+            <p class="text-xs text-gray-500 mt-1">Claims y portales.</p>
+          </a>
+          <a href="/admin" id="quick-admin" class="hidden group bg-gray-900/60 border border-red-800/40 hover:border-red-600/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5">
+            <svg class="w-7 h-7 text-red-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <p class="font-bold text-white group-hover:text-red-200 transition-colors">Administración</p>
+            <p class="text-xs text-gray-500 mt-1">Usuarios y roles.</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── Mi Addon (config + historial + visor) ───────────────────────── -->
+      <section id="panel-addon" role="tabpanel" aria-labelledby="tab-addon" class="hidden space-y-6">
+        <!-- Estado vacío -->
+        <div id="addon-empty" class={`hidden ${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
+          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="font-bold text-white mb-1">Aún no subes ningún SavedVariables</p>
+          <p class="text-sm text-gray-400 mb-6">Sube tu archivo <code class="text-amber-300">RaidDominionDB</code> para ver aquí la configuración de tu addon, tus bandas y tus reglas.</p>
+          <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
+          <p id="addon-empty-note" class="hidden mt-4 text-xs text-red-300"></p>
+        </div>
+
+        <div id="addon-main" class="hidden space-y-6">
+          <!-- Selector + historial -->
+          <div class={`${ui.panel} p-6`}>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h2 class="text-lg font-bold text-amber-200 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                Mi Addon
+              </h2>
+              <span class="text-[11px] text-gray-500 italic">Se actualiza re-subiendo tu SavedVariables</span>
+            </div>
+
+            <label for="sv-select" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Análisis a mostrar</label>
+            <div class="relative">
+              <select id="sv-select" class="w-full appearance-none cursor-pointer pl-3 pr-10 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 hover:border-gray-600 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/50 focus-visible:outline-none outline-none text-gray-100 text-sm transition-colors"></select>
+              <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+
+            <details id="sv-history" class="mt-3 group">
+              <summary class="cursor-pointer select-none list-none inline-flex items-center gap-1.5 rounded-lg px-1 -mx-1 py-0.5 text-xs font-black uppercase tracking-widest text-amber-300/80 hover:text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
+                <svg aria-hidden="true" class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                Análisis anteriores (<span id="sv-history-count">0</span>)
+              </summary>
+              <ul id="history-list" class="mt-3 space-y-2"></ul>
+            </details>
+          </div>
+
+          <!-- Banner de reclamo condicional (acento ámbar intenso: acción destacada) -->
+          <div id="claim-banner" class="hidden border border-amber-400/60 bg-gradient-to-br from-amber-950/40 to-gray-900/60 rounded-lg p-6 shadow-lg shadow-amber-500/10">
+            <h3 class="text-base font-black uppercase tracking-widest text-amber-300 mb-1">¿Lideras una hermandad?</h3>
+            <p class="text-sm text-gray-300 mb-4">Tu SavedVariables acredita rango de liderazgo. Reclámala y obtén el portal web gratuito de tu guild:</p>
+            <ol class="space-y-2 mb-5 text-sm text-gray-300 list-none">
+              <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube tu SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>).</span></li>
+              <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama aquí tu hermandad: la ficha nace con los datos exactos del juego.</span></li>
+              <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publícala desde Mi Hermandad y comparte <code class="text-amber-300">/tu-hermandad</code>.</span></li>
+            </ol>
+            <button type="button" id="claim-btn" class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Reclamar mi hermandad</button>
+            <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+          </div>
+
+          <!-- Visor único del snapshot seleccionado -->
+          <div class={`${ui.panel} p-6 space-y-6`}>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h3 class="text-lg font-bold text-amber-300">Visor del análisis <span id="viewer-date" class="text-sm text-gray-400 font-normal italic"></span></h3>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="stat-guild-size">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
+              </div>
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="stat-bands">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
+              </div>
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="stat-roles">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Roles</p>
+              </div>
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="stat-mechanics">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Mecánicas</p>
+              </div>
+            </div>
+
+            <!-- Submenús activos -->
+            <div>
+              <h4 class={ui.subTitle}>Submenús activos en tu addon</h4>
+              <div id="addon-menus" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Listas configurables (orden real del addon) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4"><h4 class={ui.subTitle}>Habilidades <span id="cnt-abilities" class="text-gray-500"></span></h4><div id="list-abilities" class="space-y-1"></div></div>
+              <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4"><h4 class={ui.subTitle}>Roles <span id="cnt-roles" class="text-gray-500"></span></h4><div id="list-roles" class="space-y-1"></div></div>
+              <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4"><h4 class={ui.subTitle}>Bendiciones <span id="cnt-buffs" class="text-gray-500"></span></h4><div id="list-buffs" class="space-y-1"></div></div>
+              <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4"><h4 class={ui.subTitle}>Auras <span id="cnt-auras" class="text-gray-500"></span></h4><div id="list-auras" class="space-y-1"></div></div>
+            </div>
+
+            <!-- Mecánicas -->
+            <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4">
+              <h4 class={ui.subTitle}>Mecánicas <span id="cnt-mechanics" class="text-gray-500"></span></h4>
+              <div id="list-mechanics"></div>
+            </div>
+
+            <!-- Reglas completas (sin corte) -->
+            <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4">
+              <h4 class={ui.subTitle}>Reglas de banda <span id="cnt-rules" class="text-gray-500"></span></h4>
+              <div id="list-rules"></div>
+            </div>
+
+            <!-- Bandas -->
+            <div>
+              <h4 class={ui.subTitle}>Bandas</h4>
+              <div id="viewer-bands" class="space-y-4"></div>
+            </div>
+
+            <!-- Roster -->
+            <div>
+              <h4 class={ui.subTitle}>Roster de la hermandad</h4>
+              <div id="viewer-roster-wrap" class="overflow-x-auto"></div>
+            </div>
+
+            <!-- General / chat / asignaciones -->
+            <div>
+              <h4 class={ui.subTitle}>General</h4>
+              <div id="addon-general" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Mi Hermandad ────────────────────────────────────────────────── -->
+      <section id="panel-hermandad" role="tabpanel" aria-labelledby="tab-hermandad" class="hidden space-y-6">
+        <!-- Sin hermandad aún: solo vía SV (registry.guild.isGM) -->
+          <div id="guild-empty" class={`${ui.panel} p-8 max-w-2xl mx-auto`}>
+          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <p class="font-bold text-white text-center mb-1">Tu hermandad nace de tu SavedVariables</p>
+          <p class="text-sm text-gray-400 text-center mb-6">Sin formularios: los datos provienen del addon y cada re-upload los mantiene actualizados.</p>
+          <ol class="space-y-3 mb-7 text-sm text-gray-300 list-none">
+            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube un SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>) teniendo un personaje validado por un compañero.</span></li>
+            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama la hermandad desde Mi Addon: tu rol de Maestro se asigna verificado por el addon.</span></li>
+            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publica el portal y comparte su dirección con tu comunidad.</span></li>
+          </ol>
+          <div class="text-center">
+            <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
+          </div>
+        </div>
+
+        <!-- Gestión -->
+        <div id="guild-manage" class="hidden space-y-6">
+          <!-- Ficha (solo lectura) -->
+          <div class={`${ui.panel} p-6`}>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <h2 class="text-lg font-bold text-amber-200 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                Ficha de la hermandad
+              </h2>
+              <span id="guild-status-badge" class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border"></span>
+            </div>
+
+            <div class="space-y-3 bg-gray-800/40 border border-gray-700/50 rounded-lg p-4">
+              <div class="flex flex-wrap justify-between gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Nombre</span>
+                <span id="guild-name" class="text-sm font-bold text-white"></span>
+              </div>
+              <div class="flex flex-wrap justify-between gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Reino</span>
+                <span id="guild-realm" class="text-sm text-gray-300"></span>
+              </div>
+              <div class="flex flex-wrap justify-between gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Facción</span>
+                <span id="guild-faction" class="text-sm text-gray-300"></span>
+              </div>
+              <div class="flex flex-wrap justify-between gap-2 items-center">
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Discord</span>
+                <a id="guild-discord-link" href="#" target="_blank" rel="noopener" class="hidden text-xs text-sky-300 underline hover:text-sky-200">Abrir enlace →</a>
+                <span id="guild-discord-none" class="text-sm text-gray-600 italic">—</span>
+              </div>
+              <p class="text-[11px] text-gray-500 border-t border-gray-700/50 pt-2 italic">Los datos provienen de tu SavedVariables; se actualizan con cada re-upload.</p>
+            </div>
+          </div>
+
+          <!-- Portal -->
+          <div class={`${ui.panel} p-6`}>
+            <h2 class="text-lg font-bold text-amber-200 mb-5 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+              Portal de la hermandad
+            </h2>
+
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Dirección de tu portal</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <code id="guild-url" class="flex-1 min-w-[240px] px-3 py-2.5 rounded-lg bg-gray-950/70 border border-gray-700 text-amber-300 text-sm truncate"></code>
+              <button type="button" id="copy-url" class="px-4 py-2.5 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">Copiar</button>
+              <a id="open-url" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2.5 rounded-lg border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all text-xs font-black uppercase tracking-widest">Ver portal →</a>
+            </div>
+
+            <label for="guild-public" class="mt-5 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-lg p-4 transition-colors">
+              <input type="checkbox" id="guild-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
+              <span class="text-sm text-gray-300 font-medium">Publicar portal de la hermandad
+                <span class="block text-xs text-gray-500 italic mt-0.5">Visible para toda la comunidad con roster, bandas y reglas de tu último análisis verificado.</span>
+              </span>
+            </label>
+
+            <p id="guild-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Mi Perfil (datos + personajes + seguridad) ──────────────────── -->
+      <section id="panel-perfil" role="tabpanel" aria-labelledby="tab-perfil" class="hidden space-y-6">
+        <!-- Datos del perfil -->
+        <div class={`${ui.panel} p-6`}>
+          <h2 class="text-lg font-bold text-amber-200 mb-5 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+            Datos del perfil
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+            <div>
+              <label for="display-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Nombre visible</label>
+              <input type="text" id="display-name" maxlength="40" placeholder="Tu nombre en el portal"
+                class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+            </div>
+            <div>
+              <label for="character-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Personaje principal</label>
+              <input type="text" id="character-name" maxlength="24" placeholder="Ej. JUNGJX"
+                class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600 uppercase" />
+            </div>
+          </div>
+
+          <label for="profile-public" class="mt-6 flex items-start gap-3 cursor-pointer select-none max-w-2xl border border-gray-700/60 hover:border-amber-600/40 rounded-lg p-4 transition-colors">
+            <input type="checkbox" id="profile-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
+            <span class="text-sm text-gray-300 font-medium">Perfil y datos públicos
+              <span class="block text-xs text-gray-500 italic mt-0.5">Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
+            </span>
+          </label>
+
+          <div class="mt-5 flex flex-wrap items-center gap-3">
+            <button id="save-profile"
+              class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
+              Guardar cambios
+            </button>
+            <a id="public-profile-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-lg border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all text-xs font-black uppercase tracking-widest">Ver perfil público →</a>
+          </div>
+          <p id="profile-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+        </div>
+
+        <!-- Mis personajes -->
+        <div class={`${ui.panel} p-6`}>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h2 class="text-lg font-bold text-amber-200 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+              Mis personajes
+            </h2>
+            <span class="text-[11px] text-gray-500 italic hidden sm:inline">Los cambios de visibilidad se guardan al instante</span>
+          </div>
+          <p id="characters-onboarding" class="hidden mb-4 text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-lg"></p>
+          <div id="characters-list" class="space-y-4"></div>
+          <p id="characters-status" class="text-sm text-gray-400"></p>
+        </div>
+
+        <!-- Seguridad -->
+        <div class={`${ui.panel} p-6 max-w-2xl`}>
+          <h2 class="text-lg font-bold text-amber-200 mb-5 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
+            Seguridad
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <label for="new-password" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Nueva contraseña</label>
+              <input type="password" id="new-password" autocomplete="new-password" minlength="8"
+                class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm" />
+              <p class="text-[11px] text-gray-500 mt-1.5 italic">Mínimo 8 caracteres, con al menos una letra y un número.</p>
+            </div>
+            <div>
+              <label for="new-password-confirm" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Confirmar nueva contraseña</label>
+              <input type="password" id="new-password-confirm" autocomplete="new-password"
+                class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm" />
+            </div>
+            <button id="save-password"
+              class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
+              Actualizar contraseña
+            </button>
+            <p id="password-msg" class="hidden text-sm rounded-lg px-4 py-2.5" role="status"></p>
+          </div>
+
+          <div class="border-t border-gray-700/50 mt-6 pt-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-base font-bold text-red-300">Sesión</h3>
+              <p class="text-xs text-gray-500">Cierra sesión en este dispositivo.</p>
+            </div>
+            <button id="logout-btn"
+              class="px-6 py-2.5 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { supabase } from '@/lib/supabase';
+  import {
+    listMyUploads,
+    getUpload,
+    getMyProfile,
+    updateMyProfile,
+    getMyGuild,
+    ensureMyProfileSlug,
+    getMyCharacters,
+    setCharacterVisibility,
+    claimGuildFromSV,
+  } from '@/lib/api';
+  import type { UploadSummary, CharacterRow } from '@/lib/api';
+  import { renderBand, renderRoster, el } from '@/lib/ui/preview';
+  import { isStaff } from '@/lib/roles';
+  import type { ParsedSavedVariables, ConfigListItem, ContentItem } from '@/types/parser';
+  import type { RaiddominionRole, GuildRow } from '@/types/database';
+
+  const PANELS = ['resumen', 'addon', 'hermandad', 'perfil'] as const;
+  type PanelName = (typeof PANELS)[number];
+
+  const emailEl = document.getElementById('user-email') as HTMLElement;
+  const avatarEl = document.getElementById('avatar') as HTMLElement;
+  const badgeEl = document.getElementById('role-badge') as HTMLElement;
+
+  const ROLE_LABELS: Record<RaiddominionRole, string> = {
+    visitante: 'Visitante',
+    member: 'Miembro',
+    guild_master: 'Maestro de Hermandad',
+    moderator: 'Moderador',
+    admin: 'Administrador',
+  };
+  const ROLE_STYLES: Record<RaiddominionRole, string> = {
+    visitante: 'bg-stone-800/70 border-stone-600 text-stone-300',
+    member: 'bg-gray-800/70 border-gray-600 text-gray-300',
+    guild_master: 'bg-amber-900/40 border-amber-500/60 text-amber-200',
+    moderator: 'bg-sky-900/30 border-sky-600/50 text-sky-200',
+    admin: 'bg-red-900/30 border-red-600/50 text-red-200',
+  };
+
+  function msgBox(id: string, ok: boolean, text: string): void {
+    const box = document.getElementById(id) as HTMLElement;
+    box.textContent = text;
+    box.className = `mt-3 text-sm rounded-lg px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
+  }
+
+  function visibilityHtml(isPublic: boolean | null | undefined): string {
+    return isPublic ? '<span class="text-emerald-300">Público</span>' : '<span class="text-gray-400">Privado</span>';
+  }
+
+  // Muestra u oculta el enlace al perfil público con un slug conocido o generándolo
+  async function syncPublicLink(isPublic: boolean | null | undefined, knownSlug?: string): Promise<void> {
+    const link = document.getElementById('public-profile-link') as HTMLAnchorElement;
+    if (!isPublic) {
+      link.classList.add('hidden');
+      return;
+    }
+    let slug = knownSlug;
+    if (!slug) {
+      const res = await ensureMyProfileSlug();
+      if (res.ok && res.slug) slug = res.slug;
+    }
+    if (slug) {
+      link.href = `/p/${slug}`;
+      link.classList.remove('hidden');
+    }
+  }
+
+  // ── Sesión ───────────────────────────────────────────────────────────────
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session?.user) {
+    window.location.replace('/login?next=%2Fdashboard');
+  } else {
+    const email = sessionData.session.user.email ?? '';
+    emailEl.textContent = email;
+    avatarEl.textContent = (email[0] ?? '?').toUpperCase();
+
+    void loadProfile();
+    void loadCharacters();
+    void loadHistory();
+    void loadGuild();
+  }
+
+  // ── Pestañas ─────────────────────────────────────────────────────────────
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'resumen') as PanelName)));
+  document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
+    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'resumen') as PanelName)));
+
+  function activateTab(name: PanelName): void {
+    tabs.forEach((b) => {
+      const active = b.dataset.tab === name;
+      b.setAttribute('aria-selected', String(active));
+      b.tabIndex = active ? 0 : -1;
+      b.classList.toggle('border-amber-400', active);
+      b.classList.toggle('text-amber-200', active);
+      b.classList.toggle('border-transparent', !active);
+      b.classList.toggle('text-gray-500', !active);
+    });
+    PANELS.forEach((p) => {
+      document.getElementById(`panel-${p}`)?.classList.toggle('hidden', p !== name);
+    });
+  }
+
+  // Patrón ARIA tabs: ←/→ mueven foco (con activación), Home/End saltan a los extremos
+  document.querySelector('nav[role="tablist"]')?.addEventListener('keydown', (e) => {
+    const ev = e as KeyboardEvent;
+    const idx = tabs.indexOf(ev.target as HTMLButtonElement);
+    if (idx === -1) return;
+    let next: number | null = null;
+    if (ev.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+    else if (ev.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+    else if (ev.key === 'Home') next = 0;
+    else if (ev.key === 'End') next = tabs.length - 1;
+    if (next === null) return;
+    ev.preventDefault();
+    const target = tabs[next];
+    target.focus();
+    activateTab((target.dataset.tab ?? 'resumen') as PanelName);
+  });
+
+  // ── Perfil ───────────────────────────────────────────────────────────────
+  let currentRole: RaiddominionRole = 'member';
+
+  async function loadProfile(): Promise<void> {
+    const nameInput = document.getElementById('display-name') as HTMLInputElement;
+    const charInput = document.getElementById('character-name') as HTMLInputElement;
+    const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
+    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
+
+    const res = await getMyProfile();
+    if (!res.ok || !res.profile) {
+      badgeEl.textContent = 'Visitante';
+      return;
+    }
+    const p = res.profile;
+    currentRole = p.role;
+    badgeEl.textContent = ROLE_LABELS[p.role] ?? p.role;
+    badgeEl.className = `px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border ${ROLE_STYLES[p.role] ?? ROLE_STYLES.member}`;
+
+    if (p.display_name) {
+      nameInput.value = p.display_name;
+      avatarEl.textContent = p.display_name[0].toUpperCase();
+    }
+    charInput.value = p.character_name ?? '';
+    publicToggle.checked = p.is_public === true;
+    kpiVis.innerHTML = visibilityHtml(p.is_public);
+
+    await syncPublicLink(p.is_public, p.slug ?? undefined);
+
+    // La pestaña de hermandad está abierta a todos (los pasos guían el reclamo);
+    // el acceso rápido del Resumen solo para quienes ya gestionan una.
+    if (p.role === 'guild_master' || p.role === 'moderator' || p.role === 'admin') {
+      document.getElementById('quick-guild')?.classList.remove('hidden');
+    }
+    if (isStaff(p.role)) {
+      document.getElementById('quick-moderate')?.classList.remove('hidden');
+    }
+    if (p.role === 'admin') {
+      document.getElementById('quick-admin')?.classList.remove('hidden');
+    }
+  }
+
+  // La visibilidad pública se persiste al instante (no requiere Guardar)
+  document.getElementById('profile-public')?.addEventListener('change', async (e) => {
+    const box = e.target as HTMLInputElement;
+    box.disabled = true;
+    const res = await updateMyProfile({ is_public: box.checked });
+    box.disabled = false;
+    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
+    if (!res.ok) {
+      box.checked = !box.checked;
+      msgBox('profile-msg', false, 'No se pudo cambiar la visibilidad: ' + (res.error || ''));
+      return;
+    }
+    kpiVis.innerHTML = visibilityHtml(box.checked);
+    await syncPublicLink(box.checked);
+    msgBox('profile-msg', true, box.checked ? 'Perfil público activado.' : 'Perfil privado.');
+  });
+
+  document.getElementById('save-profile')?.addEventListener('click', async () => {
+    const btn = document.getElementById('save-profile') as HTMLButtonElement;
+    const nameInput = document.getElementById('display-name') as HTMLInputElement;
+    const charInput = document.getElementById('character-name') as HTMLInputElement;
+    const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
+    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
+
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    const res = await updateMyProfile({
+      display_name: nameInput.value.trim() || undefined,
+      character_name: charInput.value.trim().toUpperCase(),
+      is_public: publicToggle.checked,
+    });
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
+
+    if (res.ok) {
+      const nameSource = nameInput.value.trim() || charInput.value.trim();
+      if (nameSource) avatarEl.textContent = nameSource[0].toUpperCase();
+      kpiVis.innerHTML = visibilityHtml(publicToggle.checked);
+      await syncPublicLink(publicToggle.checked);
+      msgBox('profile-msg', true, publicToggle.checked
+        ? 'Cambios guardados. Tu perfil es público.'
+        : 'Cambios guardados. Tu perfil es privado.');
+    } else {
+      msgBox('profile-msg', false, 'No se pudo guardar: ' + (res.error || ''));
+    }
+  });
+
+  // ── Mis Personajes ───────────────────────────────────────────────────────
+  async function loadCharacters(): Promise<void> {
+    const listEl = document.getElementById('characters-list') as HTMLElement;
+    const statusEl = document.getElementById('characters-status') as HTMLElement;
+    const onboardingEl = document.getElementById('characters-onboarding') as HTMLElement;
+
+    const res = await getMyCharacters();
+    if (!res.ok) {
+      statusEl.textContent = 'No se pudieron cargar tus personajes.';
+      return;
+    }
+    const items = res.items ?? [];
+    statusEl.classList.toggle('hidden', items.length > 0);
+    if (items.length === 0) {
+      statusEl.innerHTML = 'Aún no registras personajes. Sube tu SavedVariables desde el addon y aparecerán aquí. <a href="/upload" class="text-amber-300 underline hover:text-amber-200">Subir ahora →</a>';
+      return;
+    }
+
+    const anyVerified = items.some((c) => c.member_verified);
+    if (currentRole === 'visitante' && !anyVerified) {
+      onboardingEl.textContent = 'Ruta a Miembro: un compañero de tu hermandad debe subir su SavedVariables con el roster que te incluya. Compártele el addon y motívalo a registrarse para validar tu cuenta.';
+      onboardingEl.classList.remove('hidden');
+    } else {
+      onboardingEl.classList.add('hidden');
+    }
+
+    items.forEach((c) => listEl.appendChild(characterCard(c)));
+  }
+
+  function characterCard(c: CharacterRow): HTMLElement {
+    const card = document.createElement('div');
+    card.className = 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4';
+
+    const header = document.createElement('div');
+    header.className = 'flex flex-wrap items-center justify-between gap-3';
+    const info = document.createElement('div');
+    const title = document.createElement('p');
+    title.className = 'text-sm font-bold text-white';
+    title.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
+    const chips = document.createElement('div');
+    chips.className = 'flex flex-wrap gap-2 mt-1.5';
+    const chipCls = 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/30 rounded-lg px-2.5 py-1';
+    if (c.class) chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: c.class }));
+    if (c.race) chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: c.race }));
+    if (typeof c.level === 'number') chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: `Nivel ${c.level}` }));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
+      chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls + ' !text-amber-300 !border-amber-500/40', textContent: `ilvl ${c.avg_ilvl}` }));
+    }
+    if (c.member_verified) {
+      chips.appendChild(Object.assign(document.createElement('span'), { className: 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded-lg px-2.5 py-1', textContent: '✓ Validado' }));
+    }
+    if (c.sv_guild_name) {
+      chips.appendChild(Object.assign(document.createElement('span'), { className: 'text-[10px] font-black uppercase tracking-widest ' + (c.sv_is_gm ? 'text-amber-300 bg-amber-950/30 border border-amber-500/40' : 'text-sky-200 bg-gray-900/60 border border-sky-600/30') + ' rounded-lg px-2.5 py-1', textContent: c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}` }));
+    }
+    info.append(title, chips);
+    header.appendChild(info);
+
+    const visLabel = document.createElement('label');
+    visLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
+    const visCheck = document.createElement('input');
+    visCheck.type = 'checkbox';
+    visCheck.checked = c.is_public;
+    visCheck.className = 'w-4 h-4 accent-amber-500';
+    const visStatus = document.createElement('span');
+    visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest';
+    visCheck.addEventListener('change', async () => {
+      visCheck.disabled = true;
+      visStatus.textContent = '· guardando…';
+      visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-amber-300';
+      const res = await setCharacterVisibility(c.id, visCheck.checked);
+      visCheck.disabled = false;
+      if (res.ok) {
+        visStatus.textContent = '✓ guardado';
+        visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      } else {
+        visCheck.checked = !visCheck.checked;
+        visStatus.textContent = '✗ error';
+        visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
+      }
+      window.setTimeout(() => { visStatus.textContent = ''; }, 2500);
+    });
+    visLabel.append(visCheck, document.createTextNode('Público'), visStatus);
+    header.appendChild(visLabel);
+    card.appendChild(header);
+
+    if ((c.equipment ?? []).length > 0) {
+      const details = document.createElement('details');
+      details.className = 'mt-3';
+      const summary = document.createElement('summary');
+      summary.className = 'text-xs text-amber-300/80 cursor-pointer hover:text-amber-200';
+      summary.textContent = `Equipamiento (${c.equipment.length} piezas)`;
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2';
+      c.equipment.forEach((piece) => {
+        const row = document.createElement('div');
+        row.className = 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1';
+        const nm = document.createElement('span'); nm.textContent = piece.name;
+        const st = document.createElement('span'); st.className = 'text-gray-500 whitespace-nowrap'; st.textContent = `i${piece.ilvl} · q${piece.quality}`;
+        row.append(nm, st);
+        grid.appendChild(row);
+      });
+      details.append(summary, grid);
+      card.appendChild(details);
+    }
+    return card;
+  }
+
+  // ── Mi Addon: historial + visor del snapshot seleccionado ────────────────
+  let uploadsCache: UploadSummary[] = [];
+  let currentSvId = '';
+  let lastLeads = false;
+  let hasGuild = false;
+
+  function fmtDateTime(iso: string): string {
+    return new Date(iso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  function svLabel(item: UploadSummary): string {
+    const who = item.generatedBy ? ` · ${item.generatedBy}` : '';
+    return `${fmtDateTime(item.parsedAt)}${who}`;
+  }
+
+  function showAddonEmpty(note?: string): void {
+    document.getElementById('addon-empty')?.classList.remove('hidden');
+    document.getElementById('addon-main')?.classList.add('hidden');
+    const noteEl = document.getElementById('addon-empty-note') as HTMLElement;
+    if (note) {
+      noteEl.textContent = note;
+      noteEl.classList.remove('hidden');
+    } else {
+      noteEl.classList.add('hidden');
+    }
+  }
+
+  async function loadHistory(): Promise<void> {
+    const kpiUp = document.getElementById('kpi-uploads') as HTMLElement;
+    const kpiLast = document.getElementById('kpi-last') as HTMLElement;
+    const select = document.getElementById('sv-select') as HTMLSelectElement;
+    const listEl = document.getElementById('history-list') as HTMLElement;
+    const countEl = document.getElementById('sv-history-count') as HTMLElement;
+
+    const res = await listMyUploads();
+    if (!res.ok) {
+      kpiUp.textContent = '—';
+      showAddonEmpty('No se pudo cargar tu historial de análisis.');
+      return;
+    }
+    const items = res.items ?? [];
+    uploadsCache = items;
+    kpiUp.textContent = String(items.length);
+    kpiLast.textContent = items.length > 0 ? fmtDateTime(items[0].parsedAt) : 'Sin uploads aún';
+
+    if (items.length === 0) {
+      showAddonEmpty();
+      return;
+    }
+
+    select.innerHTML = '';
+    items.forEach((item) => {
+      const opt = document.createElement('option');
+      opt.value = item.id;
+      opt.textContent = svLabel(item);
+      select.appendChild(opt);
+    });
+    select.value = items[0].id;
+
+    countEl.textContent = String(items.length);
+    listEl.innerHTML = '';
+    items.forEach((item) => listEl.appendChild(historyItem(item)));
+
+    const first = items[0];
+    if (first) void renderSnapshot(first.id);
+  }
+
+  function historyItem(item: UploadSummary): HTMLElement {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.svId = item.id;
+    btn.className = 'w-full text-left bg-gray-800/50 hover:bg-gray-700/50 border border-amber-700/40 hover:border-amber-500/60 rounded-lg px-4 py-3 transition-colors';
+    btn.appendChild(el('p', 'text-sm font-bold text-white', svLabel(item)));
+    btn.appendChild(el('p', 'text-xs text-gray-400 mt-0.5', `${item.members} miembros · ${item.bands} bandas`));
+    btn.addEventListener('click', () => {
+      const select = document.getElementById('sv-select') as HTMLSelectElement;
+      select.value = item.id;
+      void renderSnapshot(item.id);
+    });
+    li.appendChild(btn);
+    return li;
+  }
+
+  // Resalta el análisis activo dentro de "Análisis anteriores"
+  function highlightHistory(id: string): void {
+    document.querySelectorAll<HTMLButtonElement>('#history-list [data-sv-id]').forEach((b) => {
+      const active = b.dataset.svId === id;
+      b.classList.toggle('border-amber-400', active);
+      b.classList.toggle('bg-amber-900/20', active);
+    });
+  }
+
+  async function renderSnapshot(svId: string): Promise<void> {
+    currentSvId = svId;
+    const dateEl = document.getElementById('viewer-date') as HTMLElement;
+    const res = await getUpload(svId);
+    if (!res.ok || !res.item?.raw) {
+      dateEl.textContent = '· no disponible';
+      return;
+    }
+    const d = res.item.raw as ParsedSavedVariables;
+    const item = uploadsCache.find((u) => u.id === svId);
+    dateEl.textContent = item ? `· ${svLabel(item)}` : '';
+
+    // Stats
+    (document.getElementById('stat-guild-size') as HTMLElement).textContent = String(d.guild.members.length);
+    (document.getElementById('stat-bands') as HTMLElement).textContent = String(d.bands.length);
+    (document.getElementById('stat-roles') as HTMLElement).textContent = String(d.roles.length);
+    (document.getElementById('stat-mechanics') as HTMLElement).textContent = String(d.mechanics.length);
+
+    // Submenús activos (ui.show*Menu)
+    const menusEl = document.getElementById('addon-menus') as HTMLElement;
+    menusEl.innerHTML = '';
+    const menuLabels: Record<string, string> = {
+      showRolesMenu: 'Roles',
+      showBuffsMenu: 'Bendiciones',
+      showAbilitiesMenu: 'Habilidades',
+      showAurasMenu: 'Auras',
+      showMechanicsMenu: 'Mecánicas',
+      showRulesMenu: 'Reglas',
+      showBandsMenu: 'Bandas',
+    };
+    Object.entries(menuLabels).forEach(([key, label]) => {
+      const active = d.menus?.[key] === true;
+      menusEl.appendChild(configChip(active ? `✓ ${label}` : label, active));
+    });
+
+    // Listas configurables en el orden real del addon
+    fillList('list-abilities', 'cnt-abilities', d.abilities);
+    fillList('list-roles', 'cnt-roles', d.roles);
+    fillList('list-buffs', 'cnt-buffs', d.buffs);
+    fillList('list-auras', 'cnt-auras', d.auras);
+
+    // Mecánicas y Reglas completas (sin recorte)
+    renderContentList('list-mechanics', 'cnt-mechanics', d.mechanics);
+    renderContentList('list-rules', 'cnt-rules', d.rules);
+
+    // Bandas y Roster
+    const bandsEl = document.getElementById('viewer-bands') as HTMLElement;
+    bandsEl.innerHTML = '';
+    d.bands.forEach((b) => bandsEl.appendChild(renderBand(b)));
+    renderRoster(document.getElementById('viewer-roster-wrap') as HTMLElement, d.guild.members);
+
+    // General / chat / asignaciones
+    const genEl = document.getElementById('addon-general') as HTMLElement;
+    genEl.innerHTML = '';
+    if (d.chat.channel) genEl.appendChild(configChip(`Canal: ${d.chat.channel}`));
+    if (d.chat.discordLink) {
+      const a = document.createElement('a');
+      a.href = /^https?:\/\//.test(d.chat.discordLink) ? d.chat.discordLink : '#';
+      a.target = '_blank'; a.rel = 'noopener';
+      a.className = 'text-[11px] text-sky-300 underline hover:text-sky-200';
+      a.textContent = 'Discord de la comunidad →';
+      genEl.appendChild(a);
+    }
+    Object.entries(d.assignments).forEach(([cat, map]) => {
+      const n = Object.keys(map).length;
+      if (n > 0) genEl.appendChild(configChip(`Asignaciones ${cat}: ${n}`));
+    });
+    const asgTotal = Object.values(d.assignments).reduce((acc, m) => acc + Object.keys(m).length, 0);
+    genEl.appendChild(configChip(`Asignaciones totales: ${asgTotal}`));
+
+    highlightHistory(svId);
+    updateClaimBanner(d.registryGuild?.isGM === true || d.guild.isLeaderRank);
+  }
+
+  function configChip(text: string, highlight = false): HTMLElement {
+    return el(
+      'span',
+      'inline-flex items-center gap-1.5 text-[11px] text-gray-300 bg-gray-900/60 border border-amber-600/30 rounded-lg px-2.5 py-1' + (highlight ? ' !border-amber-500/40' : ''),
+      text,
+    );
+  }
+
+  function fillList(listId: string, cntId: string, items: ConfigListItem[]): void {
+    const wrap = document.getElementById(listId) as HTMLElement;
+    const cnt = document.getElementById(cntId) as HTMLElement;
+    wrap.innerHTML = '';
+    cnt.textContent = `(${items.length})`;
+    if (items.length === 0) {
+      wrap.innerHTML = '<span class="text-[11px] text-gray-600 italic">Sin elementos aún</span>';
+      return;
+    }
+    items.forEach((it) => wrap.appendChild(configChip(it.name)));
+  }
+
+  function renderContentList(listId: string, cntId: string, items: ContentItem[]): void {
+    const wrap = document.getElementById(listId) as HTMLElement;
+    const cnt = document.getElementById(cntId) as HTMLElement;
+    wrap.innerHTML = '';
+    cnt.textContent = `(${items.length})`;
+    if (items.length === 0) {
+      wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin elementos aún</p>';
+      return;
+    }
+    const list = document.createElement('ul');
+    list.className = 'space-y-2';
+    items.forEach((it) => {
+      const li = el('li', 'flex items-start text-sm text-gray-300');
+      li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
+      const inner = el('div', '');
+      inner.appendChild(el('p', 'font-bold text-white', it.title || 'Elemento'));
+      if (it.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-0.5', it.content));
+      li.appendChild(inner);
+      list.appendChild(li);
+    });
+    wrap.appendChild(list);
+  }
+
+  // Banner de reclamo: solo si el snapshot acredita liderazgo y aún no hay hermandad
+  function updateClaimBanner(leads: boolean | null = null): void {
+    if (leads !== null) lastLeads = leads;
+    document.getElementById('claim-banner')?.classList.toggle('hidden', !(lastLeads && !hasGuild));
+  }
+
+  const claimBtn = document.getElementById('claim-btn') as HTMLButtonElement;
+  claimBtn.addEventListener('click', async () => {
+    if (!currentSvId) return;
+    claimBtn.disabled = true; claimBtn.textContent = 'Reclamando…';
+    const res = await claimGuildFromSV(currentSvId);
+    claimBtn.disabled = false; claimBtn.textContent = 'Reclamar mi hermandad';
+    if (res.ok) {
+      msgBox('claim-msg', true, '¡Hermandad reclamada! Ya eres Maestro: publícala desde Mi Hermandad.');
+      hasGuild = true;
+      updateClaimBanner(false);
+      void loadGuild();
+      void loadProfile();
+    } else {
+      msgBox('claim-msg', false, 'No se pudo reclamar: ' + (res.error || 'inténtalo de nuevo.'));
+    }
+  });
+
+  (document.getElementById('sv-select') as HTMLSelectElement).addEventListener('change', (e) => {
+    const id = (e.target as HTMLSelectElement).value;
+    if (id) void renderSnapshot(id);
+  });
+
+  // ── Mi Hermandad ─────────────────────────────────────────────────────────
+  let myGuild: GuildRow | null = null;
+
+  function applyPublishState(isPublic: boolean): void {
+    const openLink = document.getElementById('open-url') as HTMLAnchorElement;
+    const kpiGuild = document.getElementById('kpi-guild') as HTMLElement;
+    if (myGuild) {
+      openLink.href = `${window.location.origin}/${myGuild.slug}`;
+      kpiGuild.innerHTML = isPublic
+        ? `<a href="/${myGuild.slug}" class="text-emerald-300 hover:underline">${myGuild.name}</a>`
+        : `<span class="text-amber-200">${myGuild.name}</span> <span class="text-gray-500">(privada)</span>`;
+    }
+    openLink.classList.toggle('hidden', !isPublic);
+  }
+
+  async function loadGuild(): Promise<void> {
+    const empty = document.getElementById('guild-empty') as HTMLElement;
+    const manage = document.getElementById('guild-manage') as HTMLElement;
+    const kpiGuild = document.getElementById('kpi-guild') as HTMLElement;
+    const statusBadge = document.getElementById('guild-status-badge') as HTMLElement;
+
+    const res = await getMyGuild();
+    if (!res.ok) {
+      hasGuild = false; myGuild = null;
+      kpiGuild.innerHTML = '<span class="text-gray-500">Sin hermandad</span>';
+      updateClaimBanner();
+      return;
+    }
+    const g = res.guild;
+    if (!g) {
+      hasGuild = false; myGuild = null;
+      empty.classList.remove('hidden');
+      manage.classList.add('hidden');
+      kpiGuild.innerHTML = '<span class="text-gray-500">Sin hermandad</span>';
+      updateClaimBanner();
+      return;
+    }
+
+    hasGuild = true;
+    myGuild = g;
+    empty.classList.add('hidden');
+    manage.classList.remove('hidden');
+
+    (document.getElementById('guild-name') as HTMLElement).textContent = g.name;
+    (document.getElementById('guild-realm') as HTMLElement).textContent = g.realm || '—';
+    (document.getElementById('guild-faction') as HTMLElement).textContent =
+      g.faction === 'Horde' ? 'Horda' : g.faction === 'Alliance' ? 'Alianza' : '—';
+    const dl = document.getElementById('guild-discord-link') as HTMLAnchorElement;
+    const dn = document.getElementById('guild-discord-none') as HTMLElement;
+    if (g.discord_link) {
+      dl.href = /^https?:\/\//.test(g.discord_link) ? g.discord_link : '#';
+      dl.classList.remove('hidden');
+      dn.classList.add('hidden');
+    } else {
+      dl.classList.add('hidden');
+      dn.classList.remove('hidden');
+    }
+
+    const url = `${window.location.origin}/${g.slug}`;
+    (document.getElementById('guild-url') as HTMLElement).textContent = url;
+
+    const verified = g.claim_status === 'verified';
+    statusBadge.textContent = verified ? 'Verificada' : g.claim_status === 'rejected' ? 'Rechazada' : 'En revisión';
+    statusBadge.className = `px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${verified ? 'bg-emerald-950/30 border-emerald-600/40 text-emerald-300' : g.claim_status === 'rejected' ? 'bg-red-950/30 border-red-600/40 text-red-300' : 'bg-amber-950/30 border-amber-600/40 text-amber-300'}`;
+
+    (document.getElementById('guild-public') as HTMLInputElement).checked = g.is_public;
+    applyPublishState(g.is_public);
+    updateClaimBanner();
+  }
+
+  // Publicar/ocultar el portal se persiste al instante (RLS: owner update)
+  document.getElementById('guild-public')?.addEventListener('change', async (e) => {
+    const box = e.target as HTMLInputElement;
+    if (!myGuild) return;
+    box.disabled = true;
+    const { error } = await supabase
+      .from('raiddominion_guilds')
+      .update({ is_public: box.checked })
+      .eq('id', myGuild.id);
+    box.disabled = false;
+    if (error) {
+      box.checked = !box.checked;
+      msgBox('guild-msg', false, 'No se pudo cambiar la publicación del portal.');
+      return;
+    }
+    applyPublishState(box.checked);
+    msgBox('guild-msg', true, box.checked ? 'Portal publicado: ya es visible en /' + myGuild.slug : 'Portal oculto: solo tú puedes verlo.');
+  });
+
+  document.getElementById('copy-url')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText((document.getElementById('guild-url') as HTMLElement).textContent ?? '');
+      msgBox('guild-msg', true, 'Enlace copiado al portapapeles.');
+    } catch {
+      msgBox('guild-msg', false, 'No se pudo copiar automáticamente.');
+    }
+  });
+
+  // ── Seguridad: contraseña y sesión ───────────────────────────────────────
+  document.getElementById('save-password')?.addEventListener('click', async () => {
+    const btn = document.getElementById('save-password') as HTMLButtonElement;
+    const pass = (document.getElementById('new-password') as HTMLInputElement).value;
+    const confirm = (document.getElementById('new-password-confirm') as HTMLInputElement).value;
+
+    const strong = pass.length >= 8 && /[a-zA-Záéíóúüñ]/.test(pass) && /\d/.test(pass);
+    if (!strong) { msgBox('password-msg', false, 'La contraseña debe tener 8+ caracteres con letra y número.'); return; }
+    if (pass !== confirm) { msgBox('password-msg', false, 'Las contraseñas no coinciden.'); return; }
+
+    btn.disabled = true; btn.textContent = 'Actualizando…';
+    const { error } = await supabase.auth.updateUser({ password: pass });
+    btn.disabled = false; btn.textContent = 'Actualizar contraseña';
+
+    if (error) {
+      msgBox('password-msg', false, error.message.includes('rate limit')
+        ? 'Demasiados intentos; espera un momento.'
+        : 'No se pudo actualizar la contraseña.');
+      return;
+    }
+    (document.getElementById('new-password') as HTMLInputElement).value = '';
+    (document.getElementById('new-password-confirm') as HTMLInputElement).value = '';
+    msgBox('password-msg', true, 'Contraseña actualizada correctamente.');
+  });
+
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.assign('/');
+  });
+</script>

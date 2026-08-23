@@ -1,0 +1,13 @@
+---
+// Resuelto 100% en cliente; en producción lo cubre el rewrite /p/* de Netlify.
+// getStaticPaths vacío: ruta válida en dev, sin páginas estáticas en build.
+export function getStaticPaths() {
+  return [];
+}
+import Layout from '@/layouts/Layout.astro';
+import JugadorProfile from '@/components/JugadorProfile.astro';
+---
+
+<Layout title="Jugador - RaidDominion" description="Perfil público de jugador de la comunidad RaidDominion.">
+  <JugadorProfile />
+</Layout>

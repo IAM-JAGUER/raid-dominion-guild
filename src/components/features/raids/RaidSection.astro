@@ -111,7 +111,7 @@ const nextRaids = raidEvents.slice(1, 4);
 ---
 
 <div class="max-w-6xl mx-auto">
-  <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-xl mb-6 p-6">
+  <div class="bg-gray-900/50 backdrop-blur-sm border border-amber-900/30 rounded-lg mb-6 p-6">
     <div class="text-center mb-6">
       <h2 class="text-2xl font-bold text-amber-300 mb-2">RAIDS DE HERMANDAD</h2>
       <div class="h-1 w-20 bg-gradient-to-r from-amber-500 to-yellow-600 mx-auto my-3 rounded-full"></div>
@@ -184,7 +184,7 @@ const nextRaids = raidEvents.slice(1, 4);
           >
             <div class="flex items-center gap-2">
               <span>{raid.name}</span>
-              <span class="text-xs bg-amber-900/50 text-amber-200 rounded-full px-2 py-0.5">
+              <span class="text-xs bg-amber-900/50 text-amber-200 rounded-lg px-2 py-0.5">
                 {raidEvents.filter(e => e.raidName === raid.name).length}
               </span>
             </div>
@@ -223,7 +223,7 @@ const nextRaids = raidEvents.slice(1, 4);
                       tabindex={diffIndex === 0 ? 0 : -1}
                     >
                       <span>{difficulty.name}</span>
-                      <span class="text-[10px] bg-amber-900/50 text-amber-200 rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                      <span class="text-[10px] bg-amber-900/50 text-amber-200 rounded-lg min-w-[18px] h-[18px] flex items-center justify-center px-1">
                         {raidEvents.filter(e => 
                           e.raidName === raid.name && 
                           e.difficulty === difficulty.name
@@ -249,7 +249,7 @@ const nextRaids = raidEvents.slice(1, 4);
                     role="tabpanel"
                     aria-labelledby={tabId}
                   >
-                    <div class="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 overflow-hidden">
+                    <div class="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden">
                       <div class="p-1 bg-gradient-to-r from-amber-900/40 to-amber-800/30">
                         <h3 class="text-lg font-bold text-center text-white py-2 bg-gradient-to-r from-amber-900/60 to-amber-800/50 rounded-t-lg">
                           {raid.name} - {difficulty.name}
@@ -307,7 +307,7 @@ const nextRaids = raidEvents.slice(1, 4);
                               </svg>
                               Lista de Espera
                               {difficulty.waitingList.length > 0 && (
-                                <span class="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-amber-900/50 text-amber-300">
+                                <span class="ml-2 px-1.5 py-0.5 text-xs rounded-lg bg-amber-900/50 text-amber-300">
                                   {difficulty.waitingList.length}
                                 </span>
                               )}
@@ -323,7 +323,7 @@ const nextRaids = raidEvents.slice(1, 4);
                                   <li id={playerId} class="group flex justify-between items-center p-2 rounded-lg hover:bg-gray-700/40 transition-colors duration-200 border border-transparent hover:border-gray-600/50">
                                     <div class="flex items-center min-w-0">
                                       <span class="font-medium text-amber-50 text-sm truncate">{player.playerName}</span>
-                                      <span class={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                                      <span class={`ml-2 px-2 py-0.5 text-xs rounded-lg ${
                                         player.role === 'Tanque' ? 'bg-gray-700/50 text-gray-300 border border-gray-600/50' :
                                         player.role === 'Sanador' ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' :
                                         'bg-red-900/50 text-red-300 border border-red-700/50'
@@ -571,7 +571,7 @@ const nextRaids = raidEvents.slice(1, 4);
     background-color: rgba(17, 24, 39, 0.5); /* bg-gray-900/50 */
     backdrop-filter: blur(4px);
     border: 1px solid rgba(31, 41, 55, 0.8); /* border-gray-800 */
-    border-radius: 0.75rem; /* rounded-xl */
+    border-radius: 0.5rem; /* rounded-lg (regla de bordes v1) */
     color: rgba(254, 243, 199, 0.9); /* text-amber-100/90 */
   }
 
