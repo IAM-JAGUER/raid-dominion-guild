@@ -295,6 +295,32 @@ npm run preview     # previsualizar build
 - Leer archivos antes de editar. Entender convenciones antes de escribir.
 - Recordar: tablas `raiddominion_` NO `profiles`/`guilds` genéricos.
 
+### Trabajo multi-sesión paralelo (worktrees) — ver MANUAL.md
+
+Cuando el proyecto corre con sesiones paralelas (`scripts/new-session.sh`):
+
+1. **Toda sesión autónoma nace de `scripts/new-session.sh <nombre>`** y trabaja
+   SOLO dentro de `.worktrees/<nombre>/` (branch `sesion/<nombre>`). Jamás en la
+   raíz si existen otras sesiones activas.
+2. **Ninguna sesión ejecuta `astro dev`, ocupa el puerto 4321, mata procesos
+   node ni ejecuta `npm install`.** El server vive únicamente en
+   `.worktrees/integra` (terminal del usuario). Dependencias: solo en la raíz
+   (los worktrees comparten `node_modules` y `.env` por symlink).
+3. **Fotos borrador**: el watcher (`scripts/watch-integra.sh`) commitea WIP con
+   prefijo `wip(<sesion>):` y los publica en la branch `integracion` (preview
+   :4321). Esos commits son desechables: NUNCA se rebasean ni se promueven.
+4. **Commits oficiales = exclusivamente del usuario**: solo ante la orden
+   explícita "commitea", la sesión prepara (no ejecuta) el mensaje profesional,
+   lo muestra con su diffstat y espera confirmación. Tras confirmar hace squash
+   de todo el turno en UN commit (formato convencional + trailers
+   `Session:`/`Round:`/`Agentes:`); el watcher lo promueve a main → Netlify.
+5. **Conflicto al fusionar**: el watcher aborta y reporta sin dañar nada. La
+   sesión dueña resuelve: `git -C .worktrees/<nombre> rebase main` (o merge de
+   main) y reintenta. Manual §Conflictos.
+
+Una sesión solitaria dirigida por el usuario puede trabajar en la raíz como
+siempre (reglas 2 y 4 le siguen aplicando).
+
 ## 10. Sistema de agentes de mejora
 
 Agentes en `.opencode/agents/`, registro en `.opencode/opencode.json`,

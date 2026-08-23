@@ -54,6 +54,14 @@ implementan → `refactorer` mantiene → `qa` aprueba.
    `handle_new_user()`, no `any`, tema WoW).
 4. **RE-VERIFICAR**: `npx astro build` después de cada agente.
    Si falla, revertir con `git checkout -- <file>` y ajustar.
+5. **COMMIT DE SESIÓN** (solo si el usuario dijo "commitea"):
+   - Preparar (NUNCA ejecutar sin su confirmación posterior) un squash del
+     turno completo: `git reset --soft $(git merge-base HEAD main)` + mensaje
+     convencional profesional con cuerpo detallado y trailers:
+     `Session: <sesion>` · `Round: R<N> · "<objetivo>"` · `Agentes: a→b→c`.
+   - Mostrar `git diff --stat` + el mensaje propuesto y esperar la palabra
+     confirmatoria del usuario antes de crear el commit.
+   - Jamás usar prefijo `wip(` en commits oficiales (reservado al watcher).
 
 ## Criterios de parada
 
@@ -64,7 +72,8 @@ implementan → `refactorer` mantiene → `qa` aprueba.
 
 ## Reglas (best practices del contexto)
 
-- NUNCA commitear sin autorización explícita del usuario.
+- NUNCA commitear sin la orden explícita "commitea" del usuario; las fotos
+  `wip(...)` las toma el watcher, no las sesiones (AGENTS.md §9 multi-sesión).
 - NUNCA modificar `../supabase-shared/` fuera del bloque raiddominion coordinado.
 - Toda tabla/columna/policy nueva con prefijo `raiddominion_`.
 - NUNCA mostrar `officerNote` públicamente; solo `publicNote`.
