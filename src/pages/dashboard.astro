@@ -309,20 +309,24 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
             Datos del perfil
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label for="display-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Nombre visible</label>
               <input type="text" id="display-name" maxlength="40" placeholder="Tu nombre en el portal"
                 class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
             </div>
             <div>
-              <label for="character-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Personaje principal</label>
-              <input type="text" id="character-name" maxlength="24" placeholder="Ej. JUNGJX"
-                class="w-full px-3 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600 uppercase" />
+              <label for="character-main" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Personaje principal</label>
+              <div class="relative">
+                <select id="character-main" disabled
+                  class="w-full appearance-none cursor-pointer pl-3 pr-10 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 hover:border-gray-600 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 focus-visible:outline-none outline-none text-gray-100 text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"></select>
+                <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+              <p id="character-main-hint" class="text-[11px] text-gray-500 mt-1.5 italic">Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
             </div>
           </div>
 
-          <label for="profile-public" class="mt-6 flex items-start gap-3 cursor-pointer select-none max-w-2xl border border-gray-700/60 hover:border-amber-600/40 rounded-lg p-4 transition-colors">
+          <label for="profile-public" class="mt-6 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-lg p-4 transition-colors">
             <input type="checkbox" id="profile-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
             <span class="text-sm text-gray-300 font-medium">Perfil y datos públicos
               <span class="block text-xs text-gray-500 italic mt-0.5">Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
@@ -354,7 +358,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
 
         <!-- Seguridad -->
-        <div class={`${ui.panel} p-6 max-w-2xl`}>
+        <div class={`${ui.panel} p-6`}>
           <h2 class="text-lg font-bold text-amber-200 mb-5 flex items-center">
             <span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
             Seguridad
@@ -389,6 +393,79 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             </button>
           </div>
         </div>
+
+        <!-- Zona de peligro (acciones destructivas) -->
+        <div class={`${ui.panel} p-6`}>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h2 class="text-lg font-bold text-red-300 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
+              Zona de peligro
+            </h2>
+            <span class="text-[11px] text-gray-500 italic hidden sm:inline">Acciones destructivas</span>
+          </div>
+
+          <!-- Resetear datos (moderado: conserva la cuenta) -->
+          <div class="border border-amber-800/40 bg-amber-950/10 rounded-lg p-5">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="max-w-md">
+                <h3 class="text-base font-bold text-amber-300">Resetear datos del SV</h3>
+                <p class="text-xs text-gray-500 mt-1">Borra tu historial de uploads, los personajes detectados y, si la tienes, tu hermandad con su portal. Tu rol vuelve a <strong class="text-amber-300">visitante</strong> (salvo staff) y podrás re-subir tu SavedVariables para empezar desde cero. Tu cuenta, nombre visible y datos en otras apps del ecosistema se conservan.</p>
+              </div>
+              <button id="reset-data-btn"
+                class="px-6 py-2.5 rounded-lg border border-amber-700/50 text-amber-300 hover:bg-amber-950/40 hover:text-amber-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                Resetear mis datos
+              </button>
+            </div>
+
+            <div id="reset-data-confirm" class="hidden mt-4 border border-amber-800/50 bg-amber-950/20 rounded-lg p-5">
+              <p class="text-sm text-amber-100 mb-3">Esto borrará permanentemente tu historial de SV, personajes y hermandad. Escribe <span class="font-black uppercase">RESETEAR</span> para confirmar.</p>
+              <div class="flex flex-wrap items-center gap-3">
+                <input type="text" id="reset-data-input" autocomplete="off" placeholder="RESETEAR"
+                  class="w-full sm:w-56 px-3 py-2.5 rounded-lg bg-gray-900/70 border border-amber-900/60 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm uppercase placeholder:normal-case" />
+                <button id="reset-data-confirm-btn" disabled
+                  class="px-6 py-2.5 rounded-lg bg-amber-800/60 hover:bg-amber-700/70 text-amber-100 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none">
+                  Confirmar reseteo
+                </button>
+                <button id="reset-data-cancel"
+                  class="px-4 py-2.5 rounded-lg border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                  Cancelar
+                </button>
+              </div>
+              <p id="reset-data-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+            </div>
+          </div>
+
+          <!-- Eliminar cuenta (severo) -->
+          <div class="border border-red-800/40 bg-red-950/10 rounded-lg p-5 mt-4">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="max-w-md">
+                <h3 class="text-base font-bold text-red-400">Eliminar cuenta</h3>
+                <p class="text-xs text-gray-500 mt-1">Borra permanentemente tu perfil, personajes, uploads y hermandades de RaidDominion. Tu cuenta de usuario y tus datos en otras apps del ecosistema se conservan.</p>
+              </div>
+              <button id="delete-account-btn"
+                class="px-6 py-2.5 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                Eliminar mi cuenta
+              </button>
+            </div>
+
+            <div id="delete-account-confirm" class="hidden mt-4 border border-red-800/50 bg-red-950/20 rounded-lg p-5">
+              <p class="text-sm text-red-200 mb-3">Esto borrará permanentemente todos tus datos de RaidDominion. Escribe <span class="font-black uppercase">ELIMINAR</span> para confirmar.</p>
+              <div class="flex flex-wrap items-center gap-3">
+                <input type="text" id="delete-account-input" autocomplete="off" placeholder="ELIMINAR"
+                  class="w-full sm:w-56 px-3 py-2.5 rounded-lg bg-gray-900/70 border border-red-900/60 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 outline-none text-gray-100 text-sm uppercase placeholder:normal-case" />
+                <button id="delete-account-confirm-btn" disabled
+                  class="px-6 py-2.5 rounded-lg bg-red-900/60 hover:bg-red-700/70 text-red-100 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none">
+                  Confirmar eliminación
+                </button>
+                <button id="delete-account-cancel"
+                  class="px-4 py-2.5 rounded-lg border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                  Cancelar
+                </button>
+              </div>
+              <p id="delete-account-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   </main>
@@ -406,6 +483,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     getMyCharacters,
     setCharacterVisibility,
     claimGuildFromSV,
+    deleteMyAccount,
+    resetMyData,
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
   import { renderBand, renderRoster, el } from '@/lib/ui/preview';
@@ -518,10 +597,42 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Perfil ───────────────────────────────────────────────────────────────
   let currentRole: RaiddominionRole = 'member';
+  let myCharacters: CharacterRow[] = [];
+  let profileCharacterName: string | null = null;
+
+  // Rellena el <select> del personaje principal SOLO con personajes del SV
+  function populateMainCharacterSelect(): void {
+    const sel = document.getElementById('character-main') as HTMLSelectElement;
+    const hint = document.getElementById('character-main-hint') as HTMLElement;
+    sel.innerHTML = '';
+    myCharacters.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.realm ? `${c.name} · ${c.realm}` : c.name;
+      sel.appendChild(opt);
+    });
+    if (myCharacters.length === 0) {
+      sel.disabled = true;
+      hint.textContent = 'Sube tu SavedVariables para detectar tus personajes y elegir tu principal.';
+      return;
+    }
+    sel.disabled = false;
+    hint.textContent = 'Solo puedes elegir entre los personajes detectados en tus SavedVariables.';
+    syncMainCharacterSelect();
+  }
+
+  // Preselecciona el personaje guardado en el perfil; si no coincide, el más reciente
+  function syncMainCharacterSelect(): void {
+    const sel = document.getElementById('character-main') as HTMLSelectElement;
+    if (myCharacters.length === 0) return;
+    const match = profileCharacterName
+      ? myCharacters.find((c) => c.name.toUpperCase() === profileCharacterName!.toUpperCase())
+      : undefined;
+    sel.value = match ? match.id : (myCharacters[0]?.id ?? '');
+  }
 
   async function loadProfile(): Promise<void> {
     const nameInput = document.getElementById('display-name') as HTMLInputElement;
-    const charInput = document.getElementById('character-name') as HTMLInputElement;
     const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
     const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
 
@@ -539,7 +650,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       nameInput.value = p.display_name;
       avatarEl.textContent = p.display_name[0].toUpperCase();
     }
-    charInput.value = p.character_name ?? '';
+    profileCharacterName = p.character_name;
+    syncMainCharacterSelect();
     publicToggle.checked = p.is_public === true;
     kpiVis.innerHTML = visibilityHtml(p.is_public);
 
@@ -578,20 +690,22 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   document.getElementById('save-profile')?.addEventListener('click', async () => {
     const btn = document.getElementById('save-profile') as HTMLButtonElement;
     const nameInput = document.getElementById('display-name') as HTMLInputElement;
-    const charInput = document.getElementById('character-name') as HTMLInputElement;
     const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
     const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
+    const charSel = document.getElementById('character-main') as HTMLSelectElement;
+    const selectedChar = myCharacters.find((c) => c.id === charSel.value);
 
     btn.disabled = true; btn.textContent = 'Guardando…';
     const res = await updateMyProfile({
       display_name: nameInput.value.trim() || undefined,
-      character_name: charInput.value.trim().toUpperCase(),
+      character_name: selectedChar?.name,
       is_public: publicToggle.checked,
     });
     btn.disabled = false; btn.textContent = 'Guardar cambios';
 
     if (res.ok) {
-      const nameSource = nameInput.value.trim() || charInput.value.trim();
+      profileCharacterName = selectedChar?.name ?? null;
+      const nameSource = nameInput.value.trim() || selectedChar?.name || '';
       if (nameSource) avatarEl.textContent = nameSource[0].toUpperCase();
       kpiVis.innerHTML = visibilityHtml(publicToggle.checked);
       await syncPublicLink(publicToggle.checked);
@@ -615,6 +729,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       return;
     }
     const items = res.items ?? [];
+    myCharacters = items;
+    populateMainCharacterSelect();
+    listEl.innerHTML = '';
     statusEl.classList.toggle('hidden', items.length > 0);
     if (items.length === 0) {
       statusEl.innerHTML = 'Aún no registras personajes. Sube tu SavedVariables desde el addon y aparecerán aquí. <a href="/upload" class="text-amber-300 underline hover:text-amber-200">Subir ahora →</a>';
@@ -1074,5 +1191,97 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   document.getElementById('logout-btn')?.addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.assign('/');
+  });
+
+  // ── Eliminar cuenta (solo RaidDominion; no toca auth ni otras apps) ────
+  const delBtn = document.getElementById('delete-account-btn') as HTMLButtonElement;
+  const delConfirm = document.getElementById('delete-account-confirm') as HTMLElement;
+  const delInput = document.getElementById('delete-account-input') as HTMLInputElement;
+  const delConfirmBtn = document.getElementById('delete-account-confirm-btn') as HTMLButtonElement;
+  const delCancel = document.getElementById('delete-account-cancel') as HTMLButtonElement;
+  const delMsg = document.getElementById('delete-account-msg') as HTMLElement;
+
+  delBtn.addEventListener('click', () => {
+    delConfirm.classList.toggle('hidden');
+    if (delConfirm.classList.contains('hidden')) {
+      delInput.value = '';
+      delMsg.classList.add('hidden');
+    }
+    delConfirmBtn.disabled = true;
+  });
+
+  delCancel.addEventListener('click', () => {
+    delConfirm.classList.add('hidden');
+    delInput.value = '';
+    delConfirmBtn.disabled = true;
+    delMsg.classList.add('hidden');
+  });
+
+  delInput.addEventListener('input', () => {
+    delConfirmBtn.disabled = delInput.value.trim().toUpperCase() !== 'ELIMINAR';
+  });
+
+  delConfirmBtn.addEventListener('click', async () => {
+    delConfirmBtn.disabled = true;
+    delConfirmBtn.textContent = 'Eliminando…';
+    const res = await deleteMyAccount();
+    if (!res.ok) {
+      delConfirmBtn.disabled = false;
+      delConfirmBtn.textContent = 'Confirmar eliminación';
+      msgBox('delete-account-msg', false, 'No se pudo eliminar la cuenta: ' + (res.error || ''));
+      return;
+    }
+    msgBox('delete-account-msg', true, 'Cuenta eliminada. Cerrando sesión…');
+    await supabase.auth.signOut();
+    window.location.assign('/');
+  });
+
+  // ── Resetear datos del flujo SV (uploads, personajes, hermandad) ───────
+  const resetBtn = document.getElementById('reset-data-btn') as HTMLButtonElement;
+  const resetConfirm = document.getElementById('reset-data-confirm') as HTMLElement;
+  const resetInput = document.getElementById('reset-data-input') as HTMLInputElement;
+  const resetConfirmBtn = document.getElementById('reset-data-confirm-btn') as HTMLButtonElement;
+  const resetCancel = document.getElementById('reset-data-cancel') as HTMLButtonElement;
+  const resetMsg = document.getElementById('reset-data-msg') as HTMLElement;
+
+  resetBtn.addEventListener('click', () => {
+    resetConfirm.classList.toggle('hidden');
+    if (resetConfirm.classList.contains('hidden')) {
+      resetInput.value = '';
+      resetMsg.classList.add('hidden');
+    }
+    resetConfirmBtn.disabled = true;
+  });
+
+  resetCancel.addEventListener('click', () => {
+    resetConfirm.classList.add('hidden');
+    resetInput.value = '';
+    resetConfirmBtn.disabled = true;
+    resetMsg.classList.add('hidden');
+  });
+
+  resetInput.addEventListener('input', () => {
+    resetConfirmBtn.disabled = resetInput.value.trim().toUpperCase() !== 'RESETEAR';
+  });
+
+  resetConfirmBtn.addEventListener('click', async () => {
+    resetConfirmBtn.disabled = true;
+    resetConfirmBtn.textContent = 'Reseteando…';
+    const res = await resetMyData();
+    if (!res.ok) {
+      resetConfirmBtn.disabled = false;
+      resetConfirmBtn.textContent = 'Confirmar reseteo';
+      msgBox('reset-data-msg', false, 'No se pudo resetear: ' + (res.error || ''));
+      return;
+    }
+    msgBox('reset-data-msg', true, 'Datos reseteados. Recargando tu espacio…');
+    resetConfirm.classList.add('hidden');
+    resetInput.value = '';
+    resetConfirmBtn.disabled = true;
+    resetConfirmBtn.textContent = 'Confirmar reseteo';
+    void loadProfile();
+    void loadCharacters();
+    void loadHistory();
+    void loadGuild();
   });
 </script>

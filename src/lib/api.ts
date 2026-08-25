@@ -478,6 +478,23 @@ export async function tryPromoteMember(): Promise<{ ok: boolean; data?: Promotio
   return { ok: true, data: rpc.data as PromotionResult };
 }
 
+// Elimina los datos del usuario SOLO en RaidDominion (perfil, personajes,
+// uploads y hermandades) y su membresía del app. No toca auth.users ni
+// otras apps del ecosistema (decisión de producto 2026-08-24).
+export async function deleteMyAccount(): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_delete_account');
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Resetea TODO el flujo del SV (uploads, personajes, hermandad/portal) y
+// devuelve el rol a visitante salvo staff. Conserva la cuenta y el perfil.
+export async function resetMyData(): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_reset_account_data');
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
 // Personajes del usuario autenticado
 export async function getMyCharacters(): Promise<{ ok: boolean; items?: CharacterRow[]; error?: string }> {
   const res = await supabase
