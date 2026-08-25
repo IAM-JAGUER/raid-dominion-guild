@@ -955,6 +955,31 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     updateClaimBanner(leadsAnywhere);
   }
 
+  // Mis Bandas: reglas completas, bandas expandidas (jugadores + spammer) y
+  // lista única de jugadores a través de todas las bandas.
+  function renderBandsPanel(d: ParsedSavedVariables): void {
+    const hasData = d.bands.length > 0 || d.rules.length > 0;
+    document.getElementById('bandas-empty')?.classList.toggle('hidden', hasData);
+    document.getElementById('bandas-main')?.classList.toggle('hidden', !hasData);
+    if (!hasData) return;
+
+    (document.getElementById('bandas-rules-count') as HTMLElement).textContent = String(d.rules.length);
+    renderContentList('list-rules', 'cnt-rules', d.rules);
+
+    (document.getElementById('bandas-count') as HTMLElement).textContent = String(d.bands.length);
+    const bandsEl = document.getElementById('viewer-bands') as HTMLElement;
+    bandsEl.innerHTML = '';
+    d.bands.forEach((b) => bandsEl.appendChild(renderBandExpanded(b)));
+
+    const players = d.bands.flatMap((b) => b.players);
+    const unique = new Set(players.map((p) => p.name.trim().toLowerCase()).filter(Boolean));
+    (document.getElementById('bandas-players-count') as HTMLElement).textContent = String(unique.size);
+    (document.getElementById('cnt-band-players') as HTMLElement).textContent = `(${unique.size})`;
+    const playersEl = document.getElementById('viewer-band-players') as HTMLElement;
+    playersEl.innerHTML = '';
+    playersEl.appendChild(renderBandPlayers(players));
+  }
+
   function configChip(text: string, highlight = false): HTMLElement {
     return el(
       'span',
@@ -1201,25 +1226,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   function setMsg(el: HTMLElement, ok: boolean, text: string): void {
     el.textContent = text;
     el.className = `mt-3 text-sm rounded-lg px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
-  }
-
-  function updateKpiGuild(): void {
-    const kpiGuild = document.getElementById('kpi-guild') as HTMLElement;
-    if (myGuilds.length === 0) {
-      kpiGuild.innerHTML = '<span class="text-gray-500">Sin hermandad</span>';
-      return;
-    }
-    if (myGuilds.length === 1) {
-      const g = myGuilds[0];
-      kpiGuild.innerHTML = g.is_public
-        ? `<a href="/${g.slug}" class="text-emerald-300 hover:underline">${escapeHtml(g.name)}</a>`
-        : `<span class="text-amber-200">${escapeHtml(g.name)}</span> <span class="text-gray-500">(privada)</span>`;
-      return;
-    }
-    const pub = myGuilds.filter((g) => g.is_public);
-    kpiGuild.innerHTML = `<span class="text-amber-200">${myGuilds.length} hermandades</span>${
-      pub.length > 0 ? ' <a href="/guilds" class="text-emerald-300 hover:underline">ver directorio</a>' : ''
-    }`;
   }
 
   // Carga el roster del portal desde el snapshot público de cada hermandad
