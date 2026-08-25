@@ -107,6 +107,28 @@ Al día siguiente `new-session.sh guias` la recrea fresca desde main.
 
 ## 7. Solución de problemas
 
+### Se fue la energía con N terminales abiertas 💡
+Tu trabajo vive en DISCO, no en memoria — casi todo sobrevive:
+
+| Qué | ¿Sobrevive? |
+|---|---|
+| Commits oficiales y fotos wip | ✅ (git las escribió en disco) |
+| Ediciones sin commitear de cada sesión | ✅ (archivos en su worktree) |
+| Conversaciones de cada terminal | ✅ (base local de opencode) |
+| Server y watcher | ❌ eran procesos → se reviven |
+
+**Retomar (~2 min):**
+```bash
+scripts/start-tele.sh                      # T1: revives server + robot
+cd .worktrees/guias && opencode -c         # por cada terminal:
+                                           # -c continúa la MISMA conversación
+```
+El watcher fotografía lo que quedó sucio en ≤30s y la tele vuelve a mostrarlo todo.
+Si alguna terminal grita `index.lock: File exists` (corte en mitad de una
+operación git): borra ese `.git/index.lock` y sigue — es un candado huérfano,
+no pérdida de datos. Peor caso imaginable: un archivo corrupto por un corte
+en la escritura exacta → la última foto wip tiene la versión anterior buena.
+
 ### «NO se pudo promover X a main: local changes would be overwritten»
 La raíz tiene archivos sucios que el turno también toca. Limpia la raíz:
 ```bash
@@ -177,7 +199,29 @@ tus cambios en la raíz NO aparecen en ella (mira su propia copia).
   commits por delante de main → el watcher la fusiona a main.
 - **Fotos**: solo si hay cambios sin commitear (`status --porcelain`);
   usan `git add -A` dentro del worktree de la sesión.
-- **Intancia única**: el watcher usa `flock` (`.worktrees/.watcher.lock`) —
+- **Instancia única**: el watcher usa `flock` (`.worktrees/.watcher.lock`) —
   dos watchers no pueden convivir.
 - **Conflicto ≠ daño**: toda fusión problemática termina en `merge --abort`;
   branches de sesión e `integracion` nunca quedan corruptas.
+
+---
+
+## 11. Un día en 60 segundos
+
+```bash
+# 09:00 encender
+scripts/start-tele.sh                          # T1 sagrada
+scripts/new-session.sh guias                   # T2 → cd .worktrees/guias → opencode
+scripts/new-session.sh upload-flow             # T3 → ídem con su objetivo
+
+# 10:30 mientras tanto (sin que hagas nada)
+📷 foto guias → 📺 tele actualizada            # localhost:4321 lo ve todo combinado
+
+# 12:00 aprobar un turno (en la terminal de esa sesión)
+tú: «commitea»
+sesión: muestra diffstat + mensaje profesional  ← tú: sí
+watcher: ✅ promovido a main · Netlify desplegará
+
+# 13:00 cerrar
+Ctrl+C en T1 · cierras opencode de cada sesión  # las fotos wip esperan al lunes
+```

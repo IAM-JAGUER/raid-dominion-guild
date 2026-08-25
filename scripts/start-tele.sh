@@ -21,9 +21,10 @@ if lsof -iTCP:4321 -sTCP:LISTEN >/dev/null 2>&1; then
   exit 1
 fi
 
-cd "$INTEGRA"
-scripts/watch-integra.sh > "$ROOT/.worktrees/.watcher.log" 2>&1 &
+"$ROOT/scripts/watch-integra.sh" > "$ROOT/.worktrees/.watcher.log" 2>&1 &
 WATCHER_PID=$!
+
+cd "$INTEGRA"
 trap 'kill "$WATCHER_PID" 2>/dev/null' EXIT
 echo "📺 Tele prendida — http://localhost:4321 · watcher PID $WATCHER_PID"
 echo "   Log del robot: tail -f .worktrees/.watcher.log"
