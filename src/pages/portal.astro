@@ -92,6 +92,7 @@ import Navigation from '@/components/Navigation.astro';
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
           </h2>
+          <div id="roster-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5"></div>
           <div id="viewer-roster-wrap" class="overflow-x-auto"></div>
         </section>
       </div>
@@ -101,7 +102,7 @@ import Navigation from '@/components/Navigation.astro';
 
 <script>
   import { getPublicGuildBySlug, getGuildSnapshot, type GuildPortalSnapshot } from '@/lib/api';
-  import { renderParsedSections } from '@/lib/ui/preview';
+  import { renderParsedSections, renderRosterStats } from '@/lib/ui/preview';
 
   const RESERVED = new Set([
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
@@ -188,7 +189,10 @@ import Navigation from '@/components/Navigation.astro';
 
         if (snapshot.bands.length > 0) document.getElementById('bands-section')?.classList.remove('hidden');
         if (snapshot.rules.length > 0) document.getElementById('rules-section')?.classList.remove('hidden');
-        if (snapshot.members.length > 0) document.getElementById('roster-section')?.classList.remove('hidden');
+        if (snapshot.members.length > 0) {
+          document.getElementById('roster-section')?.classList.remove('hidden');
+          renderRosterStats(document.getElementById('roster-stats') as HTMLElement, snapshot.members);
+        }
 
         renderParsedSections(
           { guild: { members: snapshot.members }, bands: snapshot.bands, rules: snapshot.rules } as never,
