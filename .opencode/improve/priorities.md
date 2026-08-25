@@ -30,7 +30,7 @@ los agentes de mejora del portal comunitario del addon RaidDominion.
 
 ### Validación obligatoria post-cambio
 ```bash
-npx astro build    # Sin errores NUEVOS (verificación rápida en DrvFs)
+scripts/verifica.sh    # build SERIALIZADO (lock global): nunca builds paralelos en DrvFs
 ```
 Si falla: revertir con `git checkout -- <file>` y reportar en el log.
 
@@ -58,14 +58,39 @@ alcanza el límite, el agente cierra la ronda y reporta lo logrado.
   de `{}` frágil.
 - Archivos ≤ 2 MB; sanitizar; nunca volcar `raw` completo en la UI.
 - `officerNote` es privada; en público solo `publicNote`.
-- Claim de maestro: primario `registry.*.guild.isGM=true`
-  (`raiddominion_claim_from_sv`); `generatedBy`+rank SOLO fallback legacy v2.
+- Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
+  (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825):
+  si otro maestro ya registró el nombre, el candidato se descarta. El reclamo
+  manual `raiddominion_claim_guild` fue ELIMINADO; `generatedBy`+rank solo
+  alimenta evidencia/info legacy v2, ya no reclama.
 
 ---
 
 ## Backlog priorizado (estado 2026-08-23)
 
 Derivado de la auditoría portal↔addon. Atender EN ORDEN; marcar al completar.
+
+### 🔴 DECISIÓN CANÓNICA — Multi-hermandad (2026-08-25)
+El usuario aprobó el rumbo **MULTI-HERMANDAD**: un jugador puede ser maestro de
+varias guilds. `raiddominion_claim_from_sv` es idempotente y reclama TODAS las
+hermandades del SV con `isGM=true` (aplica a `member` y a `guild_master`,
+incluido el caso GM sin hermandad por seed manual). Fuente: sesión hades,
+migración `20260825_multi_guild.sql`.
+
+Reglas derivadas (VINCULANTES):
+- **hades**: mantiene `20260825_multi_guild.sql` y su flujo en `upload.astro`
+  (`saveMyGuildSnapshotsFromSV`, `getMyGuilds`). Es el nuevo invariante.
+- **zeus**: DESCARTA `20260825_reclaim_guild_master.sql` y su re-claim
+  single-guild en `upload.astro` (subsumido por multi-guild). NUNCA fusionar
+  ambas migraciones: redefinen la misma función y la de zeus (orden
+  alfabético posterior) revertiría a hermandad única.
+- `preview.ts` (`RosterMember`, `renderRoster`) lo resuelve la versión de
+  poseidon (cards + classColor, ya en main) + la de hades; zeus descarta su
+  paginación.
+- Ambas sesiones (zeus/hades) deben `rebase main` y resolver antes de promover
+  (conflictos detectados 2026-08-25 en `preview.ts` y `upload.astro`).
+- QA debe verificar constraints/índices de `raiddominion_guilds` para
+  multi-owner (el índice por `owner_id` de hades + ausencia de UNIQUE(owner_id)).
 
 ### 🔴 P0 — Parser: evidencia del roster GM v3 ✅ HECHO (2026-08-23, ronda 4)
 El addon v3 escribe el roster completo del maestro en
@@ -114,7 +139,7 @@ product define → development / ui-ux implementan → refactorer mantiene → q
 
 1. Leer `AGENTS.md` y `PLAN_TRANSFORMACION.md` (roadmap por fases).
 2. Implementar con cambios mínimos y quirúrgicos.
-3. Verificar con `npx astro build`.
+3. Verificar con `scripts/verifica.sh` (build serializado; nunca `npx astro build` directo).
 4. QA revisa antes de commit (agente `@qa`, modo solo lectura).
 5. Commit solo con autorización explícita (resumen + checklist).
 

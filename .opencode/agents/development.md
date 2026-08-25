@@ -44,8 +44,9 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - Devolver un objeto tipado (`types/parser.ts`) + lista de advertencias.
 - Separar campos públicos (publicNote) vs privados (officerNote).
 - Validar tamaño ≤ 2 MB y sanitizar (nunca volcar raw en la UI).
-- Claim de maestro: primario `registry.*.guild.isGM=true`
-  (`raiddominion_claim_from_sv`); `generatedBy`+rank solo para archivos v2.
+- Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
+  (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825);
+  `generatedBy`+rank solo alimenta evidencia legacy v2, ya NO reclama.
 - Cambios de claves/tipos del SV exigen sincronía con el addon (AGENTS.md §11).
 
 ### 3. Rutas Astro
@@ -69,7 +70,9 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - Comentarios en español, solo cuando aportan.
 - Tailwind exclusivamente; seguir el tema WoW (ámbar/dorado, fondo oscuro).
 - Preferir editar archivos existentes antes de crear nuevos.
-- Después de cada cambio: `npx astro build` (rápido) y opcional `astro check`.
+- Después de cada cambio: `scripts/verifica.sh` (rápido) y opcional
+  `scripts/verifica.sh --check` (con `astro check`). Nunca builds en paralelo:
+  el script toma el lock global del proyecto.
 - Si una ruta necesita redirects SPA, actualizar `netlify.toml`.
 
 ## Formato de respuesta

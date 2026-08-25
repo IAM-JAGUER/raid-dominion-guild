@@ -43,9 +43,9 @@ El modelo de roles, el flujo de registro y las reglas multi-app están definidos
    ¿quién acredita maestría (`registry.*.guild.isGM`)? Antes de pedir registro,
    dar un resumen útil.
 3. **CTA "Reclama tu hermandad"** — Cuando el parser detecte
-   `registry.*.guild.isGM=true` (fallback legacy: `generatedBy` con rango de
-   liderazgo), el CTA debe ser claro, con pasos (pulsar "Registrar" en el addon
-   → subir SV → reclamar → publicar) y sin fricción.
+   `registry.*.guild.isGM=true` (única vía; el fallback legacy `generatedBy`
+   + rango ya NO reclama), el CTA debe ser claro, con pasos (pulsar "Registrar"
+   en el addon → subir SV → reclamar → publicar) y sin fricción.
 4. **Guías fieles al addon** — `src/data/addonGuides.ts` debe reflejar menús y
    comandos REALES de `RD_Constants.lua`/`RD_Init.lua` (AGENTS.md §11): incluir
    el ítem "Registrar" y su porqué; sin comandos o secciones inexistentes.
@@ -79,7 +79,7 @@ Si tu feature requiere cambios en base de datos:
 - NO mostrar `officerNote` (puede ser interna); solo `publicNote` en público.
 - El rol `guild_master` se asigna vía RPC seguro, NUNCA desde el cliente directo.
 - Para features del parser: respetar las reglas de `src/lib/parser/`.
-- Después de crear una migración, verificar `npx astro build`.
+- Después de crear una migración, verificar `scripts/verifica.sh`.
 
 ## Formato de respuesta
 

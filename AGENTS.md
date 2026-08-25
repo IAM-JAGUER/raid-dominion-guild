@@ -155,15 +155,22 @@ Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
 visitante / member
   ├─ /upload → sube SV (producido con "Registrar" en el addon) → parser → preview
   ├─ /dashboard → toggle perfil público → página viva en /p/:slug
-  ├─ "Mi Hermandad": SIN formularios. El SV es la única vía:
+  ├─ "Mi Hermandad": SIN formularios. El SV es la única vía (sin reclamo manual):
   │    a) Formato nuevo: registry.guild.isGM=true + Miembro validado
   │       → raiddominion_claim_from_sv al subir (auto GM, ficha = datos
   │         exactos del addon; re-upload la mantiene actualizada)
-  │    b) SV legacy con rango de liderazgo → raiddominion_claim_guild
   │    └─ slug autogenerado + dashboard /dashboard/guild
   │         └─ toggle is_public → portal vivo en /:slug
   └─ Re-subir SV actualiza roster/bandas del portal
 ```
+
+> ⚠️ **Anti-falso-positivo (20260825):** `raiddominion_claim_from_sv` descarta
+> cualquier candidata cuyo nombre ya esté registrado por OTRO maestro
+> (comparación por nombre insensible a mayúsculas, con reino cuando el SV lo
+> aporta): nunca se crea un duplicado. El reclamo manual
+> (`raiddominion_claim_guild`) fue ELIMINADO: nadie puede reclamar a mano un
+> nombre de hermandad que no exista en su SV. La única vía a `guild_master` es
+> que el SV acredite `isGM=true` y se cumpla todo el flujo de requisitos.
 
 ## 5. Formato de SavedVariables (v3.0.0 oficial)
 
@@ -215,8 +222,9 @@ RaidDominionDB = {
   a) **Primario (v3):** cualquier `registry.*.guild.isGM=true` habilita
      `raiddominion_claim_from_sv` al subir.
   b) **Fallback legacy (v2):** `generatedBy` + `rank` de liderazgo en
-     `Guild.memberList` → `raiddominion_claim_guild` (claim `pending` si el
-     rank no es de liderazgo).
+     `Guild.memberList` SOLO alimenta evidencia/info legacy; ya NO reclama
+     (el reclamo manual `raiddominion_claim_guild` fue ELIMINADO en
+     `20260825_claim_gm_guard.sql`).
 - Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
   `Guild.memberList` legacy y jugadores de banda.
 - Nunca parsear con regex frágil de `{}` (el de guildList.py): usar un parser
@@ -226,7 +234,9 @@ RaidDominionDB = {
 - Límites: archivos ≤ 2 MB; sanitizar contenido; nunca volcar `raw` completo
   en la UI.
 - El rol `guild_master` se asigna SOLO vía RPC SECURITY DEFINER
-  (`raiddominion_claim_from_sv` / `raiddominion_claim_guild`), nunca desde el cliente.
+  (`raiddominion_claim_from_sv`), nunca desde el cliente ni por formulario
+  manual: la única vía es que el SV acredite `isGM=true` y se cumpla todo el
+  flujo de requisitos.
 - Los datos de la ficha de hermandad NO son editables en la plataforma:
   provienen del SV y se actualizan re-subiendo.
 
@@ -266,14 +276,16 @@ src/
 - Tailwind exclusivamente; no CSS modules.
 - Preferir editar archivos existentes sobre crear nuevos.
 - `build` real: `astro build`. El script `npm run build` corre `astro check`
-  primero (lento en DrvFs) — para verificación rápida usar `npx astro build`.
+  primero (lento en DrvFs) — para verificación rápida usar `scripts/verifica.sh`
+  (ver §8). NUNCA `npx astro build` directo en sesiones paralelas: rompe el
+  lock global y satura la CPU/I/O de DrvFs.
 
 ## 8. Build & Deploy
 
 ```bash
 npm install
 npm run dev         # servidor dev (localhost:4321)
-npx astro build     # build estático a ./dist/
+scripts/verifica.sh # verificación de build SERIALIZADA (ver abajo)
 npm run preview     # previsualizar build
 ```
 
@@ -282,12 +294,30 @@ npm run preview     # previsualizar build
 - ⚠️ El proyecto reside en `/mnt/d/` (DrvFs/WSL2): `astro check` puede tardar;
   no depende de inotify para validar.
 
+### ⚠️ Build serializado (regla ABSOLUTA en sesiones paralelas)
+
+Con varias sesiones, `npx astro build` directo colisiona: cada build compite por
+CPU/I/O en DrvFs y los builds se cuelgan o tardan minutos. Toda verificación
+pasa SIEMPRE por `scripts/verifica.sh`, que toma un lock GLOBAL del proyecto
+(`.worktrees/.build.lock`): un solo build a la vez, el resto espera en cola.
+
+```bash
+scripts/verifica.sh            # rápido: astro build (sin astro check)
+scripts/verifica.sh --check    # completo: astro check && astro build
+```
+
+- `--ci` es para uso interno del watcher (gate de build previo a promover main).
+- El watcher ya aplica el gate: un turno aprobado NO se promueve a main si su
+  commit no compila (construye en un worktree temporal, sin tocar tu árbol).
+- NUNCA correr `npx astro build` ni `astro check` directo si hay sesiones
+  paralelas activas: esperar el lock y verificar vía el script.
+
 ## 9. Trabajar con un agente (opencode)
 
 - **Commits con permiso**: antes de commit, presentar resumen de cambios +
   checklist + preguntar explícitamente. No commitear sin autorización.
 - **Checklist de cambios:**
-  1. `npx astro build` — sin errores nuevos.
+  1. `scripts/verifica.sh` — sin errores nuevos (build serializado).
   2. `git diff --stat` — solo archivos previstos.
   3. Sin secretos/claves en el diff.
   4. Comportamiento esperado verificado (navegación, parseo, roles).
@@ -306,6 +336,10 @@ Cuando el proyecto corre con sesiones paralelas (`scripts/new-session.sh`):
    node ni ejecuta `npm install`.** El server vive únicamente en
    `.worktrees/integra` (terminal del usuario). Dependencias: solo en la raíz
    (los worktrees comparten `node_modules` y `.env` por symlink).
+2b. **Ninguna sesión corre `npx astro build`/`astro check` directo**: la
+   verificación de build es SIEMPRE vía `scripts/verifica.sh` (lock global,
+   un solo build a la vez). Varios builds en paralelo saturan DrvFs y se
+   cuelgan.
 3. **Fotos borrador**: el watcher (`scripts/watch-integra.sh`) commitea WIP con
    prefijo `wip(<sesion>):` y los publica en la branch `integracion` (preview
    :4321). Esos commits son desechables: NUNCA se rebasean ni se promueven.
@@ -327,8 +361,8 @@ Agentes en `.opencode/agents/`, registro en `.opencode/opencode.json`,
 prioridades en `.opencode/improve/priorities.md`. Cualquier agente DEBE:
 
 1. Leer `.opencode/improve/priorities.md` antes de cambios estructurales.
-2. Ejecutar `npx astro build` después de cada cambio (o `astro check` si el
-   cambio es de tipos).
+2. Ejecutar `scripts/verifica.sh` después de cada cambio (o
+   `scripts/verifica.sh --check` si el cambio es de tipos).
 3. NO modificar archivos de otras apps del ecosistema.
 4. NO modificar `../supabase-shared/` (salvo el bloque raiddominion coordinado).
 

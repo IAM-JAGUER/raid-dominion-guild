@@ -21,9 +21,10 @@ Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
 ## Checklist de revisión (todas obligatorias)
 
 ### 1. Build y tipos
-- [ ] `npx astro build` termina sin errores nuevos.
-- [ ] Si el cambio es de tipos: `astro check` sin errores NUEVOS (los warnings
-      preexistentes documentados en el repo se toleran).
+- [ ] `scripts/verifica.sh` termina sin errores nuevos.
+- [ ] Si el cambio es de tipos: `scripts/verifica.sh --check` (astro check)
+      sin errores NUEVOS (los warnings preexistentes documentados en el repo se
+      toleran).
 - [ ] Sin `any` en código nuevo (`grep -rn ": any" src/`).
 
 ### 2. Reglas multi-app Supabase
@@ -47,9 +48,11 @@ Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
 - [ ] Parser estructural (no regex de `{}` frágil).
 - [ ] Límite de tamaño ≤ 2 MB y sanitización.
 - [ ] `officerNote` no se expone públicamente; solo `publicNote`.
-- [ ] Claim de maestro en DOS flujos: primario v3 (`registry.*.guild.isGM=true`
-      → RPC `raiddominion_claim_from_sv`); fallback legacy SOLO para archivos
-      v2 (`generatedBy` + rank de liderazgo → `raiddominion_claim_guild`).
+- [ ] Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true` → RPC
+      `raiddominion_claim_from_sv`; guard anti-falso-positivo (20260825):
+      si otro maestro ya registró el nombre, el candidato se descarta. El
+      reclamo manual `raiddominion_claim_guild` fue ELIMINADO; `generatedBy`
+      + rank solo alimenta evidencia/info legacy v2, ya NO reclama.
 - [ ] Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
       `Guild.memberList` legacy y jugadores de banda (AGENTS.md §4).
 
