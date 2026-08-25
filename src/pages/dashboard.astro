@@ -595,6 +595,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     activateTab((target.dataset.tab ?? 'resumen') as PanelName);
   });
 
+  // Deep-link por hash (#resumen | #addon | #hermandad | #perfil)
+  const hashTab = (window.location.hash.replace('#', '') || '') as PanelName;
+  if (PANELS.includes(hashTab)) activateTab(hashTab);
+
   // ── Perfil ───────────────────────────────────────────────────────────────
   let currentRole: RaiddominionRole = 'member';
   let myCharacters: CharacterRow[] = [];
