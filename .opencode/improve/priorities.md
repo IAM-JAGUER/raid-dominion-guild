@@ -58,8 +58,11 @@ alcanza el límite, el agente cierra la ronda y reporta lo logrado.
   de `{}` frágil.
 - Archivos ≤ 2 MB; sanitizar; nunca volcar `raw` completo en la UI.
 - `officerNote` es privada; en público solo `publicNote`.
-- Claim de maestro: primario `registry.*.guild.isGM=true`
-  (`raiddominion_claim_from_sv`); `generatedBy`+rank SOLO fallback legacy v2.
+- Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
+  (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825):
+  si otro maestro ya registró el nombre, el candidato se descarta. El reclamo
+  manual `raiddominion_claim_guild` fue ELIMINADO; `generatedBy`+rank solo
+  alimenta evidencia/info legacy v2, ya no reclama.
 
 ---
 

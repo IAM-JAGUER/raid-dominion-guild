@@ -234,7 +234,9 @@ RaidDominionDB = {
 - Límites: archivos ≤ 2 MB; sanitizar contenido; nunca volcar `raw` completo
   en la UI.
 - El rol `guild_master` se asigna SOLO vía RPC SECURITY DEFINER
-  (`raiddominion_claim_from_sv` / `raiddominion_claim_guild`), nunca desde el cliente.
+  (`raiddominion_claim_from_sv`), nunca desde el cliente ni por formulario
+  manual: la única vía es que el SV acredite `isGM=true` y se cumpla todo el
+  flujo de requisitos.
 - Los datos de la ficha de hermandad NO son editables en la plataforma:
   provienen del SV y se actualizan re-subiendo.
 
