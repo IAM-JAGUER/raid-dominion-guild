@@ -480,10 +480,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     box.className = `mt-3 text-sm rounded-lg px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
   }
 
-  function visibilityHtml(isPublic: boolean | null | undefined): string {
-    return isPublic ? '<span class="text-emerald-300">Público</span>' : '<span class="text-gray-400">Privado</span>';
-  }
-
   // Muestra u oculta el enlace al perfil público con un slug conocido o generándolo
   async function syncPublicLink(isPublic: boolean | null | undefined, knownSlug?: string): Promise<void> {
     const link = document.getElementById('public-profile-link') as HTMLAnchorElement;
@@ -592,7 +588,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   async function loadProfile(): Promise<void> {
     const nameInput = document.getElementById('display-name') as HTMLInputElement;
     const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
-    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
 
     const res = await getMyProfile();
     if (!res.ok || !res.profile) {
@@ -611,21 +606,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     profileCharacterName = p.character_name;
     syncMainCharacterSelect();
     publicToggle.checked = p.is_public === true;
-    kpiVis.innerHTML = visibilityHtml(p.is_public);
 
     await syncPublicLink(p.is_public, p.slug ?? undefined);
-
-    // La pestaña de hermandad está abierta a todos (los pasos guían el reclamo);
-    // el acceso rápido del Resumen solo para quienes ya gestionan una.
-    if (p.role === 'guild_master' || p.role === 'moderator' || p.role === 'admin') {
-      document.getElementById('quick-guild')?.classList.remove('hidden');
-    }
-    if (isStaff(p.role)) {
-      document.getElementById('quick-moderate')?.classList.remove('hidden');
-    }
-    if (p.role === 'admin') {
-      document.getElementById('quick-admin')?.classList.remove('hidden');
-    }
   }
 
   // La visibilidad pública se persiste al instante (no requiere Guardar)
@@ -634,13 +616,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     box.disabled = true;
     const res = await updateMyProfile({ is_public: box.checked });
     box.disabled = false;
-    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
     if (!res.ok) {
       box.checked = !box.checked;
       msgBox('profile-msg', false, 'No se pudo cambiar la visibilidad: ' + (res.error || ''));
       return;
     }
-    kpiVis.innerHTML = visibilityHtml(box.checked);
     await syncPublicLink(box.checked);
     msgBox('profile-msg', true, box.checked ? 'Perfil público activado.' : 'Perfil privado.');
   });
@@ -649,7 +629,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const btn = document.getElementById('save-profile') as HTMLButtonElement;
     const nameInput = document.getElementById('display-name') as HTMLInputElement;
     const publicToggle = document.getElementById('profile-public') as HTMLInputElement;
-    const kpiVis = document.getElementById('kpi-visibility') as HTMLElement;
     const charSel = document.getElementById('character-main') as HTMLSelectElement;
     const selectedChar = myCharacters.find((c) => c.id === charSel.value);
 
@@ -665,7 +644,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       profileCharacterName = selectedChar?.name ?? null;
       const nameSource = nameInput.value.trim() || selectedChar?.name || '';
       if (nameSource) avatarEl.textContent = nameSource[0].toUpperCase();
-      kpiVis.innerHTML = visibilityHtml(publicToggle.checked);
       await syncPublicLink(publicToggle.checked);
       msgBox('profile-msg', true, publicToggle.checked
         ? 'Cambios guardados. Tu perfil es público.'
