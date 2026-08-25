@@ -26,14 +26,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
       <!-- Pestañas (navegación con ←/→/Home/End; activación automática al enfocar) -->
       <nav class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel">
+<<<<<<< HEAD
         <button id="tab-registro" data-tab="registro" role="tab" aria-selected="true" aria-controls="panel-registro" tabindex="0"
+=======
+        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="true" aria-controls="panel-addon" tabindex="0"
+>>>>>>> main
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Registro</button>
         <button id="tab-bandas" data-tab="bandas" role="tab" aria-selected="false" aria-controls="panel-bandas" tabindex="-1"
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Bandas</button>
         <button id="tab-hermandad" data-tab="hermandad" role="tab" aria-selected="false" aria-controls="panel-hermandad" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Hermandad</button>
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Hermandad</button>
         <button id="tab-perfil" data-tab="perfil" role="tab" aria-selected="false" aria-controls="panel-perfil" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-md ml-auto">Mi Perfil</button>
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-md ml-auto">Perfil</button>
       </nav>
 
       <!-- ── Mi Registro (config + historial + visor) ─────────────────────── -->
@@ -53,7 +57,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 class="text-lg font-bold text-amber-200 flex items-center">
                 <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-                Mi Registro
+                Registro
               </h2>
               <span class="text-[11px] text-gray-500 italic">Se actualiza re-subiendo tu SavedVariables</span>
             </div>
@@ -80,7 +84,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <ol class="space-y-2 mb-5 text-sm text-gray-300 list-none">
               <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube tu SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>).</span></li>
               <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama aquí tus hermandades: la ficha de cada una nace con los datos exactos del juego.</span></li>
-              <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publícalas desde Mi Hermandad y comparte <code class="text-amber-300">/tu-hermandad</code>.</span></li>
+              <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publícalas desde Hermandad y comparte <code class="text-amber-300">/tu-hermandad</code>.</span></li>
             </ol>
             <button type="button" id="claim-btn" class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Reclamar mis hermandades</button>
             <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
@@ -190,7 +194,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 class="text-lg font-bold text-amber-200 flex items-center">
                 <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+<<<<<<< HEAD
                 Mis Bandas
+=======
+                Bandas
+>>>>>>> main
               </h2>
               <span class="text-[11px] text-gray-500 italic">Bandas, jugadores y reglas del análisis seleccionado</span>
             </div>
@@ -239,7 +247,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <p class="text-sm text-gray-400 text-center mb-6">Sin formularios: los datos provienen del addon y cada re-upload los mantiene actualizados.</p>
           <ol class="space-y-3 mb-7 text-sm text-gray-300 list-none">
             <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube un SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>) con más de dos personajes registrados.</span></li>
-            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama la hermandad desde Mi Registro: tu rol de Maestro se asigna verificado por el addon.</span></li>
+            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama la hermandad desde Registro: tu rol de Maestro se asigna verificado por el addon.</span></li>
             <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publica el portal y comparte su dirección con tu comunidad.</span></li>
           </ol>
           <div class="text-center">
@@ -451,7 +459,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
+<<<<<<< HEAD
   const PANELS = ['registro', 'bandas', 'hermandad', 'perfil'] as const;
+=======
+  const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
+>>>>>>> main
   type PanelName = (typeof PANELS)[number];
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
@@ -514,7 +526,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Pestañas ─────────────────────────────────────────────────────────────
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
+<<<<<<< HEAD
   tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'registro') as PanelName)));
+=======
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
+>>>>>>> main
 
   function activateTab(name: PanelName): void {
     tabs.forEach((b) => {
@@ -545,6 +561,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ev.preventDefault();
     const target = tabs[next];
     target.focus();
+<<<<<<< HEAD
     activateTab((target.dataset.tab ?? 'registro') as PanelName);
   });
 
@@ -558,6 +575,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   window.addEventListener('hashchange', () => {
     const t = tabDesdeHash();
     if (t) activateTab(t);
+=======
+    activateTab((target.dataset.tab ?? 'addon') as PanelName);
+>>>>>>> main
   });
 
   // ── Perfil ───────────────────────────────────────────────────────────────
@@ -1213,7 +1233,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const res = await claimGuildFromSV(currentSvId);
     claimBtn.disabled = false; claimBtn.textContent = 'Reclamar mis hermandades';
     if (res.ok) {
-      msgBox('claim-msg', true, '¡Hermandad(es) reclamada(s)! Ya eres Maestro: publícalas desde Mi Hermandad.');
+      msgBox('claim-msg', true, '¡Hermandad(es) reclamada(s)! Ya eres Maestro: publícalas desde Hermandad.');
       updateClaimBanner(false);
       void loadGuilds();
       void loadProfile();

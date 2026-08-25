@@ -293,7 +293,7 @@ import Navigation from '@/components/Navigation.astro';
       const claimRes = await claimGuildFromSV(saved.id);
       if (claimRes.ok) {
         role = 'guild_master';
-        renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Mi Hermandad.');
+        renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Hermandad.');
       } else if (claimRes.error?.includes('Miembro')) {
         // la promoción pendiente bloquea el reclamo hasta el próximo SV
         addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere un SV con más de dos personajes registrados. El reclamo se completará en tu próximo upload.');
