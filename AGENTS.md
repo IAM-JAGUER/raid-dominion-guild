@@ -155,15 +155,22 @@ Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
 visitante / member
   ├─ /upload → sube SV (producido con "Registrar" en el addon) → parser → preview
   ├─ /dashboard → toggle perfil público → página viva en /p/:slug
-  ├─ "Mi Hermandad": SIN formularios. El SV es la única vía:
+  ├─ "Mi Hermandad": SIN formularios. El SV es la única vía (sin reclamo manual):
   │    a) Formato nuevo: registry.guild.isGM=true + Miembro validado
   │       → raiddominion_claim_from_sv al subir (auto GM, ficha = datos
   │         exactos del addon; re-upload la mantiene actualizada)
-  │    b) SV legacy con rango de liderazgo → raiddominion_claim_guild
   │    └─ slug autogenerado + dashboard /dashboard/guild
   │         └─ toggle is_public → portal vivo en /:slug
   └─ Re-subir SV actualiza roster/bandas del portal
 ```
+
+> ⚠️ **Anti-falso-positivo (20260825):** `raiddominion_claim_from_sv` descarta
+> cualquier candidata cuyo nombre ya esté registrado por OTRO maestro
+> (comparación por nombre insensible a mayúsculas, con reino cuando el SV lo
+> aporta): nunca se crea un duplicado. El reclamo manual
+> (`raiddominion_claim_guild`) fue ELIMINADO: nadie puede reclamar a mano un
+> nombre de hermandad que no exista en su SV. La única vía a `guild_master` es
+> que el SV acredite `isGM=true` y se cumpla todo el flujo de requisitos.
 
 ## 5. Formato de SavedVariables (v3.0.0 oficial)
 
@@ -215,8 +222,9 @@ RaidDominionDB = {
   a) **Primario (v3):** cualquier `registry.*.guild.isGM=true` habilita
      `raiddominion_claim_from_sv` al subir.
   b) **Fallback legacy (v2):** `generatedBy` + `rank` de liderazgo en
-     `Guild.memberList` → `raiddominion_claim_guild` (claim `pending` si el
-     rank no es de liderazgo).
+     `Guild.memberList` SOLO alimenta evidencia/info legacy; ya NO reclama
+     (el reclamo manual `raiddominion_claim_guild` fue ELIMINADO en
+     `20260825_claim_gm_guard.sql`).
 - Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
   `Guild.memberList` legacy y jugadores de banda.
 - Nunca parsear con regex frágil de `{}` (el de guildList.py): usar un parser
@@ -226,7 +234,9 @@ RaidDominionDB = {
 - Límites: archivos ≤ 2 MB; sanitizar contenido; nunca volcar `raw` completo
   en la UI.
 - El rol `guild_master` se asigna SOLO vía RPC SECURITY DEFINER
-  (`raiddominion_claim_from_sv` / `raiddominion_claim_guild`), nunca desde el cliente.
+  (`raiddominion_claim_from_sv`), nunca desde el cliente ni por formulario
+  manual: la única vía es que el SV acredite `isGM=true` y se cumpla todo el
+  flujo de requisitos.
 - Los datos de la ficha de hermandad NO son editables en la plataforma:
   provienen del SV y se actualizan re-subiendo.
 

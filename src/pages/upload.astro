@@ -46,47 +46,6 @@ import Navigation from '@/components/Navigation.astro';
 
       <!-- Resultado -->
       <section id="result" class="hidden space-y-6">
-        <!-- Claim de maestro -->
-        <div id="claim-banner" class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-lg p-6">
-          <h2 class="text-xl font-bold text-amber-300 mb-2">¡Eres candidato a maestro de hermandad!</h2>
-          <p class="text-sm text-gray-300 mb-4">
-            Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
-            Registra tu hermandad para recibir un portal web gratuito.
-          </p>
-
-          <!-- Reclamo con sesión activa -->
-          <form id="claim-form" class="hidden space-y-3">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label for="claim-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Nombre de la hermandad *</label>
-                <input type="text" id="claim-name" required maxlength="60" placeholder="Colmillo de Acero"
-                  class="w-full px-3 py-2 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
-              </div>
-              <div>
-                <label for="claim-discord" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Discord (opcional)</label>
-                <input type="url" id="claim-discord" placeholder="https://discord.gg/…"
-                  class="w-full px-3 py-2 rounded-lg bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
-              </div>
-            </div>
-            <button type="submit" id="claim-btn"
-              class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
-              Reclamar hermandad
-            </button>
-          </form>
-
-          <!-- Sin sesión: primero cuenta -->
-          <p id="claim-anon" class="hidden text-sm">
-            <a href="/login?next=%2Fupload" class="inline-block px-5 py-2 rounded-lg border border-amber-500/50 bg-gray-900/60 text-amber-200 hover:bg-amber-900/30 hover:text-white transition-all duration-300 text-xs font-black uppercase tracking-widest">
-              Inicia sesión para reclamarla
-            </a>
-          </p>
-
-          <div id="claim-pending" class="hidden mt-3">
-            <p class="text-xs text-amber-200/70">Tu rango no es de liderazgo; un moderador revisará tu solicitud.</p>
-          </div>
-          <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
-        </div>
-
         <!-- Resumen -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
@@ -157,7 +116,6 @@ import Navigation from '@/components/Navigation.astro';
   import { supabase } from '@/lib/supabase';
   import {
     saveUpload,
-    claimGuild,
     getMyProfile,
     saveMyGuildSnapshotsFromSV,
     upsertMyCharacter,
@@ -335,7 +293,7 @@ import Navigation from '@/components/Navigation.astro';
       const claimRes = await claimGuildFromSV(saved.id);
       if (claimRes.ok) {
         role = 'guild_master';
-        renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Mi Hermandad.');
+        renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Hermandad.');
       } else if (claimRes.error?.includes('Miembro')) {
         // la promoción pendiente bloquea el reclamo hasta el próximo SV
         addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere un SV con más de dos personajes registrados. El reclamo se completará en tu próximo upload.');
@@ -449,81 +407,8 @@ import Navigation from '@/components/Navigation.astro';
     (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBandsCount === 0);
     (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
 
-    // Claim de maestro
-    const claimBanner = document.getElementById('claim-banner') as HTMLElement;
-    const claimPending = document.getElementById('claim-pending') as HTMLElement;
-    if (data.generatedBy) {
-      claimBanner.classList.remove('hidden');
-      (document.getElementById('claim-char') as HTMLElement).textContent = data.generatedBy;
-      void setupClaim(data);
-      if (!data.guild.isLeaderRank) {
-        claimPending.classList.remove('hidden');
-      }
-    } else {
-      claimBanner.classList.add('hidden');
-    }
-
     errorEl.classList.add('hidden');
     resultEl.classList.remove('hidden');
-  }
-
-  // Muestra formulario de reclamo (con sesión) o CTA de login; valida el SV
-  async function setupClaim(data: ParsedSavedVariables): Promise<void> {
-    const claimForm = document.getElementById('claim-form') as HTMLFormElement;
-    const claimAnon = document.getElementById('claim-anon') as HTMLElement;
-    const claimMsg = document.getElementById('claim-msg') as HTMLElement;
-    const claimBtn = document.getElementById('claim-btn') as HTMLButtonElement;
-
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session?.user) {
-      claimAnon.classList.remove('hidden');
-      return;
-    }
-    if (!data.guild.isLeaderRank) return;
-
-    claimForm.classList.remove('hidden');
-    let claimed = false;
-
-    claimForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (claimed) return;
-      claimMsg.classList.add('hidden');
-
-      const name = (document.getElementById('claim-name') as HTMLInputElement).value.trim();
-      const discord = (document.getElementById('claim-discord') as HTMLInputElement).value.trim();
-      if (!name) {
-        claimMsg.textContent = 'Escribe el nombre de tu hermandad.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
-        claimMsg.classList.remove('hidden');
-        return;
-      }
-
-      // Slug kebab-case a partir del nombre
-      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'hermandad';
-
-      claimBtn.disabled = true;
-      claimBtn.textContent = 'Reclamando…';
-      const res = await claimGuild({ slug, name, discordLink: discord || null, generatedBy: data.generatedBy });
-      claimBtn.disabled = false;
-      claimBtn.textContent = 'Reclamar hermandad';
-
-      claimMsg.classList.remove('hidden');
-      if (res.ok) {
-        claimed = true;
-        claimForm.classList.add('hidden');
-        claimMsg.textContent = '¡Hermandad reclamada! Ya eres maestro de hermandad: administra tu portal desde el dashboard.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
-        const dash = document.createElement('a');
-        dash.href = '/dashboard';
-        dash.textContent = 'Ir al dashboard →';
-        dash.className = 'ml-2 underline font-bold hover:text-emerald-200';
-        claimMsg.appendChild(dash);
-      } else {
-        claimMsg.textContent = res.error || 'No se pudo reclamar la hermandad.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
-      }
-    });
   }
 
   function handleFile(file: File): void {

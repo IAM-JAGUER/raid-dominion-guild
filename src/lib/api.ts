@@ -119,40 +119,16 @@ export async function updateMyProfile(patch: ProfileUpdate): Promise<{ ok: boole
   return { ok: true };
 }
 
-// Reclama hermandad vía RPC SECURITY DEFINER (asigna guild_master si el SV acredita liderazgo)
-export async function claimGuild(params: {
-  slug: string;
-  name: string;
-  realm?: string | null;
-  discordLink?: string | null;
-  generatedBy?: string | null;
-}): Promise<{ ok: boolean; guildId?: string; error?: string }> {
-  const rpc = await supabase.rpc('raiddominion_claim_guild', {
-    p_slug: params.slug,
-    p_name: params.name,
-    p_realm: params.realm ?? null,
-    p_faction: null,
-    p_discord_link: params.discordLink ?? null,
-    p_generated_by: params.generatedBy ?? null,
-  });
-
-  if (rpc.error) {
-    let msg = rpc.error.message;
-    if (msg.includes('duplicate key')) msg = 'Ese slug de hermandad ya existe; elige otro nombre.';
-    if (msg.includes('Ya tienes una hermandad')) msg = 'Ya tienes una hermandad registrada.';
-    return { ok: false, error: msg };
-  }
-  return { ok: true, guildId: rpc.data as string };
-}
-
 // Reclama la hermandad leyendo registry.guild DESDE EL SV GUARDADO.
-// Sin formularios: los datos de la ficha provienen solo del addon.
+// Sin formularios: los datos de la ficha provienen solo del addon y nadie
+// puede reclamar un nombre de hermandad que no exista en su SV.
 export async function claimGuildFromSV(svId: string): Promise<{ ok: boolean; guildId?: string; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_claim_from_sv', { p_sv_id: svId });
   if (rpc.error) {
     let msg = rpc.error.message;
     if (msg.includes('duplicate key')) msg = 'Ese slug ya existe; reintenta.';
     if (msg.includes('Ya tienes una hermandad')) msg = 'Ya tienes una hermandad registrada.';
+    if (msg.includes('ya tiene un maestro registrado')) msg = 'Esa hermandad ya tiene un maestro registrado en el portal; no se puede reclamar dos veces.';
     return { ok: false, error: msg };
   }
   return { ok: true, guildId: rpc.data as string };

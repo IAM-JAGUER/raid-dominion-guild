@@ -1,4 +1,4 @@
-import type { ParsedSavedVariables, GuildMember } from '@/types/parser';
+import type { ParsedSavedVariables, GuildMember, BandPlayer } from '@/types/parser';
 import { classColor } from '@/lib/ui/classColors';
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
@@ -9,6 +9,14 @@ export function el(tag: string, cls: string, text?: string): HTMLElement {
   node.className = cls;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+function chip(text: string, extra = ''): HTMLElement {
+  return el(
+    'span',
+    'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-2.5 py-1' + (extra ? ` ${extra}` : ''),
+    text,
+  );
 }
 
 export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLElement {
@@ -76,6 +84,140 @@ export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLEle
   }
 
   return card;
+}
+
+// ── Vista expandida para el dashboard (Mis Bandas) ─────────────────────────
+// Jugadores siempre visibles con todos sus campos + spammer completo.
+
+function renderBandPlayerRow(p: BandPlayer): HTMLElement {
+  const color = classColor(p.class);
+  const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-lg px-3 py-2');
+  const head = el('div', 'flex flex-wrap items-center gap-2');
+  const name = el('span', 'font-bold italic', p.name);
+  name.style.color = color;
+  head.appendChild(name);
+  if (p.leader) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded px-1.5 py-0.5', 'Líder'));
+  if (p.banned) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'Baneado'));
+  row.appendChild(head);
+
+  const meta = el('div', 'flex flex-wrap gap-1.5 mt-1');
+  if (p.role) meta.appendChild(el('span', 'text-[10px] text-amber-300', p.role));
+  if (p.dual) meta.appendChild(el('span', 'text-[10px] text-gray-400', `dual: ${p.dual}`));
+  if (p.sanction) meta.appendChild(el('span', 'text-[10px] text-orange-300', `sanción: ${p.sanction}`));
+  if (typeof p.points === 'number') meta.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
+  if (p.class) meta.appendChild(el('span', 'text-gray-500', p.class));
+  row.appendChild(meta);
+  if (p.notes) row.appendChild(el('p', 'mt-1 text-gray-500 italic', p.notes));
+  return row;
+}
+
+function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number]['spammer']>): HTMLElement {
+  const box = el('div', 'mt-4 text-xs bg-gray-900/40 border border-amber-700/30 rounded-lg px-4 py-3');
+  box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80 mb-1', 'Spammer de la banda'));
+  const details = el('div', 'flex flex-wrap gap-2');
+  if (typeof spammer.duration === 'number') details.appendChild(chip(`Ciclo ${spammer.duration}s`));
+  const channels = spammer.channels ? Object.entries(spammer.channels) : [];
+  const enabled = channels.filter(([, v]) => v).map(([c]) => c);
+  const disabled = channels.filter(([, v]) => !v).map(([c]) => c);
+  if (enabled.length > 0) details.appendChild(chip(`Canales: ${enabled.join(', ')}`, '!text-amber-300 !border-amber-500/40'));
+  if (disabled.length > 0) details.appendChild(el('span', 'text-[10px] text-gray-600', `(inactivos: ${disabled.join(', ')})`));
+  box.appendChild(details);
+  if (spammer.message) box.appendChild(el('p', 'mt-2 text-gray-400 italic', spammer.message));
+  return box;
+}
+
+// Banda expandida: nombre, horario, GS, distribución de roles, jugadores
+// completos (siempre visibles) y spammer con su configuración.
+export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]): HTMLElement {
+  const card = el('div', 'bg-gray-900/60 border border-amber-700/40 rounded-lg p-5');
+  const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
+  const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
+  titleWrap.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
+  if (band.icon) titleWrap.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-900/60 border border-amber-600/20 rounded-lg px-2.5 py-1', `icon ${band.icon}`));
+  header.appendChild(titleWrap);
+
+  const meta = el('div', 'flex flex-wrap gap-2');
+  if (band.schedule) meta.appendChild(chip(band.schedule));
+  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(chip(`GS mínimo ${band.minGS}`));
+  meta.appendChild(chip(`${band.players.length} jugadores`));
+  header.appendChild(meta);
+  card.appendChild(header);
+
+  const roles = new Map<string, number>();
+  band.players.forEach((p) => {
+    const r = p.role || 'sin rol';
+    roles.set(r, (roles.get(r) || 0) + 1);
+  });
+  if (roles.size > 0) {
+    const chips = el('div', 'flex flex-wrap gap-2');
+    Array.from(roles.entries()).forEach(([role, count]) => {
+      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-lg px-2 py-0.5', `${role}: ${count}`));
+    });
+    card.appendChild(chips);
+  }
+
+  if (band.players.length > 0) {
+    const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4');
+    band.players.forEach((p) => grid.appendChild(renderBandPlayerRow(p)));
+    card.appendChild(grid);
+  } else {
+    card.appendChild(el('p', 'text-[11px] text-gray-600 italic mt-3', 'Sin jugadores en esta banda.'));
+  }
+
+  if (band.spammer) card.appendChild(renderSpammer(band.spammer));
+
+  return card;
+}
+
+// Lista única de jugadores a través de todas las bandas (con flags agregados)
+export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
+  const unique = new Map<string, {
+    name: string;
+    classes: Set<string>;
+    roles: Set<string>;
+    bands: number;
+    leader: boolean;
+    banned: boolean;
+  }>();
+  players.forEach((p) => {
+    const key = p.name.trim().toLowerCase();
+    if (!key) return;
+    const cur = unique.get(key) ?? {
+      name: p.name.trim(), classes: new Set<string>(), roles: new Set<string>(),
+      bands: 0, leader: false, banned: false,
+    };
+    if (p.class) cur.classes.add(p.class);
+    if (p.role) cur.roles.add(p.role);
+    cur.bands += 1;
+    if (p.leader) cur.leader = true;
+    if (p.banned) cur.banned = true;
+    unique.set(key, cur);
+  });
+
+  const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
+  Array.from(unique.values()).forEach((u) => {
+    const color = classColor(u.classes.size ? Array.from(u.classes).join(',') : undefined);
+    const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-lg px-3 py-2 flex flex-wrap items-center justify-between gap-2');
+    const left = el('div', 'flex flex-wrap items-center gap-2');
+    const name = el('span', 'font-bold italic', u.name);
+    name.style.color = color;
+    left.appendChild(name);
+    if (u.leader) left.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded px-1.5 py-0.5', 'Líder'));
+    if (u.banned) left.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'Baneado'));
+    row.appendChild(left);
+
+    const meta = el('div', 'flex flex-wrap gap-1.5');
+    if (u.roles.size) meta.appendChild(el('span', 'text-[10px] text-amber-300', Array.from(u.roles).join(', ')));
+    if (u.classes.size) meta.appendChild(el('span', 'text-gray-500', Array.from(u.classes).join(', ')));
+    meta.appendChild(el('span', 'text-[10px] text-gray-500', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
+    row.appendChild(meta);
+    grid.appendChild(row);
+  });
+
+  if (unique.size === 0) {
+    return el('p', 'text-[11px] text-gray-600 italic', 'Sin jugadores en las bandas.');
+  }
+  return grid;
 }
 
 // Badge de rango según jerarquía (estilo ficha de roster)
