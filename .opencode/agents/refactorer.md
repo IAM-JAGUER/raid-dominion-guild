@@ -48,7 +48,7 @@ Lee `AGENTS.md` y `.opencode/improve/priorities.md` antes de empezar.
 - [ ] Identificar imports/uso real con `grep`.
 - [ ] Aplicar cambios mínimos y quirúrgicos.
 - [ ] No tocar comportamiento de rutas ni estilos.
-- [ ] `npx astro build` después de cada bloque de cambios.
+- [ ] `scripts/verifica.sh` después de cada bloque de cambios.
 - [ ] Reportar archivos tocados y qué se extrajo.
 
 ## Prohibiciones

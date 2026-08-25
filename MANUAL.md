@@ -46,7 +46,9 @@ opencode                  # dale su objetivo
 
 1. Deci **«commitea»** en la terminal de la sesion
 2. Te muestra diffstat + mensaje → confirmas
-3. Watcher promueve a main → Netlify despliega
+3. Watcher compila el commit en un worktree temporal (**gate de build**): si
+   no compila, NO promueve y te avisa en `.watcher.log`
+4. Gate OK → promueve a main → Netlify despliega
 
 ### Cerrar
 
@@ -88,6 +90,9 @@ candado huérfano, no hay pérdida de datos.
 3. **Instala solo en la raíz** — `npm install` una vez; los worktrees lo
    ven por symlink.
 4. **Commits oficiales = tuyos** — solo ante «commitea»; uno por turno.
+5. **Un build a la vez** — nunca `npx astro build` directo: pasa por
+   `scripts/verifica.sh` (lock global). El watcher NO promueve a main un
+   turno cuyo commit no compila (gate de build automático).
 
 ---
 
@@ -110,6 +115,8 @@ Crea branch `sesion/<nombre>` desde main + worktree con symlinks a
 |---|---|
 | `scripts/start-tele.sh` | Prender tele + watcher |
 | `scripts/new-session.sh <n>` | Crear sesion |
+| `scripts/verifica.sh` | Build serializado (un solo build a la vez, lock global) |
+| `scripts/verifica.sh --check` | Build + astro check (cambios de tipos) |
 | `git log --oneline integracion -10` | Ver fotos en la tele |
 | `git log --grep 'Session: <n>'` | Auditoria por sesion |
 | `git -C .worktrees/<n> reset --hard main` | Descartar turno |

@@ -79,7 +79,7 @@ Si tu feature requiere cambios en base de datos:
 - NO mostrar `officerNote` (puede ser interna); solo `publicNote` en público.
 - El rol `guild_master` se asigna vía RPC seguro, NUNCA desde el cliente directo.
 - Para features del parser: respetar las reglas de `src/lib/parser/`.
-- Después de crear una migración, verificar `npx astro build`.
+- Después de crear una migración, verificar `scripts/verifica.sh`.
 
 ## Formato de respuesta
 

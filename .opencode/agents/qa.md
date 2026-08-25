@@ -21,9 +21,10 @@ Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
 ## Checklist de revisión (todas obligatorias)
 
 ### 1. Build y tipos
-- [ ] `npx astro build` termina sin errores nuevos.
-- [ ] Si el cambio es de tipos: `astro check` sin errores NUEVOS (los warnings
-      preexistentes documentados en el repo se toleran).
+- [ ] `scripts/verifica.sh` termina sin errores nuevos.
+- [ ] Si el cambio es de tipos: `scripts/verifica.sh --check` (astro check)
+      sin errores NUEVOS (los warnings preexistentes documentados en el repo se
+      toleran).
 - [ ] Sin `any` en código nuevo (`grep -rn ": any" src/`).
 
 ### 2. Reglas multi-app Supabase

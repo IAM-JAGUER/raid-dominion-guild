@@ -2,7 +2,7 @@
 description: >
   Ejecuta N rondas de mejora continua sobre el portal con un objetivo
   personalizado, recorriendo los 5 agentes (Producto → Desarrollo → UI/UX →
-  Refactorización → QA) y validando con npx astro build. Ej: `/verifica 3
+  Refactorización → QA) y validando con `scripts/verifica.sh`. Ej: `/verifica 3
   "mejora el flujo de claim de hermandad"`.
 agent: build
 ---
@@ -12,7 +12,7 @@ RaidDominion con un **objetivo personalizado**, aplicando las mejores prácticas
 del contexto (AGENTS.md, PLAN_TRANSFORMACION.md y
 `.opencode/improve/priorities.md`). Cada ronda recorre los **5 agentes** del
 equipo y termina con el gate de QA. En cada paso se evalúa → corrige →
-re-verifica con `npx astro build`.
+re-verifica con `scripts/verifica.sh`.
 
 ## Uso
 
@@ -52,7 +52,9 @@ implementan → `refactorer` mantiene → `qa` aprueba.
 3. **CORREGIR**: aplicar cambios mínimos y quirúrgicos respetando las reglas
    absolutas (prefijo `raiddominion_`, no tocar otras apps, no redefinir
    `handle_new_user()`, no `any`, tema WoW).
-4. **RE-VERIFICAR**: `npx astro build` después de cada agente.
+4. **RE-VERIFICAR**: `scripts/verifica.sh` después de cada agente.
+   El lock global serializa los builds (nunca `npx astro build` directo en
+   sesiones paralelas).
    Si falla, revertir con `git checkout -- <file>` y ajustar.
 5. **COMMIT DE SESIÓN** (solo si el usuario dijo "commitea"):
    - Preparar (NUNCA ejecutar sin su confirmación posterior) un squash del
