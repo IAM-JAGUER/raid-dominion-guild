@@ -158,10 +158,11 @@ export async function claimGuildFromSV(svId: string): Promise<{ ok: boolean; gui
   return { ok: true, guildId: rpc.data as string };
 }
 
-// ─── Hermandad del usuario (guild_master) ───────────────────────────────
+// ─── Hermandades del usuario (guild_master multi-hermandad) ─────────────
 
-// Hermandad propia (RLS: owner la ve aunque no esté publicada)
-export async function getMyGuild(): Promise<{ ok: boolean; guild?: GuildRow; error?: string }> {
+// Hermandades propias (RLS: owner las ve aunque no estén publicadas).
+// Un jugador puede ser maestro de más de una.
+export async function getMyGuilds(): Promise<{ ok: boolean; items?: GuildRow[]; error?: string }> {
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData.session?.user;
   if (!user) return { ok: false, error: 'sin sesión' };
@@ -170,10 +171,10 @@ export async function getMyGuild(): Promise<{ ok: boolean; guild?: GuildRow; err
     .from('raiddominion_guilds')
     .select('*')
     .eq('owner_id', user.id)
-    .maybeSingle();
+    .order('created_at', { ascending: true });
 
   if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, guild: (res.data as GuildRow | null) ?? undefined };
+  return { ok: true, items: (res.data as GuildRow[]) ?? [] };
 }
 
 // ─── Páginas públicas (Fase 3) ──────────────────────────────────────────
@@ -189,15 +190,34 @@ export interface GuildPortalSnapshot {
 }
 
 export function buildPortalSnapshot(data: ParsedSavedVariables): GuildPortalSnapshot {
+  // Roster efectivo: memberList v3 (registry.*.guild.memberList) ∪ legacy,
+  // dedupe por nombre (misma lógica que el preview del upload).
+  const seen = new Set<string>();
+  const members: GuildPortalSnapshot['members'] = [];
+  const push = (m: { name: string; class?: string; rank?: string; publicNote?: string }): void => {
+    const key = m.name.trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    members.push({
+      name: m.name,
+      class: m.class ?? '',
+      rank: m.rank ?? '',
+      publicNote: m.publicNote ?? '',
+    });
+  };
+  data.registries.forEach((r) =>
+    r.guild?.memberList?.forEach((gm) => push({
+      name: gm.name,
+      class: gm.class ?? gm.classFile ?? '',
+      rank: gm.rank || (typeof gm.rankIndex === 'number' ? String(gm.rankIndex) : ''),
+      publicNote: '',
+    }))
+  );
+  if (members.length === 0) data.guild.members.forEach((m) => push(m));
   return {
     generatedBy: data.generatedBy ?? null,
     lastUpdate: data.lastUpdate ?? null,
-    members: (data.guild?.members ?? []).map((m) => ({
-      name: m.name,
-      class: m.class,
-      rank: m.rank,
-      publicNote: m.publicNote,
-    })),
+    members,
     bands: data.bands ?? [],
     rules: data.rules ?? [],
   };
@@ -247,13 +267,15 @@ export async function getPublicGuildBySlug(slug: string): Promise<{ ok: boolean;
   return { ok: true, guild: (res.data as GuildRow | null) ?? undefined };
 }
 
-// Hermandad pública de un dueño (para vincular perfil de jugador → portal)
+// Primer portal público de un dueño (multi-hermandad: toma el más reciente)
 export async function getPublicGuildByOwner(ownerId: string): Promise<{ ok: boolean; guild?: GuildRow; error?: string }> {
   const res = await supabase
     .from('raiddominion_guilds')
     .select('*')
     .eq('owner_id', ownerId)
     .eq('is_public', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (res.error) return { ok: false, error: res.error.message };
@@ -273,22 +295,8 @@ export async function getGuildSnapshot(guildId: string): Promise<{ ok: boolean; 
   return { ok: true, snapshot: (res.data?.config_value as GuildPortalSnapshot | undefined) ?? undefined };
 }
 
-// Guarda/actualiza el snapshot del portal propio (RLS: solo owner)
-export async function saveMyGuildSnapshot(snapshot: GuildPortalSnapshot): Promise<{ ok: boolean; error?: string }> {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const user = sessionData.session?.user;
-  if (!user) return { ok: false, error: 'sin sesión' };
-
-  const guildRes = await supabase
-    .from('raiddominion_guilds')
-    .select('id')
-    .eq('owner_id', user.id)
-    .maybeSingle();
-
-  if (guildRes.error) return { ok: false, error: guildRes.error.message };
-  const guildId = (guildRes.data as { id: string } | null)?.id;
-  if (!guildId) return { ok: false, error: 'sin hermandad' };
-
+// Guarda/actualiza el snapshot del portal de UNA hermandad (RLS: solo owner)
+export async function saveGuildSnapshot(guildId: string, snapshot: GuildPortalSnapshot): Promise<{ ok: boolean; error?: string }> {
   const upsert = await supabase
     .from('raiddominion_guild_config')
     .upsert(
@@ -298,6 +306,41 @@ export async function saveMyGuildSnapshot(snapshot: GuildPortalSnapshot): Promis
 
   if (upsert.error) return { ok: false, error: upsert.error.message };
   return { ok: true };
+}
+
+// Actualiza el snapshot del portal para CADA hermandad propia que aparezca
+// en el SV (por nombre). Un re-upload mantiene al día todos los portales
+// de un jugador que es maestro de varias hermandades.
+export async function saveMyGuildSnapshotsFromSV(data: ParsedSavedVariables): Promise<{ ok: boolean; updated: number; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, updated: 0, error: 'sin sesión' };
+
+  const guildsRes = await supabase
+    .from('raiddominion_guilds')
+    .select('id, name')
+    .eq('owner_id', user.id);
+
+  if (guildsRes.error) return { ok: false, updated: 0, error: guildsRes.error.message };
+  const owned = (guildsRes.data as Array<{ id: string; name: string }>) ?? [];
+
+  // Nombres de hermandad presentes en el SV (registryGuild + registries)
+  const svGuildNames = new Set<string>();
+  if (data.registryGuild?.name) svGuildNames.add(data.registryGuild.name.trim().toLowerCase());
+  data.registries.forEach((r) => {
+    if (r.guild?.name) svGuildNames.add(r.guild.name.trim().toLowerCase());
+  });
+
+  const snapshot = buildPortalSnapshot(data);
+  let updated = 0;
+  for (const g of owned) {
+    if (!svGuildNames.has(g.name.trim().toLowerCase())) continue;
+    const res = await saveGuildSnapshot(g.id, snapshot);
+    if (!res.ok) return { ok: false, updated, error: res.error };
+    updated += 1;
+  }
+
+  return { ok: true, updated };
 }
 
 // ─── Staff: moderación y administración (Fase 3.5) ──────────────────────

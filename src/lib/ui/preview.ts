@@ -1,5 +1,8 @@
-import type { ParsedSavedVariables } from '@/types/parser';
+import type { ParsedSavedVariables, GuildMember } from '@/types/parser';
 import { classColor } from '@/lib/ui/classColors';
+
+// Campos que el roster necesita para mostrarse (públicos; sin officerNote).
+export type RosterMember = Pick<GuildMember, 'name' | 'class' | 'rank' | 'publicNote'>;
 
 export function el(tag: string, cls: string, text?: string): HTMLElement {
   const node = document.createElement(tag);
@@ -31,6 +34,45 @@ export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLEle
       chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-lg px-2 py-0.5', `${role}: ${count}`));
     });
     card.appendChild(chips);
+
+    const players = document.createElement('details');
+    players.className = 'mt-3 group';
+    const summary = document.createElement('summary');
+    summary.className = 'cursor-pointer select-none list-none text-xs font-black uppercase tracking-widest text-amber-300/80 hover:text-amber-200';
+    summary.textContent = `Jugadores (${band.players.length})`;
+    const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2');
+    band.players.forEach((p) => {
+      const row = el('div', 'text-xs text-gray-300 bg-gray-900/40 rounded px-2 py-1');
+      const left = el('div', '');
+      left.appendChild(el('span', 'font-bold text-white', p.name));
+      const badges = el('div', 'flex flex-wrap gap-1.5 mt-0.5');
+      if (p.role) badges.appendChild(el('span', 'text-[10px] text-amber-300', p.role));
+      if (p.dual) badges.appendChild(el('span', 'text-[10px] text-gray-400', `dual: ${p.dual}`));
+      if (p.leader) badges.appendChild(el('span', 'text-[10px] text-emerald-300', `líder: ${p.leader}`));
+      if (p.banned) badges.appendChild(el('span', 'text-[10px] text-red-300', 'baneado'));
+      if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-orange-300', `sanción: ${p.sanction}`));
+      if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
+      if (p.notes) badges.appendChild(el('span', 'text-[10px] text-gray-500 italic', p.notes));
+      left.appendChild(badges);
+      row.appendChild(left);
+      if (p.class) row.appendChild(el('span', 'text-gray-500 whitespace-nowrap', p.class));
+      grid.appendChild(row);
+    });
+    players.append(summary, grid);
+    card.appendChild(players);
+  }
+
+  if (band.spammer) {
+    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-gray-900/40 border border-gray-700/50 rounded-lg px-3 py-2');
+    let txt = 'Spammer';
+    if (typeof band.spammer.duration === 'number') txt += ` · ${band.spammer.duration}s`;
+    const channels = band.spammer.channels
+      ? Object.entries(band.spammer.channels).filter(([, v]) => v).map(([c]) => c).join(', ')
+      : '';
+    if (channels) txt += ` · canales: ${channels}`;
+    spam.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80', txt));
+    if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-500 italic', band.spammer.message));
+    card.appendChild(spam);
   }
 
   return card;
@@ -44,7 +86,7 @@ function rankBadgeClass(rank: string | undefined): string {
   return 'text-gray-300 border-gray-500/40 bg-gray-800/60';
 }
 
-export function renderRoster(wrap: HTMLElement, members: ParsedSavedVariables['guild']['members']): void {
+export function renderRoster(wrap: HTMLElement, members: RosterMember[]): void {
   if (!members || members.length === 0) {
     wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
     return;
