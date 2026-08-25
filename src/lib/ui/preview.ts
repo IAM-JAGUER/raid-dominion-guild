@@ -86,15 +86,8 @@ function rankBadgeClass(rank: string | undefined): string {
   return 'text-gray-300 border-gray-500/40 bg-gray-800/60';
 }
 
-<<<<<<< HEAD
-=======
-// Forma mínima de un miembro para roster/cifras (compatible con GuildMember
-// y con el snapshot público del portal).
-export type RosterMember = { name: string; class?: string; rank?: string; publicNote?: string };
-
 // Roster en grid de fichas, paginado (estilo guild-portal): "Página X de Y •
 // N miembros" + controles prev/next. Reemplaza el truncado a 50 del preview.
->>>>>>> 16a502c (wip(zeus): foto automática 15:10)
 export function renderRoster(wrap: HTMLElement, members: RosterMember[]): void {
   if (!members || members.length === 0) {
     wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
