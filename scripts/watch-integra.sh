@@ -55,6 +55,11 @@ promover_oficial() {
   [[ "$tip" =~ ^wip\( ]] && return 0
   if git -C "$ROOT" merge --no-edit -q "$b" >/dev/null 2>&1; then
     log "✅ OFICIAL promovido a main: $name — \"$tip\" ($ahead commit(s)) · Netlify desplegará"
+    # La tele debe reflejar EXACTAMENTE el estado oficial limpio: si solo
+    # fusionamos la branch de la sesión (wips intermedios + squash final)
+    # sobre integracion, git puede dejar duplicados cuando el squash cambió
+    # archivos que los wips ya tocaron. Realinear a main lo previene.
+    realinear_tele
   else
     local err
     err=$(git -C "$ROOT" merge --no-edit "$b" 2>&1 >/dev/null)
@@ -80,12 +85,25 @@ fusionar_tele() {
   fi
 }
 
+# Tras un turno oficial promovido, la tele se realinea a main para que
+# integracion no acumule wips intermedios + squash (evita duplicados).
+realinear_tele() {
+  if git -C "$ROOT/.worktrees/integra" reset --hard main >/dev/null 2>&1; then
+    log "📺 tele realineada con main (estado oficial limpio)"
+  else
+    log "⚠ tele no pudo realinearse con main (reintentará en el próximo ciclo)"
+  fi
+}
+
 sincronizar_tele_con_main() {
   git -C "$ROOT" rev-parse main >/dev/null 2>&1 || return 0
   git -C "$ROOT/.worktrees/integra" merge-base --is-ancestor main integracion && return 0
-  git -C "$ROOT/.worktrees/integra" merge --no-edit -q main >/dev/null 2>&1 \
-    && log "📺 tele sincronizada con main" \
-    || log "⚠ tele no pudo sincronizarse con main"
+  if git -C "$ROOT/.worktrees/integra" merge --no-edit -q main >/dev/null 2>&1; then
+    log "📺 tele sincronizada con main"
+  else
+    git -C "$ROOT/.worktrees/integra" merge --abort 2>/dev/null
+    log "⚠ tele no pudo sincronizarse con main (merge abortado; integra queda limpio)"
+  fi
 }
 
 log "👀 watcher iniciado (intervalo ${INTERVAL}s) — Ctrl+C para detener"
