@@ -549,8 +549,12 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   });
 
   // Deep-link por hash (#resumen | #addon | #hermandad | #perfil)
-  const hashTab = (window.location.hash.replace('#', '') || '') as PanelName;
-  if (PANELS.includes(hashTab)) activateTab(hashTab);
+  function applyHashTab(): void {
+    const t = (window.location.hash.replace('#', '') || '') as PanelName;
+    if (PANELS.includes(t)) activateTab(t);
+  }
+  applyHashTab();
+  window.addEventListener('hashchange', applyHashTab);
 
   // ── Perfil ───────────────────────────────────────────────────────────────
   let currentRole: RaiddominionRole = 'member';
