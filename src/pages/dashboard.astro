@@ -492,7 +492,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import type { ParsedSavedVariables, ConfigListItem, ContentItem } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
-  const PANELS = ['resumen', 'addon', 'hermandad', 'perfil'] as const;
+  const PANELS = ['registro', 'addon', 'hermandad', 'perfil'] as const;
   type PanelName = (typeof PANELS)[number];
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
@@ -559,9 +559,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Pestañas ─────────────────────────────────────────────────────────────
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
-  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'resumen') as PanelName)));
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'registro') as PanelName)));
   document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
-    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'resumen') as PanelName)));
+    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'registro') as PanelName)));
 
   function activateTab(name: PanelName): void {
     tabs.forEach((b) => {
@@ -592,10 +592,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ev.preventDefault();
     const target = tabs[next];
     target.focus();
-    activateTab((target.dataset.tab ?? 'resumen') as PanelName);
+    activateTab((target.dataset.tab ?? 'registro') as PanelName);
   });
 
-  // Deep-link por hash (#resumen | #addon | #hermandad | #perfil)
+  // Deep-link por hash (#registro | #addon | #hermandad | #perfil)
   const hashTab = (window.location.hash.replace('#', '') || '') as PanelName;
   if (PANELS.includes(hashTab)) activateTab(hashTab);
 
