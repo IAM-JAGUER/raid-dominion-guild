@@ -116,7 +116,6 @@ import Navigation from '@/components/Navigation.astro';
   import { supabase } from '@/lib/supabase';
   import {
     saveUpload,
-    claimGuild,
     getMyProfile,
     saveMyGuildSnapshotsFromSV,
     upsertMyCharacter,
@@ -408,81 +407,8 @@ import Navigation from '@/components/Navigation.astro';
     (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBandsCount === 0);
     (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
 
-    // Claim de maestro
-    const claimBanner = document.getElementById('claim-banner') as HTMLElement;
-    const claimPending = document.getElementById('claim-pending') as HTMLElement;
-    if (data.generatedBy) {
-      claimBanner.classList.remove('hidden');
-      (document.getElementById('claim-char') as HTMLElement).textContent = data.generatedBy;
-      void setupClaim(data);
-      if (!data.guild.isLeaderRank) {
-        claimPending.classList.remove('hidden');
-      }
-    } else {
-      claimBanner.classList.add('hidden');
-    }
-
     errorEl.classList.add('hidden');
     resultEl.classList.remove('hidden');
-  }
-
-  // Muestra formulario de reclamo (con sesión) o CTA de login; valida el SV
-  async function setupClaim(data: ParsedSavedVariables): Promise<void> {
-    const claimForm = document.getElementById('claim-form') as HTMLFormElement;
-    const claimAnon = document.getElementById('claim-anon') as HTMLElement;
-    const claimMsg = document.getElementById('claim-msg') as HTMLElement;
-    const claimBtn = document.getElementById('claim-btn') as HTMLButtonElement;
-
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session?.user) {
-      claimAnon.classList.remove('hidden');
-      return;
-    }
-    if (!data.guild.isLeaderRank) return;
-
-    claimForm.classList.remove('hidden');
-    let claimed = false;
-
-    claimForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (claimed) return;
-      claimMsg.classList.add('hidden');
-
-      const name = (document.getElementById('claim-name') as HTMLInputElement).value.trim();
-      const discord = (document.getElementById('claim-discord') as HTMLInputElement).value.trim();
-      if (!name) {
-        claimMsg.textContent = 'Escribe el nombre de tu hermandad.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
-        claimMsg.classList.remove('hidden');
-        return;
-      }
-
-      // Slug kebab-case a partir del nombre
-      const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'hermandad';
-
-      claimBtn.disabled = true;
-      claimBtn.textContent = 'Reclamando…';
-      const res = await claimGuild({ slug, name, discordLink: discord || null, generatedBy: data.generatedBy });
-      claimBtn.disabled = false;
-      claimBtn.textContent = 'Reclamar hermandad';
-
-      claimMsg.classList.remove('hidden');
-      if (res.ok) {
-        claimed = true;
-        claimForm.classList.add('hidden');
-        claimMsg.textContent = '¡Hermandad reclamada! Ya eres maestro de hermandad: administra tu portal desde el dashboard.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
-        const dash = document.createElement('a');
-        dash.href = '/dashboard';
-        dash.textContent = 'Ir al dashboard →';
-        dash.className = 'ml-2 underline font-bold hover:text-emerald-200';
-        claimMsg.appendChild(dash);
-      } else {
-        claimMsg.textContent = res.error || 'No se pudo reclamar la hermandad.';
-        claimMsg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
-      }
-    });
   }
 
   function handleFile(file: File): void {

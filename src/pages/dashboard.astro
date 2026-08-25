@@ -995,12 +995,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     if (typeof d.lastUpdate === 'number') {
       genEl.appendChild(configChip(`Última actualización: ${fmtDateTime(new Date(d.lastUpdate * 1000).toISOString())}`));
     }
-    if (d.guild.leaderCandidate) genEl.appendChild(configChip(`Líder candidato: ${d.guild.leaderCandidate}`));
     const asgTotal = Object.values(d.assignments).reduce((acc, m) => acc + Object.keys(m).length, 0);
     genEl.appendChild(configChip(`Asignaciones totales: ${asgTotal}`));
 
     highlightHistory(svId);
-    const leadsAnywhere = d.registryGuild?.isGM === true || d.guild.isLeaderRank ||
+    const leadsAnywhere = d.registryGuild?.isGM === true ||
       d.registries.some((r) => r.guild?.isGM === true);
     updateClaimBanner(leadsAnywhere);
   }
