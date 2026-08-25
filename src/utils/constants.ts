@@ -3,7 +3,6 @@ export const APP_URLS = {
   HOME: '/',
   ADDON: '/#addon',
   GUIDES: '/#addon',
-  DONATE: '/#donaciones',
   DISCORD: 'https://discord.gg/BwdpNV9sky',
   YOUTUBE: 'https://www.youtube.com/@IAM-GAMECODE',
   GITHUB: 'https://github.com/IAM-DEV88/raid-dominion-guild',
@@ -14,14 +13,12 @@ export const APP_URLS = {
 export const ROUTE_NAMES = {
   HOME: 'Inicio',
   ADDON: 'Guía',
-  DONATIONS: 'Donaciones',
 };
 
 // Rutas de navegación
 export const NAV_ITEMS = [
   { name: ROUTE_NAMES.HOME, href: '/#inicio' },
   { name: ROUTE_NAMES.ADDON, href: '/#addon' },
-  { name: ROUTE_NAMES.DONATIONS, href: '/#donaciones' },
 ];
 
 // Configuración del sitio

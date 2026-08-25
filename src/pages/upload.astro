@@ -3,7 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 ---
 
-<Layout title="Sube tu SavedVariables - RaidDominion" description="Sube tu RaidDominionDB.lua y visualiza el roster y las bandas de tu hermandad.">
+<Layout title="Sube tu SavedVariables - RaidDominion" description="Sube tu RaidDominion.lua y visualiza el roster y las bandas de tu hermandad.">
   <Navigation currentPath="/upload" />
   <main class="relative py-16">
     <div class="max-w-4xl mx-auto px-4">
@@ -18,7 +18,7 @@ import Navigation from '@/components/Navigation.astro';
           Sube tu SavedVariables
         </h1>
         <p class="text-gray-400 mt-3 text-sm max-w-lg mx-auto italic">
-          Carga tu <code class="text-amber-300">RaidDominionDB.lua</code> para ver el roster, las bandas y los roles de tu hermandad.
+          Carga tu <code class="text-amber-300">RaidDominion.lua</code> para ver el roster, las bandas y los roles de tu hermandad.
         </p>
         <div class="w-48 h-0.5 bg-gradient-to-r from-amber-900/0 via-amber-500/80 to-amber-900/0 mx-auto my-6"></div>
       </header>
@@ -34,7 +34,7 @@ import Navigation from '@/components/Navigation.astro';
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
           <span class="text-sm text-amber-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
-          <span class="text-xs text-gray-500 mt-1">RaidDominionDB.lua · máx. 2 MB</span>
+          <span class="text-xs text-gray-500 mt-1">RaidDominion.lua · máx. 2 MB</span>
           <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" />
         </label>
 
@@ -273,7 +273,7 @@ import Navigation from '@/components/Navigation.astro';
     };
 
     for (const reg of data.registries) {
-      reg.guild?.memberList.forEach((gm) => {
+      reg.guild?.memberList?.forEach((gm) => {
         pushEvidence({
           name: gm.name,
           class: gm.class ?? gm.classFile ?? '',
@@ -313,16 +313,25 @@ import Navigation from '@/components/Navigation.astro';
       return;
     }
 
-    // Onboarding visitante → member con evidencia cruzada
-    if (role === 'visitante' && charStatus !== 'conflict') {
-      setStatus('Validando tu personaje contra rosters de tu hermandad…');
-      const promo = await tryPromoteMember();
+    // Onboarding visitante → member.
+    // Regla (20260824): un SV con personaje maestro (registry.guild.isGM) y
+    // más de dos personajes registrados promueve automáticamente a 'member',
+    // sin evidencia cruzada. Jamás degrada a quien ya es member/guild_master.
+    if (charStatus !== 'conflict') {
+      setStatus('Validando tu cuenta…');
+      const promo = await tryPromoteMember(saved.id);
       if (promo.ok && promo.data?.promoted) {
-        renderOnboardingBanner('success', `¡Bienvenido, Miembro! Tu personaje ${promo.data.character} fue validado con el roster subido por otro compañero.`);
-        role = 'member';
+        const wasVisitante = role === 'visitante';
+        renderOnboardingBanner('success', '¡Bienvenido, Miembro! Tu SavedVariables acredita maestría con más de dos personajes: tu cuenta quedó validada y lista para reclamar tu hermandad.');
+        if (wasVisitante) role = 'member';
+      } else if (promo.ok) {
+        // Sin auto-validación: se queda Visitante, sin pedir validación externa
+        if (role === 'visitante') {
+          renderOnboardingBanner('visitor',
+            'Registrado como Visitante. Para ser Miembro, tu SV debe acreditar maestría de hermandad con más de dos personajes registrados.');
+        }
       } else {
-        renderOnboardingBanner('visitor',
-          'Tu personaje quedó registrado como Visitante. Para volverte Miembro, un compañero de tu hermandad debe subir SU SavedVariables con el roster que te incluya: compártele el addon y motívalo a registrarse.');
+        addWarning('No se pudo validar tu personaje: ' + (promo.error || 'error desconocido') + '. Contacta a soporte si persiste.');
       }
     }
 
@@ -336,7 +345,7 @@ import Navigation from '@/components/Navigation.astro';
         return;
       }
       if (claimRes.error?.includes('Miembro')) {
-        addWarning('Tu SV indica maestría de hermandad, pero primero valida tu personaje (un compañero debe subir su roster incluyéndote). El reclamo se completará en tu próximo upload.');
+        addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere un SV con más de dos personajes registrados. El reclamo se completará en tu próximo upload.');
       } else if (claimRes.error?.includes('Ya tienes')) {
         // inofensivo: ya es GM
       } else {
@@ -523,7 +532,7 @@ import Navigation from '@/components/Navigation.astro';
     const reader = new FileReader();
     reader.onload = () => {
       const text = String(reader.result || '');
-      setStatus('Parseando RaidDominionDB…');
+      setStatus('Parseando RaidDominion.lua…');
       try {
         const result = parseSavedVariables(text);
         if (!result.ok) {

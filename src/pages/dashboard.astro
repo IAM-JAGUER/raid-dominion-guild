@@ -107,7 +107,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <div id="addon-empty" class={`hidden ${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
           <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
           <p class="font-bold text-white mb-1">Aún no subes ningún SavedVariables</p>
-          <p class="text-sm text-gray-400 mb-6">Sube tu archivo <code class="text-amber-300">RaidDominionDB</code> para ver aquí la configuración de tu addon, tus bandas y tus reglas.</p>
+          <p class="text-sm text-gray-400 mb-6">Sube tu archivo <code class="text-amber-300">RaidDominion.lua</code> para ver aquí la configuración de tu addon, tus bandas y tus reglas.</p>
           <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
           <p id="addon-empty-note" class="hidden mt-4 text-xs text-red-300"></p>
         </div>
@@ -232,7 +232,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <p class="font-bold text-white text-center mb-1">Tu hermandad nace de tu SavedVariables</p>
           <p class="text-sm text-gray-400 text-center mb-6">Sin formularios: los datos provienen del addon y cada re-upload los mantiene actualizados.</p>
           <ol class="space-y-3 mb-7 text-sm text-gray-300 list-none">
-            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube un SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>) teniendo un personaje validado por un compañero.</span></li>
+            <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">1</span><span>Sube un SavedVariables donde el addon te reporte como Maestro (<code class="text-amber-300">registry.guild.isGM</code>) con más de dos personajes registrados.</span></li>
             <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">2</span><span>Reclama la hermandad desde Mi Addon: tu rol de Maestro se asigna verificado por el addon.</span></li>
             <li class="flex gap-3"><span class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center">3</span><span>Publica el portal y comparte su dirección con tu comunidad.</span></li>
           </ol>
@@ -621,13 +621,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       return;
     }
 
-    const anyVerified = items.some((c) => c.member_verified);
-    if (currentRole === 'visitante' && !anyVerified) {
-      onboardingEl.textContent = 'Ruta a Miembro: un compañero de tu hermandad debe subir su SavedVariables con el roster que te incluya. Compártele el addon y motívalo a registrarse para validar tu cuenta.';
-      onboardingEl.classList.remove('hidden');
-    } else {
-      onboardingEl.classList.add('hidden');
-    }
+    // La promoción a Miembro no requiere que otro usuario suba un roster:
+    // un SV con maestría de hermandad + más de dos personajes la dispara sola.
+    onboardingEl.classList.add('hidden');
 
     items.forEach((c) => listEl.appendChild(characterCard(c)));
   }
