@@ -549,8 +549,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   });
 
   // Deep-link por hash (#registro | #bandas | #hermandad | #perfil)
-  const hashTab = (window.location.hash.replace('#', '') || '') as PanelName;
-  if (PANELS.includes(hashTab)) activateTab(hashTab);
+  function tabDesdeHash(): PanelName | null {
+    const h = window.location.hash.replace(/^#\/?/, '');
+    return (PANELS as readonly string[]).includes(h) ? (h as PanelName) : null;
+  }
+  const inicial = tabDesdeHash();
+  if (inicial) activateTab(inicial);
+  window.addEventListener('hashchange', () => {
+    const t = tabDesdeHash();
+    if (t) activateTab(t);
+  });
 
   // ── Perfil ───────────────────────────────────────────────────────────────
   let currentRole: RaiddominionRole = 'member';
