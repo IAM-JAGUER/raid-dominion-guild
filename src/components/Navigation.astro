@@ -69,7 +69,10 @@ const { currentPath = '/', className = '' } = Astro.props;
               aria-controls="account-dropdown"
               class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
             >
-              <span>Mi Espacio</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span>Cuenta</span>
               <svg class="h-4 w-4 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -81,11 +84,10 @@ const { currentPath = '/', className = '' } = Astro.props;
               role="menu"
               aria-hidden="true"
             >
-              <a href="/dashboard" data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Mi Espacio</a>
-              <a href="/dashboard/guild" data-dropdown-item data-role-item="guild_master,admin" class="account-link hidden px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Mi Hermandad</a>
-              <a href="#" data-dropdown-item data-profile-link class="account-link hidden px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Mi página pública</a>
-              <a href="/moderate" data-dropdown-item data-role-item="moderator,admin" class="account-link hidden px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Moderación</a>
-              <a href="/admin" data-dropdown-item data-role-item="admin" class="account-link hidden px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Administración</a>
+              <a href="/dashboard#resumen" data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Resumen</a>
+              <a href="/dashboard#addon" data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Bandas</a>
+              <a href="/dashboard#hermandad" data-dropdown-item data-role-item="guild_master,admin" class="account-link hidden px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Hermandad</a>
+              <a href="/dashboard#perfil" data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">Perfil</a>
               <div class="my-1 border-t border-amber-600/30"></div>
               <button
                 type="button"
@@ -434,7 +436,7 @@ const { currentPath = '/', className = '' } = Astro.props;
 
           if (!logged) return;
 
-          // Ordena los enlaces del dropdown según rol y perfil del usuario
+          // Ordena los enlaces del dropdown según el rol del usuario
           const { getMyProfile } = await import('@/lib/api');
           const res = await getMyProfile();
           if (res.ok && res.profile) {
@@ -445,15 +447,6 @@ const { currentPath = '/', className = '' } = Astro.props;
                 el.classList.toggle('hidden', !roles.includes(role));
               });
             });
-            const profileLink = document.querySelector<HTMLAnchorElement>('[data-profile-link]');
-            if (profileLink) {
-              if (res.profile.slug) {
-                profileLink.href = `/p/${res.profile.slug}`;
-                profileLink.classList.remove('hidden');
-              } else {
-                profileLink.classList.add('hidden');
-              }
-            }
           }
         });
         logoutButtons.forEach((btn) => {
