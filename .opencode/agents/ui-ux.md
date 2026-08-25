@@ -52,7 +52,7 @@ Lee `AGENTS.md` y `.opencode/improve/priorities.md` antes de empezar cualquier r
 - Los textos de la UI en español (esMX); NO hardcodear inglés.
 - Para focus trapping en modales/dialogs de claim de hermandad, usar una
   utilidad reutilizable en `src/utils/focusTrap.ts`.
-- Validar con `npx astro build` después de cada cambio.
+- Validar con `scripts/verifica.sh` después de cada cambio.
 
 ## Formato de respuesta
 

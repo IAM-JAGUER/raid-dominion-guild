@@ -266,14 +266,16 @@ src/
 - Tailwind exclusivamente; no CSS modules.
 - Preferir editar archivos existentes sobre crear nuevos.
 - `build` real: `astro build`. El script `npm run build` corre `astro check`
-  primero (lento en DrvFs) — para verificación rápida usar `npx astro build`.
+  primero (lento en DrvFs) — para verificación rápida usar `scripts/verifica.sh`
+  (ver §8). NUNCA `npx astro build` directo en sesiones paralelas: rompe el
+  lock global y satura la CPU/I/O de DrvFs.
 
 ## 8. Build & Deploy
 
 ```bash
 npm install
 npm run dev         # servidor dev (localhost:4321)
-npx astro build     # build estático a ./dist/
+scripts/verifica.sh # verificación de build SERIALIZADA (ver abajo)
 npm run preview     # previsualizar build
 ```
 
@@ -282,12 +284,30 @@ npm run preview     # previsualizar build
 - ⚠️ El proyecto reside en `/mnt/d/` (DrvFs/WSL2): `astro check` puede tardar;
   no depende de inotify para validar.
 
+### ⚠️ Build serializado (regla ABSOLUTA en sesiones paralelas)
+
+Con varias sesiones, `npx astro build` directo colisiona: cada build compite por
+CPU/I/O en DrvFs y los builds se cuelgan o tardan minutos. Toda verificación
+pasa SIEMPRE por `scripts/verifica.sh`, que toma un lock GLOBAL del proyecto
+(`.worktrees/.build.lock`): un solo build a la vez, el resto espera en cola.
+
+```bash
+scripts/verifica.sh            # rápido: astro build (sin astro check)
+scripts/verifica.sh --check    # completo: astro check && astro build
+```
+
+- `--ci` es para uso interno del watcher (gate de build previo a promover main).
+- El watcher ya aplica el gate: un turno aprobado NO se promueve a main si su
+  commit no compila (construye en un worktree temporal, sin tocar tu árbol).
+- NUNCA correr `npx astro build` ni `astro check` directo si hay sesiones
+  paralelas activas: esperar el lock y verificar vía el script.
+
 ## 9. Trabajar con un agente (opencode)
 
 - **Commits con permiso**: antes de commit, presentar resumen de cambios +
   checklist + preguntar explícitamente. No commitear sin autorización.
 - **Checklist de cambios:**
-  1. `npx astro build` — sin errores nuevos.
+  1. `scripts/verifica.sh` — sin errores nuevos (build serializado).
   2. `git diff --stat` — solo archivos previstos.
   3. Sin secretos/claves en el diff.
   4. Comportamiento esperado verificado (navegación, parseo, roles).
@@ -306,6 +326,10 @@ Cuando el proyecto corre con sesiones paralelas (`scripts/new-session.sh`):
    node ni ejecuta `npm install`.** El server vive únicamente en
    `.worktrees/integra` (terminal del usuario). Dependencias: solo en la raíz
    (los worktrees comparten `node_modules` y `.env` por symlink).
+2b. **Ninguna sesión corre `npx astro build`/`astro check` directo**: la
+   verificación de build es SIEMPRE vía `scripts/verifica.sh` (lock global,
+   un solo build a la vez). Varios builds en paralelo saturan DrvFs y se
+   cuelgan.
 3. **Fotos borrador**: el watcher (`scripts/watch-integra.sh`) commitea WIP con
    prefijo `wip(<sesion>):` y los publica en la branch `integracion` (preview
    :4321). Esos commits son desechables: NUNCA se rebasean ni se promueven.
@@ -327,8 +351,8 @@ Agentes en `.opencode/agents/`, registro en `.opencode/opencode.json`,
 prioridades en `.opencode/improve/priorities.md`. Cualquier agente DEBE:
 
 1. Leer `.opencode/improve/priorities.md` antes de cambios estructurales.
-2. Ejecutar `npx astro build` después de cada cambio (o `astro check` si el
-   cambio es de tipos).
+2. Ejecutar `scripts/verifica.sh` después de cada cambio (o
+   `scripts/verifica.sh --check` si el cambio es de tipos).
 3. NO modificar archivos de otras apps del ecosistema.
 4. NO modificar `../supabase-shared/` (salvo el bloque raiddominion coordinado).
 

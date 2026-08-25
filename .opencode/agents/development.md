@@ -69,7 +69,9 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - Comentarios en español, solo cuando aportan.
 - Tailwind exclusivamente; seguir el tema WoW (ámbar/dorado, fondo oscuro).
 - Preferir editar archivos existentes antes de crear nuevos.
-- Después de cada cambio: `npx astro build` (rápido) y opcional `astro check`.
+- Después de cada cambio: `scripts/verifica.sh` (rápido) y opcional
+  `scripts/verifica.sh --check` (con `astro check`). Nunca builds en paralelo:
+  el script toma el lock global del proyecto.
 - Si una ruta necesita redirects SPA, actualizar `netlify.toml`.
 
 ## Formato de respuesta
