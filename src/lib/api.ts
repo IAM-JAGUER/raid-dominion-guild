@@ -471,9 +471,17 @@ export interface PromotionResult {
   character?: string;
 }
 
-// Intenta promover visitante→member si hay evidencia cruzada de roster
-export async function tryPromoteMember(): Promise<{ ok: boolean; data?: PromotionResult; error?: string }> {
-  const rpc = await supabase.rpc('raiddominion_try_promote_member');
+// Intenta promover visitante→member. p_sv_id opcional habilita la
+// auto-validación GM: un SV con registry.guild.isGM + más de dos personajes
+// registrados valida los personajes de la cuenta sin evidencia cruzada.
+// Si la DB aún no tiene la migración 20260824 (sin parámetro p_sv_id),
+// reintenta sin argumento por si la firma antigua sigue viva.
+export async function tryPromoteMember(svId?: string): Promise<{ ok: boolean; data?: PromotionResult; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_try_promote_member', svId ? { p_sv_id: svId } : {});
+  if (rpc.error && svId) {
+    const retry = await supabase.rpc('raiddominion_try_promote_member');
+    if (!retry.error) return { ok: true, data: retry.data as PromotionResult };
+  }
   if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true, data: rpc.data as PromotionResult };
 }

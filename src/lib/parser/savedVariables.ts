@@ -584,7 +584,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
     return {
       ok: false,
       data: null,
-      errors: ['No se encontró RaidDominionDB en el archivo. ¿Es un SavedVariables del addon RaidDominion?'],
+      errors: ['No se encontró la tabla RaidDominionDB dentro del archivo (RaidDominion.lua). ¿Es un SavedVariables del addon RaidDominion?'],
       warnings,
     };
   }
@@ -652,7 +652,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
   const lastUpdate = toNum(guildRaw['lastUpdate']) ?? null;
 
   if (members.length === 0) {
-    warnings.push('Sin Guild.memberList (sección legacy): la verificación de membresía usará rosters subidos por otros miembros.');
+    warnings.push('Sin Guild.memberList (sección legacy): la membresía se acredita con un personaje maestro de hermandad y más de dos personajes registrados.');
   }
 
   // Claim de maestro: el personaje que generó + su rango en memberList

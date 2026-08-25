@@ -6,8 +6,8 @@ import { guides, colorClasses } from '@/data/addonGuides';
 import { ui } from '@/lib/ui/design';
 
 // Lista blanca EXACTA de comandos del addon (verificados en addonGuides.ts),
-// más largos primero para que /rd no tape a /rdminimap o /rdloot.
-const KBD_COMMANDS = ['/rdminimap', '/rdloot', '/rdc', '/rdh', '/rd'] as const;
+// más largos primero para que /rd no tape a /rdloot.
+const KBD_COMMANDS = ['/rdloot', '/rdc', '/rdh', '/rd'] as const;
 
 // Escape HTML antes de cualquier set:html (los datos traen '>' literal, p. ej. "Bandas > Gestor").
 function escapeHtml(text: string): string {
@@ -28,7 +28,6 @@ function renderLine(line: string): string {
 ---
 
 <div class="mt-8" id="addon-guides">
-  <h3 class="text-2xl font-bold text-amber-300 mb-2 text-center">RaidDominion</h3>
   <p class="text-gray-400 text-sm text-center mb-8 italic">
     Aprende a usar RaidDominion: menú flotante, bandas, botín, spammers y comandos.
   </p>
@@ -50,7 +49,9 @@ function renderLine(line: string): string {
                 <span class="text-xl">{guide.icon}</span>
               </div>
               <div>
-                <h4 class="text-xl font-bold text-amber-300">{guide.title}</h4>
+                <h4 class="text-xl font-bold text-amber-300">
+                  <span class="text-amber-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
+                </h4>
                 <span class={`${ui.chip} ${c.iconBg} ${c.iconBorder} ${c.iconText}`}>
                   {guide.category}
                 </span>
@@ -72,10 +73,13 @@ function renderLine(line: string): string {
               {guide.sections.map((section, sIdx) => (
                 <details
                   class="group bg-gray-800/50 border border-amber-600/30 rounded-lg overflow-hidden"
-                  open={sIdx === 0}
+                  open
                 >
                   <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between text-amber-200 font-bold text-sm hover:bg-amber-900/10 group-open:bg-amber-900/20 border-l-2 border-l-amber-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400 transition-all">
-                    <span>{section.title}</span>
+                    <span class="inline-flex items-baseline gap-2">
+                      <span class="text-amber-400 font-black tabular-nums">{sIdx + 1}.</span>
+                      <span>{section.title}</span>
+                    </span>
                     <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -96,7 +100,7 @@ function renderLine(line: string): string {
 
             <!-- Micro-CTA común a todos los paneles -->
             <div class="mt-6 pt-4 border-t border-amber-600/20 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-xs text-gray-400">¿Ya usas el addon? Sube tu RaidDominionDB desde el juego.</p>
+              <p class="text-xs text-gray-400">¿Ya usas el addon? Sube tu RaidDominion.lua.</p>
               <a href="/upload" class={`${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent`}>Subir SavedVariables</a>
             </div>
           </div>
@@ -128,7 +132,7 @@ function renderLine(line: string): string {
               </span>
             </div>
             <h4 class="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition-colors leading-tight">
-              {guide.title}
+              <span class="text-amber-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
             </h4>
             <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic">
               {guide.description}
@@ -182,11 +186,14 @@ function renderLine(line: string): string {
     });
   });
 
-  // Soporte a #guide-<id> para abrir directo desde un enlace
+  // Soporte a #guide-<id> para abrir directo desde un enlace.
+  // El deep-link público es #guide-<id> pero el panel vive como
+  // #guide-panel-<id>, así que resolvemos el id real quitando el prefijo.
   const onHash = (): void => {
     const id = window.location.hash.replace(/^#/, '');
     if (!id.startsWith('guide-')) return;
-    const panel = document.getElementById(id);
+    const slug = id.slice('guide-'.length);
+    const panel = document.getElementById(`guide-panel-${slug}`);
     if (!panel) return;
     const idx = Number(panel.getAttribute('data-guide-index'));
     if (!Number.isNaN(idx)) openGuide(idx);
