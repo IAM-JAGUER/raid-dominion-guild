@@ -46,6 +46,7 @@ import Navigation from '@/components/Navigation.astro';
 
 <script>
   import { supabase } from '@/lib/supabase';
+  import { classColor } from '@/lib/ui/classColors';
   import type { CharacterRow } from '@/lib/api';
 
   const statusEl = document.getElementById('status') as HTMLElement;
@@ -73,15 +74,41 @@ import Navigation from '@/components/Navigation.astro';
       link.classList.add('opacity-80');
       link.title = 'El jugador mantiene su perfil privado';
     }
-    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+    const color = classColor(c.class, c.class_file);
+    link.className = 'group relative block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-4 pl-5 overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-900/20';
 
+    // Acento lateral por clase (estilo ficha de roster)
+    const accent = document.createElement('div');
+    accent.className = 'absolute top-0 left-0 w-1 h-full';
+    accent.style.backgroundColor = color;
+    link.appendChild(accent);
+
+    // Cabecera: avatar con inicial de clase + nombre en color de clase
     const head = document.createElement('div');
-    head.className = 'flex items-start justify-between gap-3 mb-3';
+    head.className = 'flex items-center gap-3 mb-3';
+    const avatar = document.createElement('div');
+    avatar.className = 'w-9 h-9 rounded-md flex items-center justify-center font-black italic text-base shrink-0 shadow-lg border border-gray-700/50';
+    avatar.style.backgroundColor = `${color}26`;
+    avatar.style.color = color;
+    avatar.textContent = (c.name || '?')[0].toUpperCase();
+    head.appendChild(avatar);
+
+    const nameWrap = document.createElement('div');
+    nameWrap.className = 'flex items-center gap-1.5 min-w-0';
     const name = document.createElement('h2');
-    name.className = 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug';
+    name.className = 'font-black italic truncate text-base leading-snug transition-colors duration-200';
+    name.style.color = color;
     name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    head.appendChild(name);
-    if (c.sv_is_gm) head.appendChild(chip('★ Maestro', 'text-fuchsia-300 bg-fuchsia-950/40 border-fuchsia-500/40'));
+    nameWrap.appendChild(name);
+    head.appendChild(nameWrap);
+
+    if (c.sv_is_gm) {
+      const star = document.createElement('span');
+      star.className = 'shrink-0 text-fuchsia-400 text-sm';
+      star.textContent = '★';
+      star.title = 'Maestro de hermandad';
+      head.appendChild(star);
+    }
     link.appendChild(head);
 
     const chips = document.createElement('div');

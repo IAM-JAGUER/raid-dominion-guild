@@ -1,8 +1,10 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
 import JugadorProfile from '@/components/JugadorProfile.astro';
 ---
 
 <Layout title="Jugador - RaidDominion" description="Perfil público de jugador de la comunidad RaidDominion.">
+  <Navigation currentPath="/p" />
   <JugadorProfile />
 </Layout>

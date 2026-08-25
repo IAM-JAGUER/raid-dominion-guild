@@ -1,8 +1,63 @@
+<main class="relative py-16">
+  <div class="max-w-3xl mx-auto px-4">
 
+    <!-- Cargando -->
+    <div id="loading" class="text-center py-20">
+      <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-sm text-gray-400 italic mt-4">Cargando perfil…</p>
+    </div>
 
+    <!-- No encontrado -->
+    <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+      <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <h1 class="text-xl font-bold text-white mb-2">Jugador no encontrado</h1>
+      <p class="text-sm text-gray-400 max-w-md mx-auto">Este perfil no existe, es privado o cambió su enlace.</p>
+      <a href="/personajes" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver personajes</a>
+    </div>
+
+    <!-- Perfil -->
+    <div id="profile" class="hidden space-y-10">
+      <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div id="avatar" class="w-20 h-20 rounded-lg bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
+          <div class="flex-1 min-w-0 text-center sm:text-left">
+            <h1 id="display-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
+            <div id="chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
+              <span id="role-badge" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300">★ Maestro de hermandad</span>
+              <a id="guild-card" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all">
+                <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+                <span id="guild-card-name"></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Personaje principal -->
+      <section id="main-section" class="hidden">
+        <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personaje principal
+        </h2>
+        <div id="main-card"></div>
+      </section>
+
+      <!-- Otros personajes -->
+      <section id="characters-section" class="hidden">
+        <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personajes
+        </h2>
+        <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </section>
+    </div>
+
+  </div>
+</main>
 
 <script>
-  import { getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser } from '@/lib/api';
+  import { getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, type PublicBandSummary } from '@/lib/api';
+  import { classColor } from '@/lib/ui/classColors';
+  import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
   import type { RaiddominionRole } from '@/types/database';
 
@@ -10,6 +65,8 @@
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
     'assets', '_astro', 'portal', 'jugador', 'personajes',
   ]);
+
+  let profileMainName: string | null = null;
 
   function currentSlug(): string {
     const override = new URLSearchParams(window.location.search).get('slug');
@@ -22,6 +79,13 @@
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
     document.getElementById('not-found')?.classList.remove('hidden');
     document.title = 'Jugador no encontrado - RaidDominion';
+  }
+
+  function makeEl(tag: string, cls: string, text?: string): HTMLElement {
+    const node = document.createElement(tag);
+    node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
   }
 
   function chip(text: string): HTMLElement {
@@ -43,6 +107,7 @@
     } else {
       const p = res.profile;
       const nameSource = p.display_name || p.character_name || 'Jugador';
+      profileMainName = p.character_name ?? null;
       document.title = `${nameSource} - RaidDominion`;
 
       (document.getElementById('avatar') as HTMLElement).textContent = nameSource[0].toUpperCase();
@@ -64,67 +129,158 @@
         }
       }
 
-      void renderPublicCharacters(p.id);
+      void renderProfileCharacters(p.id);
 
       (document.getElementById('loading') as HTMLElement).classList.add('hidden');
       document.getElementById('profile')?.classList.remove('hidden');
     }
   }
 
-  function publicCharacterCard(c: CharacterRow): HTMLElement {
-    const card = document.createElement('div');
-    card.className = 'bg-gray-900/60 border border-amber-600/20 rounded-lg p-4';
+  function equipmentGrid(c: CharacterRow): HTMLElement | null {
+    const eq = c.equipment ?? [];
+    if (eq.length === 0) return null;
 
-    const header = document.createElement('div');
-    header.className = 'flex flex-wrap items-center gap-2';
-    header.appendChild(chip(`${c.name}${c.realm ? '-' + c.realm : ''}`));
-    if (c.class) header.appendChild(chip(c.class));
-    if (typeof c.level === 'number') header.appendChild(chip(`Nivel ${c.level}`));
+    const wrap = makeEl('div', 'mt-4');
+    wrap.appendChild(makeEl('h4', 'text-[10px] font-black uppercase tracking-widest text-amber-400/80 mb-2', `Equipamiento (${eq.length})`));
+
+    const grid = makeEl('div', 'grid grid-cols-1 gap-1');
+    [...eq].sort((a, b) => a.slot - b.slot).forEach((piece) => {
+      const qc = itemQualityColor(piece.quality);
+      const row = makeEl('div', 'flex items-center gap-2 rounded px-2 py-1 bg-gray-900/40 border-l-2');
+      row.style.borderColor = qc;
+      row.appendChild(makeEl('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(piece.slot)));
+      const nm = makeEl('span', 'text-xs truncate');
+      nm.style.color = qc;
+      nm.textContent = piece.name;
+      row.appendChild(nm);
+      row.appendChild(makeEl('span', 'text-xs text-gray-400 shrink-0', `i${piece.ilvl}`));
+      grid.appendChild(row);
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function bandsRow(bands: PublicBandSummary[]): HTMLElement | null {
+    if (!bands || bands.length === 0) return null;
+    const wrap = makeEl('div', 'mt-4');
+    wrap.appendChild(makeEl('h4', 'text-[10px] font-black uppercase tracking-widest text-amber-400/80 mb-2', 'Bandas de raid'));
+    const list = makeEl('div', 'flex flex-wrap gap-2');
+    bands.forEach((b) => {
+      const parts = [b.name];
+      const rol = roleLabel(b.role);
+      if (rol) parts.push(rol);
+      if (b.schedule) parts.push(b.schedule);
+      if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
+      list.appendChild(makeEl('span', 'px-2 py-1 rounded-lg text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
+    });
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  function characterChips(c: CharacterRow): HTMLElement {
+    const row = makeEl('div', 'flex flex-wrap gap-1.5');
+    if (c.class) row.appendChild(chip(c.class));
+    if (typeof c.level === 'number') row.appendChild(chip(`Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
       const il = chip(`ilvl ${c.avg_ilvl}`);
       il.classList.add('!text-amber-300', '!border-amber-500/40');
-      header.appendChild(il);
+      row.appendChild(il);
     }
     if (c.member_verified) {
       const v = chip('✓ Validado');
       v.classList.add('!text-emerald-300', '!border-emerald-600/40');
-      header.appendChild(v);
+      row.appendChild(v);
     }
     if (c.sv_guild_name) {
       const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`);
-      gchip.classList.add(c.sv_is_gm ? '!text-fuchsia-300 !border-fuchsia-500/40' : '!text-sky-200 !border-sky-600/30');
-      header.appendChild(gchip);
+      gchip.classList.add(
+        c.sv_is_gm ? '!text-fuchsia-300' : '!text-sky-200',
+        c.sv_is_gm ? '!border-fuchsia-500/40' : '!border-sky-600/30'
+      );
+      row.appendChild(gchip);
     }
-    card.appendChild(header);
+    return row;
+  }
 
-    if ((c.equipment ?? []).length > 0) {
-      const details = document.createElement('details');
-      details.className = 'mt-2';
-      const summary = document.createElement('summary');
-      summary.className = 'text-xs text-amber-300/80 cursor-pointer hover:text-amber-200';
-      summary.textContent = `Equipamiento (${c.equipment.length} piezas)`;
-      details.appendChild(summary);
-      const grid = document.createElement('div');
-      grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2';
-      c.equipment.forEach((piece) => {
-        const row = document.createElement('div');
-        row.className = 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1';
-        const nm = document.createElement('span'); nm.textContent = piece.name;
-        const st = document.createElement('span'); st.className = 'text-gray-500'; st.textContent = `i${piece.ilvl}`;
-        row.append(nm, st);
-        grid.appendChild(row);
-      });
-      details.appendChild(grid);
-      card.appendChild(details);
+  function richCharacterCard(c: CharacterRow, bands: PublicBandSummary[], featured: boolean): HTMLElement {
+    const color = classColor(c.class, c.class_file);
+    const card = makeEl('article', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-lg overflow-hidden transition-colors duration-200 ' + (featured ? 'p-5 pl-6' : 'p-4 pl-5'));
+
+    const accent = makeEl('div', 'absolute top-0 left-0 w-1 h-full');
+    accent.style.backgroundColor = color;
+    card.appendChild(accent);
+
+    // Cabecera: avatar + nombre en color de clase
+    const head = makeEl('div', 'flex items-center gap-3 mb-3');
+    const avatar = makeEl('div', (featured ? 'w-12 h-12 ' : 'w-10 h-10 ') + 'rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50');
+    avatar.style.backgroundColor = `${color}26`;
+    avatar.style.color = color;
+    avatar.textContent = (c.name || '?')[0].toUpperCase();
+    head.appendChild(avatar);
+
+    const nameWrap = makeEl('div', 'min-w-0');
+    const name = makeEl('h3', 'font-black italic truncate leading-snug ' + (featured ? 'text-lg' : 'text-sm'));
+    name.style.color = color;
+    name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
+    nameWrap.appendChild(name);
+    if (featured) nameWrap.appendChild(characterChips(c));
+    head.appendChild(nameWrap);
+    card.appendChild(head);
+
+    // Stats principales
+    const stats = makeEl('div', 'grid grid-cols-3 gap-2 mb-4');
+    const stat = (label: string, value: string | number): HTMLElement => {
+      const box = makeEl('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-2');
+      box.appendChild(makeEl('p', 'text-lg font-black text-amber-200 italic', String(value)));
+      box.appendChild(makeEl('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
+      return box;
+    };
+    stats.appendChild(stat('Nivel', c.level ?? '—'));
+    stats.appendChild(stat('ilvl', c.avg_ilvl ?? '—'));
+    stats.appendChild(stat('Clase', c.class ?? '—'));
+    card.appendChild(stats);
+
+    if (!featured) {
+      const chips = characterChips(c);
+      card.appendChild(chips);
     }
+
+    const eq = equipmentGrid(c);
+    if (eq) card.appendChild(eq);
+
+    const br = bandsRow(bands);
+    if (br) card.appendChild(br);
+
     return card;
   }
 
-  async function renderPublicCharacters(userId: string): Promise<void> {
+  async function renderProfileCharacters(userId: string): Promise<void> {
     const res = await getPublicCharactersByUser(userId);
     if (!res.ok || !res.items || res.items.length === 0) return;
-    const wrap = document.getElementById('public-characters') as HTMLElement;
-    res.items.forEach((c) => wrap.appendChild(publicCharacterCard(c)));
-    (document.getElementById('characters-section') as HTMLElement).classList.remove('hidden');
+
+    const chars = res.items;
+    const bandResults = await Promise.all(
+      chars.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
+    );
+
+    // Personaje principal: coincide con profile.character_name; si no, el de mayor ilvl
+    const mainName = (profileMainName ?? '').trim().toLowerCase();
+    let mainIdx = mainName ? chars.findIndex((c) => c.name.toLowerCase() === mainName) : -1;
+    if (mainIdx < 0) mainIdx = 0;
+
+    const main = chars[mainIdx];
+    const mainBands = bandResults[mainIdx]?.ok ? (bandResults[mainIdx].bands ?? []) : [];
+    (document.getElementById('main-card') as HTMLElement).appendChild(richCharacterCard(main, mainBands, true));
+    document.getElementById('main-section')?.classList.remove('hidden');
+
+    const grid = document.getElementById('characters-grid') as HTMLElement;
+    chars.forEach((c, i) => {
+      if (i === mainIdx) return;
+      const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
+      grid.appendChild(richCharacterCard(c, bands, false));
+    });
+    if (grid.children.length > 0) {
+      document.getElementById('characters-section')?.classList.remove('hidden');
+    }
   }
 </script>

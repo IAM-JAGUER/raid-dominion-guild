@@ -1,4 +1,5 @@
 import type { ParsedSavedVariables } from '@/types/parser';
+import { classColor } from '@/lib/ui/classColors';
 
 export function el(tag: string, cls: string, text?: string): HTMLElement {
   const node = document.createElement(tag);
@@ -35,46 +36,50 @@ export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLEle
   return card;
 }
 
+// Badge de rango según jerarquía (estilo ficha de roster)
+function rankBadgeClass(rank: string | undefined): string {
+  const r = (rank ?? '').toLowerCase();
+  if (r.includes('maestro') || r.includes('admin')) return 'text-amber-300 border-amber-500/40 bg-amber-900/20';
+  if (r.includes('oficial')) return 'text-sky-300 border-sky-600/30 bg-sky-950/30';
+  return 'text-gray-300 border-gray-500/40 bg-gray-800/60';
+}
+
 export function renderRoster(wrap: HTMLElement, members: ParsedSavedVariables['guild']['members']): void {
   if (!members || members.length === 0) {
     wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
     return;
   }
 
-  const table = document.createElement('table');
-  table.className = 'w-full text-left text-sm';
-  table.innerHTML = `
-    <thead>
-      <tr class="border-b border-amber-600/20">
-        <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nombre</th>
-        <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Clase</th>
-        <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Rango</th>
-        <th class="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Nota pública</th>
-      </tr>
-    </thead>
-  `;
-  const tbody = document.createElement('tbody');
-  tbody.className = 'divide-y divide-amber-600/5';
+  wrap.innerHTML = '';
+  const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3');
 
   // Mostrar hasta 50 para el preview
   const slice = members.slice(0, 50);
   slice.forEach((m) => {
-    const row = document.createElement('tr');
-    row.className = 'hover:bg-amber-600/5 transition-colors';
-    const cellCls = (extra: string) => `px-3 py-2 text-gray-300 ${extra}`;
-    const td = (text: string | undefined, extra = ''): HTMLElement =>
-      el('td', cellCls(extra), text || '—');
-    row.append(
-      td(m.name, 'font-bold text-white'),
-      td(m.class),
-      td(m.rank, 'text-amber-300'),
-      td(m.publicNote),
-    );
-    tbody.appendChild(row);
+    const color = classColor(m.class);
+    const card = el('div', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-lg p-4 pl-5 overflow-hidden transition-colors duration-200');
+    const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
+    accent.style.backgroundColor = color;
+    card.appendChild(accent);
+
+    const row = el('div', 'flex items-center justify-between gap-2 mb-2');
+    const name = el('div', 'font-black italic truncate text-sm');
+    name.style.color = color;
+    name.textContent = m.name;
+    row.appendChild(name);
+    if (m.rank) {
+      row.appendChild(el('span', `shrink-0 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${rankBadgeClass(m.rank)}`, m.rank));
+    }
+    card.appendChild(row);
+
+    const meta = el('div', 'flex flex-wrap gap-1.5');
+    if (m.class) meta.appendChild(el('span', 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border text-gray-300 bg-gray-800/60 border-amber-600/20', m.class));
+    if (m.publicNote) meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
+    card.appendChild(meta);
+
+    grid.appendChild(card);
   });
-  table.appendChild(tbody);
-  wrap.innerHTML = '';
-  wrap.appendChild(table);
+  wrap.appendChild(grid);
 
   if (members.length > 50) {
     wrap.appendChild(el('p', 'mt-2 text-xs text-gray-500 italic', `Mostrando 50 de ${members.length} miembros.`));

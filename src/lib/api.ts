@@ -538,6 +538,44 @@ export async function getPublicCharactersByUser(userId: string): Promise<{ ok: b
   return { ok: true, items: (res.data as CharacterRow[]) ?? [] };
 }
 
+export interface PublicBandSummary {
+  name: string;
+  schedule?: string;
+  minGS?: number;
+  role?: string;
+}
+
+// Bandas públicas donde aparece un personaje: cruza el snapshot de la(s)
+// hermandad(es) pública(s) que coinciden con sv_guild_name (SELECT público).
+export async function getPublicBandsForCharacter(
+  charName: string,
+  guildName: string | null
+): Promise<{ ok: boolean; bands?: PublicBandSummary[]; error?: string }> {
+  if (!guildName) return { ok: true, bands: [] };
+
+  const gRes = await supabase
+    .from('raiddominion_guilds')
+    .select('id')
+    .eq('name', guildName)
+    .eq('is_public', true)
+    .limit(5);
+  if (gRes.error) return { ok: false, error: gRes.error.message };
+
+  const guilds = (gRes.data as Array<{ id: string }>) ?? [];
+  const bands: PublicBandSummary[] = [];
+  for (const g of guilds) {
+    const snap = await getGuildSnapshot(g.id);
+    if (!snap.ok || !snap.snapshot) continue;
+    snap.snapshot.bands.forEach((b) => {
+      const me = (b.players ?? []).find(
+        (p) => (p.name ?? '').trim().toLowerCase() === charName.trim().toLowerCase()
+      );
+      if (me) bands.push({ name: b.name, schedule: b.schedule, minGS: b.minGS, role: me.role });
+    });
+  }
+  return { ok: true, bands };
+}
+
 // ─── Estadísticas públicas de comunidad (hero) ──────────────────────────
 
 export interface CommunityStats {
