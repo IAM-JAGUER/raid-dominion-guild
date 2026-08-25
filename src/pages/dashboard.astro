@@ -26,7 +26,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
       <!-- Pestañas (navegación con ←/→/Home/End; activación automática al enfocar) -->
       <nav class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel">
-        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="true" aria-controls="panel-addon" tabindex="0"
+        <button id="tab-registro" data-tab="registro" role="tab" aria-selected="true" aria-controls="panel-registro" tabindex="0"
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Registro</button>
         <button id="tab-bandas" data-tab="bandas" role="tab" aria-selected="false" aria-controls="panel-bandas" tabindex="-1"
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Bandas</button>
@@ -37,7 +37,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       </nav>
 
       <!-- ── Mi Registro (config + historial + visor) ─────────────────────── -->
-      <section id="panel-addon" role="tabpanel" aria-labelledby="tab-addon" class="hidden space-y-6">
+      <section id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" class="hidden space-y-6">
         <!-- Estado vacío -->
         <div id="addon-empty" class={`hidden ${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
           <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -451,7 +451,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
-  const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
+  const PANELS = ['registro', 'bandas', 'hermandad', 'perfil'] as const;
   type PanelName = (typeof PANELS)[number];
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
