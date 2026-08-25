@@ -44,8 +44,9 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - Devolver un objeto tipado (`types/parser.ts`) + lista de advertencias.
 - Separar campos públicos (publicNote) vs privados (officerNote).
 - Validar tamaño ≤ 2 MB y sanitizar (nunca volcar raw en la UI).
-- Claim de maestro: primario `registry.*.guild.isGM=true`
-  (`raiddominion_claim_from_sv`); `generatedBy`+rank solo para archivos v2.
+- Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
+  (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825);
+  `generatedBy`+rank solo alimenta evidencia legacy v2, ya NO reclama.
 - Cambios de claves/tipos del SV exigen sincronía con el addon (AGENTS.md §11).
 
 ### 3. Rutas Astro
