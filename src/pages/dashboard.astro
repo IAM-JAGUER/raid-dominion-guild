@@ -448,8 +448,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
   import { renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
-  import { isStaff } from '@/lib/roles';
-  import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
+  import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild, BandPlayer } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
   const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
@@ -789,26 +788,28 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     }
   }
 
+  function showBandsEmpty(): void {
+    document.getElementById('bandas-empty')?.classList.remove('hidden');
+    document.getElementById('bandas-main')?.classList.add('hidden');
+  }
+
   async function loadHistory(): Promise<void> {
-    const kpiUp = document.getElementById('kpi-uploads') as HTMLElement;
-    const kpiLast = document.getElementById('kpi-last') as HTMLElement;
     const select = document.getElementById('sv-select') as HTMLSelectElement;
     const listEl = document.getElementById('history-list') as HTMLElement;
     const countEl = document.getElementById('sv-history-count') as HTMLElement;
 
     const res = await listMyUploads();
     if (!res.ok) {
-      kpiUp.textContent = '—';
       showAddonEmpty('No se pudo cargar tu historial de análisis.');
+      showBandsEmpty();
       return;
     }
     const items = res.items ?? [];
     uploadsCache = items;
-    kpiUp.textContent = String(items.length);
-    kpiLast.textContent = items.length > 0 ? fmtDateTime(items[0].parsedAt) : 'Sin uploads aún';
 
     if (items.length === 0) {
       showAddonEmpty();
+      showBandsEmpty();
       return;
     }
 
@@ -921,14 +922,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     fillList('list-buffs', 'cnt-buffs', d.buffs);
     fillList('list-auras', 'cnt-auras', d.auras);
 
-    // Mecánicas y Reglas completas (sin recorte)
+    // Mecánicas completas (sin recorte); reglas y bandas viven en Mis Bandas
     renderContentList('list-mechanics', 'cnt-mechanics', d.mechanics);
-    renderContentList('list-rules', 'cnt-rules', d.rules);
-
-    // Bandas (con detalle de jugadores y spammer)
-    const bandsEl = document.getElementById('viewer-bands') as HTMLElement;
-    bandsEl.innerHTML = '';
-    d.bands.forEach((b) => bandsEl.appendChild(renderBand(b)));
+    renderBandsPanel(d);
 
     // Asignaciones detalladas (mapa nombre → jugador)
     renderAssignments(d);
