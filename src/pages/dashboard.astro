@@ -7,7 +7,7 @@ const ctaPrincipal = `${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-bl
 const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 ---
 
-<Layout title="Mi Dashboard - RaidDominion" description="Tu espacio en la comunidad RaidDominion: registro, hermandad y perfil.">
+<Layout title="Mi Dashboard - RaidDominion" description="Tu addon en la comunidad RaidDominion: registro, bandas, hermandad y perfil.">
   <Navigation currentPath="/dashboard" />
   <main class="relative py-16">
     <div class="max-w-5xl mx-auto px-4">
@@ -17,7 +17,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <div class="flex items-center gap-4">
           <div id="avatar" class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black text-xl font-black shadow-lg shadow-amber-900/30 select-none">–</div>
           <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Mi Espacio</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Mi addon</h1>
             <p id="user-email" class="text-gray-400 text-sm italic"></p>
           </div>
         </div>
@@ -26,80 +26,15 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
       <!-- Pestañas (navegación con ←/→/Home/End; activación automática al enfocar) -->
       <nav class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel">
-        <button id="tab-resumen" data-tab="resumen" role="tab" aria-selected="true" aria-controls="panel-resumen" tabindex="0"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Resumen</button>
-        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="false" aria-controls="panel-addon" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Registro</button>
+        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="true" aria-controls="panel-addon" tabindex="0"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Registro</button>
+        <button id="tab-bandas" data-tab="bandas" role="tab" aria-selected="false" aria-controls="panel-bandas" tabindex="-1"
+          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mis Bandas</button>
         <button id="tab-hermandad" data-tab="hermandad" role="tab" aria-selected="false" aria-controls="panel-hermandad" tabindex="-1"
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Mi Hermandad</button>
         <button id="tab-perfil" data-tab="perfil" role="tab" aria-selected="false" aria-controls="panel-perfil" tabindex="-1"
           class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-md ml-auto">Mi Perfil</button>
       </nav>
-
-      <!-- ── Resumen ─────────────────────────────────────────────────────── -->
-      <section id="panel-resumen" role="tabpanel" aria-labelledby="tab-resumen" class="space-y-6">
-        <div class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/30 rounded-lg p-6">
-          <h2 class="text-lg font-bold text-amber-200 mb-2">Bienvenido a tu comunidad</h2>
-          <p class="text-sm text-gray-400 leading-relaxed max-w-2xl">
-            Este es tu espacio dentro del portal RaidDominion. Sube tus SavedVariables para
-            mantener tus datos al día, controla la visibilidad de tu perfil y, si lideras una
-            hermandad, administra su página pública con control total.
-          </p>
-        </div>
-
-        <!-- KPIs (solo en Resumen) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Resumen de actividad">
-          <div class={`${ui.panel} p-4`}>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Análisis guardados</p>
-            <p class="text-3xl font-black text-amber-300 mt-1" id="kpi-uploads">—</p>
-          </div>
-          <div class={`${ui.panel} p-4`}>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Último upload</p>
-            <p class="text-sm font-bold text-amber-200 mt-2" id="kpi-last">—</p>
-          </div>
-          <div class={`${ui.panel} p-4`}>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Perfil</p>
-            <p class="text-sm font-bold mt-2" id="kpi-visibility"><span class="text-gray-400">—</span></p>
-          </div>
-          <div class={`${ui.panel} p-4`}>
-            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Hermandad</p>
-            <p class="text-sm font-bold text-amber-200 mt-2" id="kpi-guild">—</p>
-          </div>
-        </div>
-
-        <!-- CTA primario único -->
-        <div class="flex flex-wrap items-center gap-4">
-          <a href="/upload" class={ctaPrincipal}>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-            Subir SavedVariables
-          </a>
-          <p class="text-xs text-gray-500 italic">Roster, bandas y reglas se actualizan con cada archivo.</p>
-        </div>
-
-        <!-- Accesos secundarios -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button type="button" data-goto="perfil" class={`goto-btn group text-left ${ui.panel} ${ui.panelHover} p-5 transform hover:-translate-y-0.5`}>
-            <svg class="w-7 h-7 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <p class="font-bold text-white group-hover:text-amber-200 transition-colors">Mi Perfil</p>
-            <p class="text-xs text-gray-500 mt-1">Datos, personajes y seguridad.</p>
-          </button>
-          <button type="button" data-goto="hermandad" id="quick-guild" class={`hidden goto-btn group text-left ${ui.panel} ${ui.panelHover} p-5 transform hover:-translate-y-0.5`}>
-            <svg class="w-7 h-7 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            <p class="font-bold text-white group-hover:text-amber-200 transition-colors">Mi Hermandad</p>
-            <p class="text-xs text-gray-500 mt-1">Portal público y ficha.</p>
-          </button>
-          <a href="/moderate" id="quick-moderate" class="hidden group bg-gray-900/60 border border-sky-700/30 hover:border-sky-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5">
-            <svg class="w-7 h-7 text-sky-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p class="font-bold text-white group-hover:text-sky-200 transition-colors">Moderación</p>
-            <p class="text-xs text-gray-500 mt-1">Claims y portales.</p>
-          </a>
-          <a href="/admin" id="quick-admin" class="hidden group bg-gray-900/60 border border-red-800/40 hover:border-red-600/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5">
-            <svg class="w-7 h-7 text-red-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <p class="font-bold text-white group-hover:text-red-200 transition-colors">Administración</p>
-            <p class="text-xs text-gray-500 mt-1">Usuarios y roles.</p>
-          </a>
-        </div>
-      </section>
 
       <!-- ── Mi Registro (config + historial + visor) ─────────────────────── -->
       <section id="panel-addon" role="tabpanel" aria-labelledby="tab-addon" class="hidden space-y-6">
