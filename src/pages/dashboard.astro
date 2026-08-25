@@ -159,18 +159,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <div id="list-mechanics"></div>
             </div>
 
-            <!-- Reglas completas (sin corte) -->
-            <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4">
-              <h4 class={ui.subTitle}>Reglas de banda <span id="cnt-rules" class="text-gray-500"></span></h4>
-              <div id="list-rules"></div>
-            </div>
-
-            <!-- Bandas -->
-            <div>
-              <h4 class={ui.subTitle}>Bandas</h4>
-              <div id="viewer-bands" class="space-y-4"></div>
-            </div>
-
             <!-- Asignaciones (mapa nombre → jugador) -->
             <div>
               <h4 class={ui.subTitle}>Asignaciones</h4>
@@ -182,6 +170,62 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <h4 class={ui.subTitle}>General</h4>
               <div id="addon-general" class="flex flex-wrap gap-2"></div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Mis Bandas (bandas + jugadores + reglas) ────────────────────── -->
+      <section id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6">
+        <!-- Estado vacío (sin bandas en el análisis) -->
+        <div id="bandas-empty" class={`hidden ${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
+          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+          <p class="font-bold text-white mb-1">Sin bandas en este análisis</p>
+          <p class="text-sm text-gray-400 mb-6">Sube tu <code class="text-amber-300">RaidDominion.lua</code> para ver aquí tus bandas, jugadores y reglas.</p>
+          <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
+        </div>
+
+        <div id="bandas-main" class="hidden space-y-6">
+          <!-- Cabecera + cifras -->
+          <div class={`${ui.panel} p-6`}>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h2 class="text-lg font-bold text-amber-200 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                Mis Bandas
+              </h2>
+              <span class="text-[11px] text-gray-500 italic">Bandas, jugadores y reglas del análisis seleccionado</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="bandas-count">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
+              </div>
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="bandas-players-count">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Jugadores</p>
+              </div>
+              <div class={`${ui.panel} p-4 text-center`}>
+                <p class="text-3xl font-bold text-amber-300" id="bandas-rules-count">0</p>
+                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reglas completas -->
+          <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4">
+            <h4 class={ui.subTitle}>Reglas de banda <span id="cnt-rules" class="text-gray-500"></span></h4>
+            <div id="list-rules"></div>
+          </div>
+
+          <!-- Bandas (expandidas con jugadores y spammer) -->
+          <div>
+            <h4 class={ui.subTitle}>Bandas</h4>
+            <div id="viewer-bands" class="space-y-4"></div>
+          </div>
+
+          <!-- Jugadores (lista única a través de todas las bandas) -->
+          <div>
+            <h4 class={ui.subTitle}>Jugadores <span id="cnt-band-players" class="text-gray-500"></span></h4>
+            <div id="viewer-band-players"></div>
           </div>
         </div>
       </section>
@@ -403,12 +447,12 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     resetMyData,
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
-  import { renderBand, renderRoster, el } from '@/lib/ui/preview';
+  import { renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
   import { isStaff } from '@/lib/roles';
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
-  const PANELS = ['resumen', 'addon', 'hermandad', 'perfil'] as const;
+  const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
   type PanelName = (typeof PANELS)[number];
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
@@ -475,9 +519,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Pestañas ─────────────────────────────────────────────────────────────
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
-  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'resumen') as PanelName)));
-  document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
-    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'resumen') as PanelName)));
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
 
   function activateTab(name: PanelName): void {
     tabs.forEach((b) => {
@@ -508,7 +550,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ev.preventDefault();
     const target = tabs[next];
     target.focus();
-    activateTab((target.dataset.tab ?? 'resumen') as PanelName);
+    activateTab((target.dataset.tab ?? 'addon') as PanelName);
   });
 
   // ── Perfil ───────────────────────────────────────────────────────────────
