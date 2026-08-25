@@ -448,7 +448,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
   import { renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
-  import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild, BandPlayer } from '@/types/parser';
+  import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
   const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
@@ -1349,7 +1349,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       openLink.classList.toggle('hidden', !input.checked);
       g.is_public = input.checked;
       setMsg(msg, true, input.checked ? 'Portal publicado: ya es visible en /' + g.slug : 'Portal oculto: solo tú puedes verlo.');
-      updateKpiGuild();
     });
     copyBtn.addEventListener('click', async () => {
       try {
@@ -1372,7 +1371,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const res = await getMyGuilds();
     if (!res.ok) {
       myGuilds = [];
-      updateKpiGuild();
       updateClaimBanner();
       return;
     }
@@ -1382,7 +1380,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     if (items.length === 0) {
       empty.classList.remove('hidden');
       manage.classList.add('hidden');
-      updateKpiGuild();
       updateClaimBanner();
       return;
     }
@@ -1392,7 +1389,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const cardsEl = document.getElementById('guild-cards') as HTMLElement;
     cardsEl.innerHTML = '';
     items.forEach((g) => cardsEl.appendChild(renderGuildCard(g)));
-    updateKpiGuild();
     updateClaimBanner();
   }
 
