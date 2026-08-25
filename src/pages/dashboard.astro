@@ -514,7 +514,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Pestañas ─────────────────────────────────────────────────────────────
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
-  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'registro') as PanelName)));
 
   function activateTab(name: PanelName): void {
     tabs.forEach((b) => {
@@ -545,10 +545,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ev.preventDefault();
     const target = tabs[next];
     target.focus();
-    activateTab((target.dataset.tab ?? 'addon') as PanelName);
+    activateTab((target.dataset.tab ?? 'registro') as PanelName);
   });
 
-  // Deep-link por hash (#registro | #addon | #hermandad | #perfil)
+  // Deep-link por hash (#registro | #bandas | #hermandad | #perfil)
   const hashTab = (window.location.hash.replace('#', '') || '') as PanelName;
   if (PANELS.includes(hashTab)) activateTab(hashTab);
 
