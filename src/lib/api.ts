@@ -425,6 +425,7 @@ export interface CharacterRow {
   id: string;
   user_id: string;
   sv_upload_id: string | null;
+  slug: string | null;
   name: string;
   realm: string | null;
   class: string | null;
@@ -555,6 +556,67 @@ export async function getPublicCharactersByUser(userId: string): Promise<{ ok: b
 
   if (res.error) return { ok: false, error: res.error.message };
   return { ok: true, items: (res.data as CharacterRow[]) ?? [] };
+}
+
+export interface CharacterSlugRow {
+  id: string;
+  slug: string;
+}
+
+// Genera/recupera slugs hex-8 para TODOS los personajes propios (RPC
+// SECURITY DEFINER). Idempotente: conserva los existentes. Útil para
+// enlazar cards secundarias y el directorio a /personaje/<slug>.
+export async function ensureMyCharacterSlugs(): Promise<{ ok: boolean; slugs?: CharacterSlugRow[]; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_ensure_character_slug');
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, slugs: (rpc.data as CharacterSlugRow[]) ?? [] };
+}
+
+export interface PublicCharacterResult {
+  character: CharacterRow;
+  // Dueño del personaje; presente solo si su perfil es público (RLS).
+  profile?: ProfileRow;
+}
+
+// Ficha POR PERSONAJE (/personaje/:slug): devuelve el personaje consultado
+// + el perfil público de su dueño en UNA consulta (vista
+// raiddominion_character_public, security_invoker). El card principal
+// SIEMPRE es el personaje del slug, no el último subido.
+export async function getPublicCharacterBySlug(slug: string): Promise<{ ok: boolean; result?: PublicCharacterResult; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_character_public')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  if (!res.data) return { ok: true };
+
+  const row = res.data as CharacterRow & {
+    profile_slug: string | null;
+    profile_display_name: string | null;
+    profile_character_name: string | null;
+    profile_realm: string | null;
+    profile_role: RaiddominionRole | null;
+    profile_is_guild_master: boolean | null;
+    profile_is_public: boolean | null;
+  };
+
+  // Perfil del dueño solo si es público (RLS de la vista lo filtra a NULL).
+  const profile: ProfileRow | undefined = row.profile_role !== null
+    ? {
+        id: row.user_id,
+        role: row.profile_role,
+        display_name: row.profile_display_name,
+        character_name: row.profile_character_name,
+        realm: row.profile_realm,
+        slug: row.profile_slug,
+        is_guild_master: row.profile_is_guild_master ?? false,
+        is_public: row.profile_is_public ?? false,
+      }
+    : undefined;
+
+  return { ok: true, result: { character: row, profile } };
 }
 
 export interface PublicBandSummary {

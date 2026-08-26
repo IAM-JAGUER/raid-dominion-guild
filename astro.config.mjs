@@ -5,7 +5,7 @@ import tailwind from "@astrojs/tailwind";
 // Deben coincidir con RESERVED de src/pages/portal.astro.
 const RESERVED_PORTAL_SLUGS = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
-  'assets', '_astro', 'portal', 'jugador', 'personajes',
+  'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
 ]);
 
 // https://astro.build/config

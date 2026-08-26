@@ -4,18 +4,18 @@
     <!-- Cargando -->
     <div id="loading" class="text-center py-20">
       <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-sm text-gray-400 italic mt-4">Cargando perfil…</p>
+      <p class="text-sm text-gray-400 italic mt-4">Cargando personaje…</p>
     </div>
 
     <!-- No encontrado -->
     <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
       <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      <h1 class="text-xl font-bold text-white mb-2">Jugador no encontrado</h1>
-      <p class="text-sm text-gray-400 max-w-md mx-auto">Este perfil no existe, es privado o cambió su enlace.</p>
+      <h1 class="text-xl font-bold text-white mb-2">Personaje no encontrado</h1>
+      <p class="text-sm text-gray-400 max-w-md mx-auto">Este personaje no existe, es privado o cambió su enlace.</p>
       <a href="/personajes" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver personajes</a>
     </div>
 
-    <!-- Perfil -->
+    <!-- Ficha del personaje -->
     <div id="profile" class="hidden space-y-10">
       <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1">
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
@@ -30,22 +30,23 @@
                 <span id="guild-card-name"></span>
               </a>
             </div>
+            <p id="profile-ref" class="hidden text-xs text-gray-500 mt-2"></p>
           </div>
         </div>
       </header>
 
-      <!-- Personaje principal -->
+      <!-- Ficha del personaje consultado -->
       <section id="main-section" class="hidden">
         <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personaje principal
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Ficha del personaje
         </h2>
         <div id="main-card"></div>
       </section>
 
-      <!-- Otros personajes -->
+      <!-- Otros personajes de la cuenta -->
       <section id="characters-section" class="hidden">
         <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personajes
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Otros personajes de la cuenta
         </h2>
         <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </section>
@@ -55,30 +56,40 @@
 </main>
 
 <script>
-  import { getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, type PublicBandSummary } from '@/lib/api';
+  import { supabase } from '@/lib/supabase';
+  import { getPublicCharacterBySlug, getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, type PublicBandSummary } from '@/lib/api';
   import { classColor } from '@/lib/ui/classColors';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
-  import type { RaiddominionRole } from '@/types/database';
+  import type { ProfileRow, RaiddominionRole } from '@/types/database';
 
   const RESERVED = new Set([
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
-    'assets', '_astro', 'portal', 'jugador', 'personajes',
+    'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   ]);
 
-  let profileMainName: string | null = null;
+  // /personaje/<slug> → ficha de UN personaje concreto.
+  // /p/<slug> (legacy) → perfil público; redirige a su personaje principal.
+  function currentMode(): 'character' | 'profile' | '' {
+    const seg = window.location.pathname.split('/').filter(Boolean);
+    if (seg.length === 2 && seg[0] === 'personaje') return 'character';
+    if (seg.length === 2 && seg[0] === 'p') return 'profile';
+    // Dev: el rewrite /p/ → /jugador?slug=... de astro.config.mjs
+    if (new URLSearchParams(window.location.search).get('slug')) return 'profile';
+    return '';
+  }
 
   function currentSlug(): string {
     const override = new URLSearchParams(window.location.search).get('slug');
     if (override) return override;
     const seg = window.location.pathname.split('/').filter(Boolean);
-    return seg.length === 2 && seg[0] === 'p' ? seg[1] : '';
+    return seg.length === 2 ? seg[1] : '';
   }
 
   function showNotFound(): void {
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
     document.getElementById('not-found')?.classList.remove('hidden');
-    document.title = 'Jugador no encontrado - RaidDominion';
+    document.title = 'Personaje no encontrado - RaidDominion';
   }
 
   function makeEl(tag: string, cls: string, text?: string): HTMLElement {
@@ -95,45 +106,100 @@
     return c;
   }
 
+  const mode = currentMode();
   const slug = currentSlug();
   if (!slug || RESERVED.has(slug.toLowerCase())) {
     showNotFound();
-  } else {
-    const res = await getPublicProfileBySlug(slug);
-    if (!res.ok) {
-      showNotFound();
-    } else if (!res.profile) {
+  } else if (mode === 'character') {
+    const res = await getPublicCharacterBySlug(slug);
+    if (!res.ok || !res.result) {
       showNotFound();
     } else {
-      const p = res.profile;
-      const nameSource = p.display_name || p.character_name || 'Jugador';
-      profileMainName = p.character_name ?? null;
-      document.title = `${nameSource} - RaidDominion`;
-
-      (document.getElementById('avatar') as HTMLElement).textContent = nameSource[0].toUpperCase();
-      (document.getElementById('display-name') as HTMLElement).textContent = nameSource;
-
-      const chipsEl = document.getElementById('chips') as HTMLElement;
-      if (p.character_name) chipsEl.appendChild(chip(p.character_name));
-      if (p.realm) chipsEl.appendChild(chip(p.realm));
-
-      if ((p.role as RaiddominionRole) === 'guild_master') {
-        document.getElementById('role-badge')?.classList.remove('hidden');
-
-        const gRes = await getPublicGuildByOwner(p.id);
-        if (gRes.ok && gRes.guild?.is_public) {
-          const card = document.getElementById('guild-card') as HTMLAnchorElement;
-          card.href = `/${gRes.guild.slug}`;
-          (document.getElementById('guild-card-name') as HTMLElement).textContent = gRes.guild.name;
-          card.classList.remove('hidden');
-        }
-      }
-
-      void renderProfileCharacters(p.id);
-
-      (document.getElementById('loading') as HTMLElement).classList.add('hidden');
-      document.getElementById('profile')?.classList.remove('hidden');
+      void renderCharacter(res.result.character, res.result.profile);
     }
+  } else if (mode === 'profile') {
+    void resolveProfile(slug);
+  } else {
+    showNotFound();
+  }
+
+  // Ficha del personaje consultado: el card principal SIEMPRE es ESE
+  // personaje (el del slug), no el último subido de la cuenta.
+  async function renderCharacter(c: CharacterRow, p?: ProfileRow): Promise<void> {
+    document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
+
+    (document.getElementById('avatar') as HTMLElement).textContent = c.name[0].toUpperCase();
+    (document.getElementById('display-name') as HTMLElement).textContent = c.name;
+
+    const chipsEl = document.getElementById('chips') as HTMLElement;
+    if (c.realm) chipsEl.appendChild(chip(c.realm));
+    chipsEl.appendChild(characterChips(c));
+
+    if (p && (p.role as RaiddominionRole) === 'guild_master') {
+      document.getElementById('role-badge')?.classList.remove('hidden');
+
+      const gRes = await getPublicGuildByOwner(c.user_id);
+      if (gRes.ok && gRes.guild?.is_public) {
+        const card = document.getElementById('guild-card') as HTMLAnchorElement;
+        card.href = `/${gRes.guild.slug}`;
+        (document.getElementById('guild-card-name') as HTMLElement).textContent = gRes.guild.name;
+        card.classList.remove('hidden');
+      }
+    }
+
+    if (p) {
+      const ref = document.getElementById('profile-ref') as HTMLElement;
+      ref.classList.remove('hidden');
+      const label = p.display_name || p.character_name || 'usuario';
+      if (p.slug) {
+        ref.appendChild(document.createTextNode('Cuenta de '));
+        const a = document.createElement('a');
+        a.href = `/p/${p.slug}`;
+        a.className = 'text-amber-300 hover:text-amber-200 underline';
+        a.textContent = label;
+        ref.appendChild(a);
+      } else {
+        ref.textContent = `Cuenta de ${label}`;
+      }
+    }
+
+    const bands = await getPublicBandsForCharacter(c.name, c.sv_guild_name);
+    (document.getElementById('main-card') as HTMLElement).appendChild(
+      richCharacterCard(c, bands.ok ? (bands.bands ?? []) : [], true)
+    );
+    document.getElementById('main-section')?.classList.remove('hidden');
+
+    void renderAccountCharacters(c.user_id, c.id);
+
+    (document.getElementById('loading') as HTMLElement).classList.add('hidden');
+    document.getElementById('profile')?.classList.remove('hidden');
+  }
+
+  // Legacy /p/<perfil-slug>: resuelve el perfil y redirige a la ficha de su
+  // personaje principal; si el personaje no tiene slug (privado/legacy),
+  // lo renderiza directamente.
+  async function resolveProfile(profileSlug: string): Promise<void> {
+    const res = await getPublicProfileBySlug(profileSlug);
+    if (!res.ok || !res.profile) {
+      showNotFound();
+      return;
+    }
+    const p = res.profile;
+
+    const charsRes = await getPublicCharactersByUser(p.id);
+    if (!charsRes.ok || !charsRes.items || charsRes.items.length === 0) {
+      showNotFound();
+      return;
+    }
+    const mainName = (p.character_name ?? '').trim().toLowerCase();
+    let main = mainName ? charsRes.items.find((c) => c.name.toLowerCase() === mainName) : undefined;
+    main = main ?? charsRes.items[0];
+
+    if (main.slug) {
+      window.location.replace(`/personaje/${main.slug}`);
+      return;
+    }
+    void renderCharacter(main, p);
   }
 
   function equipmentGrid(c: CharacterRow): HTMLElement | null {
@@ -254,30 +320,45 @@
     return card;
   }
 
-  async function renderProfileCharacters(userId: string): Promise<void> {
+  async function renderAccountCharacters(userId: string, currentCharId: string): Promise<void> {
     const res = await getPublicCharactersByUser(userId);
     if (!res.ok || !res.items || res.items.length === 0) return;
 
     const chars = res.items;
+
+    // Slugs para enlazar a /personaje/<slug>: los propios (con sesión) se
+    // generan/recuperan vía RPC; el resto viaja ya en la fila pública.
+    const slugMap = new Map<string, string>();
+    chars.forEach((c) => { if (c.slug) slugMap.set(c.id, c.slug); });
+    const session = await supabase.auth.getSession();
+    if (session.data.session?.user) {
+      const ensure = await ensureMyCharacterSlugs();
+      if (ensure.ok && ensure.slugs) {
+        ensure.slugs.forEach((s) => slugMap.set(s.id, s.slug));
+      }
+    }
+
+    const others = chars.filter((c) => c.id !== currentCharId);
+    if (others.length === 0) return;
+
     const bandResults = await Promise.all(
-      chars.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
+      others.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
     );
 
-    // Personaje principal: coincide con profile.character_name; si no, el de mayor ilvl
-    const mainName = (profileMainName ?? '').trim().toLowerCase();
-    let mainIdx = mainName ? chars.findIndex((c) => c.name.toLowerCase() === mainName) : -1;
-    if (mainIdx < 0) mainIdx = 0;
-
-    const main = chars[mainIdx];
-    const mainBands = bandResults[mainIdx]?.ok ? (bandResults[mainIdx].bands ?? []) : [];
-    (document.getElementById('main-card') as HTMLElement).appendChild(richCharacterCard(main, mainBands, true));
-    document.getElementById('main-section')?.classList.remove('hidden');
-
     const grid = document.getElementById('characters-grid') as HTMLElement;
-    chars.forEach((c, i) => {
-      if (i === mainIdx) return;
+    others.forEach((c, i) => {
       const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
-      grid.appendChild(richCharacterCard(c, bands, false));
+      const card = richCharacterCard(c, bands, false);
+      const slug = slugMap.get(c.id);
+      if (slug) {
+        const a = document.createElement('a');
+        a.href = `/personaje/${slug}`;
+        a.className = 'block transition-all duration-200 hover:-translate-y-0.5';
+        a.appendChild(card);
+        grid.appendChild(a);
+      } else {
+        grid.appendChild(card);
+      }
     });
     if (grid.children.length > 0) {
       document.getElementById('characters-section')?.classList.remove('hidden');
