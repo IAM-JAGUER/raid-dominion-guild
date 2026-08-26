@@ -1058,15 +1058,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     }
   }
 
-  // Hermandades del registro (registry.*.guild): CIFRAS, sin roster completo.
-  // Un jugador puede tener personajes en varias hermandades y ser GM de varias.
+  // Hermandades del registro (registry.*.guild): CIFRAS + jerarquía de rangos,
+  // sin roster completo. Un jugador puede tener personajes en varias hermandades
+  // y ser GM de varias.
   function renderGuilds(d: ParsedSavedVariables): void {
     const wrap = document.getElementById('viewer-guilds') as HTMLElement;
     wrap.innerHTML = '';
     const guilds = new Map<string, {
       name: string;
       isGM: boolean;
-      ranks: string[];
+      ranks: NonNullable<RegistryGuild['ranks']>;
+      ownRankIndex: number | undefined;
+      ownRank: string | undefined;
       numMembers: number | undefined;
       characters: string[];
     }>();
@@ -1074,10 +1077,15 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       if (!rg?.name) return;
       const key = rg.name.trim().toLowerCase();
       const cur = guilds.get(key) ?? {
-        name: rg.name, isGM: false, ranks: [], numMembers: undefined, characters: [],
+        name: rg.name, isGM: false, ranks: [], ownRankIndex: undefined, ownRank: undefined,
+        numMembers: undefined, characters: [],
       };
       if (rg.isGM) cur.isGM = true;
-      if (rg.rank) cur.ranks.push(rg.rank);
+      if (typeof rg.rankIndex === 'number') cur.ownRankIndex = rg.rankIndex;
+      if (rg.rank) cur.ownRank = rg.rank;
+      if (rg.ranks && rg.ranks.length > 0 && cur.ranks.length === 0) {
+        cur.ranks = [...rg.ranks].sort((a, b) => a.index - b.index);
+      }
       if (typeof rg.numMembers === 'number') cur.numMembers = rg.numMembers;
       if (charName) cur.characters.push(charName);
       guilds.set(key, cur);
@@ -1100,9 +1108,27 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       card.appendChild(head);
       const meta = el('div', 'flex flex-wrap gap-2 mt-1.5');
       if (typeof g.numMembers === 'number') meta.appendChild(configChip(`${g.numMembers} miembros`));
-      if (g.ranks.length > 0) meta.appendChild(configChip(`Rango: ${Array.from(new Set(g.ranks)).join(', ')}`));
       if (g.characters.length > 0) meta.appendChild(configChip(`${g.characters.length} personaje(s)`));
       card.appendChild(meta);
+      // Jerarquía completa de rangos (registry.guild.ranks), ordenada por index
+      // (0 = líder). El rango del propio usuario se marca si está disponible.
+      if (g.ranks.length > 0) {
+        const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
+        hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Rangos:'));
+        g.ranks.forEach((r) => {
+          const isMine = r.index === g.ownRankIndex
+            || (!!g.ownRank && r.name.trim().toLowerCase() === g.ownRank.trim().toLowerCase());
+          const label = r.name.trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
+          const cls = isMine
+            ? 'text-amber-300 border-amber-500/50 bg-amber-900/30'
+            : r.index === 0
+              ? 'text-amber-200/90 border-amber-600/30 bg-gray-900/60'
+              : 'text-gray-400 border-gray-700/40 bg-gray-900/60';
+          hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-lg border ${cls}`,
+            `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
+        });
+        card.appendChild(hier);
+      }
       if (g.characters.length > 0) {
         card.appendChild(el('p', 'text-[11px] text-gray-500 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
       }

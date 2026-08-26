@@ -73,6 +73,15 @@ export interface GuildMemberSummary {
   online?: boolean;
 }
 
+// Rango de la jerarquía de hermandad (registry.guild.ranks).
+// El addon la escribe para CUALQUIER miembro con hermandad (BuildGuildRanks):
+// índice 0 = líder (GM), jerarquía descendente hasta N-1. El nombre del
+// índice 0 puede venir vacío en algunos SV (se muestra con fallback).
+export interface GuildRank {
+  index: number;
+  name: string;
+}
+
 // Hermandad del personaje activo según el addon (registry.guild)
 export interface RegistryGuild {
   name: string;
@@ -80,6 +89,9 @@ export interface RegistryGuild {
   isGM: boolean;
   rankIndex?: number;
   rank?: string;
+  // Jerarquía completa de rangos, ordenada por index (0 = líder). Presente
+  // para cualquier miembro con hermandad, no solo para el maestro.
+  ranks?: GuildRank[];
   // Roster completo; solo presente cuando el archivo fue generado por un maestro
   memberList?: GuildMemberSummary[];
 }

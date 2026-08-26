@@ -31,6 +31,7 @@ import {
   type EquipmentPiece,
   type AccountCharacter,
   type RegistryGuild,
+  type GuildRank,
   type GuildMemberSummary,
   type CharacterRegistry,
   type ConfigListItem,
@@ -395,14 +396,32 @@ function asRegistryGuild(raw: unknown): RegistryGuild | null {
   const name = toStr(e['name']).trim();
   if (!name) return null;
   const memberList = asGuildMemberSummaries(e['memberList']);
+  const ranks = asGuildRanks(e['ranks']);
   return {
     name,
     numMembers: toNum(e['numMembers']),
     isGM: toBool(e['isGM']),
     rankIndex: toNum(e['rankIndex']),
     rank: toStr(e['rank']).trim() || undefined,
+    ranks: ranks.length > 0 ? ranks : undefined,
     memberList: memberList.length > 0 ? memberList : undefined,
   };
+}
+
+// Jerarquía de rangos de la hermandad (registry.guild.ranks): array de
+// {index, name} ordenado por index (0 = líder). Se preserva el orden de
+// escritura del addon y se descartan entradas sin index o sin forma de tabla.
+function asGuildRanks(raw: unknown): GuildRank[] {
+  return asArray(raw)
+    .map((entry) => {
+      const e = asObj(entry);
+      if (!e) return null;
+      const index = toNum(e['index']);
+      if (index === undefined) return null;
+      return { index, name: toStr(e['name']) };
+    })
+    .filter((r): r is GuildRank => r !== null)
+    .sort((a, b) => a.index - b.index);
 }
 
 // roster GM v3 (registry.*.guild.memberList): {name, rank, rankIndex, level,
