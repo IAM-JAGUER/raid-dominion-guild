@@ -1,0 +1,13 @@
+---
+// Alias de /guilds (sin duplicar la lógica): redirige al directorio de
+// hermandades existente. En producción además hay un redirect 301 en
+// netlify.toml; este archivo cubre dev y como respaldo.
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+<Layout title="Hermandades - RaidDominion">
+  <Navigation currentPath="/hermandades" />
+  <script>
+    window.location.replace('/guilds');
+  </script>
+</Layout>

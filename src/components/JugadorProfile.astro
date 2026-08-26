@@ -69,11 +69,11 @@
   ]);
 
   // /personaje/<slug> → ficha de UN personaje concreto.
-  // /p/<slug> (legacy) → perfil público; redirige a su personaje principal.
+  // /p/<slug> (legacy) y /jugador/<slug> (canónico) → perfil público.
   function currentMode(): 'character' | 'profile' | '' {
     const seg = window.location.pathname.split('/').filter(Boolean);
     if (seg.length === 2 && seg[0] === 'personaje') return 'character';
-    if (seg.length === 2 && seg[0] === 'p') return 'profile';
+    if (seg.length === 2 && (seg[0] === 'p' || seg[0] === 'jugador')) return 'profile';
     // Dev: el rewrite /p/ → /jugador?slug=... de astro.config.mjs
     if (new URLSearchParams(window.location.search).get('slug')) return 'profile';
     return '';

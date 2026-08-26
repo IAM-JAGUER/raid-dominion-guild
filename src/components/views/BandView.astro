@@ -1,0 +1,172 @@
+---
+// Vista pública DE BANDA (/banda/:slug), resuelta 100% en cliente.
+// Auto-gate: primer segmento "banda". Resuelve desde la tabla raiddominion_bands
+// (guild_id NULLABLE: una banda puede ser personal o de hermandad). Muestra
+// horario, GS mínimo, roster (players[] con role/dual/leader/banned/sanction/
+// points) y reglas, con enlace a la hermandad (/:guildSlug) o al perfil del
+// dueño (/jugador/:slug) según corresponda.
+---
+<section id="view-banda" class="hidden">
+  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1 mb-6">
+    <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Banda de raid</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 id="bv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-all"></h1>
+      <a id="bv-owner-link" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
+    </div>
+    <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
+  </header>
+
+  <div id="bv-body" class="space-y-6"></div>
+</section>
+
+<script>
+  import { getPublicBandBySlug, type BandRow } from '@/lib/api';
+  import { supabase } from '@/lib/supabase';
+  import { currentSlug, isReserved, showNotFound, showView } from '@/lib/routes';
+  import { roleLabel } from '@/lib/ui/itemQuality';
+
+  if (isBandRoute() && !isReserved('banda')) {
+    const slug = currentSlug();
+    if (!slug) {
+      showNotFound('Banda no encontrada.');
+    } else {
+      const res = await getPublicBandBySlug(slug);
+      if (!res.ok || !res.band) {
+        showNotFound('Esta banda no existe o no es pública.');
+      } else {
+        await render(res.band);
+      }
+    }
+  }
+
+  function isBandRoute(): boolean {
+    return window.location.pathname.split('/').filter(Boolean)[0]?.toLowerCase() === 'banda';
+  }
+
+  function el(tag: string, cls: string, text?: string): HTMLElement {
+    const n = document.createElement(tag);
+    n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  function metaChip(text: string, extra = ''): HTMLElement {
+    return el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
+  }
+
+  interface BandPlayer {
+    name?: string;
+    class?: string;
+    role?: string;
+    dual?: string;
+    leader?: string;
+    banned?: boolean;
+    sanction?: string;
+    notes?: string;
+    points?: number;
+  }
+
+  interface BandRule {
+    title?: string;
+    content?: string;
+    icon?: string;
+  }
+
+  async function render(band: BandRow): Promise<void> {
+    document.title = `${band.name || 'Banda'} - RaidDominion`;
+    (document.getElementById('bv-name') as HTMLElement).textContent = band.name || 'Sin nombre';
+
+    const ownerLink = document.getElementById('bv-owner-link') as HTMLAnchorElement;
+    const owner = await resolveOwner(band);
+    if (owner) {
+      ownerLink.href = owner.href;
+      ownerLink.textContent = owner.label;
+      ownerLink.classList.remove('hidden');
+    }
+
+    const meta = document.getElementById('bv-meta') as HTMLElement;
+    if (band.schedule) meta.appendChild(metaChip(`Horario: ${band.schedule}`));
+    if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip(`GS mínimo: ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+    const players = Array.isArray(band.players) ? (band.players as BandPlayer[]) : [];
+    meta.appendChild(metaChip(`${players.length} jugador${players.length === 1 ? '' : 'es'}`));
+
+    const body = document.getElementById('bv-body') as HTMLElement;
+
+    // Roster
+    const rosterCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+    rosterCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Roster'));
+    rosterCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
+    if (players.length === 0) {
+      rosterCard.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.'));
+    } else {
+      const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
+      players.forEach((p) => {
+        const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-lg px-3 py-2');
+        const head = el('div', 'flex items-center gap-2');
+        head.appendChild(el('span', 'font-bold text-white text-sm', p.name || '?'));
+        if (p.leader) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-600/40 rounded px-1.5 py-0.5', 'líder'));
+        if (p.banned) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'baneado'));
+        row.appendChild(head);
+        const badges = el('div', 'flex flex-wrap gap-1.5 mt-1');
+        if (p.role) {
+          const r = roleLabel(p.role);
+          badges.appendChild(el('span', 'text-[10px] text-amber-300', r ? `Rol: ${r}` : `Rol: ${p.role}`));
+        }
+        if (p.dual) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Dual: ${p.dual}`));
+        if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Sanción: ${p.sanction}`));
+        if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-amber-200', `Puntos: ${p.points}`));
+        if (badges.children.length === 0) badges.appendChild(el('span', 'text-[10px] text-gray-500', 'Sin rol asignado'));
+        row.appendChild(badges);
+        grid.appendChild(row);
+      });
+      rosterCard.appendChild(grid);
+    }
+    body.appendChild(rosterCard);
+
+    // Reglas
+    const rules = Array.isArray(band.rules) ? (band.rules as BandRule[]) : [];
+    if (rules.length > 0) {
+      const rulesCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      rulesCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Reglas'));
+      rulesCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
+      const list = el('ul', 'space-y-3');
+      rules.forEach((rule) => {
+        const li = el('li', 'text-sm text-gray-300 leading-relaxed');
+        if (rule.title) {
+          li.appendChild(el('span', 'font-bold text-amber-200', `${rule.title}: `));
+        }
+        li.appendChild(document.createTextNode(rule.content || ''));
+        list.appendChild(li);
+      });
+      rulesCard.appendChild(list);
+      body.appendChild(rulesCard);
+    }
+
+    showView('view-banda');
+  }
+
+  // Enlace contextual: hermandad (si la banda tiene guild pública) o el perfil
+  // del dueño (si es una banda personal y su perfil es público).
+  async function resolveOwner(band: BandRow): Promise<{ href: string; label: string } | null> {
+    if (band.guild_id) {
+      const res = await supabase
+        .from('raiddominion_guilds')
+        .select('slug, name, is_public')
+        .eq('id', band.guild_id)
+        .maybeSingle();
+      if (res.error) return null;
+      const g = res.data as { slug: string; name: string; is_public: boolean } | null;
+      if (!g || !g.is_public) return null;
+      return { href: `/${g.slug}`, label: `Hermandad: ${g.name}` };
+    }
+    const res = await supabase
+      .from('raiddominion_profiles')
+      .select('slug, display_name, character_name, is_public')
+      .eq('id', band.owner_id)
+      .maybeSingle();
+    if (res.error) return null;
+    const p = res.data as { slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean } | null;
+    if (!p || !p.is_public || !p.slug) return null;
+    return { href: `/jugador/${p.slug}`, label: `Por ${p.display_name || p.character_name || 'jugador'}` };
+  }
+</script>

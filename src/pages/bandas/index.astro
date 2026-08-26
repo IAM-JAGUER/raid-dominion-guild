@@ -1,0 +1,92 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+
+<Layout title="Bandas - RaidDominion" description="Bandas de raid públicas de las hermandades que usan RaidDominion: horario, GS mínimo y roster.">
+  <Navigation currentPath="/bandas" />
+  <main class="relative py-16">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <header class="text-center mb-10 animate-fade-in-1">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Bandas</h1>
+        <p class="text-gray-400 italic mt-3 max-w-2xl mx-auto">
+          Bandas de raid públicas de la comunidad: horarios, requisitos de GS
+          y rosters, extraídos de los SavedVariables de cada hermandad.
+        </p>
+      </header>
+
+      <p id="status" class="text-sm text-gray-400 italic mb-4" aria-live="polite">Cargando bandas…</p>
+      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de bandas"></section>
+
+      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
+        <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <p class="font-bold text-white mb-1">Aún no hay bandas públicas</p>
+        <p class="text-sm text-gray-400 max-w-md mx-auto">Los maestros de hermandad publican sus bandas desde el dashboard.</p>
+        <a href="/upload" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Sube tu SavedVariables</a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { listPublicBands, type BandRow } from '@/lib/api';
+
+  const statusEl = document.getElementById('status') as HTMLElement;
+  const gridEl = document.getElementById('grid') as HTMLElement;
+  const emptyEl = document.getElementById('empty') as HTMLElement;
+
+  // Las bandas viven en raiddominion_bands (personales o de hermandad) y se
+  // publican con su visibilidad espejo (perfil del dueño o portal de la guild).
+  const res = await listPublicBands();
+  if (!res.ok || !res.bands) {
+    statusEl.textContent = 'No se pudo cargar el directorio de bandas.';
+  } else if (res.bands.length === 0) {
+    statusEl.classList.add('hidden');
+    emptyEl.classList.remove('hidden');
+  } else {
+    document.title = `${res.bands.length} banda${res.bands.length === 1 ? '' : 's'} — RaidDominion`;
+    res.bands.forEach((b) => gridEl.appendChild(card(b)));
+    statusEl.classList.add('hidden');
+  }
+
+  function card(b: BandRow): HTMLElement {
+    const players = Array.isArray(b.players) ? b.players.length : 0;
+    const link = document.createElement('a');
+    link.href = `/banda/${encodeURIComponent(b.slug)}`;
+    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+
+    const head = document.createElement('div');
+    head.className = 'flex items-center gap-3 mb-3';
+    const icon = document.createElement('div');
+    icon.className = 'w-10 h-10 rounded-lg bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0';
+    icon.textContent = (b.name[0] || '?').toUpperCase();
+    head.appendChild(icon);
+    const name = document.createElement('h2');
+    name.className = 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug';
+    name.textContent = b.name;
+    head.appendChild(name);
+    link.appendChild(head);
+
+    const meta = document.createElement('div');
+    meta.className = 'flex flex-wrap gap-1.5';
+    if (b.schedule) meta.appendChild(chip(b.schedule));
+    if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(chip(`GS ${b.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+    meta.appendChild(chip(`${players} jugadores`));
+    if (!b.guild_id) meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
+    link.appendChild(meta);
+
+    const foot = document.createElement('p');
+    foot.className = 'text-xs text-gray-500 mt-3';
+    foot.textContent = 'Ver banda →';
+    link.appendChild(foot);
+    return link;
+  }
+
+  function chip(text: string, extra = ''): HTMLElement {
+    const c = document.createElement('span');
+    c.className = 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : '');
+    c.textContent = text;
+    return c;
+  }
+</script>

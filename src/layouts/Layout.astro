@@ -4,9 +4,10 @@ import "@fontsource-variable/jost";
 
 interface Props {
   title: string;
+  description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 
 // En dev el pipeline cliente no expone VITE_* en import.meta.env;
 // se pasan por SSR al cliente vía window.__RD_ENV__ (ver src/lib/supabase.ts)
@@ -21,7 +22,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."
+      content={description ?? "Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."}
     />
     <meta
       name="keywords"

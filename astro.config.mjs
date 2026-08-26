@@ -2,10 +2,12 @@ import { defineConfig } from 'astro/config';
 import tailwind from "@astrojs/tailwind";
 
 // Slugs reservados: no se interpretan como portal de hermandad en dev.
-// Deben coincidir con RESERVED de src/pages/portal.astro.
+// Deben coincidir con RESERVED de src/lib/routes.ts.
 const RESERVED_PORTAL_SLUGS = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
+  'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
+  'jugadores', 'banda', 'bandas',
 ]);
 
 // https://astro.build/config
@@ -20,26 +22,41 @@ export default defineConfig({
   vite: {
     plugins: [
       {
-        // Dev-only: replica el rewrite /p/* → /jugador de netlify.toml
+        // Dev-only: replica el rewrite /p/* y /jugador/* → /jugador de netlify.toml
         name: 'dev-p-rewrite',
         apply: 'serve',
         configureServer(server) {
           server.middlewares.use((req, _res, next) => {
-            if (req.url && req.url.startsWith('/p/')) {
-              const raw = req.url.slice(3).split('?')[0];
+            if (req.url && (req.url.startsWith('/p/') || req.url.startsWith('/jugador/'))) {
+              const raw = req.url.slice(req.url.startsWith('/jugador/') ? 9 : 3).split('?')[0];
               const slug = decodeURIComponent(raw.replace(/\/+$/, ''));
               if (slug && slug !== 'index.html') {
                 req.url = '/jugador?slug=' + encodeURIComponent(slug);
               }
             }
-            // Dev-only: replica el rewrite /personaje/* → /personaje de
-            // netlify.toml. El shell (personaje/index.astro) resuelve el
-            // slug desde window.location.pathname en el cliente.
-            if (req.url && req.url.startsWith('/personaje/')) {
-              const raw = req.url.slice('/personaje/'.length).split('?')[0];
-              const slug = decodeURIComponent(raw.replace(/\/+$/, ''));
-              if (slug && slug !== 'index.html' && !raw.includes('.')) {
-                req.url = '/personaje';
+            next();
+          });
+        },
+      },
+      {
+        // Dev-only: replica los rewrites de las rutas de DETALLE de
+        // netlify.toml → /detalle. El shell (detalle.astro) resuelve la
+        // vista por el PRIMER segmento en el cliente. Cubre /servidor/*
+        // (incluida la ruta anidada /servidor/:server/reino/:realm),
+        // /personaje/* y /banda/*.
+        name: 'dev-detail-rewrite',
+        apply: 'serve',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            if (req.url) {
+              const path = req.url.split('?')[0];
+              const seg = path.split('/').filter(Boolean)[0];
+              if (seg && ['servidor', 'personaje', 'banda'].includes(seg.toLowerCase())) {
+                const raw = path.slice('/'.length + seg.length).split('?')[0];
+                const rest = decodeURIComponent(raw.replace(/\/+$/, ''));
+                if (rest && rest !== 'index.html' && !rest.includes('.')) {
+                  req.url = '/detalle';
+                }
               }
             }
             next();

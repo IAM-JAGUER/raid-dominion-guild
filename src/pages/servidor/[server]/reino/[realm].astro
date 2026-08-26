@@ -1,0 +1,24 @@
+---
+// Dev route de REINO ANIDADO (/servidor/:server/reino/:realm). En producción
+// lo cubre el rewrite netlify /servidor/* → /detalle. getStaticPaths vacío:
+// ruta válida en dev, sin salida estática. Resuelto 100% en cliente.
+export function getStaticPaths() {
+  return [];
+}
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+import RealmView from '@/components/views/RealmView.astro';
+---
+
+<Layout title="Reino - RaidDominion">
+  <Navigation />
+  <main class="relative py-16">
+    <div class="max-w-5xl mx-auto px-4">
+      <div id="loading" class="text-center py-20">
+        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm text-gray-400 italic mt-4">Cargando…</p>
+      </div>
+      <RealmView />
+    </div>
+  </main>
+</Layout>

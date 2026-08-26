@@ -1,0 +1,13 @@
+---
+// Alias de /personajes (sin duplicar la lógica): redirige al navegador de
+// personajes existente. En producción además hay un redirect 301 en
+// netlify.toml; este archivo cubre dev y como respaldo.
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+---
+<Layout title="Jugadores - RaidDominion">
+  <Navigation currentPath="/personajes" />
+  <script>
+    window.location.replace('/personajes');
+  </script>
+</Layout>

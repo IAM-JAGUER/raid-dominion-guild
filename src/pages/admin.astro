@@ -29,45 +29,106 @@ import Navigation from '@/components/Navigation.astro';
           <p class="text-sm text-gray-400 italic mt-2">Gestión de usuarios y roles. El primer admin se siembra manualmente en la base de datos.</p>
         </header>
 
-        <!-- Métricas por rol -->
-        <section id="role-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in-1" style="animation-delay: 0.05s"></section>
+        <!-- Vista: listado -->
+        <div id="view-list" class="space-y-8">
+          <!-- Métricas por rol -->
+          <section id="role-stats" class="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fade-in-1" style="animation-delay: 0.05s"></section>
 
-        <!-- Búsqueda -->
-        <div class="relative animate-fade-in-1" style="animation-delay: 0.1s">
-          <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="search" id="search" placeholder="Buscar por correo, nombre o personaje…"
-            class="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+          <!-- Búsqueda -->
+          <div class="relative animate-fade-in-1" style="animation-delay: 0.1s">
+            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="search" id="search" placeholder="Buscar por correo, nombre o personaje…"
+              class="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+          </div>
+
+          <!-- Usuarios -->
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+            <p id="users-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando usuarios…</p>
+            <ul id="users-list" class="space-y-3"></ul>
+          </section>
         </div>
 
-        <!-- Usuarios -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.15s">
-          <p id="users-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando usuarios…</p>
-          <ul id="users-list" class="space-y-3"></ul>
-        </section>
+        <!-- Vista: detalle de usuario -->
+        <div id="view-detail" class="hidden space-y-6">
+          <button type="button" id="detail-back"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Volver al listado
+          </button>
+
+          <!-- Perfil completo -->
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+            <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
+              <div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Detalle de usuario</p>
+                <h2 id="detail-name" class="text-2xl font-bold text-amber-200"></h2>
+                <p id="detail-email" class="text-sm text-gray-400 mt-1"></p>
+              </div>
+              <span id="detail-role-badge" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border"></span>
+            </div>
+
+            <dl id="detail-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></dl>
+          </section>
+
+          <!-- Gestión de rol (solo admin) -->
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Gestión de rol
+            </h2>
+            <div class="flex flex-wrap items-center gap-3">
+              <select id="detail-role-select" class="px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 focus:border-amber-500 outline-none text-gray-100 text-sm"></select>
+              <button id="detail-role-save" type="button"
+                class="px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:pointer-events-none">
+                Guardar rol
+              </button>
+            </div>
+            <p id="detail-role-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+          </section>
+
+          <!-- Historial de auditoría del usuario -->
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+            <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Historial de auditoría
+            </h2>
+            <p id="detail-audit-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+            <ul id="detail-audit-list" class="mt-3 space-y-2"></ul>
+          </section>
+        </div>
       </div>
     </div>
   </main>
 </Layout>
 
 <script>
-  import { getMyProfile, adminListUsers, adminSetRole, type AdminUserRow } from '@/lib/api';
+  import { getMyProfile, adminListUsers, adminSetRole, listAuditLog, type AdminUserRow, type AuditRow } from '@/lib/api';
   import { ROLES } from '@/lib/roles';
+  import { ADMIN_PANELS, resolveAdminHash } from '@/lib/ui/tabs';
   import type { RaiddominionRole } from '@/types/database';
 
   const ROLE_LABELS: Record<RaiddominionRole, string> = {
+    visitante: 'Visitante',
     member: 'Miembro',
     guild_master: 'Maestro',
     moderator: 'Moderador',
     admin: 'Admin',
   };
   const ROLE_BADGE: Record<RaiddominionRole, string> = {
+    visitante: 'bg-stone-800/70 border-stone-600 text-stone-300',
     member: 'bg-gray-800/70 border-gray-600 text-gray-300',
     guild_master: 'bg-amber-900/40 border-amber-500/60 text-amber-200',
     moderator: 'bg-sky-900/30 border-sky-600/50 text-sky-200',
     admin: 'bg-red-900/30 border-red-600/50 text-red-200',
   };
+  const AUDIT_LABELS: Record<string, string> = {
+    guild_claim_verified: 'Claim aprobado',
+    guild_claim_rejected: 'Claim rechazado',
+    guild_published: 'Portal republicado',
+    guild_takedown: 'Portal retirado',
+    user_role_changed: 'Rol cambiado',
+  };
 
   let users: AdminUserRow[] = [];
+  let audit: AuditRow[] = [];
   const searchEl = document.getElementById('search') as HTMLInputElement;
   searchEl.addEventListener('input', render);
 
@@ -84,6 +145,38 @@ import Navigation from '@/components/Navigation.astro';
   } else {
     document.getElementById('panel')?.classList.remove('hidden');
     await loadUsers();
+    // El historial de auditoría lo cargan todos los staff; el admin lo usa
+    // además para el detalle de usuario.
+    const aud = await listAuditLog();
+    if (aud.ok) audit = aud.items ?? [];
+    route();
+  }
+
+  // ── Routing por hash (#usuario/<id>), coherente con el patrón de tabs ──
+  function route(): void {
+    const target = resolveAdminHash(window.location.hash);
+    const listView = document.getElementById('view-list') as HTMLElement;
+    const detailView = document.getElementById('view-detail') as HTMLElement;
+    if (target.kind === 'user') {
+      const u = users.find((x) => x.id === target.id);
+      listView.classList.add('hidden');
+      detailView.classList.remove('hidden');
+      if (u) renderDetail(u); else renderDetailMissing();
+    } else {
+      detailView.classList.add('hidden');
+      listView.classList.remove('hidden');
+    }
+  }
+  window.addEventListener('hashchange', route);
+
+  document.getElementById('detail-back')?.addEventListener('click', () => {
+    window.history.replaceState(null, '', `#${ADMIN_PANELS.LIST}`);
+    route();
+  });
+
+  function openDetail(id: string): void {
+    window.history.replaceState(null, '', `#${ADMIN_PANELS.USER}/${id}`);
+    route();
   }
 
   async function loadUsers(): Promise<void> {
@@ -150,6 +243,7 @@ import Navigation from '@/components/Navigation.astro';
     ].filter(Boolean);
     meta.textContent = parts.join(' · ');
     info.append(email, meta);
+    li.appendChild(info);
 
     const right = document.createElement('div');
     right.className = 'flex items-center gap-2 shrink-0';
@@ -157,60 +251,167 @@ import Navigation from '@/components/Navigation.astro';
     const badge = document.createElement('span');
     badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
     badge.textContent = ROLE_LABELS[u.role];
+    right.appendChild(badge);
 
-    const select = document.createElement('select');
-    select.className = 'hidden px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 focus:border-amber-500 outline-none text-gray-100 text-xs';
+    const detailBtn = document.createElement('button');
+    detailBtn.type = 'button';
+    detailBtn.className = 'px-4 py-2 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest';
+    detailBtn.textContent = 'Detalle';
+    detailBtn.addEventListener('click', () => openDetail(u.id));
+    right.appendChild(detailBtn);
+
+    li.append(info, right);
+    return li;
+  }
+
+  // ── Detalle de usuario ───────────────────────────────────────────────
+  function renderDetailMissing(): void {
+    (document.getElementById('detail-name') as HTMLElement).textContent = 'Usuario no encontrado';
+    (document.getElementById('detail-email') as HTMLElement).textContent = '';
+    (document.getElementById('detail-fields') as HTMLElement).innerHTML = '';
+    (document.getElementById('detail-role-select') as HTMLSelectElement).innerHTML = '';
+    (document.getElementById('detail-audit-list') as HTMLElement).innerHTML = '';
+    (document.getElementById('detail-audit-status') as HTMLElement).textContent = 'Sin historial.';
+  }
+
+  function renderDetail(u: AdminUserRow): void {
+    (document.getElementById('detail-name') as HTMLElement).textContent = u.display_name || u.character_name || u.email || 'Sin nombre';
+    (document.getElementById('detail-email') as HTMLElement).textContent = u.email ?? u.id;
+
+    const badge = document.getElementById('detail-role-badge') as HTMLElement;
+    badge.textContent = ROLE_LABELS[u.role];
+    badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
+
+    // Perfil completo (los datos provienen de adminListUsers).
+    const fields = document.getElementById('detail-fields') as HTMLElement;
+    fields.innerHTML = '';
+    const rows: Array<[string, string]> = [
+      ['Correo', u.email ?? '—'],
+      ['Nombre visible', u.display_name ?? '—'],
+      ['Personaje principal', u.character_name ?? '—'],
+      ['Reino', u.realm ?? '—'],
+      ['Slug público', u.slug ?? '—'],
+      ['Estado del perfil', u.is_public ? 'Público' : 'Privado'],
+      ['Registro', new Date(u.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })],
+    ];
+    rows.forEach(([k, v]) => {
+      const dt = document.createElement('dt');
+      dt.className = 'text-[10px] font-black uppercase tracking-widest text-gray-500';
+      dt.textContent = k;
+      const dd = document.createElement('dd');
+      dd.className = 'text-sm text-gray-200';
+      dd.textContent = v;
+      fields.append(dt, dd);
+    });
+    // Enlace al perfil público si está publicado
+    if (u.is_public && u.slug) {
+      const link = document.createElement('a');
+      link.href = `/p/${u.slug}`;
+      link.target = '_blank'; link.rel = 'noopener';
+      link.className = 'text-sm text-emerald-300 underline hover:text-emerald-200';
+      link.textContent = 'Ver perfil público →';
+      fields.appendChild(link);
+    }
+
+    // Selector de rol (solo admin puede cambiar roles)
+    const sel = document.getElementById('detail-role-select') as HTMLSelectElement;
+    sel.innerHTML = '';
     ROLES.forEach((r) => {
       const opt = document.createElement('option');
       opt.value = r;
       opt.textContent = ROLE_LABELS[r];
       opt.selected = r === u.role;
-      select.appendChild(opt);
+      sel.appendChild(opt);
     });
+    const saveBtn = document.getElementById('detail-role-save') as HTMLButtonElement;
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Guardar rol';
+    (document.getElementById('detail-role-msg') as HTMLElement).classList.add('hidden');
 
-    const editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'px-4 py-2 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest';
-    editBtn.textContent = 'Cambiar rol';
+    renderAudit(u.id);
+  }
 
-    let editing = false;
-    editBtn.addEventListener('click', async () => {
-      if (!editing) {
-        editing = true;
-        badge.classList.add('hidden');
-        select.classList.remove('hidden');
-        editBtn.textContent = 'Guardar';
-        return;
-      }
-      const newRole = select.value as RaiddominionRole;
-      if (newRole === u.role) {
-        exitEdit();
-        return;
-      }
-      editBtn.disabled = true; editBtn.textContent = 'Guardando…';
-      const r = await adminSetRole(u.id, newRole);
-      editBtn.disabled = false;
-      if (r.ok) {
-        u.role = newRole;
-        badge.textContent = ROLE_LABELS[newRole];
-        badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
-        renderStats();
-        exitEdit();
-      } else {
-        editBtn.textContent = r.error || 'Error';
-        setTimeout(() => { editBtn.textContent = 'Guardar'; }, 2500);
-      }
-    });
+  // Confirmación explícita antes de cambiar el rol
+  document.getElementById('detail-role-save')?.addEventListener('click', async () => {
+    const sel = document.getElementById('detail-role-select') as HTMLSelectElement;
+    const saveBtn = document.getElementById('detail-role-save') as HTMLButtonElement;
+    const msg = document.getElementById('detail-role-msg') as HTMLElement;
+    msg.classList.remove('hidden');
 
-    function exitEdit(): void {
-      editing = false;
-      select.classList.add('hidden');
-      badge.classList.remove('hidden');
-      editBtn.textContent = 'Cambiar rol';
+    const target = resolveAdminHash(window.location.hash);
+    if (target.kind !== 'user') return;
+    const u = users.find((x) => x.id === target.id);
+    if (!u) return;
+
+    const newRole = sel.value as RaiddominionRole;
+    if (newRole === u.role) {
+      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-gray-800/60 border border-gray-600/40 text-gray-300';
+      msg.textContent = 'El rol seleccionado ya es el actual; no hay cambios.';
+      return;
     }
 
-    right.append(badge, select, editBtn);
-    li.append(info, right);
-    return li;
+    // Paso de confirmación: el botón pide confirmar antes de persistir.
+    if (saveBtn.dataset.confirm !== 'yes') {
+      saveBtn.dataset.confirm = 'yes';
+      saveBtn.textContent = '¿Confirmar cambio?';
+      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-amber-950/40 border border-amber-600/40 text-amber-200';
+      msg.textContent = `Se cambiará el rol de ${u.email ?? u.id} a «${ROLE_LABELS[newRole]}».`;
+      window.setTimeout(() => {
+        if (saveBtn.dataset.confirm === 'yes') {
+          saveBtn.dataset.confirm = '';
+          saveBtn.textContent = 'Guardar rol';
+          msg.classList.add('hidden');
+        }
+      }, 4000);
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.dataset.confirm = '';
+    saveBtn.textContent = 'Guardando…';
+    const r = await adminSetRole(u.id, newRole);
+    saveBtn.disabled = false;
+    if (r.ok) {
+      u.role = newRole;
+      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
+      msg.textContent = 'Rol actualizado.';
+      saveBtn.textContent = 'Guardar rol';
+      renderStats();
+      render();
+      // refresca el badge del detalle
+      const badge = document.getElementById('detail-role-badge') as HTMLElement;
+      badge.textContent = ROLE_LABELS[newRole];
+      badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
+    } else {
+      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
+      msg.textContent = r.error || 'No se pudo cambiar el rol.';
+      saveBtn.textContent = 'Guardar rol';
+    }
+  });
+
+  // Historial de auditoría filtrado al usuario (actor o target coincide)
+  function renderAudit(userId: string): void {
+    const status = document.getElementById('detail-audit-status') as HTMLElement;
+    const listEl = document.getElementById('detail-audit-list') as HTMLElement;
+    listEl.innerHTML = '';
+
+    const mine = audit.filter((a) => a.actor_id === userId || (a.target ?? '').includes(userId));
+    if (mine.length === 0) {
+      status.textContent = 'Sin acciones registradas para este usuario.';
+      return;
+    }
+    status.classList.add('hidden');
+    mine.forEach((a) => {
+      const li = document.createElement('li');
+      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-amber-600/10 pb-2';
+      const action = document.createElement('span');
+      action.className = 'font-bold text-amber-200';
+      action.textContent = AUDIT_LABELS[a.action] ?? a.action;
+      const when = new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+      const meta = document.createElement('span');
+      meta.textContent = `${a.actor_id === userId ? 'actor' : 'objetivo'} · ${when}`;
+      li.append(action, meta);
+      listEl.appendChild(li);
+    });
   }
 </script>

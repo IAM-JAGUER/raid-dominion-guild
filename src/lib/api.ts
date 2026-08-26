@@ -2,6 +2,9 @@ import { supabase } from './supabase';
 import type { ParsedSavedVariables } from '@/types/parser';
 import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
 
+// Tipos re-exportados para los consumidores de la capa de datos.
+export type { BandRow } from '@/types/database';
+
 export interface UploadSummary {
   id: string;
   generatedBy: string | null;
@@ -275,13 +278,16 @@ export async function getServerRealms(server: string): Promise<{ ok: boolean; re
   return { ok: true, realms: [...set].sort((a, b) => a.localeCompare(b)) };
 }
 
-// Resumen público de un reino: hermandades y personajes públicos de ese reino.
+// Resumen público de un reino (anidado en un servidor): hermandades y
+// personajes públicos de ese reino en ese servidor. server+realm definen la
+// capa: el mismo nombre de reino puede existir en servidores distintos.
 export async function getRealmOverview(
+  server: string,
   realm: string
 ): Promise<{ ok: boolean; guilds?: GuildRow[]; characters?: CharacterRow[]; error?: string }> {
   const [guildsRes, charsRes] = await Promise.all([
-    supabase.from('raiddominion_guilds').select('*').eq('is_public', true).ilike('realm', realm).order('name', { ascending: true }).limit(200),
-    supabase.from('raiddominion_characters').select('*').eq('is_public', true).ilike('realm', realm).order('avg_ilvl', { ascending: false }).limit(200),
+    supabase.from('raiddominion_guilds').select('*').eq('is_public', true).eq('server', server).ilike('realm', realm).order('name', { ascending: true }).limit(200),
+    supabase.from('raiddominion_characters').select('*').eq('is_public', true).eq('server', server).ilike('realm', realm).order('avg_ilvl', { ascending: false }).limit(200),
   ]);
   if (guildsRes.error) return { ok: false, error: guildsRes.error.message };
   if (charsRes.error) return { ok: false, error: charsRes.error.message };
@@ -290,26 +296,6 @@ export async function getRealmOverview(
     guilds: (guildsRes.data as GuildRow[]) ?? [],
     characters: (charsRes.data as CharacterRow[]) ?? [],
   };
-}
-
-// Personaje público por slug (slug = name-realm, resolución case-insensitive).
-export async function getCharacterBySlug(slug: string): Promise<{ ok: boolean; character?: CharacterRow; error?: string }> {
-  const idx = slug.lastIndexOf('-');
-  if (idx <= 0 || idx === slug.length - 1) return { ok: false, error: 'slug inválido' };
-  const name = slug.slice(0, idx);
-  const realm = slug.slice(idx + 1);
-
-  const res = await supabase
-    .from('raiddominion_characters')
-    .select('*')
-    .ilike('name', name)
-    .ilike('realm', realm)
-    .eq('is_public', true)
-    .limit(1)
-    .maybeSingle();
-
-  if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, character: (res.data as CharacterRow | null) ?? undefined };
 }
 
 // ─── Bandas públicas (tabla raiddominion_bands) ─────────────────────────

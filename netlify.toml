@@ -11,17 +11,54 @@
   to = "/portal"
   status = 200
 
-# Ficha pública POR PERSONAJE /personaje/:slug y compat de /p/:slug
-# (los archivos reales tienen prioridad; ambas sirven el shell /personaje)
+# /personaje (sin slug) → directorio de servidores (legacy)
+[[redirects]]
+  from = "/personaje"
+  to = "/servidores"
+  status = 301
+
+# Ficha pública POR PERSONAJE /personaje/:slug → shell genérico de detalle
 [[redirects]]
   from = "/personaje/*"
-  to = "/personaje"
+  to = "/detalle"
   status = 200
 
+# Compat de /p/:slug (legacy) → shell de jugador (mantenido)
 [[redirects]]
   from = "/p/*"
-  to = "/personaje"
+  to = "/jugador"
   status = 200
+
+# Perfil de jugador canónico /jugador/:slug → shell de jugador
+[[redirects]]
+  from = "/jugador/*"
+  to = "/jugador"
+  status = 200
+
+# Detalle de servidor y reino anidado → shell genérico de detalle
+# (/servidor/:server y /servidor/:server/reino/:realm)
+[[redirects]]
+  from = "/servidor/*"
+  to = "/detalle"
+  status = 200
+
+# Ficha pública DE BANDA /banda/:slug → shell genérico de detalle
+[[redirects]]
+  from = "/banda/*"
+  to = "/detalle"
+  status = 200
+
+# Alias de directorios (sin duplicar listas): /hermandades → /guilds y
+# /jugadores → /personajes
+[[redirects]]
+  from = "/hermandades"
+  to = "/guilds"
+  status = 301
+
+[[redirects]]
+  from = "/jugadores"
+  to = "/personajes"
+  status = 301
 
 # Redirecciones SPA
 [[redirects]]

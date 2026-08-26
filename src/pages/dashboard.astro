@@ -22,19 +22,15 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </div>
         </div>
         <span id="role-badge" class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300">…</span>
+        <span id="version-chip" class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300" title="Build consolidación 2026-08-26">Portal v3</span>
       </header>
 
-      <!-- Pestañas (navegación con ←/→/Home/End; activación automática al enfocar) -->
-      <nav class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel">
-        <button id="tab-addon" data-tab="addon" role="tab" aria-selected="true" aria-controls="panel-addon" tabindex="0"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-amber-400 text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Registro</button>
-        <button id="tab-bandas" data-tab="bandas" role="tab" aria-selected="false" aria-controls="panel-bandas" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Bandas</button>
-        <button id="tab-hermandad" data-tab="hermandad" role="tab" aria-selected="false" aria-controls="panel-hermandad" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-lg">Hermandad</button>
-        <button id="tab-perfil" data-tab="perfil" role="tab" aria-selected="false" aria-controls="panel-perfil" tabindex="-1"
-          class="tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-t-md ml-auto">Perfil</button>
-      </nav>
+      <!-- Pestañas (generadas desde src/lib/ui/tabs.ts = contrato único;
+           navegación con ←/→/Home/End; activación automática al enfocar) -->
+      <nav id="tab-bar" class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s" role="tablist" aria-label="Secciones del panel"></nav>
+
+      <!-- ── Resumen ─────────────────────────────────────────────────────── -->
+      
 
       <!-- ── Mi Registro (config + historial + visor) ─────────────────────── -->
       <section id="panel-addon" role="tabpanel" aria-labelledby="tab-addon" class="hidden space-y-6">
@@ -174,60 +170,43 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
       </section>
 
-      <!-- ── Mis Bandas (bandas + jugadores + reglas) ────────────────────── -->
+      <!-- ── Mis Bandas ──────────────────────────────────────────────────── -->
       <section id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6">
-        <!-- Estado vacío (sin bandas en el análisis) -->
-        <div id="bandas-empty" class={`hidden ${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
-          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
-          <p class="font-bold text-white mb-1">Sin bandas en este análisis</p>
-          <p class="text-sm text-gray-400 mb-6">Sube tu <code class="text-amber-300">RaidDominion.lua</code> para ver aquí tus bandas, jugadores y reglas.</p>
-          <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
+        <div class={`${ui.panel} p-6`}>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+            <h2 class="text-lg font-bold text-amber-200 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+              Mis bandas
+            </h2>
+            <span class="text-[11px] text-gray-500 italic">Sin formularios: el addon es la única fuente</span>
+          </div>
+          <p class="text-sm text-gray-400 leading-relaxed max-w-2xl">
+            Tus bandas y sus reglas se crean y actualizan <strong class="text-amber-200">solo re-subiendo tu SavedVariables</strong>.
+            Aquí controlas qué bandas son visibles públicamente para la comunidad.
+          </p>
         </div>
 
-        <div id="bandas-main" class="hidden space-y-6">
-          <!-- Cabecera + cifras -->
-          <div class={`${ui.panel} p-6`}>
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h2 class="text-lg font-bold text-amber-200 flex items-center">
-                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-                Bandas
-              </h2>
-              <span class="text-[11px] text-gray-500 italic">Bandas, jugadores y reglas del análisis seleccionado</span>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div class={`${ui.panel} p-4 text-center`}>
-                <p class="text-3xl font-bold text-amber-300" id="bandas-count">0</p>
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
-              </div>
-              <div class={`${ui.panel} p-4 text-center`}>
-                <p class="text-3xl font-bold text-amber-300" id="bandas-players-count">0</p>
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Jugadores</p>
-              </div>
-              <div class={`${ui.panel} p-4 text-center`}>
-                <p class="text-3xl font-bold text-amber-300" id="bandas-rules-count">0</p>
-                <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reglas completas -->
-          <div class="bg-gray-800/50 border border-amber-700/30 rounded-lg p-4">
-            <h4 class={ui.subTitle}>Reglas de banda <span id="cnt-rules" class="text-gray-500"></span></h4>
-            <div id="list-rules"></div>
-          </div>
-
-          <!-- Bandas (expandidas con jugadores y spammer) -->
-          <div>
-            <h4 class={ui.subTitle}>Bandas</h4>
-            <div id="viewer-bands" class="space-y-4"></div>
-          </div>
-
-          <!-- Jugadores (lista única a través de todas las bandas) -->
-          <div>
-            <h4 class={ui.subTitle}>Jugadores <span id="cnt-band-players" class="text-gray-500"></span></h4>
-            <div id="viewer-band-players"></div>
-          </div>
+        <!-- Aviso: bandas sin hermandad reclamada -->
+        <div id="bands-no-guild" class="hidden bg-sky-950/30 border border-sky-700/40 rounded-lg p-5 flex items-start gap-3">
+          <svg class="w-5 h-5 text-sky-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-sm text-sky-200">
+            <span class="font-bold">Aún no tienes hermandad reclamada.</span>
+            Tus bandas y reglas se publican igual en
+            <a href="/bandas" class="text-amber-300 underline hover:text-amber-200"> /bandas</a>
+            cuando las activas como públicas. Si lideras una hermandad, reclámala desde
+            <button type="button" data-goto="hermandad" class="goto-btn text-amber-300 underline hover:text-amber-200 cursor-pointer">Mi Hermandad</button>.
+          </p>
         </div>
+
+        <!-- Lista de bandas -->
+        <div id="bands-list" class="space-y-4"></div>
+        <div id="bands-empty" class={`${ui.panel} p-8 max-w-2xl mx-auto text-center`}>
+          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p class="font-bold text-white mb-1">Aún no detectamos bandas</p>
+          <p class="text-sm text-gray-400 mb-5">Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí.</p>
+          <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
+        </div>
+        <p id="bands-status" class="text-sm text-gray-400" aria-live="polite"></p>
       </section>
 
       <!-- ── Mi Hermandad ────────────────────────────────────────────────── -->
@@ -442,16 +421,22 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ensureMyProfileSlug,
     getMyCharacters,
     setCharacterVisibility,
+    getMyBands,
+    setBandVisibility,
     claimGuildFromSV,
     deleteMyAccount,
     resetMyData,
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
-  import { renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
+  import type { BandRow } from '@/types/database';
+  import { renderBand, renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
+  import { DASHBOARD_TABS, tabFromHash, tabHash } from '@/lib/ui/tabs';
+  import { isStaff } from '@/lib/roles';
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
-  import { PANELS, panelFromHash } from '@/lib/ui/tabs';
-  import type { PanelName } from '@/lib/ui/tabs';
+
+  const PANELS = DASHBOARD_TABS.map((t) => t.id) as string[];
+  type PanelName = (typeof PANELS)[number];
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
   const avatarEl = document.getElementById('avatar') as HTMLElement;
@@ -471,6 +456,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     moderator: 'bg-sky-900/30 border-sky-600/50 text-sky-200',
     admin: 'bg-red-900/30 border-red-600/50 text-red-200',
   };
+
+  // ── Estado reactivo (declarado antes de las llamadas void load*) ─────────
+  let currentRole: RaiddominionRole = 'member';
+  let myCharacters: CharacterRow[] = [];
+  let profileCharacterName: string | null = null;
+  let uploadsCache: UploadSummary[] = [];
+  let currentSvId = '';
+  let lastLeads = false;
+  let snapshotGmGuilds: string[] = [];
+  let myGuilds: GuildRow[] = [];
 
   function msgBox(id: string, ok: boolean, text: string): void {
     const box = document.getElementById(id) as HTMLElement;
@@ -509,13 +504,29 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     void loadCharacters();
     void loadHistory();
     void loadGuilds();
+    void loadBands();
   }
 
   // ── Pestañas ─────────────────────────────────────────────────────────────
-  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
-  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
+  // La barra de pestañas se genera desde src/lib/ui/tabs.ts (contrato único):
+  // ids, labels y hashes salen SOLO de ahí, nunca hardcodeados aquí.
+  const tabBar = document.getElementById('tab-bar') as HTMLElement;
+  const tabBtnCls =
+    'tab-btn px-3 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+  const tabs: HTMLButtonElement[] = DASHBOARD_TABS.map((t, i) => {
+    const btn = document.createElement('button');
+    btn.id = `tab-${t.id}`;
+    btn.dataset.tab = t.id;
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-controls', `panel-${t.id}`);
+    // La última pestaña (Mi Perfil) se alinea a la derecha como en el diseño.
+    btn.className = `${tabBtnCls} ${i === DASHBOARD_TABS.length - 1 ? 'ml-auto' : ''}`;
+    btn.textContent = t.label;
+    tabBar.appendChild(btn);
+    return btn;
+  });
 
-  function activateTab(name: PanelName): void {
+  function activateTab(name: PanelName, updateHash = true): void {
     tabs.forEach((b) => {
       const active = b.dataset.tab === name;
       b.setAttribute('aria-selected', String(active));
@@ -528,10 +539,29 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     PANELS.forEach((p) => {
       document.getElementById(`panel-${p}`)?.classList.toggle('hidden', p !== name);
     });
+    if (updateHash) {
+      const target = tabHash(name);
+      if (window.location.hash !== target) {
+        // replaceState evita saltar y no ensucia el historial con cada click
+        window.history.replaceState(null, '', target);
+      }
+    }
   }
 
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
+  document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
+    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'addon') as PanelName)));
+
+  // Deep-link / hash: al cargar o al cambiar el hash se activa la pestaña.
+  function syncTabFromHash(): void {
+    const id = tabFromHash(window.location.hash);
+    activateTab((PANELS.includes(id) ? id : 'addon') as PanelName, false);
+  }
+  window.addEventListener('hashchange', syncTabFromHash);
+  syncTabFromHash();
+
   // Patrón ARIA tabs: ←/→ mueven foco (con activación), Home/End saltan a los extremos
-  document.querySelector('nav[role="tablist"]')?.addEventListener('keydown', (e) => {
+  tabBar.addEventListener('keydown', (e) => {
     const ev = e as KeyboardEvent;
     const idx = tabs.indexOf(ev.target as HTMLButtonElement);
     if (idx === -1) return;
@@ -547,19 +577,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     activateTab((target.dataset.tab ?? 'addon') as PanelName);
   });
 
-  // Contrato nav → tabs: el hash de la URL (#bandas, /dashboard#perfil) activa
-  // el panel correspondiente al cargar y al navegar desde la nav superior.
-  const panelInicial = panelFromHash(window.location.hash);
-  if (panelInicial) activateTab(panelInicial);
-  window.addEventListener('hashchange', () => {
-    const p = panelFromHash(window.location.hash);
-    if (p) activateTab(p);
-  });
-
   // ── Perfil ───────────────────────────────────────────────────────────────
-  let currentRole: RaiddominionRole = 'member';
-  let myCharacters: CharacterRow[] = [];
-  let profileCharacterName: string | null = null;
 
   // Rellena el <select> del personaje principal SOLO con personajes del SV
   function populateMainCharacterSelect(): void {
@@ -767,13 +785,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   }
 
   // ── Mi Registro: historial + visor del snapshot seleccionado ────────────
-  let uploadsCache: UploadSummary[] = [];
-  let currentSvId = '';
-  let lastLeads = false;
-  // Hermandades con isGM en el snapshot mostrado (puede haber varias)
-  let snapshotGmGuilds: string[] = [];
-  // Hermandades reclamadas por el usuario (multi-hermandad)
-  let myGuilds: GuildRow[] = [];
 
   function fmtDateTime(iso: string): string {
     return new Date(iso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
@@ -1249,6 +1260,92 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     if (id) void renderSnapshot(id);
   });
 
+  // ── Mis Bandas ───────────────────────────────────────────────────────────
+  // Las bandas y reglas nacen del SV (el addon es la única fuente; sin
+  // formularios). Aquí solo se controla la visibilidad pública de cada una.
+  function bandPlayerCount(b: BandRow): number {
+    if (!Array.isArray(b.players)) return 0;
+    return b.players.length;
+  }
+
+  function bandRuleCount(b: BandRow): number {
+    if (!Array.isArray(b.rules)) return 0;
+    return b.rules.length;
+  }
+
+  function bandCard(b: BandRow): HTMLElement {
+    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-lg p-5');
+
+    const head = el('div', 'flex flex-wrap items-start justify-between gap-3');
+    const info = el('div', 'min-w-0');
+    const title = el('p', 'text-base font-bold text-amber-200', b.name || 'Banda sin nombre');
+    const meta = el('div', 'flex flex-wrap gap-2 mt-2');
+    if (b.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', b.schedule));
+    if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `GS ${b.min_gs}`));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${bandPlayerCount(b)} jugadores`));
+    if (bandRuleCount(b) > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${bandRuleCount(b)} reglas`));
+    info.append(title, meta);
+    head.appendChild(info);
+
+    // Toggle de visibilidad pública
+    const label = document.createElement('label');
+    label.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400 shrink-0';
+    const vis = document.createElement('input');
+    vis.type = 'checkbox';
+    vis.className = 'w-4 h-4 accent-amber-500';
+    vis.checked = b.is_public;
+    const status = document.createElement('span');
+    status.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest';
+    vis.addEventListener('change', async () => {
+      vis.disabled = true;
+      status.textContent = 'guardando…';
+      status.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-amber-300';
+      const res = await setBandVisibility(b.id, vis.checked);
+      vis.disabled = false;
+      if (res.ok) {
+        b.is_public = vis.checked;
+        status.textContent = vis.checked ? '✓ pública' : '✓ privada';
+        status.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      } else {
+        vis.checked = !vis.checked;
+        status.textContent = '✗ error';
+        status.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
+      }
+      window.setTimeout(() => { status.textContent = ''; }, 2500);
+    });
+    label.append(vis, document.createTextNode('Pública'), status);
+    head.appendChild(label);
+    card.appendChild(head);
+
+    card.appendChild(el('p', 'mt-3 text-[11px] text-gray-500 italic', 'Los jugadores y reglas se actualizan re-subiendo tu SavedVariables.'));
+    return card;
+  }
+
+  async function loadBands(): Promise<void> {
+    const listEl = document.getElementById('bands-list') as HTMLElement;
+    const emptyEl = document.getElementById('bands-empty') as HTMLElement;
+    const statusEl = document.getElementById('bands-status') as HTMLElement;
+    const noGuildEl = document.getElementById('bands-no-guild') as HTMLElement;
+
+    const res = await getMyBands();
+    if (!res.ok) {
+      listEl.classList.add('hidden');
+      emptyEl.classList.add('hidden');
+      statusEl.textContent = 'No se pudieron cargar tus bandas: ' + (res.error || '');
+      return;
+    }
+    const items = res.items ?? [];
+    listEl.innerHTML = '';
+    listEl.classList.toggle('hidden', items.length === 0);
+    emptyEl.classList.toggle('hidden', items.length > 0);
+    statusEl.textContent = '';
+
+    // Aviso: bandas+reglas sin hermandad reclamada se publican igual en /bandas.
+    noGuildEl.classList.toggle('hidden', !(items.length > 0 && myGuilds.length === 0));
+
+    items.forEach((b) => listEl.appendChild(bandCard(b)));
+  }
+
   // ── Mi Hermandad ─────────────────────────────────────────────────────────
   // ── Mi Hermandad (multi-hermandad) ───────────────────────────────────────
 
@@ -1410,6 +1507,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     }
     const items = res.items ?? [];
     myGuilds = items;
+    // El aviso de "bandas sin hermandad" depende de myGuilds: se re-evalúa aquí.
+    void loadBands();
 
     if (items.length === 0) {
       empty.classList.remove('hidden');
@@ -1546,5 +1645,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     void loadCharacters();
     void loadHistory();
     void loadGuilds();
+    void loadBands();
   });
 </script>

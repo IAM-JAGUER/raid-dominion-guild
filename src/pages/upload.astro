@@ -46,6 +46,20 @@ import Navigation from '@/components/Navigation.astro';
 
       <!-- Resultado -->
       <section id="result" class="hidden space-y-6">
+        <!-- Claim de maestro (solo vía SV; sin formularios) -->
+        <div id="claim-banner" class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-lg p-6">
+          <h2 class="text-xl font-bold text-amber-300 mb-2">¡Eres candidato a maestro de hermandad!</h2>
+          <p class="text-sm text-gray-300 mb-4">
+            Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
+            Al guardar el análisis, el portal detecta tu maestría y te permite registrar tu hermandad
+            <strong class="text-amber-200">automáticamente desde el propio archivo</strong> (sin formularios).
+          </p>
+          <p id="claim-status-note" class="hidden text-sm text-amber-200/80">
+            Si tu rango no es de liderazgo, tu solicitud quedará en revisión para un moderador.
+          </p>
+          <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+        </div>
+
         <!-- Resumen -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
@@ -122,6 +136,8 @@ import Navigation from '@/components/Navigation.astro';
     saveRosterEvidence,
     tryPromoteMember,
     claimGuildFromSV,
+    upsertBands,
+    ensureMyCharacterSlugs,
   } from '@/lib/api';
 
   const fileInput = document.getElementById('sv-file') as HTMLInputElement;
@@ -255,6 +271,25 @@ import Navigation from '@/components/Navigation.astro';
     );
     if (evidenceRoster.length > 0) {
       await saveRosterEvidence(saved.id, evidenceRoster);
+    }
+
+    // Bandas + reglas → raiddominion_bands (personales o de hermandad, con
+    // guild_id NULLABLE y visibilidad espejo). Re-subir el SV las actualiza.
+    setStatus('Sincronizando tus bandas y reglas…');
+    const bandsSync = await upsertBands(saved.id, data.bands ?? [], data.rules ?? []);
+    if (bandsSync.ok) {
+      if (bandsSync.count && bandsSync.count > 0) {
+        setStatus(`${bandsSync.count} banda${bandsSync.count === 1 ? '' : 's'} sincronizada${bandsSync.count === 1 ? '' : 's'}.`);
+      }
+    } else {
+      addWarning('No se pudieron sincronizar tus bandas: ' + (bandsSync.error || '') + '. Reintenta subiendo el SV de nuevo.');
+    }
+
+    // Slug legible de personajes (name-reino): la migración v4 lo asigna en
+    // el propio upsert; este RPC cubre filas previas y cambios de nombre/reino.
+    const slugSync = await ensureMyCharacterSlugs();
+    if (!slugSync.ok) {
+      addWarning('No se pudieron asegurar los enlaces de tus personajes: ' + (slugSync.error || ''));
     }
 
     // Onboarding visitante → member.
@@ -407,10 +442,22 @@ import Navigation from '@/components/Navigation.astro';
     (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBandsCount === 0);
     (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
 
+    // Claim de maestro (auto por SV; sin formularios manuales)
+    const claimBanner = document.getElementById('claim-banner') as HTMLElement;
+    const claimStatusNote = document.getElementById('claim-status-note') as HTMLElement;
+    if (data.generatedBy) {
+      claimBanner.classList.remove('hidden');
+      (document.getElementById('claim-char') as HTMLElement).textContent = data.generatedBy;
+      claimStatusNote.classList.toggle('hidden', data.guild.isLeaderRank);
+    } else {
+      claimBanner.classList.add('hidden');
+    }
+
     errorEl.classList.add('hidden');
     resultEl.classList.remove('hidden');
   }
 
+  // Muestra formulario de reclamo (con sesión) o CTA de login; valida el SV
   function handleFile(file: File): void {
     clearWarnings();
     if (file.size > 2 * 1024 * 1024) {
