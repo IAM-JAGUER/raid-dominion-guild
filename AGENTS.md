@@ -275,10 +275,30 @@ src/
 - Comentarios en español, solo cuando aportan (NO comentarios triviales).
 - Tailwind exclusivamente; no CSS modules.
 - Preferir editar archivos existentes sobre crear nuevos.
+- **Contrato único de tabs**: los nombres/ids/hashes de las pestañas del
+  dashboard viven SOLO en `src/lib/ui/tabs.ts` (`DASHBOARD_TABS`, `PANELS`,
+  `panelFromHash`). `dashboard.astro` y `Navigation.astro` los importan; jamás
+  escribir ids/labels/hashes sueltos en esas páginas (causa divergencias
+  silenciosas entre sesiones). El hash de la URL (`/dashboard#bandas`) activa
+  el tab correspondiente al cargar y en `hashchange`.
 - `build` real: `astro build`. El script `npm run build` corre `astro check`
-  primero (lento en DrvFs) — para verificación rápida usar `scripts/verifica.sh`
-  (ver §8). NUNCA `npx astro build` directo en sesiones paralelas: rompe el
-  lock global y satura la CPU/I/O de DrvFs.
+  primero (lento en DrvFs) — para verificación usar SIEMPRE
+  `scripts/verifica.sh` (ver §8). NUNCA `npx astro build` directo en sesiones
+  paralelas: rompe el lock global y satura la CPU/I/O de DrvFs.
+- **Build v2 (sandbox ext4 + async)**: `verifica.sh` ya NO construye sobre
+  DrvFs: sincroniza el árbol de la sesión hacia un sandbox nativo
+  (`~/rd-build`, node_modules propio; primer uso hace `npm install`
+  automáticamente bajo el lock) y construye ahí; si el build es OK,
+  sincroniza `dist/` de vuelta al worktree. Modos:
+  - `scripts/verifica.sh` / `--check` / `--ci` (igual que antes).
+  - **`--async` (preferido en sesiones)**: retorna al instante lanzando la
+    verificación en background; consultar resultado con
+    `cat ../.worktrees/.build-status/<sesion>.state`
+    (valores: QUEUED/RUNNING/OK/FAIL/TIMEOUT). Evita timeouts gigantes del
+    tool-call mientras hay cola.
+  - `--wait N`: segundos máximos esperando el lock (default 900). Mientras
+    espera, informa PID del holder y tiempo transcurrido.
+  - `--no-dist-sync`: no copiar `dist/` de vuelta.
 
 ## 8. Build & Deploy
 
@@ -351,6 +371,25 @@ Cuando el proyecto corre con sesiones paralelas (`scripts/new-session.sh`):
 5. **Conflicto al fusionar**: el watcher aborta y reporta sin dañar nada. La
    sesión dueña resuelve: `git -C .worktrees/<nombre> rebase main` (o merge de
    main) y reintenta. Manual §Conflictos.
+
+### ⚠️ Antes de editar: LEASE de archivos (`scripts/claim.sh`)
+
+Dos sesiones tocando el mismo archivo sin saberlo = incongruencias (pestañas,
+contratos) y conflictos de merge tardío. Reglas:
+
+1. **Antes de tocar un archivo de código** (`src/**`, `supabase/**`,
+   `scripts/**`, `netlify.toml`), ejecutar:
+   `scripts/claim.sh check <archivo>` → si responde "libre", tomarlo con
+   `scripts/claim.sh claim <archivo> "<motivo>"`.
+2. Si el `check` dice que otra sesión lo tiene en lease, NO editarlo:
+   coordinar con esa sesión o pedir que lo libere. Esos leases viven en
+   `.worktrees/.claims/` (compartido, fuera de git).
+3. Al terminar: `scripts/claim.sh release <archivo>`. Comandos: `list`,
+   `claim`, `release`, `check`, `mine`.
+4. **El watcher ya avisa TARDE (radar de solape)**: `scripts/watch-integra.sh`
+   loguea `⚠ RADAR solape: <archivo> lo tocan <sesiones>` cuando dos sesiones
+   comparten archivo. El lease evita que eso ocurra; el radar es la red de
+   seguridad que lo detecta en ≤30s si el lease se salta.
 
 Una sesión solitaria dirigida por el usuario puede trabajar en la raíz como
 siempre (reglas 2 y 4 le siguen aplicando).

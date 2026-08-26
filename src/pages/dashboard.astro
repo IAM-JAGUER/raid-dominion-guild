@@ -450,9 +450,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import { renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
-
-  const PANELS = ['addon', 'bandas', 'hermandad', 'perfil'] as const;
-  type PanelName = (typeof PANELS)[number];
+  import { PANELS, panelFromHash } from '@/lib/ui/tabs';
+  import type { PanelName } from '@/lib/ui/tabs';
 
   const emailEl = document.getElementById('user-email') as HTMLElement;
   const avatarEl = document.getElementById('avatar') as HTMLElement;
@@ -546,6 +545,15 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const target = tabs[next];
     target.focus();
     activateTab((target.dataset.tab ?? 'addon') as PanelName);
+  });
+
+  // Contrato nav → tabs: el hash de la URL (#bandas, /dashboard#perfil) activa
+  // el panel correspondiente al cargar y al navegar desde la nav superior.
+  const panelInicial = panelFromHash(window.location.hash);
+  if (panelInicial) activateTab(panelInicial);
+  window.addEventListener('hashchange', () => {
+    const p = panelFromHash(window.location.hash);
+    if (p) activateTab(p);
   });
 
   // ── Perfil ───────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 ---
 // Componente de navegación principal
 import { NAV_ITEMS, SITE_CONFIG } from '../utils/constants';
+import { DASHBOARD_TABS } from '../lib/ui/tabs';
 
 // Props
 export interface Props {
@@ -60,16 +61,41 @@ const { currentPath = '/', className = '' } = Astro.props;
             data-auth-link="guest"
             class="ml-3 px-4 py-2 rounded-lg text-sm font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 transition-all duration-200 hover:scale-105 shadow-lg shadow-amber-500/20"
           >Iniciar Sesión</a>
-          <a
-            href="/dashboard"
-            data-auth-link="user"
-            class="hidden ml-3 px-4 py-2 rounded-lg text-sm font-bold text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
-          >Mi Espacio</a>
-          <button
-            type="button"
-            data-auth-action="logout"
-            class="hidden px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
-          >Salir</button>
+          <div class="relative hidden ml-3" data-auth-dropdown="user">
+            <button
+              type="button"
+              data-dropdown-trigger
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="account-dropdown"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
+            >
+              <span>Mi Espacio</span>
+              <svg aria-hidden="true" class="w-4 h-4 transition-transform duration-200" data-chevron fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div
+              id="account-dropdown"
+              data-dropdown-menu
+              class="hidden absolute right-0 mt-2 w-56 rounded-lg border border-amber-600/30 bg-gray-900/95 backdrop-blur-lg shadow-xl shadow-black/40 py-2 z-50"
+              role="menu"
+              aria-hidden="true"
+            >
+              {DASHBOARD_TABS.map((t) => (
+                <a href={t.href} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">
+                  <span class="inline-flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500/70"></span>{t.label}
+                  </span>
+                </a>
+              ))}
+              <div class="my-1 border-t border-amber-600/30"></div>
+              <button
+                type="button"
+                data-auth-action="logout"
+                class="w-full text-left px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-red-300 hover:bg-red-900/40 hover:text-red-200 transition-all duration-150"
+                role="menuitem"
+              >Cerrar Sesión</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -147,11 +173,14 @@ const { currentPath = '/', className = '' } = Astro.props;
           data-auth-link="guest"
           class="block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 transition-all duration-200"
         >Iniciar Sesión</a>
-        <a
-          href="/dashboard"
-          data-auth-link="user"
-          class="hidden block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
-        >Mi Espacio</a>
+        <div class="hidden" data-auth-dropdown="user">
+          {DASHBOARD_TABS.map((t) => (
+            <a
+              href={t.href}
+              class="block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
+            >{t.label}</a>
+          ))}
+        </div>
         <button
           type="button"
           data-auth-action="logout"
@@ -396,14 +425,14 @@ const { currentPath = '/', className = '' } = Astro.props;
 
     // Entrada de cuenta y cierre de sesión según sesión (import diferido)
     const guestLinks = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link="guest"]');
-    const userLinks = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link="user"]');
+    const userDropdowns = document.querySelectorAll<HTMLElement>('[data-auth-dropdown="user"]');
     const logoutButtons = document.querySelectorAll<HTMLButtonElement>('[data-auth-action="logout"]');
-    if ((guestLinks.length > 0 && userLinks.length > 0) || logoutButtons.length > 0) {
+    if (guestLinks.length > 0 || userDropdowns.length > 0 || logoutButtons.length > 0) {
       import('@/lib/supabase').then(({ supabase }) => {
         void supabase.auth.getSession().then(({ data }) => {
           const logged = Boolean(data.session);
           guestLinks.forEach((a) => a.classList.toggle('hidden', logged));
-          userLinks.forEach((a) => a.classList.toggle('hidden', !logged));
+          userDropdowns.forEach((d) => d.classList.toggle('hidden', !logged));
           logoutButtons.forEach((b) => b.classList.toggle('hidden', !logged));
         });
         logoutButtons.forEach((btn) => {
@@ -416,6 +445,35 @@ const { currentPath = '/', className = '' } = Astro.props;
         // Sin Supabase configurado: dejar solo el acceso a login
       });
     }
+
+    // Abrir/cerrar el dropdown de cuenta (escritorio)
+    document.querySelectorAll<HTMLButtonElement>('[data-dropdown-trigger]').forEach((trigger) => {
+      const menu = document.getElementById(trigger.getAttribute('aria-controls') ?? '') as HTMLElement | null;
+      if (!menu) return;
+      function closeDropdown(): void {
+        menu.classList.add('hidden');
+        menu.classList.remove('block');
+        menu.setAttribute('aria-hidden', 'true');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.querySelector('[data-chevron]')?.classList.add('rotate-180');
+      }
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', isOpen);
+        menu.classList.toggle('block', !isOpen);
+        menu.setAttribute('aria-hidden', String(isOpen));
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+      });
+      menu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDropdown();
+      });
+      document.addEventListener('click', closeDropdown);
+      document.addEventListener('keydown', (e) => {
+        if ((e as KeyboardEvent).key === 'Escape') closeDropdown();
+      });
+    });
   });
 </script>
 
