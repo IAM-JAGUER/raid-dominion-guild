@@ -32,6 +32,16 @@ export default defineConfig({
                 req.url = '/jugador?slug=' + encodeURIComponent(slug);
               }
             }
+            // Dev-only: replica el rewrite /personaje/* → /personaje de
+            // netlify.toml. El shell (personaje/index.astro) resuelve el
+            // slug desde window.location.pathname en el cliente.
+            if (req.url && req.url.startsWith('/personaje/')) {
+              const raw = req.url.slice('/personaje/'.length).split('?')[0];
+              const slug = decodeURIComponent(raw.replace(/\/+$/, ''));
+              if (slug && slug !== 'index.html' && !raw.includes('.')) {
+                req.url = '/personaje';
+              }
+            }
             next();
           });
         },
