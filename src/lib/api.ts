@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import type { ParsedSavedVariables } from '@/types/parser';
-import type { SavedVariableRow, ProfileRow, GuildRow, RaiddominionRole } from '@/types/database';
+import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
 
 export interface UploadSummary {
   id: string;
@@ -243,6 +243,149 @@ export async function getPublicGuildBySlug(slug: string): Promise<{ ok: boolean;
   return { ok: true, guild: (res.data as GuildRow | null) ?? undefined };
 }
 
+// ─── Servidores (realmlist) y reinos — capa pública ────────────────────
+
+// Servidores distintos que aparecen en personajes/hermandades públicas.
+export async function listPublicServers(): Promise<{ ok: boolean; servers?: string[]; error?: string }> {
+  const [chars, guilds] = await Promise.all([
+    supabase.from('raiddominion_characters').select('server').eq('is_public', true).not('server', 'is', null),
+    supabase.from('raiddominion_guilds').select('server').eq('is_public', true).not('server', 'is', null),
+  ]);
+  if (chars.error) return { ok: false, error: chars.error.message };
+  if (guilds.error) return { ok: false, error: guilds.error.message };
+
+  const set = new Set<string>();
+  (chars.data as Array<{ server: string | null }>).forEach((r) => r.server && set.add(r.server));
+  (guilds.data as Array<{ server: string | null }>).forEach((r) => r.server && set.add(r.server));
+  return { ok: true, servers: [...set].sort((a, b) => a.localeCompare(b)) };
+}
+
+// Reinos distintos dentro de un servidor (personajes/hermandades públicas).
+export async function getServerRealms(server: string): Promise<{ ok: boolean; realms?: string[]; error?: string }> {
+  const [chars, guilds] = await Promise.all([
+    supabase.from('raiddominion_characters').select('realm').eq('is_public', true).eq('server', server).not('realm', 'is', null),
+    supabase.from('raiddominion_guilds').select('realm').eq('is_public', true).eq('server', server).not('realm', 'is', null),
+  ]);
+  if (chars.error) return { ok: false, error: chars.error.message };
+  if (guilds.error) return { ok: false, error: guilds.error.message };
+
+  const set = new Set<string>();
+  (chars.data as Array<{ realm: string | null }>).forEach((r) => r.realm && set.add(r.realm));
+  (guilds.data as Array<{ realm: string | null }>).forEach((r) => r.realm && set.add(r.realm));
+  return { ok: true, realms: [...set].sort((a, b) => a.localeCompare(b)) };
+}
+
+// Resumen público de un reino: hermandades y personajes públicos de ese reino.
+export async function getRealmOverview(
+  realm: string
+): Promise<{ ok: boolean; guilds?: GuildRow[]; characters?: CharacterRow[]; error?: string }> {
+  const [guildsRes, charsRes] = await Promise.all([
+    supabase.from('raiddominion_guilds').select('*').eq('is_public', true).ilike('realm', realm).order('name', { ascending: true }).limit(200),
+    supabase.from('raiddominion_characters').select('*').eq('is_public', true).ilike('realm', realm).order('avg_ilvl', { ascending: false }).limit(200),
+  ]);
+  if (guildsRes.error) return { ok: false, error: guildsRes.error.message };
+  if (charsRes.error) return { ok: false, error: charsRes.error.message };
+  return {
+    ok: true,
+    guilds: (guildsRes.data as GuildRow[]) ?? [],
+    characters: (charsRes.data as CharacterRow[]) ?? [],
+  };
+}
+
+// Personaje público por slug (slug = name-realm, resolución case-insensitive).
+export async function getCharacterBySlug(slug: string): Promise<{ ok: boolean; character?: CharacterRow; error?: string }> {
+  const idx = slug.lastIndexOf('-');
+  if (idx <= 0 || idx === slug.length - 1) return { ok: false, error: 'slug inválido' };
+  const name = slug.slice(0, idx);
+  const realm = slug.slice(idx + 1);
+
+  const res = await supabase
+    .from('raiddominion_characters')
+    .select('*')
+    .ilike('name', name)
+    .ilike('realm', realm)
+    .eq('is_public', true)
+    .limit(1)
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, character: (res.data as CharacterRow | null) ?? undefined };
+}
+
+// ─── Bandas públicas (tabla raiddominion_bands) ─────────────────────────
+
+// Bandas públicas (espejo de visibilidad de su guild o del perfil del dueño).
+export async function listPublicBands(): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
+    .eq('is_public', true)
+    .order('name', { ascending: true })
+    .limit(200);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, bands: (res.data as BandRow[]) ?? [] };
+}
+
+// Banda pública por slug.
+export async function getPublicBandBySlug(slug: string): Promise<{ ok: boolean; band?: BandRow; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_public', true)
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, band: (res.data as BandRow | null) ?? undefined };
+}
+
+// ─── Gestión de bandas propias ──────────────────────────────────────────
+
+// Bandas del usuario autenticado (RLS: solo las propias).
+export async function getMyBands(): Promise<{ ok: boolean; items?: BandRow[]; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, error: 'sin sesión' };
+
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
+    .eq('owner_id', user.id)
+    .order('name', { ascending: true });
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, items: (res.data as BandRow[]) ?? [] };
+}
+
+// Alterna la visibilidad pública de una banda propia.
+export async function setBandVisibility(id: string, isPublic: boolean): Promise<{ ok: boolean; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_bands')
+    .update({ is_public: isPublic, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true };
+}
+
+// Persiste bandas/reglas de un SV vía RPC SECURITY DEFINER.
+export async function upsertBands(
+  svId: string,
+  bands: ParsedSavedVariables['bands'],
+  rules: ParsedSavedVariables['rules']
+): Promise<{ ok: boolean; count?: number; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_upsert_bands', {
+    p_sv_id: svId,
+    p_bands: (bands ?? []) as unknown as Record<string, unknown>[],
+    p_rules: (rules ?? []) as unknown as Record<string, unknown>[],
+  });
+
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, count: rpc.data as number };
+}
+
+
 // Primer portal público de un dueño (multi-hermandad: toma el más reciente)
 export async function getPublicGuildByOwner(ownerId: string): Promise<{ ok: boolean; guild?: GuildRow; error?: string }> {
   const res = await supabase
@@ -427,6 +570,7 @@ export interface CharacterRow {
   sv_upload_id: string | null;
   name: string;
   realm: string | null;
+  server: string | null;
   class: string | null;
   class_file: string | null;
   race: string | null;
@@ -564,32 +708,37 @@ export interface PublicBandSummary {
   role?: string;
 }
 
-// Bandas públicas donde aparece un personaje: cruza el snapshot de la(s)
-// hermandad(es) pública(s) que coinciden con sv_guild_name (SELECT público).
+// Bandas públicas donde aparece un personaje: cruza la tabla raiddominion_bands
+// (SELECT público) buscando en players[] el nombre insensible a mayúsculas.
+// Ya no depende del snapshot: las bandas viven en su propia tabla con su
+// visibilidad espejo.
 export async function getPublicBandsForCharacter(
   charName: string,
   guildName: string | null
 ): Promise<{ ok: boolean; bands?: PublicBandSummary[]; error?: string }> {
-  if (!guildName) return { ok: true, bands: [] };
+  const name = (charName ?? '').trim().toLowerCase();
+  if (!name) return { ok: true, bands: [] };
 
-  const gRes = await supabase
-    .from('raiddominion_guilds')
-    .select('id')
-    .eq('name', guildName)
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
     .eq('is_public', true)
-    .limit(5);
-  if (gRes.error) return { ok: false, error: gRes.error.message };
+    .limit(500);
 
-  const guilds = (gRes.data as Array<{ id: string }>) ?? [];
+  if (res.error) return { ok: false, error: res.error.message };
+
+  const rows = (res.data as BandRow[]) ?? [];
   const bands: PublicBandSummary[] = [];
-  for (const g of guilds) {
-    const snap = await getGuildSnapshot(g.id);
-    if (!snap.ok || !snap.snapshot) continue;
-    snap.snapshot.bands.forEach((b) => {
-      const me = (b.players ?? []).find(
-        (p) => (p.name ?? '').trim().toLowerCase() === charName.trim().toLowerCase()
-      );
-      if (me) bands.push({ name: b.name, schedule: b.schedule, minGS: b.minGS, role: me.role });
+
+  for (const b of rows) {
+    const players = Array.isArray(b.players) ? (b.players as Array<{ name?: string; role?: string }>) : [];
+    const me = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
+    if (!me) continue;
+    bands.push({
+      name: b.name,
+      schedule: b.schedule ?? undefined,
+      minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,
+      role: me.role,
     });
   }
   return { ok: true, bands };
