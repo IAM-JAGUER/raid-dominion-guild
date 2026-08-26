@@ -137,7 +137,7 @@ export const guides: Guide[] = [
       {
         title: 'El submenú RaidDominion',
         content: [
-          'El submenú RaidDominion (último ítem del menú flotante; ver la guía "Menú flotante") tiene 5 ítems:',
+          'El submenú RaidDominion (último ítem del menú flotante; ver la [guía "Menú flotante"](#guide-menu-flotante)) tiene 5 ítems:',
           'Registrar — exporta tu(s) personaje(s) actual(es) en SavedVariables. Imprescindible para /upload.',
           'Configuración — abre la ventana de configuración (equivalente a /rdc).',
           'Ayuda — muestra la ayuda del addon en el chat (equivalente a /rdh).',
@@ -160,7 +160,7 @@ export const guides: Guide[] = [
       {
         title: 'Beneficios para tu(s) personaje(s)',
         content: [
-          'Perfil público en /p/:slug con tu personaje validado (equipamiento e iLvl) — actívalo desde /dashboard.',
+          'Perfil público en /p/:slug con tu personaje validado (equipamiento e iLvl) — actívalo desde /dashboard para aparecer en el [directorio de personajes](/personajes).',
           'Dashboard personal: estado de rol (visitante → member → guild_master) y acceso directo a /upload.',
           'Si eres maestro: dashboard de hermandad en /dashboard/guild con roster, bandas, Discord y reglas.',
         ],
@@ -168,7 +168,7 @@ export const guides: Guide[] = [
       {
         title: 'Beneficios para tu hermandad',
         content: [
-          'Portal web gratuito en /:slug con roster, bandas y reglas sincronizados desde el SV: re-subir tu RaidDominion.lua lo mantiene al día.',
+          'Portal web gratuito en /:slug con roster, bandas y reglas sincronizados desde el SV: re-subir tu RaidDominion.lua lo mantiene al día y lo publica en el [directorio de hermandades](/guilds).',
           'Sin formularios: los datos provienen del addon.',
         ],
       },
@@ -186,9 +186,9 @@ export const guides: Guide[] = [
         title: 'Estructura del menú',
         content: [
           'El menú agrupa: Habilidades, Roles, Buffs, Auras, Mecánicas, Reglas, Banda y RaidDominion.',
-          'El submenú RaidDominion reúne Registrar, Configuración, Ayuda, Recargar y Ocultar (ver la guía "Primeros pasos").',
-          'Los ítems de roles, habilidades, buffs y auras se asignan y anuncian por el canal (detalle en la guía "Listas y contenido").',
-          'La barra inferior reúne las acciones de raid (ver la guía "Barra de acciones").',
+          'El submenú RaidDominion reúne Registrar, Configuración, Ayuda, Recargar y Ocultar (ver la [guía "Primeros pasos"](#guide-primeros-pasos)).',
+          'Los ítems de roles, habilidades, buffs y auras se asignan y anuncian por el canal (detalle en la [guía "Listas y contenido"](#guide-listas-y-contenido)).',
+          'La barra inferior reúne las acciones de raid (ver la [guía "Barra de acciones"](#guide-barra-acciones)).',
         ],
       },
       {
@@ -212,7 +212,7 @@ export const guides: Guide[] = [
         title: 'Abrir la configuración',
         content: [
           'Ábrela con /rdc, desde el submenú RaidDominion > Configuración o desde la barra de acciones.',
-          'Se organiza en pestañas: General, Bandas, Roles, Habilidades, Buffs, Auras, Mecánicas, Reglas y Ayuda.',
+          'Se organiza en pestañas: General, [Bandas](#guide-bandas-jugadores), Roles, Habilidades, Buffs, Auras, Mecánicas, Reglas y Ayuda.',
         ],
       },
       {
@@ -235,7 +235,7 @@ export const guides: Guide[] = [
         title: 'Listas asignables',
         content: [
           'Roles, habilidades, buffs y auras son listas configurables y asignables: selecciona un objetivo y pulsa el icono del ítem para asignárselo (o desasignarlo); el clic en el texto lo anuncia por el canal configurado.',
-          'Se editan en la pestaña de Configuración correspondiente: añade o quita ítems con nombre e icono.',
+          'Se editan en la pestaña de [Configuración](#guide-configuracion) correspondiente: añade o quita ítems con nombre e icono.',
           '"Obtener" pide la lista al líder; "Reiniciar" la restaura al estado por defecto.',
           'La visibilidad de cada ítem en el menú se controla con el botón-ojo.',
         ],
@@ -269,13 +269,13 @@ export const guides: Guide[] = [
         content: [
           'Desde el menú > Banda, el clic en el texto anuncia la banda y el clic en el icono abre su gestor de jugadores.',
           'Cada jugador tiene rol, dual, clase, gearscore, líder, asistencia y sanción (detalle en la sección "Bandas vivas").',
-          'Cada jugador tiene botones para invitarlo y susurrarle una plantilla de invitación con los datos de la banda.',
+          'Cada jugador tiene botones para invitarlo y susurrarle una plantilla de invitación; para reclutar en el canal usa el [spammer de banda](#guide-comunicacion).',
         ],
       },
       {
         title: 'Bandas vivas',
         content: [
-          'Cada banda guarda nombre, horario (schedule), gearscore mínimo (minGS) y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu RaidDominion.lua.',
+          'Cada banda guarda nombre, horario (schedule), gearscore mínimo (minGS) y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu RaidDominion.lua y tu roster aparece en el [directorio de hermandades](/guilds).',
           'Rol del jugador: T (Tanque), H (Healer), R (Rango), M (Melee).',
           'Dual: marca si el jugador tiene doble rol.',
           'Gearscore: iLvl del jugador; la banda puede exigir un mínimo (minGS).',
@@ -306,7 +306,7 @@ export const guides: Guide[] = [
         content: [
           'Compone el mensaje de reclutamiento de una banda: prefijo, nombre, sufijo, duración (60 s por defecto) y composición por roles (tanque, healer, melee, ranged).',
           'Configura el separador del mensaje (//, |, ;, ", " o ") y los canales (RAID activado por defecto); incluye vista previa y contador (máx. 255 caracteres).',
-          'El spammer vive EN BANDA: se abre desde el submenú Bandas > Spamear banda y recluta mientras raidias. Requiere al menos una banda registrada.',
+          'El spammer vive EN BANDA: se abre desde el submenú Bandas > Spamear banda y recluta mientras raidias. Requiere al menos una [banda registrada](#guide-bandas-jugadores).',
           'Inicia o detiene el bucle de spam.',
         ],
       },
@@ -331,14 +331,14 @@ export const guides: Guide[] = [
         title: 'Acciones disponibles',
         content: [
           'Acciones de raid EN VIVO: estas funciones se ejecutan dentro de la banda — son el corazón del addon, no del portal.',
-          'Modo de raid: izq. configurar dificultad · der. pedir asignaciones al líder.',
+          'Modo de raid: izq. configurar dificultad · der. [pedir asignaciones al líder](#guide-comunicacion).',
           'Indicar discord: enviar / editar el link.',
           'Nombrar objetivo: nombrar / ver info.',
           'Marcar principales: marcar iconos de raid · der. limpiar.',
           'Susurrar asignaciones.',
           'Iniciar Check: ready check · der. reportar ausentes.',
           'Iniciar Pull: cuenta regresiva de pull.',
-          'Cambiar botín: método de botín · der. maestro despojador.',
+          'Cambiar botín: método de botín · der. maestro despojador (ver el [gestor de botín](#guide-gestor-botin)).',
           'Configuración.',
         ],
       },
@@ -355,7 +355,7 @@ export const guides: Guide[] = [
       {
         title: 'Abrir el gestor',
         content: [
-          'Se abre con /rdloot, desde el menú (submenú Bandas > Gestor de botín) o la barra de acciones.',
+          'Se abre con /rdloot, desde el menú (submenú Bandas > Gestor de botín) o la [barra de acciones](#guide-barra-acciones).',
         ],
       },
       {
@@ -384,6 +384,7 @@ export const guides: Guide[] = [
           '/rdh — muestra la ayuda en el chat.',
           '/rdloot — abre el gestor de botín.',
           'Subcomandos de /rd: /rd c (config), /rd loot (o botin), /rd help (o h).',
+          'Si empiezas ahora, sigue la [guía de primeros pasos](#guide-primeros-pasos).',
         ],
       },
     ],

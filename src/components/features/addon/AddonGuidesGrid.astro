@@ -21,10 +21,32 @@ function escapeHtml(text: string): string {
 // Patrón único con lookahead: evita coincidir un prefijo de otro comando (/rdX inexistente).
 const KBD_PATTERN = new RegExp(KBD_COMMANDS.map((cmd) => `${cmd}(?!\\w)`).join('|'), 'g');
 
-// Escapa la línea y envuelve solo los comandos de la lista blanca en <code> estilo kbd.
-function renderLine(line: string): string {
-  return escapeHtml(line).replace(KBD_PATTERN, (match) => `<code class="${ui.kbd}">${match}</code>`);
+// Sintaxis [texto](destino) para enlaces internos dentro del contenido.
+const LINK_PATTERN = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+
+// Solo destinos internos seguros: rutas relativas (sin esquema, sin //) y
+// anclas propias #guide-<id>. Cualquier otro destino queda como texto plano.
+function isSafeInternal(dest: string): boolean {
+  if (dest.startsWith('#guide-')) return /^#guide-[a-z0-9-]+$/.test(dest);
+  if (!dest.startsWith('/') || dest.startsWith('//')) return false;
+  return /^\/[a-z0-9/_-]+$/.test(dest) && !dest.includes('@') && !dest.includes(':');
 }
+
+const linkClass =
+  'text-amber-300 font-bold underline decoration-amber-600/60 underline-offset-2 hover:text-amber-200 hover:decoration-amber-400 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+
+// Escapa la línea, convierte enlaces internos [texto](destino) y envuelve los
+// comandos de la lista blanca en <code> estilo kbd.
+function renderLine(line: string): string {
+  const withLinks = escapeHtml(line).replace(LINK_PATTERN, (match, text, dest) => {
+    if (!isSafeInternal(dest)) return match;
+    return `<a href="${dest}" class="${linkClass}">${text}</a>`;
+  });
+  return withLinks.replace(KBD_PATTERN, (match) => `<code class="${ui.kbd}">${match}</code>`);
+}
+
+// Botones prev/next del pie de cada panel (estilo consistente con ui.btnGhost).
+const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent w-full truncate`;
 ---
 
 <div class="mt-8" id="addon-guides">
@@ -103,6 +125,38 @@ function renderLine(line: string): string {
               <p class="text-xs text-gray-400">¿Ya usas el addon? Sube tu RaidDominion.lua.</p>
               <a href="/upload" class={`${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent`}>Subir SavedVariables</a>
             </div>
+
+            <!-- Navegación anterior/siguiente entre guías -->
+            <nav class="mt-4 pt-4 border-t border-amber-600/20 grid grid-cols-2 gap-3" aria-label="Navegar entre guías">
+              <div class="min-w-0">
+                {index > 0 ? (
+                  <button
+                    type="button"
+                    class={`guide-prev ${navBtn}`}
+                    data-guide-index={index - 1}
+                    aria-label={`Guía anterior: ${guides[index - 1].title}`}
+                  >
+                    <span aria-hidden="true">←</span>
+                    <span class="text-amber-400/90 font-black tabular-nums">{index}.</span>
+                    <span class="truncate">{guides[index - 1].title}</span>
+                  </button>
+                ) : null}
+              </div>
+              <div class="min-w-0">
+                {index < guides.length - 1 ? (
+                  <button
+                    type="button"
+                    class={`guide-next ${navBtn}`}
+                    data-guide-index={index + 1}
+                    aria-label={`Guía siguiente: ${guides[index + 1].title}`}
+                  >
+                    <span class="text-amber-400/90 font-black tabular-nums">{index + 2}.</span>
+                    <span class="truncate">{guides[index + 1].title}</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                ) : null}
+              </div>
+            </nav>
           </div>
         </section>
       );
@@ -177,6 +231,15 @@ function renderLine(line: string): string {
     card.addEventListener('click', () => openGuide(i));
   });
 
+  // Navegación anterior/siguiente del pie de panel (reutiliza openGuide,
+  // que ya hace scroll al contenedor #addon-guides).
+  document.querySelectorAll<HTMLElement>('.guide-prev, .guide-next').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = Number(btn.getAttribute('data-guide-index'));
+      if (!Number.isNaN(target)) openGuide(target);
+    });
+  });
+
   document.querySelectorAll<HTMLElement>('.guide-close').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -189,8 +252,7 @@ function renderLine(line: string): string {
   // Soporte a #guide-<id> para abrir directo desde un enlace.
   // El deep-link público es #guide-<id> pero el panel vive como
   // #guide-panel-<id>, así que resolvemos el id real quitando el prefijo.
-  const onHash = (): void => {
-    const id = window.location.hash.replace(/^#/, '');
+  const openByGuideId = (id: string): void => {
     if (!id.startsWith('guide-')) return;
     const slug = id.slice('guide-'.length);
     const panel = document.getElementById(`guide-panel-${slug}`);
@@ -198,8 +260,24 @@ function renderLine(line: string): string {
     const idx = Number(panel.getAttribute('data-guide-index'));
     if (!Number.isNaN(idx)) openGuide(idx);
   };
+  const onHash = (): void => {
+    openByGuideId(window.location.hash.replace(/^#/, ''));
+  };
   window.addEventListener('hashchange', onHash);
   onHash();
+
+  // Clic en un enlace interno [texto](#guide-<id>): abre el panel sin
+  // recargar (misma lógica que onHash) y refleja el hash en la URL.
+  document.querySelectorAll<HTMLAnchorElement>('a[href^="#guide-"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const href = a.getAttribute('href') ?? '';
+      const id = href.replace(/^#/, '');
+      if (!id.startsWith('guide-')) return;
+      e.preventDefault();
+      openByGuideId(id);
+      if (window.location.hash !== href) history.replaceState(null, '', href);
+    });
+  });
 </script>
 
 <style>

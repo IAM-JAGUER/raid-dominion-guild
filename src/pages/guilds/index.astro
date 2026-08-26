@@ -113,7 +113,6 @@ import Navigation from '@/components/Navigation.astro';
 
     if (filtered.length === 0) {
       emptyEl.classList.remove('hidden');
-      statusEl.classList.add('hidden');
       return;
     }
     emptyEl.classList.add('hidden');
@@ -125,12 +124,14 @@ import Navigation from '@/components/Navigation.astro';
 
   const res = await listPublicGuilds();
   if (!res.ok) {
+    // #status se usa SOLO para el error de red; en éxito se oculta siempre.
     statusEl.textContent = 'No se pudo cargar el directorio. Intenta de nuevo más tarde.';
   } else {
     guilds = res.guilds ?? [];
     document.title = guilds.length > 0
       ? `${guilds.length} hermandad${guilds.length === 1 ? '' : 'es'} — RaidDominion`
       : 'Hermandades - RaidDominion';
+    statusEl.classList.add('hidden');
     render();
   }
 </script>
