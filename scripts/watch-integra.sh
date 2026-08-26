@@ -30,6 +30,9 @@ GATE_COOLDOWN=180
 # Evita que un merge divergente spammee el log cada ciclo mientras la sesión
 # no rebasa main.
 TELE_COOLDOWN=300
+# Cooldown del radar de solape: no repetir el aviso del mismo par (archivo,
+# sesiones) hasta pasado este tiempo, para no llenar el log cada ciclo.
+SOLAPE_COOLDOWN=900
 
 # Lista las sesiones activas: directorios .worktrees/* salvo integra
 sessions() {
@@ -185,6 +188,44 @@ sincronizar_tele_con_main() {
   fi
 }
 
+# RADAR de solape: detecta TEMPRANO cuándo dos sesiones tocan el mismo archivo,
+# ANTES de que el conflicto llegue a la promoción. Cada ciclo compara los
+# archivos que cada sesión modificó (commits + working tree) y avisa si dos
+# sesiones comparten alguno. Aviso con cooldown por par (archivo, sesiones).
+radar_solape() {
+  local tmp_file="$ROOT/.worktrees/.radar.$$" seen cooldown now key b files
+  : > "$tmp_file"
+  for name in $(sessions); do
+    b="sesion/$name"
+    files=$(git -C "$ROOT" diff --name-only "main...$b" 2>/dev/null)
+    files="$files
+$(git -C "$ROOT/.worktrees/$name" diff --name-only 2>/dev/null)"
+    while IFS= read -r f; do
+      [[ -z "$f" ]] && continue
+      # Avisar solo de archivos bajo src/ o supabase/ (código/contratos); el resto es ruido
+      [[ "$f" == src/* || "$f" == supabase/* || "$f" == scripts/* || "$f" == netlify.toml ]] || continue
+      printf '%s\n' "$name|$f"
+    done <<< "$files"
+  done >> "$tmp_file"
+
+  sort "$tmp_file" | uniq | awk -F'|' '{ seen[$2]=seen[$2] (seen[$2]=="" ? "" : " ") $1 }
+    END { for (f in seen) if (seen[f] ~ / /) print f "|" seen[f] }' | while IFS='|' read -r f owners; do
+    # Cooldown: no repetir el mismo par (archivo, mismas sesiones) dentro del plazo
+    key="$f|$owners"
+    seen="$ROOT/.worktrees/.solape-$f"
+    if [[ -f "$seen" ]]; then
+      read -r last_key last_ts < "$seen"
+      now=$(date +%s)
+      if [[ "$last_key" == "$key" ]] && (( now - last_ts < SOLAPE_COOLDOWN )); then
+        continue
+      fi
+    fi
+    echo "$key $(date +%s)" > "$seen"
+    log "⚠ RADAR solape: $f lo tocan $owners — coordinar con esas sesiones (lease: scripts/claim.sh)"
+  done
+  rm -f "$tmp_file"
+}
+
 log "👀 watcher iniciado (intervalo ${INTERVAL}s) — Ctrl+C para detener"
 while true; do
   for name in $(sessions); do
@@ -213,6 +254,8 @@ while true; do
       rm -f "$behindfile"
     fi
   done
+  # RADAR de solape: tras revisar todas las sesiones, avisa si dos tocan el mismo archivo
+  radar_solape
   sincronizar_tele_con_main
   [[ "$ONCE" -eq 1 ]] && break
   sleep "$INTERVAL"
