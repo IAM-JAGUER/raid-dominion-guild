@@ -19,6 +19,7 @@ export interface GuildRow {
   slug: string;
   name: string;
   realm: string | null;
+  server: string | null;
   faction: string | null;
   discord_link: string | null;
   description: string | null;
@@ -46,6 +47,25 @@ export interface GuildConfigRow {
   updated_at: string;
 }
 
+// Banda persistida en raiddominion_bands. guild_id es NULLABLE: un jugador
+// puede llevar bandas+reglas SIN hermandad reclamada (owner-only / público
+// por su perfil). players/rules conservan la forma real del addon.
+export interface BandRow {
+  id: string;
+  owner_id: string;
+  guild_id: string | null;
+  slug: string;
+  name: string;
+  icon: string | null;
+  schedule: string | null;
+  min_gs: number | null;
+  players: unknown[] | null;
+  rules: unknown[] | null;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 type PublicSchema = {
   raiddominion_profiles: {
     Row: ProfileRow;
@@ -66,6 +86,11 @@ type PublicSchema = {
     Row: GuildConfigRow;
     Insert: Pick<GuildConfigRow, 'guild_id' | 'config_key'> & Partial<Pick<GuildConfigRow, 'config_value'>>;
     Update: Partial<GuildConfigRow>;
+  };
+  raiddominion_bands: {
+    Row: BandRow;
+    Insert: Partial<BandRow> & { owner_id: string; slug: string; name: string };
+    Update: Partial<BandRow>;
   };
 };
 

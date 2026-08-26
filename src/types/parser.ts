@@ -24,9 +24,12 @@ export interface EquipmentPiece {
 }
 
 // Personaje propio exportado por el addon (registry.player)
+// `server` = realmlist (servidor real, p.ej. "Lordaeron"), DISTINTO de `realm`.
+// Solo existe en registry.player (el roster `characters` de la cuenta no lo trae).
 export interface PlayerCharacter {
   name: string;
   realm: string;
+  server?: string;
   race?: string;
   raceFile?: string;
   class?: string;

@@ -351,6 +351,7 @@ function asPlayerCharacter(raw: unknown): PlayerCharacter | null {
   return {
     name,
     realm: toStr(e['realm']).trim(),
+    server: toStr(e['server']).trim() || undefined,
     race: toStr(e['race']) || undefined,
     raceFile: toStr(e['raceFile']) || undefined,
     class: toStr(e['class']) || undefined,
