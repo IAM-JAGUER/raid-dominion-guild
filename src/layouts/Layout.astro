@@ -73,11 +73,13 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>{title}</title>
   </head>
-  <body class="relative">
+  <body class="relative flex flex-col min-h-[100dvh]">
     <script define:vars={{ rdEnvUrl, rdEnvKey }}>
       window.__RD_ENV__ = { url: rdEnvUrl || "", key: rdEnvKey || "" };
     </script>
-    <div class="max-w-6xl px-8 mx-auto relative">
+    <!-- El contenedor del slot crece (flex-1) para que el Footer quede
+         pegado abajo incluso en páginas con poco contenido. -->
+    <div class="w-full flex-1 max-w-6xl px-8 mx-auto relative">
       <slot />
     </div>
     <div
