@@ -47,7 +47,7 @@ import Navigation from '@/components/Navigation.astro';
 <script>
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
-  import type { CharacterRow } from '@/lib/api';
+  import { ensureMyCharacterSlugs, type CharacterRow } from '@/lib/api';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -68,9 +68,13 @@ import Navigation from '@/components/Navigation.astro';
 
   function card(c: CharacterRow): HTMLElement {
     const profile = profiles.get(c.user_id);
-    const link = document.createElement(profile?.slug ? 'a' : 'div');
-    if (profile?.slug) link.href = `/p/${profile.slug}`;
-    else {
+    const charHref = c.slug ? `/personaje/${c.slug}` : null;
+    const profHref = profile?.slug ? `/p/${profile.slug}` : null;
+    const href = charHref ?? profHref;
+    const link: HTMLElement = document.createElement(href ? 'a' : 'div');
+    if (href) {
+      (link as HTMLAnchorElement).href = href;
+    } else {
       link.classList.add('opacity-80');
       link.title = 'El jugador mantiene su perfil privado';
     }
@@ -122,9 +126,11 @@ import Navigation from '@/components/Navigation.astro';
 
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';
-    foot.textContent = profile?.slug
-      ? (profile.display_name ? `Por ${profile.display_name} · Ver perfil →` : 'Ver perfil →')
-      : 'Perfil privado';
+    foot.textContent = charHref
+      ? (profile?.display_name ? `Por ${profile.display_name} · Ver ficha →` : 'Ver ficha →')
+      : href
+        ? (profile?.display_name ? `Por ${profile.display_name} · Ver perfil →` : 'Ver perfil →')
+        : 'Perfil privado';
     link.appendChild(foot);
 
     return link;
@@ -160,6 +166,17 @@ import Navigation from '@/components/Navigation.astro';
     (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null }> | null)?.forEach((p) =>
       profiles.set(p.id, { slug: p.slug, display_name: p.display_name })
     );
+
+    // Slugs propios: generarlos en el momento si hace falta (RPC idempotente)
+    // para que los cards enlacen a /personaje/<slug>.
+    const session = await supabase.auth.getSession();
+    if (session.data.session?.user) {
+      const ensure = await ensureMyCharacterSlugs();
+      if (ensure.ok && ensure.slugs) {
+        const slugById = new Map(ensure.slugs.map((s) => [s.id, s.slug]));
+        chars.forEach((c) => { if (!c.slug) c.slug = slugById.get(c.id) ?? null; });
+      }
+    }
 
     // Filtro dinámico de clases
     const classes = Array.from(new Set(chars.map((c) => c.class).filter(Boolean))) as string[];

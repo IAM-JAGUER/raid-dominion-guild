@@ -11,10 +11,16 @@
   to = "/portal"
   status = 200
 
-# Perfil público de jugador /p/:slug
+# Ficha pública POR PERSONAJE /personaje/:slug y compat de /p/:slug
+# (los archivos reales tienen prioridad; ambas sirven el shell /personaje)
+[[redirects]]
+  from = "/personaje/*"
+  to = "/personaje"
+  status = 200
+
 [[redirects]]
   from = "/p/*"
-  to = "/jugador"
+  to = "/personaje"
   status = 200
 
 # Redirecciones SPA

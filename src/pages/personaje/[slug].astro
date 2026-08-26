@@ -1,0 +1,17 @@
+---
+// Ficha POR PERSONAJE resuelta 100% en cliente; en producción la cubren
+// los rewrites /personaje/* y /p/* de Netlify (los archivos reales tienen
+// prioridad). getStaticPaths vacío: ruta válida en dev, sin páginas
+// estáticas en build.
+export function getStaticPaths() {
+  return [];
+}
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+import JugadorProfile from '@/components/JugadorProfile.astro';
+---
+
+<Layout title="Personaje - RaidDominion">
+  <Navigation currentPath="/personajes" />
+  <JugadorProfile />
+</Layout>
