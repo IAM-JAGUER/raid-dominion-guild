@@ -9,18 +9,7 @@ import { ui } from '@/lib/ui/design';
       "Raid Dominion — Macrea tus bandas rapido"
     </p>
 
-      <!-- Indicadores vivos de comunidad -->
-      <div class="flex flex-wrap items-center justify-center gap-3 mt-5 animate-fade-in-1" style="animation-delay: 0.15s">
-        <a href="/guilds" class={`group ${ui.badge} backdrop-blur-sm hover:border-amber-400/60 hover:bg-amber-950/40 transition-all duration-300 hover:scale-105`}>
-          <svg class="w-3.5 h-3.5 text-amber-300 group-hover:text-amber-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
-          <span class="text-xs sm:text-sm text-gray-300"><span id="hero-guild-count" class="font-black text-amber-300">&ndash;</span> Hermandades</span>
-        </a>
-        <span class="text-amber-600/40 select-none" aria-hidden="true">&middot;</span>
-        <a href="/personajes" class={`group ${ui.badge} backdrop-blur-sm hover:border-amber-400/60 hover:bg-amber-950/40 transition-all duration-300 hover:scale-105`}>
-          <svg class="w-3.5 h-3.5 text-amber-300 group-hover:text-amber-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6-4a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span class="text-xs sm:text-sm text-gray-300"><span id="hero-char-count" class="font-black text-amber-300">&ndash;</span> Personajes</span>
-        </a>
-      </div>
+
   </div>
 
   <!-- Logo -->
@@ -122,22 +111,7 @@ import { ui } from '@/lib/ui/design';
     }
   </style>
 
-<script>
-  // Indicador compuesto por personajes VALIDADOS y hermandades públicas
-  import('@/lib/supabase').then(async ({ supabase }) => {
-    const { getPublicStats } = await import('@/lib/api');
-    const stats = await getPublicStats();
-    const g = document.getElementById('hero-guild-count');
-    const c = document.getElementById('hero-char-count');
-    if (g) g.textContent = String(stats.guilds);
-    if (c) c.textContent = String(stats.characters);
-  }).catch(() => {
-    const g = document.getElementById('hero-guild-count');
-    const c = document.getElementById('hero-char-count');
-    if (g) g.textContent = '0';
-    if (c) c.textContent = '0';
-  });
-</script>
+
 
 
 </section>
