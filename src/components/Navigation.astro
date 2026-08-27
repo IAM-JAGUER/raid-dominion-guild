@@ -107,6 +107,17 @@ const PUBLIC_LINKS = [
                   </span>
                 </a>
               ))}
+              <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
+              <a href="/moderate" data-staff-link="moderate" class="hidden account-link block px-4 py-2.5 text-sm text-sky-200 hover:bg-sky-900/30 hover:text-white transition-all duration-150" role="menuitem">
+                <span class="inline-flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-sky-500/70"></span>Moderación
+                </span>
+              </a>
+              <a href="/admin" data-staff-link="admin" class="hidden account-link block px-4 py-2.5 text-sm text-red-300 hover:bg-red-900/30 hover:text-white transition-all duration-150" role="menuitem">
+                <span class="inline-flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500/70"></span>Administración
+                </span>
+              </a>
               <div class="my-1 border-t border-amber-600/30"></div>
               <button
                 type="button"
@@ -213,6 +224,17 @@ const PUBLIC_LINKS = [
               class="block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
             >{t.label}</a>
           ))}
+          <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
+          <a
+            href="/moderate"
+            data-staff-link="moderate"
+            class="hidden block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-sky-200 border border-sky-500/40 bg-sky-900/30 hover:bg-sky-800/60 transition-all duration-200"
+          >Moderación</a>
+          <a
+            href="/admin"
+            data-staff-link="admin"
+            class="hidden block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-red-300 border border-red-500/40 bg-red-950/30 hover:bg-red-900/60 transition-all duration-200"
+          >Administración</a>
         </div>
         <button
           type="button"
@@ -462,11 +484,37 @@ const PUBLIC_LINKS = [
     const logoutButtons = document.querySelectorAll<HTMLButtonElement>('[data-auth-action="logout"]');
     if (guestLinks.length > 0 || userDropdowns.length > 0 || logoutButtons.length > 0) {
       import('@/lib/supabase').then(({ supabase }) => {
-        void supabase.auth.getSession().then(({ data }) => {
+        void supabase.auth.getSession().then(async ({ data }) => {
           const logged = Boolean(data.session);
           guestLinks.forEach((a) => a.classList.toggle('hidden', logged));
           userDropdowns.forEach((d) => d.classList.toggle('hidden', !logged));
           logoutButtons.forEach((b) => b.classList.toggle('hidden', !logged));
+
+          // Enlaces de staff (Moderación/Administración) según el rol del perfil.
+          // Los paneles de admin/moderación también se auto-protegen en su página.
+          const staffSep = Array.from(document.querySelectorAll<HTMLElement>('[data-staff-sep]'));
+          const staffLinks = Array.from(document.querySelectorAll<HTMLElement>('[data-staff-link]'));
+          const showStaff = (isMod: boolean, isAdmin: boolean): void => {
+            staffLinks.forEach((a) => {
+              const kind = a.getAttribute('data-staff-link');
+              const visible = kind === 'admin' ? isAdmin : isMod;
+              a.classList.toggle('hidden', !visible);
+            });
+            const anyVisible = isMod || isAdmin;
+            staffSep.forEach((s) => s.classList.toggle('hidden', !anyVisible));
+          };
+          showStaff(false, false);
+          if (data.session?.user) {
+            const roleRes = await supabase
+              .from('raiddominion_profiles')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .maybeSingle();
+            const role = roleRes.data as { role?: string } | null;
+            const isMod = role?.role === 'moderator' || role?.role === 'admin';
+            const isAdmin = role?.role === 'admin';
+            showStaff(isMod, isAdmin);
+          }
         });
         logoutButtons.forEach((btn) => {
           btn.addEventListener('click', () => {
