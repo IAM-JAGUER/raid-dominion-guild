@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Servidores - RaidDominion" description="Servidores y reinos con hermandades y personajes públicos de la comunidad RaidDominion.">
   <Navigation currentPath="/servidores" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
         <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Servidores</h1>
@@ -30,7 +32,7 @@ import Navigation from '@/components/Navigation.astro';
 </Layout>
 
 <script>
-  import { listPublicServers } from '@/lib/api';
+  import { listPublicServers, getServerStats } from '@/lib/api';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -46,11 +48,14 @@ import Navigation from '@/components/Navigation.astro';
     emptyEl.classList.remove('hidden');
   } else {
     document.title = `${res.servers.length} servidor${res.servers.length === 1 ? '' : 'es'} — RaidDominion`;
-    res.servers.forEach((s) => gridEl.appendChild(card(s)));
+    const statsRes = await Promise.all(res.servers.map((s) => getServerStats(s)));
+    res.servers.forEach((s, i) => {
+      gridEl.appendChild(card(s, statsRes[i]));
+    });
     statusEl.classList.add('hidden');
   }
 
-  function card(server: string): HTMLElement {
+  function card(server: string, stats: Awaited<ReturnType<typeof getServerStats>>): HTMLElement {
     const link = document.createElement('a');
     link.href = `/servidor/${encodeURIComponent(server)}`;
     link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
@@ -70,8 +75,27 @@ import Navigation from '@/components/Navigation.astro';
     const meta = document.createElement('div');
     meta.className = 'flex flex-wrap gap-1.5';
     meta.appendChild(chip('Servidor realmlist'));
-    meta.appendChild(chip('Reinos dentro →'));
     link.appendChild(meta);
+
+    // Stats reales: reinos, personajes y jugadores públicos
+    const statsRow = document.createElement('div');
+    statsRow.className = 'grid grid-cols-3 gap-2 mt-3';
+    const stat = (label: string, value: number | undefined): HTMLElement => {
+      const box = document.createElement('div');
+      box.className = 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-2';
+      const val = document.createElement('p');
+      val.className = 'text-lg font-black text-amber-200 italic';
+      val.textContent = String(value ?? 0);
+      const lab = document.createElement('p');
+      lab.className = 'text-[9px] font-black uppercase tracking-widest text-gray-500';
+      lab.textContent = label;
+      box.append(val, lab);
+      return box;
+    };
+    statsRow.appendChild(stat('Reinos', stats.ok ? stats.realms : 0));
+    statsRow.appendChild(stat('Personajes', stats.ok ? stats.characters : 0));
+    statsRow.appendChild(stat('Jugadores', stats.ok ? stats.players : 0));
+    link.appendChild(statsRow);
 
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';

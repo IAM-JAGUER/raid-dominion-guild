@@ -4,12 +4,14 @@
 // raiddominion_profiles (is_public = true). Cada tarjeta enlaza a /jugador/:slug.
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Jugadores - RaidDominion" description="Jugadores de la comunidad RaidDominion con perfil público: cuenta, personaje principal y hermandad.">
   <Navigation currentPath="/jugadores" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
         <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Jugadores</h1>
@@ -33,7 +35,10 @@ import Navigation from '@/components/Navigation.astro';
 </Layout>
 
 <script>
-  import { listPublicPlayers, type ProfileRow } from '@/lib/api';
+  import { listPublicPlayers } from '@/lib/api';
+  import type { ProfileRow } from '@/types/database';
+  import { supabase } from '@/lib/supabase';
+  import { isNameless, playerName, playerInitial, handleFromSlug } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -51,19 +56,47 @@ import Navigation from '@/components/Navigation.astro';
       (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20'), text);
   }
 
-  function card(p: ProfileRow): HTMLElement {
-    const name = p.display_name || p.character_name || 'Jugador';
+  // Personaje público más relevante por cuenta (solo presentación): GM antes,
+  // luego mayor avg_ilvl, luego nombre. No modifica los datos del perfil.
+  interface Principal { name: string; score: number }
+  async function resolvePrincipals(players: ProfileRow[]): Promise<Map<string, Principal | undefined>> {
+    const map = new Map<string, Principal | undefined>();
+    const ids = players.map((p) => p.id);
+    if (ids.length === 0) return map;
+    const res = await supabase
+      .from('raiddominion_characters')
+      .select('user_id, name, sv_is_gm, avg_ilvl')
+      .eq('is_public', true)
+      .in('user_id', ids);
+    if (res.error) return map;
+    const rows = (res.data as Array<{ user_id: string; name: string; sv_is_gm: boolean | null; avg_ilvl: number | null }>) ?? [];
+    rows.forEach((c) => {
+      const cur = map.get(c.user_id);
+      const score = (c.sv_is_gm ? 1000 : 0) + (typeof c.avg_ilvl === 'number' ? c.avg_ilvl : 0);
+      if (!cur || score > cur.score) {
+        map.set(c.user_id, { name: c.name, score });
+      }
+    });
+    return map;
+  }
+
+  function card(p: ProfileRow, principal?: Principal): HTMLElement {
+    const nameless = isNameless(p);
+    const name = playerName(p, principal?.name);
+    const fromHandle = nameless && !principal?.name;
     const link = document.createElement('a');
     link.href = `/jugador/${p.slug}`;
     link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
 
     const head = el('div', 'flex items-center gap-3 mb-3');
-    const avatar = el('div', 'w-11 h-11 rounded-lg flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 bg-amber-600/15 text-amber-300');
-    avatar.textContent = (name[0] || '?').toUpperCase();
+    const avatar = el('div', 'w-11 h-11 rounded-lg flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 ' +
+      (fromHandle ? 'bg-gray-800/70 text-gray-500' : 'bg-amber-600/15 text-amber-300'));
+    avatar.textContent = playerInitial(name);
     head.appendChild(avatar);
     const nameWrap = el('div', 'min-w-0');
     const nm = el('h2', 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug truncate', name);
     nameWrap.appendChild(nm);
+    // Subtítulo: el personaje principal declarado, si difiere del nombre.
     if (p.character_name && p.character_name !== name) {
       nameWrap.appendChild(el('p', 'text-[11px] text-gray-500 truncate', `Principal: ${p.character_name}`));
     }
@@ -77,6 +110,13 @@ import Navigation from '@/components/Navigation.astro';
 
     const chips = el('div', 'flex flex-wrap gap-1.5');
     chips.appendChild(chip('Perfil público'));
+    // Marca distintiva para perfiles sin nombre: handle único + aviso sutil.
+    if (fromHandle) {
+      chips.appendChild(chip(handleFromSlug(p.slug), 'text-gray-500 bg-gray-900/60 border-gray-600/40'));
+      chips.appendChild(chip('sin nombre', 'text-amber-400 bg-amber-950/30 border-amber-600/40'));
+    } else if (nameless) {
+      chips.appendChild(chip('sin nombre', 'text-amber-400 bg-amber-950/30 border-amber-600/40'));
+    }
     if (p.realm) chips.appendChild(chip(p.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
     if (p.is_guild_master) chips.appendChild(chip('Maestro', 'text-fuchsia-300 bg-fuchsia-950/30 border-fuchsia-600/40'));
     link.appendChild(chips);
@@ -94,7 +134,8 @@ import Navigation from '@/components/Navigation.astro';
     emptyEl.classList.remove('hidden');
   } else {
     document.title = `${res.players.length} jugador${res.players.length === 1 ? '' : 'es'} — RaidDominion`;
-    res.players.forEach((p) => gridEl.appendChild(card(p)));
+    const principals = await resolvePrincipals(res.players);
+    res.players.forEach((p) => gridEl.appendChild(card(p, principals.get(p.id))));
     statusEl.classList.add('hidden');
   }
 </script>

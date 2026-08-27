@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Bandas - RaidDominion" description="Bandas de raid públicas de las hermandades que usan RaidDominion: horario, GS mínimo y roster.">
   <Navigation currentPath="/bandas" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
         <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Bandas</h1>
@@ -22,7 +24,7 @@ import Navigation from '@/components/Navigation.astro';
       <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
         <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <p class="font-bold text-white mb-1">Aún no hay bandas públicas</p>
-        <p class="text-sm text-gray-400 max-w-md mx-auto">Los maestros de hermandad publican sus bandas desde el dashboard.</p>
+        <p class="text-sm text-gray-400 max-w-md mx-auto">Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.</p>
         <a href="/upload" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Sube tu SavedVariables</a>
       </div>
     </div>
@@ -31,10 +33,43 @@ import Navigation from '@/components/Navigation.astro';
 
 <script>
   import { listPublicBands, type BandRow } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+  import { playerName } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
   const emptyEl = document.getElementById('empty') as HTMLElement;
+
+  // Dueño visible de cada banda: la guild pública (si guild_id) o el perfil
+  // público del jugador (si es una banda personal). Se resuelve en batch.
+  interface OwnerRef { href?: string; label?: string; kind?: 'guild' | 'player' }
+
+  async function resolveOwners(bands: BandRow[]): Promise<Map<string, OwnerRef>> {
+    const map = new Map<string, OwnerRef>();
+    const guildIds = Array.from(new Set(bands.filter((b) => b.guild_id).map((b) => b.guild_id as string)));
+    const ownerIds = Array.from(new Set(bands.filter((b) => !b.guild_id).map((b) => b.owner_id)));
+
+    const [gRes, pRes] = await Promise.all([
+      guildIds.length > 0
+        ? supabase.from('raiddominion_guilds').select('id, name, slug, is_public').in('id', guildIds)
+        : Promise.resolve({ error: null, data: [] }),
+      ownerIds.length > 0
+        ? supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name, is_public').in('id', ownerIds)
+        : Promise.resolve({ error: null, data: [] }),
+    ]);
+
+    if (!gRes.error) {
+      (gRes.data as Array<{ id: string; name: string; slug: string; is_public: boolean }>).forEach((g) => {
+        if (g.is_public) map.set(g.id, { href: `/${g.slug}`, label: g.name, kind: 'guild' });
+      });
+    }
+    if (!pRes.error) {
+      (pRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean }>).forEach((p) => {
+        if (p.is_public && p.slug) map.set(p.id, { href: `/jugador/${p.slug}`, label: playerName(p), kind: 'player' });
+      });
+    }
+    return map;
+  }
 
   // Las bandas viven en raiddominion_bands (personales o de hermandad) y se
   // publican con su visibilidad espejo (perfil del dueño o portal de la guild).
@@ -46,11 +81,12 @@ import Navigation from '@/components/Navigation.astro';
     emptyEl.classList.remove('hidden');
   } else {
     document.title = `${res.bands.length} banda${res.bands.length === 1 ? '' : 's'} — RaidDominion`;
-    res.bands.forEach((b) => gridEl.appendChild(card(b)));
+    const owners = await resolveOwners(res.bands);
+    res.bands.forEach((b) => gridEl.appendChild(card(b, owners.get(b.guild_id || b.owner_id))));
     statusEl.classList.add('hidden');
   }
 
-  function card(b: BandRow): HTMLElement {
+  function card(b: BandRow, owner?: OwnerRef): HTMLElement {
     const players = Array.isArray(b.players) ? b.players.length : 0;
     const link = document.createElement('a');
     link.href = `/banda/${encodeURIComponent(b.slug)}`;
@@ -72,13 +108,33 @@ import Navigation from '@/components/Navigation.astro';
     meta.className = 'flex flex-wrap gap-1.5';
     if (b.schedule) meta.appendChild(chip(b.schedule));
     if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(chip(`GS ${b.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-    meta.appendChild(chip(`${players} jugadores`));
-    if (!b.guild_id) meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
+    if (b.hide_players) {
+      meta.appendChild(chip('jugadores ocultos', '!text-gray-500'));
+    } else {
+      meta.appendChild(chip(`${players} jugadores`));
+    }
+    if (owner?.href && owner.label) {
+      meta.appendChild(chip(owner.label, owner.kind === 'guild' ? '!text-sky-200 !border-sky-600/30' : '!text-sky-200 !border-sky-600/30'));
+    } else if (!b.guild_id) {
+      meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
+    }
+    // Atribución por personaje (bandas por persona): quién la subió.
+    if (b.character_name) {
+      meta.appendChild(chip(`de ${b.character_name}`, '!text-amber-300 !border-amber-500/40'));
+    }
     link.appendChild(meta);
 
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';
-    foot.textContent = 'Ver banda →';
+    const deQuien = b.character_name ? ` · de ${b.character_name}` : '';
+    if (owner?.href && owner.label) {
+      const ownerLink = document.createElement('span');
+      ownerLink.className = 'text-sky-300 hover:text-sky-200 transition-colors';
+      ownerLink.textContent = (owner.kind === 'guild' ? `${owner.label}` : `Por ${owner.label}`) + `${deQuien} · ver banda →`;
+      foot.appendChild(ownerLink);
+    } else {
+      foot.textContent = `Ver banda →${deQuien}`;
+    }
     link.appendChild(foot);
     return link;
   }

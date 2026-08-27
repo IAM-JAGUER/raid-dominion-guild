@@ -1,0 +1,122 @@
+---
+// Breadcrumb compartido del portal: Home → [nivel 1] → [nivel 2] → [nivel 3].
+// Se resuelve 100% en cliente desde window.location (las rutas de ficha se
+// reescriben por servidor pero el navegador conserva la URL real), usando
+// los helpers de src/lib/routes.ts. El label final se sustituye con el valor
+// real vía window.__rdBreadcrumb.setLabel() cuando la vista carga sus datos.
+interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+---
+
+<nav aria-label="Migas de pan" class={`breadcrumb flex flex-wrap items-center gap-1.5 text-[11px] text-gray-400 mt-6 mb-6 ${className}`}>
+  <span class="crumb-link"><a href="/" class="hover:text-amber-300 transition-colors">Inicio</a></span>
+</nav>
+
+<script>
+  import { currentSegments, currentSlug, RESERVED } from '@/lib/routes';
+
+  interface Crumb {
+    label: string;
+    href?: string;
+  }
+
+  function build(): Crumb[] {
+    const seg = currentSegments();
+    const trail: Crumb[] = [];
+    const push = (label: string, href?: string) => trail.push({ label, href });
+    push('Inicio', '/');
+    const first = seg[0] ? seg[0].toLowerCase() : '';
+
+    const DIRECTORIES: Record<string, string> = {
+      guilds: 'Hermandades',
+      hermandades: 'Hermandades',
+      servidores: 'Servidores',
+      jugadores: 'Jugadores',
+      personajes: 'Personajes',
+      bandas: 'Bandas',
+    };
+    const APP: Record<string, string> = {
+      upload: 'Subir',
+      login: 'Iniciar sesión',
+      dashboard: 'Cuenta',
+      admin: 'Admin',
+      moderate: 'Moderación',
+    };
+
+    if (first in DIRECTORIES) {
+      const href = first === 'hermandades' ? '/hermandades' : `/${first}`;
+      push(DIRECTORIES[first], href);
+    } else if (first in APP) {
+      push(APP[first], `/${first}`);
+    } else if (first === 'servidor') {
+      const server = seg[1] ? decodeURIComponent(seg[1]) : '';
+      push('Servidores', '/servidores');
+      if (server) push(server, `/servidor/${encodeURIComponent(server)}`);
+      if (seg.length === 4 && seg[2]?.toLowerCase() === 'reino' && seg[3]) {
+        push(decodeURIComponent(seg[3]), `/servidor/${encodeURIComponent(server)}/reino/${encodeURIComponent(seg[3])}`);
+      }
+    } else if (first === 'personaje') {
+      push('Personajes', '/personajes');
+      push(currentSlug() || seg[1] || 'Personaje', `/personaje/${seg[1] ?? ''}`);
+    } else if (first === 'banda') {
+      push('Bandas', '/bandas');
+      push(currentSlug() || seg[1] || 'Banda', `/banda/${seg[1] ?? ''}`);
+    } else if (first === 'jugador' || first === 'p') {
+      push('Jugadores', '/jugadores');
+      push(currentSlug() || seg[1] || 'Jugador', `/jugador/${seg[1] ?? ''}`);
+    } else if (first === 'detalle') {
+      // Dev directo a /detalle (sin rewrite): sin contexto de ficha.
+      push('Detalle');
+    } else if (first && !RESERVED.has(first)) {
+      // Portal de hermandad en raíz (/:slug).
+      push('Hermandades', '/hermandades');
+      push(currentSlug() || seg[0], `/${seg[0]}`);
+    }
+    return trail;
+  }
+
+  const nav = document.querySelector('.breadcrumb') as HTMLElement | null;
+  if (nav) {
+    nav.innerHTML = '';
+    const trail = build();
+    const lastIndex = trail.length - 1;
+
+    trail.forEach((crumb, i) => {
+      const wrap = document.createElement('span');
+      wrap.className = 'inline-flex items-center gap-1.5';
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.setAttribute('aria-hidden', 'true');
+        sep.className = 'text-amber-600/60';
+        sep.textContent = '›';
+        wrap.appendChild(sep);
+      }
+      if (crumb.href && i < lastIndex) {
+        const a = document.createElement('a');
+        a.href = crumb.href;
+        a.className = 'hover:text-amber-300 transition-colors';
+        a.textContent = crumb.label;
+        wrap.appendChild(a);
+      } else {
+        const cur = document.createElement('span');
+        cur.className = 'crumb-current text-amber-200/90 font-medium';
+        cur.setAttribute('aria-current', 'page');
+        cur.textContent = crumb.label;
+        wrap.appendChild(cur);
+      }
+      nav.appendChild(wrap);
+    });
+
+    // API para las vistas: sustituye el label del crumb actual con el valor real
+    // (nombre de servidor/reino/personaje/banda/guild) tras cargar datos.
+    (window as unknown as { __rdBreadcrumb?: { setLabel: (label: string) => void } }).__rdBreadcrumb = {
+      setLabel(label: string) {
+        const cur = nav.querySelector('.crumb-current');
+        if (cur) cur.textContent = label;
+      },
+    };
+  }
+</script>

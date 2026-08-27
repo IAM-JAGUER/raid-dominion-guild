@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Hermandades - RaidDominion" description="Directorio público de hermandades de la comunidad RaidDominion: roster, bandas y reglas de cada portal.">
   <Navigation currentPath="/guilds" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
         <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Hermandades</h1>
@@ -85,6 +87,34 @@ import Navigation from '@/components/Navigation.astro';
       desc.textContent = g.description;
       link.appendChild(desc);
     }
+
+    // Chips: servidor (enlaza al directorio de servidores), verificación y Discord
+    const chips = document.createElement('div');
+    chips.className = 'flex flex-wrap gap-1.5 mb-3';
+    if (g.server) {
+      const serverChip = document.createElement('a');
+      serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
+      serverChip.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors';
+      serverChip.textContent = g.server;
+      chips.appendChild(serverChip);
+    }
+    if (g.claim_status === 'verified') {
+      const verified = document.createElement('span');
+      verified.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border bg-emerald-950/30 border-emerald-600/40 text-emerald-300';
+      verified.textContent = '✓ Verificada';
+      chips.appendChild(verified);
+    }
+    if (g.discord_link) {
+      const discord = document.createElement('a');
+      discord.href = g.discord_link;
+      discord.target = '_blank';
+      discord.rel = 'noopener noreferrer';
+      discord.title = 'Discord de la hermandad';
+      discord.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors';
+      discord.textContent = 'Discord';
+      chips.appendChild(discord);
+    }
+    if (chips.children.length > 0) link.appendChild(chips);
 
     const meta = document.createElement('div');
     meta.className = 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15';

@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Iniciar Sesión - RaidDominion" description="Inicia sesión o crea tu cuenta en el portal comunitario de RaidDominion.">
   <Navigation currentPath="/login" />
   <main class="relative py-16">
     <div class="max-w-md mx-auto px-4">
+      <Breadcrumb />
       <!-- Encabezado con logo -->
       <header class="text-center mb-8 animate-fade-in-1">
         <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]" loading="eager" decoding="async" />

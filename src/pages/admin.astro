@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Administración - RaidDominion" description="Panel de administración de usuarios del portal RaidDominion.">
   <Navigation currentPath="/admin" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <!-- Cargando -->
       <div id="loading" class="text-center py-20">

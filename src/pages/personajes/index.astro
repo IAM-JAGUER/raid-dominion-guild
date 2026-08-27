@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Personajes - RaidDominion" description="Navegador público de personajes validados de la comunidad RaidDominion: clase, nivel, ilvl y hermandad de cada jugador.">
   <Navigation currentPath="/personajes" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
         <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Personajes</h1>
@@ -48,6 +50,7 @@ import Navigation from '@/components/Navigation.astro';
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
   import { ensureMyCharacterSlugs, type CharacterRow } from '@/lib/api';
+  import { playerName } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -56,7 +59,7 @@ import Navigation from '@/components/Navigation.astro';
   const classEl = document.getElementById('class-filter') as HTMLSelectElement;
 
   let chars: CharacterRow[] = [];
-  const profiles = new Map<string, { slug: string | null; display_name: string | null }>();
+  const profiles = new Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>();
 
   function chip(text: string, extra = ''): HTMLElement {
     const c = document.createElement('span');
@@ -118,6 +121,8 @@ import Navigation from '@/components/Navigation.astro';
     const chips = document.createElement('div');
     chips.className = 'flex flex-wrap gap-1.5';
     if (c.class) chips.appendChild(chip(c.class));
+    if (c.realm) chips.appendChild(chip(c.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
+    if (c.server) chips.appendChild(chip(c.server, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
     if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, 'text-amber-300 bg-gray-800/60 border-amber-500/30'));
     if (c.member_verified) chips.appendChild(chip('✓ Validado', 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40'));
@@ -126,10 +131,11 @@ import Navigation from '@/components/Navigation.astro';
 
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';
+    const ownerName = profile ? playerName(profile) : '';
     foot.textContent = charHref
-      ? (profile?.display_name ? `Por ${profile.display_name} · Ver ficha →` : 'Ver ficha →')
+      ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')
       : href
-        ? (profile?.display_name ? `Por ${profile.display_name} · Ver perfil →` : 'Ver perfil →')
+        ? (ownerName ? `Por ${ownerName} · Ver perfil →` : 'Ver perfil →')
         : 'Perfil privado';
     link.appendChild(foot);
 
@@ -159,12 +165,12 @@ import Navigation from '@/components/Navigation.astro';
         .eq('member_verified', true)
         .order('avg_ilvl', { ascending: false })
         .limit(200),
-      supabase.from('raiddominion_profiles').select('id, slug, display_name').eq('is_public', true),
+      supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name').eq('is_public', true),
     ]);
 
     chars = (charsRes.data as CharacterRow[] | null) ?? [];
-    (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null }> | null)?.forEach((p) =>
-      profiles.set(p.id, { slug: p.slug, display_name: p.display_name })
+    (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null }> | null)?.forEach((p) =>
+      profiles.set(p.id, { slug: p.slug, display_name: p.display_name, character_name: p.character_name })
     );
 
     // Slugs propios: generarlos en el momento si hace falta (RPC idempotente)

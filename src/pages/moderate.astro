@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Moderación - RaidDominion" description="Panel de moderación: verificación de hermandades y control de portales públicos.">
   <Navigation currentPath="/moderate" />
   <main class="relative py-16">
-    <div class="max-w-5xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <!-- Cargando -->
       <div id="loading" class="text-center py-20">
