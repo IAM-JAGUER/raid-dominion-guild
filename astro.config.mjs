@@ -19,6 +19,13 @@ export default defineConfig({
     enabled: false
   },
 
+  // Live preview accesible en la red local (LAN), igual que opencode-mobile
+  // (escucha en 0.0.0.0). Así el "Live preview" (npm run dev) es alcanzable
+  // desde el celular vía http://<IP-LAN>:4321. localhost sigue funcionando.
+  server: {
+    host: true,
+  },
+
   vite: {
     plugins: [
       {
