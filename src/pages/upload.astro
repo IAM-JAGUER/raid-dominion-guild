@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Sube tu SavedVariables - RaidDominion" description="Sube tu RaidDominion.lua y visualiza el roster y las bandas de tu hermandad.">
   <Navigation currentPath="/upload" />
   <main class="relative py-16">
     <div class="max-w-4xl mx-auto px-4">
+      <Breadcrumb />
       <!-- Header -->
       <header class="text-center mb-12 animate-fade-in-1">
         <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
@@ -60,7 +62,7 @@ import Navigation from '@/components/Navigation.astro';
           <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
         </div>
 
-        <!-- Resumen -->
+        <!-- Cifras del procesamiento -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-guild-size">0</p>
@@ -80,37 +82,9 @@ import Navigation from '@/components/Navigation.astro';
           </div>
         </div>
 
-        <!-- Personaje propio (registry.player) -->
-        <div id="player-banner" class="hidden"></div>
-
-        <!-- Hermandad del personaje activo (registry.guild) -->
-        <div id="guild-sv-banner" class="hidden"></div>
-
-        <!-- Bandas -->
-        <div id="bands-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
-          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-            Bandas
-          </h2>
-          <div id="bands-list" class="space-y-4"></div>
-        </div>
-
-        <!-- Reglas -->
-        <div id="rules-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
-          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-            Reglas de banda
-          </h2>
-          <ul id="rules-list" class="space-y-3"></ul>
-        </div>
-
-        <!-- Roster preview -->
-        <div id="roster-section" class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6">
-          <h2 class="text-xl font-bold text-amber-300 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-            Roster de la hermandad
-          </h2>
-          <div id="roster-table-wrap" class="overflow-x-auto"></div>
+        <!-- Enlace al dashboard: el detalle vive en Mi cuenta -->
+        <div class="text-center">
+          <a href="/dashboard" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ir a Mi dashboard →</a>
         </div>
       </section>
 
@@ -126,7 +100,7 @@ import Navigation from '@/components/Navigation.astro';
 <script>
   import { parseSavedVariables } from '@/lib/parser/savedVariables';
   import type { ParsedSavedVariables, GuildMember } from '@/types/parser';
-  import { el, renderParsedSections } from '@/lib/ui/preview';
+  import { el } from '@/lib/ui/preview';
   import { supabase } from '@/lib/supabase';
   import {
     saveUpload,
@@ -276,7 +250,11 @@ import Navigation from '@/components/Navigation.astro';
     // Bandas + reglas → raiddominion_bands (personales o de hermandad, con
     // guild_id NULLABLE y visibilidad espejo). Re-subir el SV las actualiza.
     setStatus('Sincronizando tus bandas y reglas…');
-    const bandsSync = await upsertBands(saved.id, data.bands ?? [], data.rules ?? []);
+    const bandsSync = await upsertBands(
+      saved.id, data.bands ?? [], data.rules ?? [],
+      data.registryGuild?.rankIndex ?? null, data.registryGuild?.name ?? null,
+      data.player?.name ?? null, data.player?.realm ?? null,
+    );
     if (bandsSync.ok) {
       if (bandsSync.count && bandsSync.count > 0) {
         setStatus(`${bandsSync.count} banda${bandsSync.count === 1 ? '' : 's'} sincronizada${bandsSync.count === 1 ? '' : 's'}.`);
@@ -338,8 +316,9 @@ import Navigation from '@/components/Navigation.astro';
     }
 
     // Portal: el re-upload actualiza el snapshot (roster/bandas/reglas) de
-    // CADA hermandad propia presente en el SV.
-    if (role === 'guild_master') {
+    // CADA hermandad propia presente en el SV, SOLO si el personaje activo es
+    // maestro (registry.guild.isGM). Una subida de otro rango jamás lo pisa.
+    if (role === 'guild_master' && data.registryGuild?.isGM === true) {
       setStatus('Actualizando tu(s) portal(es)…');
       const snap = await saveMyGuildSnapshotsFromSV(data);
       setStatus(snap.ok
@@ -374,73 +353,6 @@ import Navigation from '@/components/Navigation.astro';
     (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length);
     (document.getElementById('stat-roles') as HTMLElement).textContent = String(data.roles.length);
     (document.getElementById('stat-mechanics') as HTMLElement).textContent = String(data.mechanics.length);
-
-    // Tarjetas por CADA personaje del registry (activo marcado)
-    const shown = data.registries.length > 0
-      ? data.registries
-      : (data.player ? [{ key: '', player: data.player, guild: data.registryGuild, savedAt: data.savedAt }] : []);
-    const playerBanner = document.getElementById('player-banner') as HTMLElement;
-    playerBanner.innerHTML = '';
-    for (const reg of shown) {
-      const p = reg.player;
-      if (!p) continue;
-      const isActive = Boolean(data.player && p.name.toLowerCase() === data.player.name.toLowerCase()
-        && (p.realm ?? '').toLowerCase() === (data.player.realm ?? '').toLowerCase());
-      const card = el('div', 'bg-gray-800/50 border rounded-lg p-4 mb-3 ' + (isActive ? 'border-amber-500/60' : 'border-gray-700/50'));
-      const title = el('div', 'flex flex-wrap items-center gap-2 mb-2');
-      title.appendChild(el('h3', 'text-base font-bold ' + (isActive ? 'text-amber-200' : 'text-gray-200'),
-        `${p.name}${p.realm ? '-' + p.realm : ''}`));
-      if (isActive) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded-lg px-3 py-1', 'Activo'));
-      if (p.class) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', p.class));
-      if (p.race) title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-gray-600/30 rounded-lg px-3 py-1', p.race));
-      if (typeof p.level === 'number') title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `Nivel ${p.level}`));
-      if (typeof p.avgIlvl === 'number') title.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-gray-900/60 border border-amber-500/30 rounded-lg px-3 py-1', `ilvl ${p.avgIlvl}`));
-      card.appendChild(title);
-      if (reg.guild) {
-        card.appendChild(el('p', 'text-xs text-gray-400 mb-1',
-          `Hermandad: ${reg.guild.name}${reg.guild.rank ? ' · ' + reg.guild.rank : ''}`));
-      }
-      if (p.equipment.length > 0) {
-        const list = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1');
-        p.equipment.forEach((piece) => {
-          const row = el('div', 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1');
-          row.appendChild(el('span', '', piece.name));
-          row.appendChild(el('span', 'text-gray-500 whitespace-nowrap', `i${piece.ilvl} · slot ${piece.slot}`));
-          list.appendChild(row);
-        });
-        card.appendChild(list);
-      }
-      playerBanner.appendChild(card);
-    }
-    playerBanner.classList.toggle('hidden', shown.length === 0);
-
-    // Banner de hermandad detectada por el addon
-    const guildBanner = document.getElementById('guild-sv-banner') as HTMLElement;
-    guildBanner.innerHTML = '';
-    const rg = data.registryGuild;
-    if (rg) {
-      const box = el('div', 'bg-gray-900/50 border border-amber-700/40 rounded-lg p-4');
-      const head = el('div', 'flex flex-wrap items-center justify-between gap-3');
-      head.appendChild(el('h3', 'text-sm font-bold text-amber-200',
-        `${rg.name}${rg.rank ? ' — ' + rg.rank : ''}${rg.isGM ? ' · MAESTRO' : ''}`));
-      head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500',
-        rg.isGM
-          ? 'Reclamo automático al subir siendo Miembro validado'
-          : 'El maestro de tu hermandad puede reclamarla subiendo su SV'));
-      box.appendChild(head);
-      guildBanner.appendChild(box);
-    }
-    guildBanner.classList.toggle('hidden', !rg);
-
-    // Bandas, reglas y roster vía módulo compartido
-    renderParsedSections(data, {
-      bands: document.getElementById('bands-list') as HTMLElement,
-      rules: document.getElementById('rules-list') as HTMLElement,
-      rosterWrap: document.getElementById('roster-table-wrap') as HTMLElement,
-    });
-    const allBandsCount = data.bands.length;
-    (document.getElementById('bands-section') as HTMLElement).classList.toggle('hidden', allBandsCount === 0);
-    (document.getElementById('rules-section') as HTMLElement).classList.toggle('hidden', data.rules.length === 0);
 
     // Claim de maestro (auto por SV; sin formularios manuales)
     const claimBanner = document.getElementById('claim-banner') as HTMLElement;
