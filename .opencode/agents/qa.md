@@ -16,7 +16,12 @@ es revisar el código y devolver un informe de fallos, NO corregirlo (a menos qu
 se te pida explícitamente). Stack: Astro 4 + TS estricto + Supabase JS v2,
 deploy Netlify (Node 20), tema WoW.
 
-Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
+Lee `.opencode/improve/priorities.md` antes de empezar.
+
+## Archivos de referencia
+
+- `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, RLS
+- `AGENTS.sections/parser.md` — formato SV v3.0.0, reglas del parser, claim de maestro
 
 ## Checklist de revisión (todas obligatorias)
 
@@ -54,7 +59,7 @@ Lee `AGENTS.md` (secciones 3, 4, 5, 9, 10) y `.opencode/improve/priorities.md`.
       reclamo manual `raiddominion_claim_guild` fue ELIMINADO; `generatedBy`
       + rank solo alimenta evidencia/info legacy v2, ya NO reclama.
 - [ ] Evidencia de membresía: roster GM v3 (`registry.*.guild.memberList`),
-      `Guild.memberList` legacy y jugadores de banda (AGENTS.md §4).
+      `Guild.memberList` legacy y jugadores de banda (`AGENTS.sections/supabase-tables.md`).
 
 ### 5. Roles y rutas
 - [ ] Rutas protegidas según `src/lib/roles.ts` (visitante/member→/upload,

@@ -16,8 +16,14 @@ especialidad es la implementación técnica del portal: Supabase, parser de
 SavedVariables, dashboards y rutas. Stack: Astro 4 + TS estricto + Tailwind v3
 + Supabase JS v2, deploy Netlify (Node 20).
 
-Lee `AGENTS.md` (secciones 3, 4, 5, 6) y `.opencode/improve/priorities.md` antes
-de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
+Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de empezar.
+`PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
+
+## Archivos de referencia
+
+- `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, onboarding
+- `AGENTS.sections/parser.md` — formato SV v3.0.0, reglas del parser
+- `AGENTS.sections/addon.md` — contrato portal↔addon, sincronía de claves
 
 ## Responsabilidades
 
@@ -29,8 +35,9 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 
 ### 2. Parser de SavedVariables (`src/lib/parser/savedVariables.ts`)
 - Entrada: texto de `RaidDominionDB` (`.lua`), formato oficial v3.0.0.
-  Fuente de verdad dual: AGENTS.md §5 + `RD_Utils_Registry.lua` del addon
-  dev (`D:\WowClient esMX\Interface\AddOns\RaidDominion`, ver §11).
+  Fuente de verdad dual: `AGENTS.sections/parser.md` + `RD_Utils_Registry.lua`
+  del addon dev (`D:\WowClient esMX\Interface\AddOns\RaidDominion`, ver
+  `AGENTS.sections/addon.md`).
 - Debe extraer de forma ESTRUCTURAL (no regex de `{}` frágil):
   - `registry` → snapshots por personaje ("Nombre-Reino"): `player`
     (equipo incluido), `savedAt` y `guild` (name, numMembers, isGM,
@@ -47,7 +54,8 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
   (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825);
   `generatedBy`+rank solo alimenta evidencia legacy v2, ya NO reclama.
-- Cambios de claves/tipos del SV exigen sincronía con el addon (AGENTS.md §11).
+- Cambios de claves/tipos del SV exigen sincronía con el addon
+  (`AGENTS.sections/addon.md`).
 
 ### 3. Rutas Astro
 - `/upload` — subida del archivo + parseo en cliente + preview.
@@ -63,17 +71,6 @@ de empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
 - `IF EXISTS` / `IF NOT EXISTS`. `SECURITY DEFINER` + `SET search_path = ''`.
 - RLS: solo `auth.uid() = user_id`, políticas con prefijo `raiddominion_`.
 - NUNCA tocar tablas de otras apps ni redefinir `handle_new_user()`.
-
-## Reglas
-
-- Sin `any` en código nuevo. Tipos en `src/types/`.
-- Comentarios en español, solo cuando aportan.
-- Tailwind exclusivamente; seguir el tema WoW (ámbar/dorado, fondo oscuro).
-- Preferir editar archivos existentes antes de crear nuevos.
-- Después de cada cambio: `scripts/verifica.sh` (rápido) y opcional
-  `scripts/verifica.sh --check` (con `astro check`). Nunca builds en paralelo:
-  el script toma el lock global del proyecto.
-- Si una ruta necesita redirects SPA, actualizar `netlify.toml`.
 
 ## Formato de respuesta
 
