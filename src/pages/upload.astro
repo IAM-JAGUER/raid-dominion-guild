@@ -271,9 +271,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     }
 
     // Onboarding visitante → member.
-    // Regla (20260824): un SV con personaje maestro (registry.guild.isGM) y
-    // más de dos personajes registrados promueve automáticamente a 'member',
-    // sin evidencia cruzada. Jamás degrada a quien ya es member/guild_master.
+    // Regla (20260830): una cuenta con DOS O MÁS personajes registrados en su
+    // historial (sin importar si son de la misma hermandad o no) valida TODOS
+    // sus personajes y pasa a 'member'. Los personajes que entren después
+    // heredan la validación (conteo acumulado). Jamás degrada a quien ya es
+    // member/guild_master.
     let role: string | null = null;
     const profRes = await getMyProfile();
     role = profRes.ok ? profRes.profile?.role ?? null : null;
@@ -283,13 +285,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       const promo = await tryPromoteMember(saved.id);
       if (promo.ok && promo.data?.promoted) {
         const wasVisitante = role === 'visitante';
-        renderOnboardingBanner('success', '¡Bienvenido, Miembro! Tu SavedVariables acredita maestría con más de dos personajes: tu cuenta quedó validada y lista para reclamar tu hermandad.');
+        renderOnboardingBanner('success', '¡Bienvenido, Miembro! Tu cuenta quedó validada con dos o más personajes registrados. Con al menos tres podrás reclamar tu hermandad.');
         if (wasVisitante) role = 'member';
       } else if (promo.ok) {
         // Sin auto-validación: se queda Visitante, sin pedir validación externa
         if (role === 'visitante') {
           renderOnboardingBanner('visitor',
-            'Registrado como Visitante. Para ser Miembro, tu SV debe acreditar maestría de hermandad con más de dos personajes registrados.');
+            'Registrado como Visitante. Para ser Miembro, registra al menos dos personajes en tu SavedVariables.');
         }
       } else {
         addWarning('No se pudo validar tu personaje: ' + (promo.error || 'error desconocido') + '. Contacta a soporte si persiste.');
@@ -307,9 +309,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (claimRes.ok) {
         role = 'guild_master';
         renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Hermandad.');
+      } else if (claimRes.error?.includes('3 personajes')) {
+        // El reclamo exige evidencia reforzada (>= 3 validados): se activa "con
+        // la llegada de un tercero".
+        addWarning('Tu SV indica maestría de hermandad, pero el reclamo requiere al menos 3 personajes validados. Registra otro personaje y vuelve a subir tu SV.');
       } else if (claimRes.error?.includes('Miembro')) {
         // la promoción pendiente bloquea el reclamo hasta el próximo SV
-        addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere un SV con más de dos personajes registrados. El reclamo se completará en tu próximo upload.');
+        addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere al menos dos personajes registrados. El reclamo se completará cuando tu cuenta esté validada.');
       } else {
         addWarning('No se pudo reclamar la hermandad desde el SV: ' + (claimRes.error || ''));
       }

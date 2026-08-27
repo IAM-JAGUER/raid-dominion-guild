@@ -53,9 +53,13 @@
       addon escribe hoy; sin notas por diseño).
    b) `Guild.memberList` — sección legacy v2 (archivos antiguos).
    c) Jugadores de `bands[].players` (curados in-game por el líder).
-4. Promoción a `member` SOLO si el personaje del visitante aparece en evidencia
-   subida por un usuario DISTINTO (`raiddominion_try_promote_member`) → audit log.
-   Mensaje al visitante: motivar a un compañero a subir SU SV con el roster.
+4. Promoción a `member` (regla 20260830) por **conteo acumulado** en
+   `raiddominion_characters` (`raiddominion_try_promote_member`): con ≥2 personajes
+   registrados (sin importar hermandad) valida TODOS y promueve si está en visitante.
+   Los personajes que entren después heredan el validado. Jamás degrada.
+5. Reclamo de hermandad (`raiddominion_claim_from_sv`) exige SV con `isGM` Y ≥3
+   personajes validados ("se activa con la llegada de un tercero"); un
+   `guild_master` ya verificado re-verifica/reclama sin esa restricción.
 
 Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
 

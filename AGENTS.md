@@ -58,8 +58,8 @@ signUp → on_auth_user_created → handle_new_user()
   → [bloque raiddominion PENDIENTE en la canónica; mientras tanto]
     getMyProfile() crea la fila al vuelo (policy INSERT propia, 20260105)
   → trigger raiddominion_force_visitante: toda fila nueva nace 'visitante'
-  → promoción 'member' SOLO por evidencia cruzada de roster (RPC
-    raiddominion_try_promote_member) → audit log
+  → promoción 'member' al acumular ≥2 personajes registrados (RPC
+    raiddominion_try_promote_member, conteo en raiddominion_characters) → audit log
 ```
 
 ### Ecosistema detallado
@@ -78,8 +78,8 @@ Definidos en `src/lib/roles.ts`. Comparar por índice (`ROLES.indexOf`).
 | Role | Índice | Auto-asignable | Acceso |
 |---|---|---|---|
 | `visitante` | 0 | ✅ (toda cuenta nueva) | Landing, directorio público, `/upload`, dashboard básico |
-| `member` | 1 | ✅ (vía evidencia cruzada de roster) | Todo lo anterior + personaje validado, visibilidad pública |
-| `guild_master` | 2 | ✅ (vía RPC + verificación) | Dashboard de su hermandad, portal público en `/:slug` |
+| `member` | 1 | ✅ (≥2 personajes registrados, sin importar hermandad) | Todo lo anterior + personaje validado, visibilidad pública |
+| `guild_master` | 2 | ✅ (vía RPC: SV con isGM + ≥3 personajes validados) | Dashboard de su hermandad, portal público en `/:slug` |
 | `moderator` | 3 | ❌ (solo admin) | Revisar claims/verificaciones, moderar públicos |
 | `admin` | 4 | ❌ (solo admin, seed manual por email) | Gestión de usuarios, moderación total |
 
@@ -91,7 +91,7 @@ visitante / member
   ├─ /dashboard → toggle perfil público → página viva en /p/:slug
   ├─ "Mi Hermandad": SIN formularios. El SV es la única vía:
   │    a) Formato nuevo: registry.guild.isGM=true + Miembro validado
-  │       → raiddominion_claim_from_sv al subir (auto GM)
+  │       (≥3 personajes validados) → raiddominion_claim_from_sv al subir (auto GM)
   │    └─ slug autogenerado + dashboard /dashboard/guild
   │         └─ toggle is_public → portal vivo en /:slug
   └─ Re-subir SV actualiza roster/bandas del portal
