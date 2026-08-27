@@ -1,0 +1,25 @@
+{
+  "nombre": "RaidDominion Portal",
+  "tipo": "web",
+  "framework": "astro",
+  "build": "npm run build",
+  "check": "npm run check",
+  "verify": "scripts/verifica.sh",
+  "contract": {
+    "parser_path": "src/lib/parser/savedVariables.ts",
+    "addon_path": "/mnt/d/WowClient esMX/Interface/AddOns/RaidDominion",
+    "keys": ["registry", "characters", "bands", "Guild"]
+  },
+  "supabase": {
+    "shared_path": "../supabase-shared",
+    "prefix": "raiddominion_",
+    "tables_compartidas": ["apps", "user_apps"]
+  },
+  "agents": {
+    "ux": "ui-ux",
+    "product": "product",
+    "dev": "development",
+    "refactor": "refactorer",
+    "qa": "qa"
+  }
+}

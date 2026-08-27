@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "proyecto": "RaidDominion Portal",
+  "tipo": "astro-supabase",
+  "ciclos": [],
+  "resumen": {
+    "total_ciclos": 0,
+    "exitosos": 0,
+    "fracasados": 0,
+    "mejora_promedio": 0
+  }
+}
