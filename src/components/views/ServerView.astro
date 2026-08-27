@@ -14,11 +14,11 @@
 </section>
 
 <script>
-  import { getServerRealms } from '@/lib/api';
-  import { currentSegments, isReserved, showNotFound, showView, slugify } from '@/lib/routes';
+  import { getServerRealms, getServerStats } from '@/lib/api';
+  import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
 
   const seg = currentSegments();
-  if (seg[0]?.toLowerCase() === 'servidor' && seg.length === 2 && !isReserved('servidor')) {
+  if (seg[0]?.toLowerCase() === 'servidor' && seg.length === 2) {
     const server = seg[1];
     if (!server) {
       showNotFound('Servidor no encontrado.');
@@ -44,10 +44,30 @@
   async function render(server: string, realms: string[]): Promise<void> {
     document.title = `${server} - RaidDominion`;
     (document.getElementById('sv-server') as HTMLElement).textContent = server;
+
+    // Estadísticas públicas: reinos, personajes y jugadores distintos.
+    const stats = await getServerStats(server);
+    const realmN = realms.length;
+    const charN = stats.ok ? (stats.characters ?? 0) : 0;
+    const playerN = stats.ok ? (stats.players ?? 0) : 0;
     (document.getElementById('sv-summary') as HTMLElement).textContent =
-      `${realms.length} reino${realms.length === 1 ? '' : 's'} alojado${realms.length === 1 ? '' : 's'} en este servidor`;
+      `${realmN} reino${realmN === 1 ? '' : 's'} · ${charN} personaje${charN === 1 ? '' : 's'} · ${playerN} jugador${playerN === 1 ? '' : 'es'} con visibilidad pública`;
 
     const body = document.getElementById('sv-body') as HTMLElement;
+
+    // Tira de estadísticas
+    const statsStrip = el('div', 'grid grid-cols-3 gap-3 mb-6');
+    const stat = (label: string, value: number): HTMLElement => {
+      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-4');
+      box.appendChild(el('p', 'text-2xl font-black text-amber-200 italic', String(value)));
+      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
+      return box;
+    };
+    statsStrip.appendChild(stat('Reinos', realmN));
+    statsStrip.appendChild(stat('Personajes', charN));
+    statsStrip.appendChild(stat('Jugadores', playerN));
+    body.appendChild(statsStrip);
+
     const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
 
     realms.sort((a, b) => a.localeCompare(b)).forEach((realm) => {

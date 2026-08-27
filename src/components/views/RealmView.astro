@@ -34,15 +34,14 @@
 <script>
   import { getServerRealms, getRealmOverview, type CharacterRow } from '@/lib/api';
   import type { GuildRow } from '@/types/database';
-  import { currentSegments, isReserved, showNotFound, showView, slugify } from '@/lib/routes';
+  import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
 
   const seg = currentSegments();
   if (
     seg[0]?.toLowerCase() === 'servidor' &&
     seg.length === 4 &&
-    seg[2]?.toLowerCase() === 'reino' &&
-    !isReserved('servidor')
+    seg[2]?.toLowerCase() === 'reino'
   ) {
     const server = seg[1];
     const realmSlug = seg[3];

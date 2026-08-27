@@ -48,16 +48,10 @@
   to = "/detalle"
   status = 200
 
-# Alias de directorios (sin duplicar listas): /hermandades → /guilds y
-# /jugadores → /personajes
+# Alias de directorios (sin duplicar listas): /hermandades → /guilds
 [[redirects]]
   from = "/hermandades"
   to = "/guilds"
-  status = 301
-
-[[redirects]]
-  from = "/jugadores"
-  to = "/personajes"
   status = 301
 
 # Redirecciones SPA

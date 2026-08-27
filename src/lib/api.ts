@@ -221,6 +221,22 @@ export async function getPublicProfileBySlug(slug: string): Promise<{ ok: boolea
   return { ok: true, profile: (res.data as ProfileRow | null) ?? undefined };
 }
 
+// Listado público de JUGADORES (perfiles con visibilidad activa). Distinto de
+// /personajes: aquí se listan las cuentas humanas (perfiles), no los
+// personajes validados. Cada entrada enlaza a su perfil /jugador/:slug.
+export async function listPublicPlayers(): Promise<{ ok: boolean; players?: ProfileRow[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_profiles')
+    .select('*')
+    .eq('is_public', true)
+    .not('slug', 'is', null)
+    .order('display_name', { ascending: true, nullsFirst: false })
+    .limit(200);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, players: (res.data as ProfileRow[]) ?? [] };
+}
+
 // Directorio público de hermandades
 export async function listPublicGuilds(): Promise<{ ok: boolean; guilds?: GuildRow[]; error?: string }> {
   const res = await supabase
@@ -276,6 +292,45 @@ export async function getServerRealms(server: string): Promise<{ ok: boolean; re
   (chars.data as Array<{ realm: string | null }>).forEach((r) => r.realm && set.add(r.realm));
   (guilds.data as Array<{ realm: string | null }>).forEach((r) => r.realm && set.add(r.realm));
   return { ok: true, realms: [...set].sort((a, b) => a.localeCompare(b)) };
+}
+
+// Estadísticas públicas de un servidor (realmlist): reinos distintos, número
+// de personajes públicos y número de jugadores (cuentas distintas) con
+// visibilidad activa en ese servidor. Alimenta el resumen de /servidor/:server.
+export async function getServerStats(
+  server: string
+): Promise<{ ok: boolean; realms?: number; characters?: number; players?: number; error?: string }> {
+  const [charsRes, guildsRes] = await Promise.all([
+    supabase
+      .from('raiddominion_characters')
+      .select('realm,user_id', { count: 'exact' })
+      .eq('is_public', true)
+      .eq('server', server),
+    supabase
+      .from('raiddominion_guilds')
+      .select('realm')
+      .eq('is_public', true)
+      .eq('server', server),
+  ]);
+  if (charsRes.error) return { ok: false, error: charsRes.error.message };
+  if (guildsRes.error) return { ok: false, error: guildsRes.error.message };
+
+  const realms = new Set<string>();
+  const players = new Set<string>();
+  (charsRes.data as Array<{ realm: string | null; user_id: string | null }> | null)?.forEach((r) => {
+    if (r.realm) realms.add(r.realm);
+    if (r.user_id) players.add(r.user_id);
+  });
+  (guildsRes.data as Array<{ realm: string | null }> | null)?.forEach((r) => {
+    if (r.realm) realms.add(r.realm);
+  });
+
+  return {
+    ok: true,
+    realms: realms.size,
+    characters: charsRes.count ?? 0,
+    players: players.size,
+  };
 }
 
 // Resumen público de un reino (anidado en un servidor): hermandades y

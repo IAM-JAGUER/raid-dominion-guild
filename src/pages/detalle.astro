@@ -45,7 +45,7 @@ import DirView from '@/components/views/DirView.astro';
 </Layout>
 
 <script>
-  import { currentSection, isReserved, showNotFound, showView } from '@/lib/routes';
+  import { currentSection, showNotFound, showView } from '@/lib/routes';
 
   // Vista por defecto para rutas sin sección resuelta.
   const handled = new Set(['servidor', 'personaje', 'banda']);
@@ -53,7 +53,7 @@ import DirView from '@/components/views/DirView.astro';
   if (!section) {
     // Ruta raíz del shell sin segmentos → directorio de referencia.
     showView('view-directorio');
-  } else if (!handled.has(section) || isReserved()) {
+  } else if (!handled.has(section)) {
     // Segmento no resuelto por ninguna vista.
     showNotFound('La dirección no coincide con ninguna sección pública del portal.');
   }

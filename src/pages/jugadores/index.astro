@@ -1,13 +1,100 @@
 ---
-// Alias de /personajes (sin duplicar la lógica): redirige al navegador de
-// personajes existente. En producción además hay un redirect 301 en
-// netlify.toml; este archivo cubre dev y como respaldo.
+// Listado público de JUGADORES (cuentas con perfil público), distinto de
+// /personajes (personajes validados). Resuelto 100% en cliente contra
+// raiddominion_profiles (is_public = true). Cada tarjeta enlaza a /jugador/:slug.
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 ---
-<Layout title="Jugadores - RaidDominion">
-  <Navigation currentPath="/personajes" />
-  <script>
-    window.location.replace('/personajes');
-  </script>
+
+<Layout title="Jugadores - RaidDominion" description="Jugadores de la comunidad RaidDominion con perfil público: cuenta, personaje principal y hermandad.">
+  <Navigation currentPath="/jugadores" />
+  <main class="relative py-16">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <header class="text-center mb-10 animate-fade-in-1">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Jugadores</h1>
+        <p class="text-gray-400 italic mt-3 max-w-2xl mx-auto">
+          Cuentas de la comunidad con perfil público. Cada jugador enlaza a su
+          página de perfil con sus personajes y bandas visibles.
+        </p>
+      </header>
+
+      <p id="status" class="text-sm text-gray-400 italic mb-4" aria-live="polite">Cargando jugadores…</p>
+      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de jugadores"></section>
+
+      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
+        <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <p class="font-bold text-white mb-1">Aún no hay jugadores con perfil público</p>
+        <p class="text-sm text-gray-400 max-w-md mx-auto">Activa la visibilidad de tu perfil desde el dashboard para aparecer en el directorio.</p>
+        <a href="/login" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Inicia sesión</a>
+      </div>
+    </div>
+  </main>
 </Layout>
+
+<script>
+  import { listPublicPlayers, type ProfileRow } from '@/lib/api';
+
+  const statusEl = document.getElementById('status') as HTMLElement;
+  const gridEl = document.getElementById('grid') as HTMLElement;
+  const emptyEl = document.getElementById('empty') as HTMLElement;
+
+  function el(tag: string, cls: string, text?: string): HTMLElement {
+    const n = document.createElement(tag);
+    n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  function chip(text: string, extra = ''): HTMLElement {
+    return el('span', 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ' +
+      (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20'), text);
+  }
+
+  function card(p: ProfileRow): HTMLElement {
+    const name = p.display_name || p.character_name || 'Jugador';
+    const link = document.createElement('a');
+    link.href = `/jugador/${p.slug}`;
+    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+
+    const head = el('div', 'flex items-center gap-3 mb-3');
+    const avatar = el('div', 'w-11 h-11 rounded-lg flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 bg-amber-600/15 text-amber-300');
+    avatar.textContent = (name[0] || '?').toUpperCase();
+    head.appendChild(avatar);
+    const nameWrap = el('div', 'min-w-0');
+    const nm = el('h2', 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug truncate', name);
+    nameWrap.appendChild(nm);
+    if (p.character_name && p.character_name !== name) {
+      nameWrap.appendChild(el('p', 'text-[11px] text-gray-500 truncate', `Principal: ${p.character_name}`));
+    }
+    head.appendChild(nameWrap);
+    if (p.is_guild_master) {
+      const star = el('span', 'shrink-0 text-fuchsia-400 text-sm', '★');
+      star.title = 'Maestro de hermandad';
+      head.appendChild(star);
+    }
+    link.appendChild(head);
+
+    const chips = el('div', 'flex flex-wrap gap-1.5');
+    chips.appendChild(chip('Perfil público'));
+    if (p.realm) chips.appendChild(chip(p.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
+    if (p.is_guild_master) chips.appendChild(chip('Maestro', 'text-fuchsia-300 bg-fuchsia-950/30 border-fuchsia-600/40'));
+    link.appendChild(chips);
+
+    const foot = el('p', 'text-xs text-gray-500 mt-3', 'Ver perfil →');
+    link.appendChild(foot);
+    return link;
+  }
+
+  const res = await listPublicPlayers();
+  if (!res.ok || !res.players) {
+    statusEl.textContent = 'No se pudo cargar el directorio de jugadores.';
+  } else if (res.players.length === 0) {
+    statusEl.classList.add('hidden');
+    emptyEl.classList.remove('hidden');
+  } else {
+    document.title = `${res.players.length} jugador${res.players.length === 1 ? '' : 'es'} — RaidDominion`;
+    res.players.forEach((p) => gridEl.appendChild(card(p)));
+    statusEl.classList.add('hidden');
+  }
+</script>

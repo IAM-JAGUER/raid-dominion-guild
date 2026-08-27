@@ -20,11 +20,11 @@
 <script>
   import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
-  import { currentSection, currentSlug, isReserved, showNotFound, showView } from '@/lib/routes';
+  import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
 
-  if (currentSection() === 'personaje' && !isReserved()) {
+  if (currentSection() === 'personaje') {
     const slug = currentSlug();
     if (!slug) {
       showNotFound('Este personaje no existe, es privado o cambió su enlace.');

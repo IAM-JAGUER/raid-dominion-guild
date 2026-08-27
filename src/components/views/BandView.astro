@@ -22,10 +22,10 @@
 <script>
   import { getPublicBandBySlug, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
-  import { currentSlug, isReserved, showNotFound, showView } from '@/lib/routes';
+  import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { roleLabel } from '@/lib/ui/itemQuality';
 
-  if (isBandRoute() && !isReserved('banda')) {
+  if (isBandRoute()) {
     const slug = currentSlug();
     if (!slug) {
       showNotFound('Banda no encontrada.');

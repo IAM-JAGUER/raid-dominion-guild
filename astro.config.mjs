@@ -7,7 +7,7 @@ const RESERVED_PORTAL_SLUGS = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
-  'jugadores', 'banda', 'bandas',
+  'jugadores', 'banda', 'bandas', 'detalle',
 ]);
 
 // https://astro.build/config
@@ -54,7 +54,10 @@ export default defineConfig({
               if (seg && ['servidor', 'personaje', 'banda'].includes(seg.toLowerCase())) {
                 const raw = path.slice('/'.length + seg.length).split('?')[0];
                 const rest = decodeURIComponent(raw.replace(/\/+$/, ''));
-                if (rest && rest !== 'index.html' && !rest.includes('.')) {
+                // Reescribe siempre que haya un slug (los realmlist de servidor
+                // contienen puntos, p. ej. logon.ultimowow.com, así que no se
+                // rechazan por el punto). Estas rutas nunca son archivos reales.
+                if (rest && rest !== 'index.html') {
                   req.url = '/detalle';
                 }
               }

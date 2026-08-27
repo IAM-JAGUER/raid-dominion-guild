@@ -1,13 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "plan",
-  "agent": {
-    "build": {
-      "permission": {
-        "task": "allow",
-        "edit": "deny",
-        "write": "deny"
-      }
-    }
-  }
+  "default_agent": "build"
 }

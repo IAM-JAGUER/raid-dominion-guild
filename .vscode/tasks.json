@@ -2,77 +2,44 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "tele",
+      "label": "Zeus",
       "type": "shell",
       "command": "wsl",
-      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild && bash scripts/start-tele.sh"],
+      "args": ["bash", "-lc", "export RD_AGENT=planner && cd /mnt/d/_DEV/raid-dominion-guild && /home/jaguer/.opencode/bin/opencode"],
+      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always",
+        "focus": false,
+        "group": "rd-planner"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Poseidon",
+      "type": "shell",
+      "command": "wsl",
+      "args": ["bash", "-lc", "export RD_AGENT=dev && cd /mnt/d/_DEV/raid-dominion-guild && /home/jaguer/.opencode/bin/opencode"],
+      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always",
+        "focus": false,
+        "group": "rd-dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Live preview",
+      "type": "shell",
+      "command": "wsl",
+      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild && npm run dev"],
       "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
       "presentation": {
         "panel": "dedicated",
         "reveal": "silent",
         "focus": false,
-        "group": "rd-tele"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "opencode zeus",
-      "type": "shell",
-      "command": "wsl",
-      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild/.worktrees/zeus && /home/jaguer/.opencode/bin/opencode"],
-      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always",
-        "focus": false,
-        "group": "rd-zeus"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "opencode poseidon",
-      "type": "shell",
-      "command": "wsl",
-      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild/.worktrees/poseidon && /home/jaguer/.opencode/bin/opencode"],
-      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always",
-        "focus": false,
-        "group": "rd-poseidon"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "opencode hades",
-      "type": "shell",
-      "command": "wsl",
-      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild/.worktrees/hades && /home/jaguer/.opencode/bin/opencode"],
-      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always",
-        "focus": false,
-        "group": "rd-hades"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "opencode planificacion",
-      "type": "shell",
-      "command": "wsl",
-      "args": ["bash", "-lc", "cd /mnt/d/_DEV/raid-dominion-guild/.worktrees/planificacion && /home/jaguer/.opencode/bin/opencode"],
-      "options": {
-        "env": {
-          "OPENCODE_CONFIG": "/mnt/d/_DEV/raid-dominion-guild/.opencode/planificacion.config.json"
-        }
-      },
-      "runOptions": { "runOn": "folderOpen", "instanceLimit": 1 },
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always",
-        "focus": false,
-        "group": "rd-planificacion"
+        "group": "rd-preview"
       },
       "problemMatcher": []
     }
