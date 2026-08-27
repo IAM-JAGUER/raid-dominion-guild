@@ -1,8 +1,16 @@
-import type { ParsedSavedVariables, GuildMember, BandPlayer } from '@/types/parser';
+import type { ParsedSavedVariables, GuildMember, GuildRank, BandPlayer } from '@/types/parser';
 import { classColor } from '@/lib/ui/classColors';
+import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
-export type RosterMember = Pick<GuildMember, 'name' | 'class' | 'rank' | 'publicNote'>;
+// `rankIndex` (opcional) permite ordenar/agrupar por jerarquía de rangos.
+export interface RosterMember {
+  name: string;
+  class?: string;
+  rank?: string;
+  rankIndex?: number;
+  publicNote?: string;
+}
 
 export function el(tag: string, cls: string, text?: string): HTMLElement {
   const node = document.createElement(tag);
@@ -19,7 +27,11 @@ function chip(text: string, extra = ''): HTMLElement {
   );
 }
 
-export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLElement {
+export function renderBand(
+  band: ParsedSavedVariables['bands'][number],
+  opts?: { hidePlayers?: boolean },
+): HTMLElement {
+  const hidePlayers = opts?.hidePlayers ?? false;
   const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4');
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   header.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
@@ -27,11 +39,15 @@ export function renderBand(band: ParsedSavedVariables['bands'][number]): HTMLEle
   const meta = el('div', 'flex flex-wrap gap-2');
   if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', band.schedule));
   if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `GS ${band.minGS}`));
-  meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${band.players.length} jugadores`));
+  if (hidePlayers) {
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', 'jugadores ocultos'));
+  } else {
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${band.players.length} jugadores`));
+  }
   header.appendChild(meta);
   card.appendChild(header);
 
-  if (band.players.length > 0) {
+  if (!hidePlayers && band.players.length > 0) {
     const roles = new Map<string, number>();
     band.players.forEach((p) => {
       const r = p.role || 'sin rol';
@@ -229,15 +245,47 @@ function rankBadgeClass(rank: string | undefined): string {
 }
 
 // Roster en grid de fichas, paginado (estilo guild-portal): "Página X de Y •
-// N miembros" + controles prev/next. Reemplaza el truncado a 50 del preview.
-export function renderRoster(wrap: HTMLElement, members: RosterMember[]): void {
+// N miembros" + controles prev/next. Cuando hay jerarquía de rangos (ranks) y
+// los miembros traen rankIndex, el roster se ORGANIZA por rango (0 = líder
+// arriba) con cabeceras de grupo; si no, queda plano como antes.
+export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?: GuildRank[]): void {
   if (!members || members.length === 0) {
     wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
     return;
   }
 
+  interface Entry { m: RosterMember; groupStart: boolean; groupLabel: string }
+
+  // Agrupar por jerarquía solo cuando hay rangos y al menos un miembro con
+  // rankIndex (snapshots nuevos). Los legacy quedan planos.
+  const hasRankData = (ranks?.length ?? 0) > 0 && members.some((m) => typeof m.rankIndex === 'number');
+  let entries: Entry[] = [];
+  if (hasRankData) {
+    const sorted = sortRanks(ranks);
+    const groups = new Map<number, RosterMember[]>();
+    members.forEach((m) => {
+      const key = typeof m.rankIndex === 'number' ? m.rankIndex : Number.MAX_SAFE_INTEGER;
+      const arr = groups.get(key) ?? [];
+      arr.push(m);
+      groups.set(key, arr);
+    });
+    Array.from(groups.keys())
+      .sort((a, b) => a - b)
+      .forEach((key) => {
+        const group = groups.get(key) ?? [];
+        const label = resolveRankName({
+          rankIndex: key === Number.MAX_SAFE_INTEGER ? undefined : key,
+          rank: group[0]?.rank,
+          ranks: sorted,
+        });
+        group.forEach((m, i) => entries.push({ m, groupStart: i === 0, groupLabel: label }));
+      });
+  } else {
+    entries = members.map((m) => ({ m, groupStart: false, groupLabel: '' }));
+  }
+
   const PAGE_SIZE = 9; // grid 3×3, como el roster de guild-portal
-  const totalPages = Math.max(1, Math.ceil(members.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
   let page = 1;
 
   const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3');
@@ -245,7 +293,13 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[]): void {
   const renderPage = (): void => {
     grid.innerHTML = '';
     const start = (page - 1) * PAGE_SIZE;
-    members.slice(start, start + PAGE_SIZE).forEach((m) => {
+    entries.slice(start, start + PAGE_SIZE).forEach(({ m, groupStart, groupLabel }) => {
+      if (groupStart && groupLabel) {
+        const hdr = el('div', 'col-span-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-300 border-b border-amber-600/20 pb-1 mt-1');
+        hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0', ''));
+        hdr.appendChild(el('span', '', groupLabel));
+        grid.appendChild(hdr);
+      }
       const color = classColor(m.class);
       const card = el('div', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-lg p-4 pl-5 overflow-hidden transition-colors duration-200');
       const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
@@ -331,9 +385,10 @@ export function renderRosterStats(wrap: HTMLElement, members: RosterMember[]): v
   wrap.append(card('Clases', distribute('class')), card('Rangos', distribute('rank')));
 }
 
-// Renderiza bandas (con fallback a Core), reglas y roster dentro de contenedores
+// Renderiza bandas (con fallback a Core), reglas y roster dentro de contenedores.
+// `data.ranks` (opcional) entrega la jerarquía de rangos para organizar el roster.
 export function renderParsedSections(
-  data: ParsedSavedVariables,
+  data: ParsedSavedVariables & { ranks?: GuildRank[] },
   containers: { bands: HTMLElement; rules: HTMLElement; rosterWrap: HTMLElement },
 ): void {
   // Bandas
@@ -353,5 +408,5 @@ export function renderParsedSections(
   });
 
   // Roster
-  renderRoster(containers.rosterWrap, data.guild.members);
+  renderRoster(containers.rosterWrap, data.guild.members, data.ranks);
 }

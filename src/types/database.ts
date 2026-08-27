@@ -62,6 +62,17 @@ export interface BandRow {
   players: unknown[] | null;
   rules: unknown[] | null;
   is_public: boolean;
+  // Índice del rango del dueño dentro de la hermandad (registry.guild.
+  // rankIndex del SV; 0 = líder). NULL si el dueño no pertenece a una guild.
+  owner_rank_index: number | null;
+  // Oculta número y lista de jugadores al público (global).
+  hide_players: boolean;
+  // true si el dueño tiene un rango autorizado por el GM y la banda cuenta
+  // en el portal de la hermandad.
+  is_rank_integrated: boolean;
+  // Personaje que subió la banda (atribución). NULL para bandas legacy.
+  character_name: string | null;
+  character_realm: string | null;
   created_at: string;
   updated_at: string;
 }

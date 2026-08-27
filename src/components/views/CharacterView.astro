@@ -20,8 +20,9 @@
 <script>
   import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
-  import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
+  import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
+  import { playerName } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
 
   if (currentSection() === 'personaje') {
@@ -49,14 +50,25 @@
     return el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
   }
 
+  function linkChip(text: string, href: string, extra = ''): HTMLElement {
+    const a = el('a', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/30 hover:bg-sky-900/40 transition-all' + (extra ? ` ${extra}` : ''), text);
+    (a as HTMLAnchorElement).href = href;
+    return a;
+  }
+
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
     document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
     (document.getElementById('pv-avatar') as HTMLElement).textContent = (c.name || '?')[0].toUpperCase();
     (document.getElementById('pv-name') as HTMLElement).textContent = c.name;
+    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(c.name);
 
     const chips = document.getElementById('pv-chips') as HTMLElement;
-    if (c.realm) chips.appendChild(chip(c.realm));
-    if (c.server) chips.appendChild(chip(`Servidor: ${c.server}`, '!text-sky-200 !border-sky-600/30'));
+    if (c.server) chips.appendChild(linkChip(c.server, `/servidor/${encodeURIComponent(c.server)}`));
+    if (c.realm && c.server) {
+      chips.appendChild(linkChip(c.realm, `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`));
+    } else if (c.realm) {
+      chips.appendChild(chip(c.realm));
+    }
     if (c.class) chips.appendChild(chip(c.class));
     if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, '!text-amber-300 !border-amber-500/40'));
@@ -73,7 +85,7 @@
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
       a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all';
-      a.textContent = `Cuenta de ${p.display_name || p.character_name || 'jugador'} →`;
+      a.textContent = `Cuenta de ${playerName(p)} →`;
       links.appendChild(a);
     }
     if (p?.role === 'guild_master') {

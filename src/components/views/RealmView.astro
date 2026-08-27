@@ -89,6 +89,7 @@
 
     document.title = `${realm} - RaidDominion`;
     (document.getElementById('rv-realm') as HTMLElement).textContent = realm;
+    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(realm);
 
     const chip = document.getElementById('rv-server-chip') as HTMLAnchorElement;
     chip.href = `/servidor/${encodeURIComponent(server)}`;

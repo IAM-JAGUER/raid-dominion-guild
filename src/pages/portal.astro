@@ -1,12 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <Layout title="Hermandad - RaidDominion" description="Portal público de hermandad de la comunidad RaidDominion.">
   <Navigation />
   <main class="relative py-16">
-    <div class="max-w-5xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <!-- Cargando -->
       <div id="loading" class="text-center py-20">
@@ -64,6 +66,14 @@ import Navigation from '@/components/Navigation.astro';
           </div>
         </section>
 
+        <!-- Jerarquía de rangos (registry.guild.ranks; 0 = líder) -->
+        <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Jerarquía de rangos
+          </h2>
+          <div id="viewer-ranks" class="flex flex-wrap gap-2"></div>
+        </section>
+
         <!-- Sin snapshot -->
         <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-8 text-center">
           <svg class="w-9 h-9 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -101,8 +111,11 @@ import Navigation from '@/components/Navigation.astro';
 </Layout>
 
 <script>
-  import { getPublicGuildBySlug, getGuildSnapshot, type GuildPortalSnapshot } from '@/lib/api';
-  import { renderParsedSections, renderRosterStats } from '@/lib/ui/preview';
+  import { getPublicGuildBySlug, getGuildSnapshot, listGuildPortalBands, getPublicCharactersByUser, type GuildPortalSnapshot } from '@/lib/api';
+  import { supabase } from '@/lib/supabase';
+  import { slugify } from '@/lib/routes';
+  import { renderBand, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
+  import { playerName } from '@/lib/ui/playerNames';
 
   const RESERVED = new Set([
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
@@ -143,6 +156,7 @@ import Navigation from '@/components/Navigation.astro';
     } else {
       const g = res.guild;
       document.title = `${g.name} - RaidDominion`;
+      (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(g.name);
 
       (document.getElementById('guild-name') as HTMLElement).textContent = g.name;
       (document.getElementById('guild-description') as HTMLElement).textContent =
@@ -150,8 +164,56 @@ import Navigation from '@/components/Navigation.astro';
       (document.getElementById('guild-description') as HTMLElement).classList.toggle('italic', !g.description);
 
       const metaEl = document.getElementById('guild-meta') as HTMLElement;
-      if (g.realm) metaEl.appendChild(metaChip(g.realm));
+      if (g.server) {
+        const serverChip = document.createElement('a');
+        serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
+        serverChip.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-sky-950/40 border border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all';
+        serverChip.textContent = g.server;
+        metaEl.appendChild(serverChip);
+      }
+      if (g.realm) {
+        const realmChip = document.createElement(g.server ? 'a' : 'span');
+        const cls = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+        if (g.server) {
+          (realmChip as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(g.server)}/reino/${encodeURIComponent(slugify(g.realm))}`;
+          realmChip.className = `${cls} hover:bg-gray-800/80 transition-all`;
+        } else {
+          realmChip.className = cls;
+        }
+        realmChip.textContent = g.realm;
+        metaEl.appendChild(realmChip);
+      }
       if (g.faction) metaEl.appendChild(metaChip(g.faction === 'Horde' ? 'Horda' : 'Alianza'));
+
+      // Enlace al maestro de la hermandad (solo si su perfil es público). Cuando
+      // el maestro NO tiene nombre visible en el portal (display_name), el
+      // label (character_name) enlaza a la FICHA DEL PERSONAJE, no al perfil.
+      const ownerRes = await supabase
+        .from('raiddominion_profiles')
+        .select('slug, display_name, character_name, is_public')
+        .eq('id', g.owner_id)
+        .maybeSingle();
+      if (!ownerRes.error) {
+        const owner = ownerRes.data as { slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean } | null;
+        if (owner && owner.is_public && owner.slug) {
+          const ownerChip = document.createElement('a');
+          ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
+          if ((owner.display_name ?? '').trim()) {
+            ownerChip.href = `/jugador/${owner.slug}`;
+            ownerChip.textContent = `★ ${owner.display_name}`;
+          } else if ((owner.character_name ?? '').trim()) {
+            const charsRes = await getPublicCharactersByUser(g.owner_id);
+            const chars = charsRes.ok ? (charsRes.items ?? []) : [];
+            const match = chars.find((c) => c.name.toLowerCase() === owner.character_name!.toLowerCase()) ?? chars[0];
+            ownerChip.href = match?.slug ? `/personaje/${match.slug}` : `/jugador/${owner.slug}`;
+            ownerChip.textContent = `★ ${owner.character_name}`;
+          } else {
+            ownerChip.href = `/jugador/${owner.slug}`;
+            ownerChip.textContent = `★ ${playerName(owner)}`;
+          }
+          metaEl.appendChild(ownerChip);
+        }
+      }
 
       if (g.claim_status === 'verified') {
         document.getElementById('verified-badge')?.classList.remove('hidden');
@@ -165,43 +227,79 @@ import Navigation from '@/components/Navigation.astro';
         document.getElementById('preview-banner')?.classList.remove('hidden');
       }
 
-      // Snapshot público (roster/bandas/reglas)
+      // Snapshot público (roster/reglas) + bandas integradas en tiempo real.
+      // Las bandas del portal ya NO vienen del snapshot: se leen de
+      // raiddominion_bands con guild_id = hermandad y dueño de rango
+      // autorizado (listGuildPortalBands). Si una banda oculta jugadores,
+      // players[] ya viene vacío y el contador se omite.
       let snapshot: GuildPortalSnapshot | undefined;
-      const snapRes = await getGuildSnapshot(g.id);
+      const [snapRes, bandsRes] = await Promise.all([
+        getGuildSnapshot(g.id),
+        listGuildPortalBands(g.id),
+      ]);
       if (snapRes.ok) snapshot = snapRes.snapshot;
+      const portalBands = bandsRes.ok ? bandsRes.bands ?? [] : [];
 
       const loading = document.getElementById('loading') as HTMLElement;
       loading.classList.add('hidden');
       document.getElementById('portal')?.classList.remove('hidden');
 
-      if (!snapshot || (snapshot.members.length === 0 && snapshot.bands.length === 0 && snapshot.rules.length === 0)) {
+      const hasSnapshotContent = !!snapshot && (snapshot.members.length > 0 || snapshot.rules.length > 0);
+      if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
       } else {
-        (document.getElementById('stat-members') as HTMLElement).textContent = String(snapshot.members.length);
-        (document.getElementById('stat-bands') as HTMLElement).textContent = String(snapshot.bands.length);
-        (document.getElementById('stat-rules') as HTMLElement).textContent = String(snapshot.rules.length);
+        if (snapshot) {
+          (document.getElementById('stat-members') as HTMLElement).textContent = String(snapshot.members.length);
+          (document.getElementById('stat-rules') as HTMLElement).textContent = String(snapshot.rules.length);
+        }
+        (document.getElementById('stat-bands') as HTMLElement).textContent = String(portalBands.length);
 
-        if (snapshot.lastUpdate) {
+        if (snapshot?.lastUpdate) {
           const upd = document.getElementById('snapshot-updated') as HTMLElement;
           upd.textContent = `Análisis actualizado el ${new Date(snapshot.lastUpdate * 1000).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`;
           upd.classList.remove('hidden');
         }
 
-        if (snapshot.bands.length > 0) document.getElementById('bands-section')?.classList.remove('hidden');
-        if (snapshot.rules.length > 0) document.getElementById('rules-section')?.classList.remove('hidden');
-        if (snapshot.members.length > 0) {
-          document.getElementById('roster-section')?.classList.remove('hidden');
-          renderRosterStats(document.getElementById('roster-stats') as HTMLElement, snapshot.members);
+        // Jerarquía de rangos: se muestra cuando el snapshot la trae.
+        if (snapshot?.ranks && snapshot.ranks.length > 0) {
+          const ranksBox = document.getElementById('viewer-ranks') as HTMLElement;
+          const sorted = [...snapshot.ranks].sort((a, b) => a.index - b.index);
+          sorted.forEach((r) => {
+            const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
+            ranksBox.appendChild(el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ' +
+              (r.index === 0 ? 'text-amber-300 border-amber-500/40 bg-amber-900/20' : 'text-gray-300 bg-gray-800/60 border-amber-600/20'),
+              `${r.index}: ${label}`));
+          });
+          document.getElementById('ranks-section')?.classList.remove('hidden');
         }
 
-        renderParsedSections(
-          { guild: { members: snapshot.members }, bands: snapshot.bands, rules: snapshot.rules } as never,
-          {
-            bands: document.getElementById('viewer-bands') as HTMLElement,
-            rules: document.getElementById('viewer-rules') as HTMLElement,
-            rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
-          },
-        );
+        if (snapshot) {
+          if (snapshot.rules.length > 0) document.getElementById('rules-section')?.classList.remove('hidden');
+          if (snapshot.members.length > 0) {
+            document.getElementById('roster-section')?.classList.remove('hidden');
+            renderRosterStats(document.getElementById('roster-stats') as HTMLElement, snapshot.members);
+          }
+          renderParsedSections(
+            { guild: { members: snapshot.members }, bands: [], rules: snapshot.rules, ranks: snapshot.ranks } as never,
+            {
+              bands: document.getElementById('viewer-bands') as HTMLElement,
+              rules: document.getElementById('viewer-rules') as HTMLElement,
+              rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
+            },
+          );
+        }
+
+        // Bandas integradas (jugadores ya filtrados si hide_players). Se
+        // renderizan DESPUÉS de renderParsedSections para que no las borre.
+        if (portalBands.length > 0) {
+          document.getElementById('bands-section')?.classList.remove('hidden');
+          const bandsBox = document.getElementById('viewer-bands') as HTMLElement;
+          bandsBox.innerHTML = '';
+          portalBands.forEach((b) => bandsBox.appendChild(renderBand(
+            { name: b.name, players: (b.players as never[]) ?? [] } as never,
+            { hidePlayers: b.hide_players },
+          )));
+        }
       }
     }
   }

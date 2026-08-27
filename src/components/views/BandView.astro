@@ -24,6 +24,7 @@
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { roleLabel } from '@/lib/ui/itemQuality';
+  import { playerName } from '@/lib/ui/playerNames';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -75,6 +76,7 @@
   async function render(band: BandRow): Promise<void> {
     document.title = `${band.name || 'Banda'} - RaidDominion`;
     (document.getElementById('bv-name') as HTMLElement).textContent = band.name || 'Sin nombre';
+    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(band.name || 'Banda');
 
     const ownerLink = document.getElementById('bv-owner-link') as HTMLAnchorElement;
     const owner = await resolveOwner(band);
@@ -87,41 +89,52 @@
     const meta = document.getElementById('bv-meta') as HTMLElement;
     if (band.schedule) meta.appendChild(metaChip(`Horario: ${band.schedule}`));
     if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip(`GS mínimo: ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+    if (band.character_name) meta.appendChild(metaChip(`De: ${band.character_name}`, '!text-amber-300 !border-amber-500/40'));
     const players = Array.isArray(band.players) ? (band.players as BandPlayer[]) : [];
-    meta.appendChild(metaChip(`${players.length} jugador${players.length === 1 ? '' : 'es'}`));
+    if (band.hide_players) {
+      meta.appendChild(metaChip('jugadores ocultos', '!text-gray-500'));
+    } else {
+      meta.appendChild(metaChip(`${players.length} jugador${players.length === 1 ? '' : 'es'}`));
+    }
 
     const body = document.getElementById('bv-body') as HTMLElement;
 
-    // Roster
-    const rosterCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
-    rosterCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Roster'));
-    rosterCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
-    if (players.length === 0) {
-      rosterCard.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.'));
+    // Roster (omitido si el líder ocultó jugadores al público)
+    if (band.hide_players) {
+      const hiddenCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      hiddenCard.appendChild(el('p', 'text-sm text-gray-400 italic', 'Esta banda mantiene oculta su lista de jugadores al público.'));
+      body.appendChild(hiddenCard);
     } else {
-      const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
-      players.forEach((p) => {
-        const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-lg px-3 py-2');
-        const head = el('div', 'flex items-center gap-2');
-        head.appendChild(el('span', 'font-bold text-white text-sm', p.name || '?'));
-        if (p.leader) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-600/40 rounded px-1.5 py-0.5', 'líder'));
-        if (p.banned) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'baneado'));
-        row.appendChild(head);
-        const badges = el('div', 'flex flex-wrap gap-1.5 mt-1');
-        if (p.role) {
-          const r = roleLabel(p.role);
-          badges.appendChild(el('span', 'text-[10px] text-amber-300', r ? `Rol: ${r}` : `Rol: ${p.role}`));
-        }
-        if (p.dual) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Dual: ${p.dual}`));
-        if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Sanción: ${p.sanction}`));
-        if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-amber-200', `Puntos: ${p.points}`));
-        if (badges.children.length === 0) badges.appendChild(el('span', 'text-[10px] text-gray-500', 'Sin rol asignado'));
-        row.appendChild(badges);
-        grid.appendChild(row);
-      });
-      rosterCard.appendChild(grid);
+      const rosterCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      rosterCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Roster'));
+      rosterCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
+      if (players.length === 0) {
+        rosterCard.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.'));
+      } else {
+        const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
+        players.forEach((p) => {
+          const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-lg px-3 py-2');
+          const head = el('div', 'flex items-center gap-2');
+          head.appendChild(el('span', 'font-bold text-white text-sm', p.name || '?'));
+          if (p.leader) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-600/40 rounded px-1.5 py-0.5', 'líder'));
+          if (p.banned) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'baneado'));
+          row.appendChild(head);
+          const badges = el('div', 'flex flex-wrap gap-1.5 mt-1');
+          if (p.role) {
+            const r = roleLabel(p.role);
+            badges.appendChild(el('span', 'text-[10px] text-amber-300', r ? `Rol: ${r}` : `Rol: ${p.role}`));
+          }
+          if (p.dual) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Dual: ${p.dual}`));
+          if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-gray-400', `Sanción: ${p.sanction}`));
+          if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-amber-200', `Puntos: ${p.points}`));
+          if (badges.children.length === 0) badges.appendChild(el('span', 'text-[10px] text-gray-500', 'Sin rol asignado'));
+          row.appendChild(badges);
+          grid.appendChild(row);
+        });
+        rosterCard.appendChild(grid);
+      }
+      body.appendChild(rosterCard);
     }
-    body.appendChild(rosterCard);
 
     // Reglas
     const rules = Array.isArray(band.rules) ? (band.rules as BandRule[]) : [];
@@ -167,6 +180,6 @@
     if (res.error) return null;
     const p = res.data as { slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean } | null;
     if (!p || !p.is_public || !p.slug) return null;
-    return { href: `/jugador/${p.slug}`, label: `Por ${p.display_name || p.character_name || 'jugador'}` };
+    return { href: `/jugador/${p.slug}`, label: `Por ${playerName(p)}` };
   }
 </script>

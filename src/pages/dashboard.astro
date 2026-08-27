@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
+import Breadcrumb from '@/components/Breadcrumb.astro';
 import { ui } from '@/lib/ui/design';
 
 const ctaPrincipal = `${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest`;
@@ -10,19 +11,23 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 <Layout title="Mi Dashboard - RaidDominion" description="Tu addon en la comunidad RaidDominion: registro, bandas, hermandad y perfil.">
   <Navigation currentPath="/dashboard" />
   <main class="relative py-16">
-    <div class="max-w-5xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4">
+      <Breadcrumb />
 
       <!-- Encabezado del espacio personal -->
       <header class="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 mb-8 animate-fade-in-1">
         <div class="flex items-center gap-4">
           <div id="avatar" class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black text-xl font-black shadow-lg shadow-amber-900/30 select-none">–</div>
           <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Mi addon</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Cuenta</h1>
             <p id="user-email" class="text-gray-400 text-sm italic"></p>
           </div>
         </div>
         <span id="role-badge" class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300">…</span>
-        <span id="version-chip" class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300" title="Build consolidación 2026-08-26">Portal v3</span>
+        <a href="/upload" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300 hover:bg-amber-800/50 transition-colors" title="Sube tu SavedVariables">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Subir SV
+        </a>
       </header>
 
       <!-- Pestañas (generadas desde src/lib/ui/tabs.ts = contrato único;
@@ -423,13 +428,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     setCharacterVisibility,
     getMyBands,
     setBandVisibility,
+    setBandHidePlayers,
+    getBandRankPolicy,
+    saveBandRankPolicy,
+    listGuildPortalBands,
     claimGuildFromSV,
     deleteMyAccount,
     resetMyData,
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
   import type { BandRow } from '@/types/database';
-  import { renderBand, renderBandExpanded, renderBandPlayers, renderRoster, el } from '@/lib/ui/preview';
+  import { renderBand, renderBandExpanded, renderBandPlayers, el } from '@/lib/ui/preview';
+  import { resolveRankName } from '@/lib/ui/ranks';
   import { DASHBOARD_TABS, tabFromHash, tabHash } from '@/lib/ui/tabs';
   import { isStaff } from '@/lib/roles';
   import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, GuildMember, RegistryGuild } from '@/types/parser';
@@ -627,6 +637,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     if (p.display_name) {
       nameInput.value = p.display_name;
       avatarEl.textContent = p.display_name[0].toUpperCase();
+    } else if (p.character_name) {
+      avatarEl.textContent = p.character_name[0].toUpperCase();
     }
     profileCharacterName = p.character_name;
     syncMainCharacterSelect();
@@ -659,16 +671,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
     btn.disabled = true; btn.textContent = 'Guardando…';
     const res = await updateMyProfile({
-      display_name: nameInput.value.trim() || undefined,
-      character_name: selectedChar?.name,
+      display_name: nameInput.value.trim() || null,
+      character_name: selectedChar?.name ?? null,
       is_public: publicToggle.checked,
     });
     btn.disabled = false; btn.textContent = 'Guardar cambios';
 
     if (res.ok) {
       profileCharacterName = selectedChar?.name ?? null;
-      const nameSource = nameInput.value.trim() || selectedChar?.name || '';
-      if (nameSource) avatarEl.textContent = nameSource[0].toUpperCase();
+      // Al retirar el nombre visible, el avatar cae al personaje principal o,
+      // en su defecto, a la inicial del correo (nunca queda desactualizado).
+      const nameSource = nameInput.value.trim() || selectedChar?.name || email || '';
+      avatarEl.textContent = nameSource[0]?.toUpperCase() || '?';
       await syncPublicLink(publicToggle.checked);
       msgBox('profile-msg', true, publicToggle.checked
         ? 'Cambios guardados. Tu perfil es público.'
@@ -1125,18 +1139,32 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       head.appendChild(el('p', 'text-sm font-bold text-amber-200', g.name));
       if (g.isGM) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-500/40 rounded-lg px-2.5 py-1', '★ Maestro'));
       card.appendChild(head);
+
+      // El rango propio se detecta por rankIndex contra la jerarquía; el
+      // índice 0 (o isGM) es SIEMPRE el líder.
+      const ownIndex = g.isGM ? 0 : g.ownRankIndex;
+      const ownRankName = resolveRankName({
+        rankIndex: ownIndex,
+        rank: g.ownRank,
+        ranks: g.ranks,
+        isGM: g.isGM,
+      });
+
       const meta = el('div', 'flex flex-wrap gap-2 mt-1.5');
       if (typeof g.numMembers === 'number') meta.appendChild(configChip(`${g.numMembers} miembros`));
       if (g.characters.length > 0) meta.appendChild(configChip(`${g.characters.length} personaje(s)`));
+      meta.appendChild(configChip(`Tu rango: ${ownRankName}`, g.isGM));
       card.appendChild(meta);
+
       // Jerarquía completa de rangos (registry.guild.ranks), ordenada por index
       // (0 = líder). El rango del propio usuario se marca si está disponible.
       if (g.ranks.length > 0) {
         const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
         hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Rangos:'));
         g.ranks.forEach((r) => {
-          const isMine = r.index === g.ownRankIndex
-            || (!!g.ownRank && r.name.trim().toLowerCase() === g.ownRank.trim().toLowerCase());
+          const isMine = ownIndex !== undefined
+            ? r.index === ownIndex
+            : (!!g.ownRank && r.name.trim().toLowerCase() === g.ownRank.trim().toLowerCase());
           const label = r.name.trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
           const cls = isMine
             ? 'text-amber-300 border-amber-500/50 bg-amber-900/30'
@@ -1282,14 +1310,20 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const meta = el('div', 'flex flex-wrap gap-2 mt-2');
     if (b.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', b.schedule));
     if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `GS ${b.min_gs}`));
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${bandPlayerCount(b)} jugadores`));
+    if (!b.hide_players) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${bandPlayerCount(b)} jugadores`));
+    else meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', 'jugadores ocultos'));
     if (bandRuleCount(b) > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${bandRuleCount(b)} reglas`));
+    if (b.guild_id && b.is_rank_integrated && b.is_public) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded-lg px-3 py-1', '✓ en el portal de la hermandad'));
+    else if (b.guild_id && b.is_rank_integrated) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-600/40 rounded-lg px-3 py-1', 'rango autorizado · privada'));
     info.append(title, meta);
     head.appendChild(info);
 
+    // Controles de visibilidad (derecha)
+    const controls = el('div', 'flex flex-col items-end gap-2 shrink-0');
+
     // Toggle de visibilidad pública
     const label = document.createElement('label');
-    label.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400 shrink-0';
+    label.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
     const vis = document.createElement('input');
     vis.type = 'checkbox';
     vis.className = 'w-4 h-4 accent-amber-500';
@@ -1314,7 +1348,38 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       window.setTimeout(() => { status.textContent = ''; }, 2500);
     });
     label.append(vis, document.createTextNode('Pública'), status);
-    head.appendChild(label);
+    controls.appendChild(label);
+
+    // Toggle "ocultar jugadores al público" (global)
+    const hideLabel = document.createElement('label');
+    hideLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
+    const hide = document.createElement('input');
+    hide.type = 'checkbox';
+    hide.className = 'w-4 h-4 accent-amber-500';
+    hide.checked = b.hide_players;
+    const hideStatus = document.createElement('span');
+    hideStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest';
+    hide.addEventListener('change', async () => {
+      hide.disabled = true;
+      hideStatus.textContent = 'guardando…';
+      hideStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-amber-300';
+      const res = await setBandHidePlayers(b.id, hide.checked);
+      hide.disabled = false;
+      if (res.ok) {
+        b.hide_players = hide.checked;
+        hideStatus.textContent = hide.checked ? '✓ ocultos' : '✓ visibles';
+        hideStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      } else {
+        hide.checked = !hide.checked;
+        hideStatus.textContent = '✗ error';
+        hideStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
+      }
+      window.setTimeout(() => { hideStatus.textContent = ''; }, 2500);
+    });
+    hideLabel.append(hide, document.createTextNode('Ocultar jugadores'), hideStatus);
+    controls.appendChild(hideLabel);
+
+    head.appendChild(controls);
     card.appendChild(head);
 
     card.appendChild(el('p', 'mt-3 text-[11px] text-gray-500 italic', 'Los jugadores y reglas se actualizan re-subiendo tu SavedVariables.'));
@@ -1359,19 +1424,77 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     el.className = `mt-3 text-sm rounded-lg px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
   }
 
-  // Carga el roster del portal desde el snapshot público de cada hermandad
-  async function loadGuildRoster(g: GuildRow, card: HTMLElement): Promise<void> {
-    const body = card.querySelector('.guild-roster-body') as HTMLElement | null;
-    if (!body) return;
-    const res = await getGuildSnapshot(g.id);
-    if (!res.ok || !res.snapshot) {
-      body.innerHTML = '<p class="text-sm text-gray-400 italic">Sin snapshot aún. Sube un SV con tu personaje maestro para publicar roster, bandas y reglas.</p>';
+  // Cifras relevantes de la hermandad para el tab /dashboard#hermandad: número
+  // de miembros del roster del snapshot, bandas integradas al portal (leídas en
+  // tiempo real) y reglas del último análisis. Sin roster paginado aquí.
+  async function loadGuildStats(g: GuildRow, wrap: HTMLElement): Promise<void> {
+    const [res, bandsRes] = await Promise.all([
+      getGuildSnapshot(g.id),
+      listGuildPortalBands(g.id),
+    ]);
+    const members = res.ok && res.snapshot ? res.snapshot.members.length : 0;
+    const integrated = bandsRes.ok ? bandsRes.bands?.length ?? 0 : 0;
+    const rules = res.ok && res.snapshot ? res.snapshot.rules.length : 0;
+    const values = wrap.querySelectorAll('[data-cifra]');
+    if (values[0]) values[0].textContent = String(members);
+    if (values[1]) values[1].textContent = String(integrated);
+    if (values[2]) values[2].textContent = String(rules);
+  }
+
+  // Rangos autorizados del GM: la jerarquía viene del snapshot del portal
+  // (índice 0 = líder); cada índice con checkbox. Al cambiar se persiste la
+  // política y se re-evalúa la integración de las bandas de la hermandad.
+  async function loadRankPolicy(g: GuildRow, body: HTMLElement): Promise<void> {
+    const [snapRes, polRes] = await Promise.all([
+      getGuildSnapshot(g.id),
+      getBandRankPolicy(g.id),
+    ]);
+
+    const ranks = (snapRes.ok && snapRes.snapshot?.ranks) ? [...snapRes.snapshot.ranks].sort((a, b) => a.index - b.index) : [];
+    const authorized = new Set<number>(polRes.ok ? polRes.policy?.authorized_rank_indices ?? [] : []);
+
+    if (ranks.length === 0) {
+      body.innerHTML = '<p class="text-sm text-gray-400 italic">Sube un SV con tu personaje maestro para definir los rangos de la hermandad.</p>';
       return;
     }
+
     body.innerHTML = '';
-    renderRoster(body, res.snapshot.members);
-    const cifras = el('p', 'text-[11px] text-gray-500 italic mt-2', `Bandas: ${res.snapshot.bands.length} · Reglas: ${res.snapshot.rules.length}`);
-    body.appendChild(cifras);
+    const hint = el('p', 'text-[11px] text-gray-500 italic mb-2', 'Las bandas de un líder cuyo rango marques se integran al portal de la hermandad.');
+    body.appendChild(hint);
+
+    ranks.forEach((r) => {
+      const label = document.createElement('label');
+      label.className = 'flex items-center gap-2 cursor-pointer select-none text-sm text-gray-300 bg-gray-800/40 border border-gray-700/50 rounded-lg px-3 py-2 hover:border-amber-600/40 transition-colors';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'w-4 h-4 accent-amber-500';
+      cb.checked = authorized.has(r.index);
+      const name = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
+      const txt = el('span', 'font-medium', `${r.index}: ${name}`);
+      const saving = el('span', 'ml-auto text-[10px] font-bold uppercase tracking-widest', '');
+      label.append(cb, txt, saving);
+
+      cb.addEventListener('change', async () => {
+        cb.disabled = true;
+        saving.textContent = 'guardando…';
+        saving.className = 'ml-auto text-[10px] font-bold uppercase tracking-widest text-amber-300';
+        const next = authorized.has(r.index) ? new Set([...authorized].filter((i) => i !== r.index)) : new Set([...authorized, r.index]);
+        const res = await saveBandRankPolicy(g.id, Array.from(next).sort((a, b) => a - b));
+        cb.disabled = false;
+        if (res.ok) {
+          authorized.clear();
+          next.forEach((i) => authorized.add(i));
+          saving.textContent = '✓';
+          saving.className = 'ml-auto text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+        } else {
+          cb.checked = !cb.checked;
+          saving.textContent = '✗ error';
+          saving.className = 'ml-auto text-[10px] font-bold uppercase tracking-widest text-red-400';
+        }
+        window.setTimeout(() => { saving.textContent = ''; }, 2000);
+      });
+      body.appendChild(label);
+    });
   }
 
   function renderGuildCard(g: GuildRow): HTMLElement {
@@ -1422,6 +1545,21 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ficha.appendChild(el('p', 'text-[11px] text-gray-500 border-t border-gray-700/50 pt-2 italic', 'Los datos provienen de tu SavedVariables; se actualizan con cada re-upload.'));
     card.appendChild(ficha);
 
+    // Cifras relevantes de la hermandad (sin roster paginado): miembros,
+    // bandas integradas y reglas del último análisis del portal.
+    const cifras = el('div', 'grid grid-cols-3 gap-3 mt-4');
+    const cifraBox = (label: string): HTMLElement => {
+      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-3');
+      const val = el('p', 'text-2xl font-black text-amber-200 italic', '—');
+      val.setAttribute('data-cifra', '');
+      box.appendChild(val);
+      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
+      return box;
+    };
+    cifras.append(cifraBox('Miembros'), cifraBox('Bandas integradas'), cifraBox('Reglas'));
+    card.appendChild(cifras);
+    void loadGuildStats(g, cifras);
+
     // Portal
     const url = `${window.location.origin}/${g.slug}`;
     const portal = el('div', 'mt-4');
@@ -1456,13 +1594,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     portal.appendChild(msg);
     card.appendChild(portal);
 
-    // Roster (reservado aquí, NO en Mi Registro)
-    const rosterSec = el('div', 'mt-4');
-    rosterSec.appendChild(el('h4', 'text-xs font-black uppercase tracking-widest text-gray-400 mb-2', 'Roster de la hermandad'));
-    const rosterBody = el('div', 'guild-roster-body overflow-x-auto');
-    rosterBody.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando roster…</p>';
-    rosterSec.appendChild(rosterBody);
-    card.appendChild(rosterSec);
+    // Rangos autorizados: qué índices integran bandas al portal.
+    // El GM marca por índice (0 = líder); las bandas de un líder con rango
+    // autorizado cuentan en el portal. Requiere la jerarquía del snapshot.
+    const rankSec = el('div', 'mt-4');
+    rankSec.appendChild(el('h4', 'text-xs font-black uppercase tracking-widest text-gray-400 mb-2', 'Rangos que integran bandas al portal'));
+    const rankBody = el('div', 'space-y-1.5');
+    rankBody.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando jerarquía…</p>';
+    rankSec.appendChild(rankBody);
+    card.appendChild(rankSec);
+    void loadRankPolicy(g, rankBody);
 
     // Eventos
     input.addEventListener('change', async () => {
@@ -1491,7 +1632,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     });
     if (g.is_public) openLink.classList.remove('hidden');
 
-    void loadGuildRoster(g, card);
     return card;
   }
 

@@ -44,6 +44,7 @@
   async function render(server: string, realms: string[]): Promise<void> {
     document.title = `${server} - RaidDominion`;
     (document.getElementById('sv-server') as HTMLElement).textContent = server;
+    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(server);
 
     // Estadísticas públicas: reinos, personajes y jugadores distintos.
     const stats = await getServerStats(server);

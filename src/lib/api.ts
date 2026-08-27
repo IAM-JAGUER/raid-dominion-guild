@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
-import type { ParsedSavedVariables } from '@/types/parser';
+import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
+import type { ParsedSavedVariables, GuildRank } from '@/types/parser';
 import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
 
 // Tipos re-exportados para los consumidores de la capa de datos.
@@ -76,8 +77,8 @@ export async function getUpload(id: string): Promise<{ ok: boolean; item?: Saved
 // ─── Perfil y roles (fuente de verdad: raiddominion_profiles.role) ──────
 
 export interface ProfileUpdate {
-  display_name?: string;
-  character_name?: string;
+  display_name?: string | null;
+  character_name?: string | null;
   is_public?: boolean;
 }
 
@@ -161,26 +162,49 @@ export async function getMyGuilds(): Promise<{ ok: boolean; items?: GuildRow[]; 
 export interface GuildPortalSnapshot {
   generatedBy: string | null;
   lastUpdate: number | null;
+  // Jerarquía de rangos de la hermandad (registry.guild.ranks), ordenada por
+  // index (0 = líder). El portal la muestra y ordena el roster con ella.
+  ranks?: Array<{ index: number; name: string }>;
   // Whitelist explícita: el snapshot es público (SELECT TRUE) y jamás
-  // debe incluir officerNote ni campos privados futuros.
-  members: Array<Pick<ParsedSavedVariables['guild']['members'][number], 'name' | 'class' | 'rank' | 'publicNote'>>;
+  // debe incluir officerNote ni campos privados futuros. `rankIndex` se
+  // conserva para ordenar el roster por jerarquía en el portal.
+  members: Array<{
+    name: string;
+    class: string;
+    rank: string;
+    rankIndex?: number;
+    publicNote: string;
+  }>;
   bands: ParsedSavedVariables['bands'];
   rules: ParsedSavedVariables['rules'];
 }
 
 export function buildPortalSnapshot(data: ParsedSavedVariables): GuildPortalSnapshot {
+  // Jerarquía de rangos: unión de registry.guild.ranks de todos los registros
+  // del SV (dedupe por index), ordenada por jerarquía (0 = líder).
+  const ranksRaw = new Map<number, string>();
+  const addRanks = (r: GuildRank[] | undefined): void => {
+    (r ?? []).forEach((x) => { if (!ranksRaw.has(x.index)) ranksRaw.set(x.index, x.name); });
+  };
+  addRanks(data.registryGuild?.ranks);
+  data.registries.forEach((r) => addRanks(r.guild?.ranks));
+  const ranks = sortRanks(Array.from(ranksRaw, ([index, name]) => ({ index, name })));
+
   // Roster efectivo: memberList v3 (registry.*.guild.memberList) ∪ legacy,
-  // dedupe por nombre (misma lógica que el preview del upload).
+  // dedupe por nombre (misma lógica que el preview del upload). El nombre del
+  // rango de cada miembro se RESUELVE desde su rankIndex contra la jerarquía
+  // (índice 0 = líder), no desde el texto crudo del SV.
   const seen = new Set<string>();
   const members: GuildPortalSnapshot['members'] = [];
-  const push = (m: { name: string; class?: string; rank?: string; publicNote?: string }): void => {
+  const push = (m: { name: string; class?: string; rank?: string; rankIndex?: number; publicNote?: string }): void => {
     const key = m.name.trim().toLowerCase();
     if (!key || seen.has(key)) return;
     seen.add(key);
     members.push({
       name: m.name,
       class: m.class ?? '',
-      rank: m.rank ?? '',
+      rank: resolveRankName({ rankIndex: m.rankIndex, rank: m.rank, ranks }),
+      rankIndex: typeof m.rankIndex === 'number' ? m.rankIndex : undefined,
       publicNote: m.publicNote ?? '',
     });
   };
@@ -188,7 +212,8 @@ export function buildPortalSnapshot(data: ParsedSavedVariables): GuildPortalSnap
     r.guild?.memberList?.forEach((gm) => push({
       name: gm.name,
       class: gm.class ?? gm.classFile ?? '',
-      rank: gm.rank || (typeof gm.rankIndex === 'number' ? String(gm.rankIndex) : ''),
+      rank: gm.rank,
+      rankIndex: gm.rankIndex,
       publicNote: '',
     }))
   );
@@ -196,6 +221,7 @@ export function buildPortalSnapshot(data: ParsedSavedVariables): GuildPortalSnap
   return {
     generatedBy: data.generatedBy ?? null,
     lastUpdate: data.lastUpdate ?? null,
+    ranks: ranks.length > 0 ? ranks : undefined,
     members,
     bands: data.bands ?? [],
     rules: data.rules ?? [],
@@ -231,6 +257,7 @@ export async function listPublicPlayers(): Promise<{ ok: boolean; players?: Prof
     .eq('is_public', true)
     .not('slug', 'is', null)
     .order('display_name', { ascending: true, nullsFirst: false })
+    .order('character_name', { ascending: true, nullsFirst: false })
     .limit(200);
 
   if (res.error) return { ok: false, error: res.error.message };
@@ -365,7 +392,12 @@ export async function listPublicBands(): Promise<{ ok: boolean; bands?: BandRow[
     .limit(200);
 
   if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, bands: (res.data as BandRow[]) ?? [] };
+  const rows = (res.data as BandRow[]) ?? [];
+  // No exponer players[] de bandas que ocultan jugadores al público.
+  rows.forEach((b) => {
+    if (b.hide_players) b.players = [];
+  });
+  return { ok: true, bands: rows };
 }
 
 // Banda pública por slug.
@@ -378,7 +410,9 @@ export async function getPublicBandBySlug(slug: string): Promise<{ ok: boolean; 
     .maybeSingle();
 
   if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, band: (res.data as BandRow | null) ?? undefined };
+  const band = res.data as BandRow | null;
+  if (band && band.hide_players) band.players = [];
+  return { ok: true, band: band ?? undefined };
 }
 
 // ─── Gestión de bandas propias ──────────────────────────────────────────
@@ -411,19 +445,109 @@ export async function setBandVisibility(id: string, isPublic: boolean): Promise<
 }
 
 // Persiste bandas/reglas de un SV vía RPC SECURITY DEFINER.
+// ownerRankIndex = registry.guild.rankIndex del dueño (índice de su rango
+// dentro de la hermandad; 0 = líder). guildName = registry.guild.name (la
+// hermandad del dueño, sea o no el maestro) que asocia guild_id a cada banda.
 export async function upsertBands(
   svId: string,
   bands: ParsedSavedVariables['bands'],
-  rules: ParsedSavedVariables['rules']
+  rules: ParsedSavedVariables['rules'],
+  ownerRankIndex?: number | null,
+  guildName?: string | null,
+  characterName?: string | null,
+  characterRealm?: string | null
 ): Promise<{ ok: boolean; count?: number; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_upsert_bands', {
     p_sv_id: svId,
     p_bands: (bands ?? []) as unknown as Record<string, unknown>[],
     p_rules: (rules ?? []) as unknown as Record<string, unknown>[],
+    p_owner_rank_index: ownerRankIndex ?? null,
+    p_guild_name: guildName ?? null,
+    p_character_name: characterName ?? null,
+    p_character_realm: characterRealm ?? null,
   });
 
   if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true, count: rpc.data as number };
+}
+
+// Alterna la ocultación global (número + lista de jugadores) de una banda
+// propia frente al público. Vía RPC SECURITY DEFINER (solo owner).
+export async function setBandHidePlayers(id: string, hide: boolean): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_hide_players', {
+    p_band_id: id,
+    p_hide: hide,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Política del GM: qué índices de rango integran bandas al portal.
+export interface BandRankPolicy {
+  authorized_rank_indices: number[];
+}
+
+// Lee la política de rangos autorizados de una hermandad (público).
+// Default: [0] — el rango del maestro integra sus propias bandas, de modo
+// que un GM que sube su SV antes de configurar la política conserva su
+// portal con bandas (comportamiento previo del snapshot).
+export async function getBandRankPolicy(guildId: string): Promise<{ ok: boolean; policy?: BandRankPolicy; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_guild_config')
+    .select('config_value')
+    .eq('guild_id', guildId)
+    .eq('config_key', 'band_rank_policy')
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  const value = res.data?.config_value as { authorized_rank_indices?: number[] } | undefined;
+  return {
+    ok: true,
+    policy: {
+      authorized_rank_indices: Array.isArray(value?.authorized_rank_indices)
+        ? value.authorized_rank_indices
+        : [0],
+    },
+  };
+}
+
+// El GM guarda qué índices de rango integran bandas y re-evalúa la
+// integración de todas las bandas de la hermandad. Vía RPC (solo owner).
+export async function saveBandRankPolicy(
+  guildId: string,
+  authorized: number[]
+): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_rank_policy', {
+    p_guild_id: guildId,
+    p_authorized: authorized,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Bandas que cuentan en el portal de la hermandad (fuente REAL-TIME, ya no
+// el snapshot): filas con guild_id = hermandad, dueño de rango autorizado
+// (is_rank_integrated) Y públicas (is_public) — consistente con RLS
+// (SELECT owner OR is_public), así el portal anónimo ve exactamente esto.
+// Si hide_players, se quita players[] para que no se exponga número ni lista.
+export async function listGuildPortalBands(guildId: string): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
+    .eq('guild_id', guildId)
+    .eq('is_rank_integrated', true)
+    .eq('is_public', true)
+    .order('name', { ascending: true })
+    .limit(200);
+
+  if (res.error) return { ok: false, error: res.error.message };
+
+  const rows = (res.data as BandRow[]) ?? [];
+  // Si la banda oculta jugadores, no exponer players[] al consumidor.
+  rows.forEach((b) => {
+    if (b.hide_players) b.players = [];
+  });
+  return { ok: true, bands: rows };
 }
 
 
@@ -475,6 +599,13 @@ export async function saveMyGuildSnapshotsFromSV(data: ParsedSavedVariables): Pr
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData.session?.user;
   if (!user) return { ok: false, updated: 0, error: 'sin sesión' };
+
+  // Solo una subida de un personaje MAESTRO (registry.guild.isGM) refresca
+  // el snapshot del portal. Una subida de otro rango (miembro/líder) NO debe
+  // pisar roster/bandas/reglas publicados por el maestro (bug 2026-08-31).
+  if (!data.registryGuild?.isGM) {
+    return { ok: true, updated: 0 };
+  }
 
   const guildsRes = await supabase
     .from('raiddominion_guilds')
@@ -834,6 +965,8 @@ export async function getPublicBandsForCharacter(
   const bands: PublicBandSummary[] = [];
 
   for (const b of rows) {
+    // Bandas que ocultan jugadores no exponen membresía ni rol al público.
+    if (b.hide_players) continue;
     const players = Array.isArray(b.players) ? (b.players as Array<{ name?: string; role?: string }>) : [];
     const me = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
     if (!me) continue;
