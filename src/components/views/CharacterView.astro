@@ -18,11 +18,11 @@
 </section>
 
 <script>
-  import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, type CharacterRow } from '@/lib/api';
+  import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, getPublicAccountNames, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { safePlayerName } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
 
   if (currentSection() === 'personaje') {
@@ -81,14 +81,19 @@
     }
 
     const links = document.getElementById('pv-links') as HTMLElement;
+    // Nombres públicos + ¿hay un personaje maestro PÚBLICO?
+    const namesRes = await getPublicAccountNames([c.user_id]);
+    const info = namesRes.get(c.user_id);
     if (p?.slug) {
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
       a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all';
-      a.textContent = `Cuenta de ${playerName(p)} →`;
+      // No exponer un principal declarado que no sea público.
+      a.textContent = `Cuenta de ${safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal })} →`;
       links.appendChild(a);
     }
-    if (p?.role === 'guild_master') {
+    // El enlace "★ Hermandad" solo se muestra si el personaje maestro es público.
+    if (p?.role === 'guild_master' && info?.hasPublicGm === true) {
       const gRes = await getPublicGuildByOwner(c.user_id);
       if (gRes.ok && gRes.guild?.is_public) {
         const a = document.createElement('a');

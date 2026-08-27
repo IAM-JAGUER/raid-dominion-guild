@@ -841,9 +841,17 @@ export async function resetMyData(): Promise<{ ok: boolean; error?: string }> {
 
 // Personajes del usuario autenticado
 export async function getMyCharacters(): Promise<{ ok: boolean; items?: CharacterRow[]; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, error: 'sin sesión' };
+
+  // Escopado al usuario SIEMPRE: RLS permite leer personajes públicos de otros
+  // (is_public = TRUE), así que sin el filtro "Mis Personajes" mezclaría datos
+  // de terceros para moderadores/admins (y para cualquier cuenta).
   const res = await supabase
     .from('raiddominion_characters')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (res.error) return { ok: false, error: res.error.message };
@@ -872,6 +880,47 @@ export async function getPublicCharactersByUser(userId: string): Promise<{ ok: b
 
   if (res.error) return { ok: false, error: res.error.message };
   return { ok: true, items: (res.data as CharacterRow[]) ?? [] };
+}
+
+// Nombres públicos por cuenta (batch) para sanitizar la presentación: un
+// perfil puede declarar un personaje principal que NO es público, y su nombre
+// no debe exponerse. Devuelve por user_id el set de nombres públicos y el
+// personaje público más relevante (GM primero, luego mayor ilvl).
+export interface PublicAccountNames {
+  publicNames: Set<string>;
+  principal?: string;
+  // ¿La cuenta tiene un personaje PÚBLICO marcado como maestro (sv_is_gm)?
+  // La insignia "Maestro" solo debe exponerse si ese personaje es visible.
+  hasPublicGm: boolean;
+}
+
+export async function getPublicAccountNames(userIds: string[]): Promise<Map<string, PublicAccountNames>> {
+  const map = new Map<string, PublicAccountNames>();
+  const scores = new Map<string, number>();
+  const ids = Array.from(new Set(userIds.filter(Boolean)));
+  ids.forEach((id) => map.set(id, { publicNames: new Set<string>(), hasPublicGm: false }));
+  if (ids.length === 0) return map;
+
+  const res = await supabase
+    .from('raiddominion_characters')
+    .select('user_id, name, sv_is_gm, avg_ilvl')
+    .eq('is_public', true)
+    .in('user_id', ids)
+    .limit(500);
+
+  if (res.error) return map;
+  (res.data as Array<{ user_id: string; name: string; sv_is_gm: boolean | null; avg_ilvl: number | null }> ?? []).forEach((c) => {
+    const info = map.get(c.user_id);
+    if (!info) return;
+    info.publicNames.add(c.name.toLowerCase());
+    if (c.sv_is_gm) info.hasPublicGm = true;
+    const score = (c.sv_is_gm ? 1000 : 0) + (typeof c.avg_ilvl === 'number' ? c.avg_ilvl : 0);
+    if ((scores.get(c.user_id) ?? -1) < score) {
+      scores.set(c.user_id, score);
+      info.principal = c.name;
+    }
+  });
+  return map;
 }
 
 export interface CharacterSlugRow {

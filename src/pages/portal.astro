@@ -115,7 +115,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   import { supabase } from '@/lib/supabase';
   import { slugify } from '@/lib/routes';
   import { renderBand, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { safePlayerName } from '@/lib/ui/playerNames';
 
   const RESERVED = new Set([
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
@@ -187,7 +187,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
       // Enlace al maestro de la hermandad (solo si su perfil es público). Cuando
       // el maestro NO tiene nombre visible en el portal (display_name), el
-      // label (character_name) enlaza a la FICHA DEL PERSONAJE, no al perfil.
+      // label (character_name) enlaza a la FICHA DEL PERSONAJE, no al perfil;
+      // y nunca expone un character_name que no sea público.
       const ownerRes = await supabase
         .from('raiddominion_profiles')
         .select('slug, display_name, character_name, is_public')
@@ -201,15 +202,16 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           if ((owner.display_name ?? '').trim()) {
             ownerChip.href = `/jugador/${owner.slug}`;
             ownerChip.textContent = `★ ${owner.display_name}`;
-          } else if ((owner.character_name ?? '').trim()) {
+          } else {
             const charsRes = await getPublicCharactersByUser(g.owner_id);
             const chars = charsRes.ok ? (charsRes.items ?? []) : [];
-            const match = chars.find((c) => c.name.toLowerCase() === owner.character_name!.toLowerCase()) ?? chars[0];
+            const publicNames = new Set(chars.map((c) => c.name.toLowerCase()));
+            const label = safePlayerName(owner, { publicNames, fallbackName: chars[0]?.name });
+            // Solo enlaza a la ficha del personaje si el character_name declarado
+            // es de un personaje público.
+            const match = chars.find((c) => c.name.toLowerCase() === (owner.character_name ?? '').toLowerCase());
             ownerChip.href = match?.slug ? `/personaje/${match.slug}` : `/jugador/${owner.slug}`;
-            ownerChip.textContent = `★ ${owner.character_name}`;
-          } else {
-            ownerChip.href = `/jugador/${owner.slug}`;
-            ownerChip.textContent = `★ ${playerName(owner)}`;
+            ownerChip.textContent = `★ ${label}`;
           }
           metaEl.appendChild(ownerChip);
         }

@@ -62,10 +62,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
 <script>
   import { supabase } from '@/lib/supabase';
-  import { getPublicCharacterBySlug, getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, type PublicBandSummary } from '@/lib/api';
+  import { getPublicCharacterBySlug, getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, getPublicAccountNames, type PublicBandSummary } from '@/lib/api';
   import { slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { safePlayerName } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
   import type { ProfileRow, RaiddominionRole } from '@/types/database';
@@ -152,7 +152,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     chipsEl.appendChild(serverRealmLinks(c));
     chipsEl.appendChild(characterChips(c));
 
-    if (p && (p.role as RaiddominionRole) === 'guild_master') {
+    // Nombres públicos + ¿hay un personaje maestro PÚBLICO? (la insignia de
+    // maestro no se expone si el maestro real está oculto por el usuario).
+    const namesRes = await getPublicAccountNames([c.user_id]);
+    const info = namesRes.get(c.user_id);
+
+    if (p && (p.role as RaiddominionRole) === 'guild_master' && info?.hasPublicGm === true) {
       document.getElementById('role-badge')?.classList.remove('hidden');
 
       const gRes = await getPublicGuildByOwner(c.user_id);
@@ -167,7 +172,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (p) {
       const ref = document.getElementById('profile-ref') as HTMLElement;
       ref.classList.remove('hidden');
-      const label = playerName(p);
+      // No exponer un principal declarado que no es público.
+      const label = safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
       if (p.slug) {
         ref.appendChild(document.createTextNode('Cuenta de '));
         const a = document.createElement('a');
@@ -220,7 +226,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     let main = mainName ? chars.find((c) => c.name.toLowerCase() === mainName) : undefined;
     main = main ?? chars[0];
 
-    const displayName = playerName(p, main?.name);
+    // Nombre visible seguro: nunca expone un principal declarado que no sea
+    // público (los `chars` ya son solo personajes públicos).
+    const publicNames = new Set(chars.map((c) => c.name.toLowerCase()));
+    const displayName = safePlayerName(p, { publicNames, fallbackName: main?.name });
     document.title = `${displayName} - RaidDominion`;
     (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(displayName);
 
@@ -234,7 +243,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     }
     if (p.realm && !main?.realm) chipsEl.appendChild(chip(p.realm));
 
-    if (p.role === 'guild_master') {
+    // La insignia de maestro solo aplica si hay un personaje maestro PÚBLICO
+    // (los `chars` ya son solo personajes públicos de la cuenta).
+    if (p.role === 'guild_master' && chars.some((c) => c.sv_is_gm)) {
       document.getElementById('role-badge')?.classList.remove('hidden');
 
       const gRes = await getPublicGuildByOwner(p.id);

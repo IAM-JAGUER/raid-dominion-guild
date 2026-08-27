@@ -41,6 +41,42 @@ export function playerName(p: PlayerNameSource, fallbackName?: string | null): s
   return handleFromSlug(p.slug);
 }
 
+// ── Nombre seguro para presentación pública ───────────────────────────────
+// NUNCA expone character_name si ese personaje no es público (el usuario
+// puede dejar su principal declarado apuntando a un personaje con visibilidad
+// off). `publicNames` = nombres (minúsculas) de los personajes públicos de la
+// cuenta; `fallbackName` = personaje público relevante (presentación).
+
+// ¿El perfil expone algún nombre público? (display_name, character_name solo
+// si es público, o un fallbackName público).
+export function isNamelessSafe(
+  p: PlayerNameSource,
+  opts: { publicNames?: Set<string>; fallbackName?: string | null } = {},
+): boolean {
+  if ((p.display_name ?? '').trim()) return false;
+  const cn = (p.character_name ?? '').trim();
+  const names = opts.publicNames;
+  if (cn && (!names || names.has(cn.toLowerCase()))) return false;
+  if ((opts.fallbackName ?? '').trim()) return false;
+  return true;
+}
+
+// Nombre visible seguro: display_name → character_name (solo si público) →
+// fallbackName (público) → handle del slug.
+export function safePlayerName(
+  p: PlayerNameSource,
+  opts: { publicNames?: Set<string>; fallbackName?: string | null } = {},
+): string {
+  const dn = (p.display_name ?? '').trim();
+  if (dn) return dn;
+  const cn = (p.character_name ?? '').trim();
+  const names = opts.publicNames;
+  if (cn && (!names || names.has(cn.toLowerCase()))) return cn;
+  const fb = (opts.fallbackName ?? '').trim();
+  if (fb) return fb;
+  return handleFromSlug(p.slug);
+}
+
 // Inicial para avatar.
 export function playerInitial(name: string): string {
   return (name[0] || '?').toUpperCase();

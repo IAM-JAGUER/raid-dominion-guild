@@ -32,9 +32,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 </Layout>
 
 <script>
-  import { listPublicBands, type BandRow } from '@/lib/api';
+  import { listPublicBands, getPublicAccountNames, type BandRow } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { safePlayerName } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -49,13 +49,14 @@ import { supabase } from '@/lib/supabase';
     const guildIds = Array.from(new Set(bands.filter((b) => b.guild_id).map((b) => b.guild_id as string)));
     const ownerIds = Array.from(new Set(bands.filter((b) => !b.guild_id).map((b) => b.owner_id)));
 
-    const [gRes, pRes] = await Promise.all([
+    const [gRes, pRes, namesMap] = await Promise.all([
       guildIds.length > 0
         ? supabase.from('raiddominion_guilds').select('id, name, slug, is_public').in('id', guildIds)
         : Promise.resolve({ error: null, data: [] }),
       ownerIds.length > 0
         ? supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name, is_public').in('id', ownerIds)
         : Promise.resolve({ error: null, data: [] }),
+      getPublicAccountNames(ownerIds),
     ]);
 
     if (!gRes.error) {
@@ -65,7 +66,11 @@ import { supabase } from '@/lib/supabase';
     }
     if (!pRes.error) {
       (pRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean }>).forEach((p) => {
-        if (p.is_public && p.slug) map.set(p.id, { href: `/jugador/${p.slug}`, label: playerName(p), kind: 'player' });
+        if (p.is_public && p.slug) {
+          const info = namesMap.get(p.id);
+          // No exponer un character_name que no sea público.
+          map.set(p.id, { href: `/jugador/${p.slug}`, label: safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal }), kind: 'player' });
+        }
       });
     }
     return map;

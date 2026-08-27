@@ -20,11 +20,11 @@
 </section>
 
 <script>
-  import { getPublicBandBySlug, type BandRow } from '@/lib/api';
+  import { getPublicBandBySlug, getPublicAccountNames, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { roleLabel } from '@/lib/ui/itemQuality';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { safePlayerName } from '@/lib/ui/playerNames';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -86,10 +86,17 @@
       ownerLink.classList.remove('hidden');
     }
 
+    // Atribución por personaje: solo se muestra "De: X" si ese personaje es
+    // público (no exponer nombres de personajes con visibilidad desactivada).
+    const namesRes = await getPublicAccountNames([band.owner_id]);
+    const info = namesRes.get(band.owner_id);
+    const charPublic = !!(band.character_name ?? '').trim() &&
+      (info?.publicNames.has(band.character_name!.toLowerCase()) ?? false);
+
     const meta = document.getElementById('bv-meta') as HTMLElement;
     if (band.schedule) meta.appendChild(metaChip(`Horario: ${band.schedule}`));
     if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip(`GS mínimo: ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-    if (band.character_name) meta.appendChild(metaChip(`De: ${band.character_name}`, '!text-amber-300 !border-amber-500/40'));
+    if (charPublic) meta.appendChild(metaChip(`De: ${band.character_name}`, '!text-amber-300 !border-amber-500/40'));
     const players = Array.isArray(band.players) ? (band.players as BandPlayer[]) : [];
     if (band.hide_players) {
       meta.appendChild(metaChip('jugadores ocultos', '!text-gray-500'));
@@ -180,6 +187,9 @@
     if (res.error) return null;
     const p = res.data as { slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean } | null;
     if (!p || !p.is_public || !p.slug) return null;
-    return { href: `/jugador/${p.slug}`, label: `Por ${playerName(p)}` };
+    // No exponer un character_name que no sea público.
+    const namesRes = await getPublicAccountNames([band.owner_id]);
+    const info = namesRes.get(band.owner_id);
+    return { href: `/jugador/${p.slug}`, label: `Por ${safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal })}` };
   }
 </script>

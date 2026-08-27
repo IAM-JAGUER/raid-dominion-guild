@@ -262,7 +262,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <label for="character-main" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Personaje principal</label>
               <div class="relative">
                 <select id="character-main" disabled
-                  class="w-full appearance-none cursor-pointer pl-3 pr-10 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 hover:border-gray-600 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 focus-visible:outline-none outline-none text-gray-100 text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"></select>
+                  class="w-full appearance-none cursor-pointer pl-3 pr-10 py-2.5 rounded-lg bg-gray-800/70 border border-gray-700 hover:border-gray-600 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 focus-visible:outline-none outline-none text-gray-100 text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                  <option value="">Ninguno</option>
+                </select>
                 <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </div>
               <p id="character-main-hint" class="text-[11px] text-gray-500 mt-1.5 italic">Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
@@ -589,11 +591,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
   // ── Perfil ───────────────────────────────────────────────────────────────
 
-  // Rellena el <select> del personaje principal SOLO con personajes del SV
+  // Rellena el <select> del personaje principal SOLO con personajes del SV.
+  // Incluye la opción "Ninguno" para poder desmarcar el principal.
   function populateMainCharacterSelect(): void {
     const sel = document.getElementById('character-main') as HTMLSelectElement;
     const hint = document.getElementById('character-main-hint') as HTMLElement;
     sel.innerHTML = '';
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = 'Ninguno';
+    sel.appendChild(none);
     myCharacters.forEach((c) => {
       const opt = document.createElement('option');
       opt.value = c.id;
@@ -610,14 +617,20 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     syncMainCharacterSelect();
   }
 
-  // Preselecciona el personaje guardado en el perfil; si no coincide, el más reciente
+// Preselecciona el personaje guardado SOLO si es PÚBLICO; si el guardado es
+  // privado o no existe, queda "Ninguno" seleccionado (opción índice 0).
+  // Nunca auto-selecciona un personaje de forma implícita.
   function syncMainCharacterSelect(): void {
     const sel = document.getElementById('character-main') as HTMLSelectElement;
     if (myCharacters.length === 0) return;
     const match = profileCharacterName
       ? myCharacters.find((c) => c.name.toUpperCase() === profileCharacterName!.toUpperCase())
       : undefined;
-    sel.value = match ? match.id : (myCharacters[0]?.id ?? '');
+    if (match && match.is_public) {
+      sel.value = match.id;
+    } else {
+      sel.selectedIndex = 0; // "Ninguno"
+    }
   }
 
   async function loadProfile(): Promise<void> {

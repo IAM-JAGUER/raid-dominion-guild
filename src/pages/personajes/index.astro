@@ -49,8 +49,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 <script>
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
-  import { ensureMyCharacterSlugs, type CharacterRow } from '@/lib/api';
-  import { playerName } from '@/lib/ui/playerNames';
+  import { ensureMyCharacterSlugs, getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
+  import { safePlayerName } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -60,6 +60,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   let chars: CharacterRow[] = [];
   const profiles = new Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>();
+  // Nombres públicos por cuenta: evita exponer un principal declarado que no
+  // es público (p. ej. "Por Stormgrim" cuando Stormgrim no es público).
+  const accountNames = new Map<string, PublicAccountNames>();
 
   function chip(text: string, extra = ''): HTMLElement {
     const c = document.createElement('span');
@@ -131,7 +134,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';
-    const ownerName = profile ? playerName(profile) : '';
+    const info = accountNames.get(c.user_id);
+    const ownerName = profile
+      ? safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
+      : '';
     foot.textContent = charHref
       ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')
       : href
@@ -172,6 +178,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null }> | null)?.forEach((p) =>
       profiles.set(p.id, { slug: p.slug, display_name: p.display_name, character_name: p.character_name })
     );
+
+    // Nombres públicos por cuenta para sanitizar el "Por <jugador>" de las cards.
+    const namesRes = await getPublicAccountNames(chars.map((c) => c.user_id));
+    namesRes.forEach((v, k) => accountNames.set(k, v));
 
     // Slugs propios: generarlos en el momento si hace falta (RPC idempotente)
     // para que los cards enlacen a /personaje/<slug>.
