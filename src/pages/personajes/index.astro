@@ -50,7 +50,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
   import { ensureMyCharacterSlugs, getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
-  import { safePlayerName } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -135,8 +135,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const foot = document.createElement('p');
     foot.className = 'text-xs text-gray-500 mt-3';
     const info = accountNames.get(c.user_id);
+    // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
+    // el perfil dueño no declara nombre visible (display_name/character_name),
+    // la atribución cae al handle estable @hex del perfil, no al personaje
+    // público más relevante de la cuenta.
     const ownerName = profile
-      ? safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
+      ? isNamelessSafe(profile, { publicNames: info?.publicNames })
+        ? handleFromSlug(profile.slug)
+        : safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
       : '';
     foot.textContent = charHref
       ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')

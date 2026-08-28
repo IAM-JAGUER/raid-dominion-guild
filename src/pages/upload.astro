@@ -65,20 +65,20 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         <!-- Cifras del procesamiento -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-guild-size">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
+            <p class="text-3xl font-bold text-amber-300" id="stat-guilds">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-characters">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Personajes</p>
           </div>
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-bands">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
           </div>
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-roles">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Roles</p>
-          </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-mechanics">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Mecánicas</p>
+            <p class="text-3xl font-bold text-amber-300" id="stat-rules">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
           </div>
         </div>
 
@@ -309,13 +309,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (claimRes.ok) {
         role = 'guild_master';
         renderOnboardingBanner('success', '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Hermandad.');
-      } else if (claimRes.error?.includes('3 personajes')) {
+      } else if (claimRes.error?.includes('3 personajes validados')) {
         // El reclamo exige evidencia reforzada (>= 3 validados): se activa "con
         // la llegada de un tercero".
         addWarning('Tu SV indica maestría de hermandad, pero el reclamo requiere al menos 3 personajes validados. Registra otro personaje y vuelve a subir tu SV.');
-      } else if (claimRes.error?.includes('Miembro')) {
-        // la promoción pendiente bloquea el reclamo hasta el próximo SV
-        addWarning('Tu SV indica maestría de hermandad, pero la promoción a Miembro requiere al menos dos personajes registrados. El reclamo se completará cuando tu cuenta esté validada.');
+      } else if (claimRes.error?.includes('Requiere ser Miembro')) {
+        // La cuenta aún no está validada como Miembro (visitarante con menos de
+        // dos personajes): el reclamo se completará cuando quede validada.
+        addWarning('Tu SV indica maestría de hermandad, pero el reclamo requiere estar validado como Miembro. Registra al menos dos personajes y vuelve a subir tu SV.');
       } else {
         addWarning('No se pudo reclamar la hermandad desde el SV: ' + (claimRes.error || ''));
       }
@@ -348,17 +349,17 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   }
 
   function renderResult(data: ParsedSavedVariables): void {
-    // Roster efectivo: memberList v3 (registries) ∪ legacy, dedupe por nombre.
-    const rosterNames = new Set<string>();
-    data.registries.forEach((reg) =>
-      reg.guild?.memberList?.forEach((gm) => rosterNames.add(gm.name.trim().toLowerCase())));
-    if (rosterNames.size === 0) {
-      data.guild.members.forEach((m) => rosterNames.add(m.name.trim().toLowerCase()));
-    }
-    (document.getElementById('stat-guild-size') as HTMLElement).textContent = String(rosterNames.size);
+    // Hermandades del registro (registryGuild + registries[*].guild), dedupe
+    // por nombre: son las hermandades que aparecen en el SV.
+    const guildNames = new Set<string>();
+    if (data.registryGuild?.name) guildNames.add(data.registryGuild.name.trim().toLowerCase());
+    data.registries.forEach((reg) => {
+      if (reg.guild?.name) guildNames.add(reg.guild!.name.trim().toLowerCase());
+    });
+    (document.getElementById('stat-guilds') as HTMLElement).textContent = String(guildNames.size);
+    (document.getElementById('stat-characters') as HTMLElement).textContent = String(data.characters.length);
     (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length);
-    (document.getElementById('stat-roles') as HTMLElement).textContent = String(data.roles.length);
-    (document.getElementById('stat-mechanics') as HTMLElement).textContent = String(data.mechanics.length);
+    (document.getElementById('stat-rules') as HTMLElement).textContent = String(data.rules.length);
 
     // Claim de maestro (auto por SV; sin formularios manuales)
     const claimBanner = document.getElementById('claim-banner') as HTMLElement;

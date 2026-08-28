@@ -65,7 +65,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   import { getPublicCharacterBySlug, getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, getPublicAccountNames, type PublicBandSummary } from '@/lib/api';
   import { slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
-  import { safePlayerName } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
   import type { ProfileRow, RaiddominionRole } from '@/types/database';
@@ -172,8 +172,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (p) {
       const ref = document.getElementById('profile-ref') as HTMLElement;
       ref.classList.remove('hidden');
-      // No exponer un principal declarado que no es público.
-      const label = safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
+      // Un personaje solo se atribuye a un jugador: si el perfil dueño no
+      // declara nombre visible, la cuenta cae al handle estable @hex del
+      // perfil, no al personaje público más relevante.
+      const label = isNamelessSafe(p, { publicNames: info?.publicNames })
+        ? handleFromSlug(p.slug)
+        : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
       if (p.slug) {
         ref.appendChild(document.createTextNode('Cuenta de '));
         const a = document.createElement('a');
@@ -222,9 +226,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   // Vista de perfil: cabecera del jugador + personaje principal destacado y
   // el resto de personajes públicos de su cuenta.
   async function renderProfile(p: ProfileRow, chars: CharacterRow[]): Promise<void> {
+    // El personaje principal SOLO es el declarado (character_name). Con el
+    // principal en "Ninguno" no se toma ningún personaje público como tal:
+    // la identidad cae al handle estable @hex del perfil.
     const mainName = (p.character_name ?? '').trim().toLowerCase();
-    let main = mainName ? chars.find((c) => c.name.toLowerCase() === mainName) : undefined;
-    main = main ?? chars[0];
+    const main = mainName ? chars.find((c) => c.name.toLowerCase() === mainName) : undefined;
 
     // Nombre visible seguro: nunca expone un principal declarado que no sea
     // público (los `chars` ya son solo personajes públicos).
@@ -266,6 +272,28 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       );
       if (mainTitle?.lastChild) mainTitle.lastChild.textContent = 'Personaje principal';
       void renderAccountCharacters(p.id, main.id);
+    } else if (chars.length > 0) {
+      // Sin principal fijado ("Ninguno"): todos los personajes públicos se
+      // muestran en igualdad, sin destacar a ninguno como "el principal".
+      const grid = makeEl('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
+      const bandResults = await Promise.all(
+        chars.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
+      );
+      chars.forEach((c, i) => {
+        const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
+        const card = richCharacterCard(c, bands, false);
+        if (c.slug) {
+          const a = document.createElement('a');
+          a.href = `/personaje/${c.slug}`;
+          a.className = 'block transition-all duration-200 hover:-translate-y-0.5';
+          a.appendChild(card);
+          grid.appendChild(a);
+        } else {
+          grid.appendChild(card);
+        }
+      });
+      mainCard.appendChild(grid);
+      if (mainTitle?.lastChild) mainTitle.lastChild.textContent = 'Personajes';
     } else {
       // Perfil público sin personajes publicados: ficha vacía informativa.
       const emptyCard = makeEl('div', 'bg-gray-900/60 border border-amber-600/25 rounded-lg p-8 text-center');

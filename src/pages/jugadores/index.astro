@@ -62,9 +62,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     // (el rol del perfil no se expone si el maestro real está oculto).
     const gmVisible = p.is_guild_master && info?.hasPublicGm === true;
     const nameless = isNamelessSafe(p, { publicNames });
-    const name = safePlayerName(p, { publicNames, fallbackName: fallback });
-    const fromHandle = nameless && !fallback;
-    const charPublic = !!(p.character_name ?? '').trim() && publicNames.has(p.character_name!.toLowerCase());
+    const principalPublic = !!(p.character_name ?? '').trim() && publicNames.has(p.character_name!.toLowerCase());
+    // El nombre visible: display_name → character_name público → handle @hex.
+    // El fallback (personaje público de la cuenta) solo se usa si el usuario
+    // declaró un principal; con el principal en "Ninguno" y sin nombre visible,
+    // la card cae al handle estable del perfil, nunca a otro personaje.
+    const name = safePlayerName(p, { publicNames, fallbackName: principalPublic ? fallback : undefined });
+    const fromHandle = nameless && !principalPublic;
+    const charPublic = principalPublic;
     const link = document.createElement('a');
     link.href = `/jugador/${p.slug}`;
     link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';

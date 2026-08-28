@@ -20,11 +20,12 @@
 </section>
 
 <script>
-  import { getPublicBandBySlug, getPublicAccountNames, type BandRow } from '@/lib/api';
+  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { roleLabel } from '@/lib/ui/itemQuality';
-  import { safePlayerName } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
+  import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -55,18 +56,6 @@
     return el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
   }
 
-  interface BandPlayer {
-    name?: string;
-    class?: string;
-    role?: string;
-    dual?: string;
-    leader?: string;
-    banned?: boolean;
-    sanction?: string;
-    notes?: string;
-    points?: number;
-  }
-
   interface BandRule {
     title?: string;
     content?: string;
@@ -86,18 +75,14 @@
       ownerLink.classList.remove('hidden');
     }
 
-    // Atribución por personaje: solo se muestra "De: X" si ese personaje es
-    // público (no exponer nombres de personajes con visibilidad desactivada).
-    const namesRes = await getPublicAccountNames([band.owner_id]);
-    const info = namesRes.get(band.owner_id);
-    const charPublic = !!(band.character_name ?? '').trim() &&
-      (info?.publicNames.has(band.character_name!.toLowerCase()) ?? false);
-
     const meta = document.getElementById('bv-meta') as HTMLElement;
     if (band.schedule) meta.appendChild(metaChip(`Horario: ${band.schedule}`));
     if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip(`GS mínimo: ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-    if (charPublic) meta.appendChild(metaChip(`De: ${band.character_name}`, '!text-amber-300 !border-amber-500/40'));
-    const players = Array.isArray(band.players) ? (band.players as BandPlayer[]) : [];
+    // Jugadores combinados: si la banda está integrada a una hermandad, se
+    // unen los rosters de todas las bandas del mismo grupo (clave name|horario|
+    // GS), deduplicando por nombre y destacando la fuente de la integración.
+    const merged = await resolveMergeGroup(band);
+    const players = merged.players;
     if (band.hide_players) {
       meta.appendChild(metaChip('jugadores ocultos', '!text-gray-500'));
     } else {
@@ -125,6 +110,9 @@
           head.appendChild(el('span', 'font-bold text-white text-sm', p.name || '?'));
           if (p.leader) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-600/40 rounded px-1.5 py-0.5', 'líder'));
           if (p.banned) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'baneado'));
+          if (merged.sourceNames.includes((p.name || '').trim())) {
+            head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded px-1.5 py-0.5', 'integración'));
+          }
           row.appendChild(head);
           const badges = el('div', 'flex flex-wrap gap-1.5 mt-1');
           if (p.role) {
@@ -165,6 +153,35 @@
     showView('view-banda');
   }
 
+  // Jugadores combinados de una banda: si la banda está integrada a una
+  // hermandad (guild_id + is_rank_integrated), se unen los rosters de todas
+  // las bandas públicas del mismo grupo (clave name|horario|GS) deduplicando
+  // por nombre; las fuentes de integración son los character_name de las
+  // bandas de miembros (owner distinto al GM).
+  async function resolveMergeGroup(band: BandRow): Promise<{ players: MergePlayer[]; sourceNames: string[] }> {
+    const ownPlayers = Array.isArray(band.players) ? (band.players as MergePlayer[]) : [];
+    if (!band.guild_id || !band.is_rank_integrated) {
+      return { players: ownPlayers, sourceNames: [] };
+    }
+    const portal = await listGuildPortalBands(band.guild_id);
+    if (!portal.ok || !portal.bands) return { players: ownPlayers, sourceNames: [] };
+    const key = bandMergeKey(band);
+    const group = portal.bands.filter((x) => bandMergeKey(x) === key);
+    if (group.length === 0) return { players: ownPlayers, sourceNames: [] };
+    let guildOwnerId: string | null = null;
+    const gRes = await supabase
+      .from('raiddominion_guilds')
+      .select('owner_id')
+      .eq('id', band.guild_id)
+      .maybeSingle();
+    if (!gRes.error && gRes.data) guildOwnerId = (gRes.data as { owner_id: string | null }).owner_id ?? null;
+    const sourceNames = guildOwnerId
+      ? Array.from(new Set(group.filter((g) => g.owner_id !== guildOwnerId).map((g) => g.character_name).filter((n): n is string => !!n)))
+      : [];
+    const players = band.hide_players ? [] : mergeBandPlayers(group);
+    return { players, sourceNames };
+  }
+
   // Enlace contextual: hermandad (si la banda tiene guild pública) o el perfil
   // del dueño (si es una banda personal y su perfil es público).
   async function resolveOwner(band: BandRow): Promise<{ href: string; label: string } | null> {
@@ -190,6 +207,11 @@
     // No exponer un character_name que no sea público.
     const namesRes = await getPublicAccountNames([band.owner_id]);
     const info = namesRes.get(band.owner_id);
-    return { href: `/jugador/${p.slug}`, label: `Por ${safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal })}` };
+    // La banda se atribuye al JUGADOR (cuenta): si el perfil no declara nombre
+    // visible, cae al handle estable @hex, nunca a otro personaje de la cuenta.
+    const label = isNamelessSafe(p, { publicNames: info?.publicNames })
+      ? handleFromSlug(p.slug)
+      : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
+    return { href: `/jugador/${p.slug}`, label: `Por ${label}` };
   }
 </script>

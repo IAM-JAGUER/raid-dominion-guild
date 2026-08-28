@@ -671,10 +671,6 @@ export function parseSavedVariables(rawText: string): ParseResult {
   const generatedBy = toStr(guildRaw['generatedBy']).trim() || null;
   const lastUpdate = toNum(guildRaw['lastUpdate']) ?? null;
 
-  if (members.length === 0) {
-    warnings.push('Sin Guild.memberList (sección legacy): la membresía se acredita con un personaje maestro de hermandad y más de dos personajes registrados.');
-  }
-
   // Claim de maestro: el personaje que generó + su rango en memberList
   let leaderCandidate: string | null = generatedBy;
   let confirmedLeaderRank = false;

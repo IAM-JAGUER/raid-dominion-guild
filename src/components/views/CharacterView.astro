@@ -22,7 +22,7 @@
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
-  import { safePlayerName } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
 
   if (currentSection() === 'personaje') {
@@ -88,14 +88,22 @@
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
       a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all';
-      // No exponer un principal declarado que no sea público.
-      a.textContent = `Cuenta de ${safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal })} →`;
+      // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
+      // el perfil dueño no declara nombre visible, la cuenta cae al handle
+      // estable @hex del perfil, no al personaje público más relevante.
+      const label = isNamelessSafe(p, { publicNames: info?.publicNames })
+        ? handleFromSlug(p.slug)
+        : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
+      a.textContent = `Cuenta de ${label} →`;
       links.appendChild(a);
     }
-    // El enlace "★ Hermandad" solo se muestra si el personaje maestro es público.
-    if (p?.role === 'guild_master' && info?.hasPublicGm === true) {
+    // El enlace "★ Hermandad" solo aplica si ESTE personaje es rango 0 de la
+    // hermandad a la que pertenece (sv_is_gm + sv_guild_name); nunca se le
+    // atribuye una hermandad ajena aunque la cuenta sea maestro de otra.
+    const myGuildName = c.sv_guild_name?.trim().toLowerCase();
+    if (c.sv_is_gm && myGuildName) {
       const gRes = await getPublicGuildByOwner(c.user_id);
-      if (gRes.ok && gRes.guild?.is_public) {
+      if (gRes.ok && gRes.guild?.is_public && gRes.guild.name.trim().toLowerCase() === myGuildName) {
         const a = document.createElement('a');
         a.href = `/${gRes.guild.slug}`;
         a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';

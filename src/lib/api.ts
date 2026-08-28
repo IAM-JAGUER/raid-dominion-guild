@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
-import type { ParsedSavedVariables, GuildRank } from '@/types/parser';
+import type { ParsedSavedVariables, GuildRank, ContentItem } from '@/types/parser';
 import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
 
 // Tipos re-exportados para los consumidores de la capa de datos.
@@ -12,6 +12,7 @@ export interface UploadSummary {
   parsedAt: string;
   members: number;
   bands: number;
+  rawRules: ContentItem[];
 }
 
 // Guarda un parseo en el historial del usuario autenticado
@@ -57,6 +58,7 @@ export async function listMyUploads(): Promise<{ ok: boolean; items?: UploadSumm
     parsedAt: row.parsed_at,
     members: row.raw?.guild?.members?.length ?? 0,
     bands: row.raw?.bands?.length ?? 0,
+    rawRules: row.raw?.rules ?? [],
   }));
 
   return { ok: true, items };
@@ -444,6 +446,35 @@ export async function setBandVisibility(id: string, isPublic: boolean): Promise<
   return { ok: true };
 }
 
+// El dueño fija la lista de reglas de UNA banda (subset del catálogo del SV).
+// Varias bandas pueden compartir la misma regla (modelo embedded). Vía RPC.
+export async function setBandRules(bandId: string, rules: ContentItem[]): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_rules', {
+    p_band_id: bandId,
+    p_rules: (rules ?? []) as unknown as Record<string, unknown>[],
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Catálogo de reglas asignables: unión de raw.rules de los uploads del usuario
+// (más reciente primero). Es el pool que el dashboard ofrece por banda.
+export async function getMyRulesCatalog(): Promise<{ ok: boolean; items?: ContentItem[]; error?: string }> {
+  const ups = await listMyUploads();
+  if (!ups.ok) return { ok: false, error: ups.error };
+  const seen = new Set<string>();
+  const items: ContentItem[] = [];
+  (ups.items ?? []).forEach((u) => {
+    (u.rawRules ?? []).forEach((r) => {
+      const key = `${r.title ?? ''}|${r.content ?? ''}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      items.push(r);
+    });
+  });
+  return { ok: true, items };
+}
+
 // Persiste bandas/reglas de un SV vía RPC SECURITY DEFINER.
 // ownerRankIndex = registry.guild.rankIndex del dueño (índice de su rango
 // dentro de la hermandad; 0 = líder). guildName = registry.guild.name (la
@@ -482,47 +513,114 @@ export async function setBandHidePlayers(id: string, hide: boolean): Promise<{ o
   return { ok: true };
 }
 
-// Política del GM: qué índices de rango integran bandas al portal.
-export interface BandRankPolicy {
-  authorized_rank_indices: number[];
-}
-
-// Lee la política de rangos autorizados de una hermandad (público).
-// Default: [0] — el rango del maestro integra sus propias bandas, de modo
-// que un GM que sube su SV antes de configurar la política conserva su
-// portal con bandas (comportamiento previo del snapshot).
-export async function getBandRankPolicy(guildId: string): Promise<{ ok: boolean; policy?: BandRankPolicy; error?: string }> {
-  const res = await supabase
-    .from('raiddominion_guild_config')
-    .select('config_value')
-    .eq('guild_id', guildId)
-    .eq('config_key', 'band_rank_policy')
-    .maybeSingle();
-
-  if (res.error) return { ok: false, error: res.error.message };
-  const value = res.data?.config_value as { authorized_rank_indices?: number[] } | undefined;
-  return {
-    ok: true,
-    policy: {
-      authorized_rank_indices: Array.isArray(value?.authorized_rank_indices)
-        ? value.authorized_rank_indices
-        : [0],
-    },
-  };
-}
-
-// El GM guarda qué índices de rango integran bandas y re-evalúa la
-// integración de todas las bandas de la hermandad. Vía RPC (solo owner).
-export async function saveBandRankPolicy(
-  guildId: string,
-  authorized: number[]
-): Promise<{ ok: boolean; error?: string }> {
-  const rpc = await supabase.rpc('raiddominion_set_band_rank_policy', {
+// Asigna la banda del usuario a UNA hermandad (NULL = personal). 1:N: una
+// hermandad puede tener muchas bandas, una banda una sola. Vía RPC (solo
+// owner; valida pertenencia a la hermandad). No toca la integración.
+export async function setBandGuild(bandId: string, guildId: string | null): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_guild', {
+    p_band_id: bandId,
     p_guild_id: guildId,
-    p_authorized: authorized,
   });
   if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true };
+}
+
+// Hermandades donde el usuario aparece como MIEMBRO (sv_guild_name de sus
+// personajes, cruzado contra las hermandades reclamadas) más las suyas. Es
+// la fuente del select "Hermandad" de Mis Bandas.
+export async function getMyMembershipGuilds(): Promise<{ ok: boolean; items?: GuildRow[]; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, error: 'sin sesión' };
+
+  const charsRes = await supabase
+    .from('raiddominion_characters')
+    .select('sv_guild_name')
+    .eq('user_id', user.id)
+    .not('sv_guild_name', 'is', null);
+
+  if (charsRes.error) return { ok: false, error: charsRes.error.message };
+  // Nombres tal como los reporta el SV (case exacto) para el match con
+  // raiddominion_guilds.name; se deduplican ignorando mayúsculas.
+  const seen = new Set<string>();
+  const names = (charsRes.data as Array<{ sv_guild_name: string | null }>)
+    .map((c) => (c.sv_guild_name || '').trim())
+    .filter((n) => {
+      const key = n.toLowerCase();
+      if (!key) return false;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+  if (names.length === 0) {
+    const mine = await getMyGuilds();
+    return mine;
+  }
+
+  const res = await supabase
+    .from('raiddominion_guilds')
+    .select('*')
+    .in('name', names);
+  if (res.error) return { ok: false, error: res.error.message };
+
+  const items = (res.data as GuildRow[]) ?? [];
+  // Además las propias (por si un personaje de otra cuenta aún no las refleja)
+  const mine = await getMyGuilds();
+  const seenIds = new Set(items.map((g) => g.id));
+  (mine.items ?? []).forEach((g) => { if (!seenIds.has(g.id)) items.push(g); });
+
+  return { ok: true, items };
+}
+
+// El dueño de la banda propone integrarla al portal de su hermandad (la
+// valida el GM). Requiere banda asignada a una hermandad. Vía RPC.
+export async function proposeBandIntegration(bandId: string): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_propose_band_integration', {
+    p_band_id: bandId,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// El GM (owner de la hermandad) aprueba/rechaza la integración de una banda
+// propuesta por un miembro. Vía RPC (solo owner de la guild).
+export async function setBandIntegration(bandId: string, status: 'approved' | 'rejected' | 'none'): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_integration', {
+    p_band_id: bandId,
+    p_status: status,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Vista del GM: bandas de su hermandad con integración propuesta, con el
+// perfil del proponente para mostrarle su nombre o @hex. Vía RPC (solo
+// owner de la guild; sortea la RLS de bands).
+export interface GuildBandProposal {
+  id: string;
+  name: string;
+  slug: string;
+  is_public: boolean;
+  integration_status: string;
+  integration_proposed_by: string | null;
+  integration_proposed_at: string | null;
+  integration_decided_at: string | null;
+  owner_id: string;
+  proposer: {
+    slug: string | null;
+    display_name: string | null;
+    character_name: string | null;
+    is_public: boolean;
+  } | null;
+}
+
+export async function getGuildBandProposals(guildId: string): Promise<{ ok: boolean; items?: GuildBandProposal[]; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_list_guild_band_proposals', {
+    p_guild_id: guildId,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, items: (rpc.data as unknown as GuildBandProposal[]) ?? [] };
 }
 
 // Bandas que cuentan en el portal de la hermandad (fuente REAL-TIME, ya no
@@ -669,7 +767,7 @@ export interface AuditRow {
 export async function staffListGuilds(): Promise<{ ok: boolean; guilds?: StaffGuildRow[]; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_staff_list_guilds');
   if (rpc.error) return { ok: false, error: friendlyStaffError(rpc.error.message) };
-  return { ok: true, guilds: (rpc.data as StaffGuildRow[]) ?? [] };
+  return { ok: true, guilds: (rpc.data as unknown as StaffGuildRow[]) ?? [] };
 }
 
 // Verifica/rechaza un claim pendiente (moderador/admin); sincroniza roster
@@ -721,7 +819,7 @@ export interface AdminUserRow {
 export async function adminListUsers(): Promise<{ ok: boolean; users?: AdminUserRow[]; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_admin_list_users');
   if (rpc.error) return { ok: false, error: friendlyStaffError(rpc.error.message) };
-  return { ok: true, users: (rpc.data as AdminUserRow[]) ?? [] };
+  return { ok: true, users: (rpc.data as unknown as AdminUserRow[]) ?? [] };
 }
 
 // Cambia el rol de un usuario (solo admin; vía RPC SECURITY DEFINER)
@@ -816,10 +914,10 @@ export async function tryPromoteMember(svId?: string): Promise<{ ok: boolean; da
   const rpc = await supabase.rpc('raiddominion_try_promote_member', svId ? { p_sv_id: svId } : {});
   if (rpc.error && svId) {
     const retry = await supabase.rpc('raiddominion_try_promote_member');
-    if (!retry.error) return { ok: true, data: retry.data as PromotionResult };
+    if (!retry.error) return { ok: true, data: retry.data as unknown as PromotionResult };
   }
   if (rpc.error) return { ok: false, error: rpc.error.message };
-  return { ok: true, data: rpc.data as PromotionResult };
+  return { ok: true, data: rpc.data as unknown as PromotionResult };
 }
 
 // Elimina los datos del usuario SOLO en RaidDominion (perfil, personajes,
@@ -934,7 +1032,7 @@ export interface CharacterSlugRow {
 export async function ensureMyCharacterSlugs(): Promise<{ ok: boolean; slugs?: CharacterSlugRow[]; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_ensure_character_slug');
   if (rpc.error) return { ok: false, error: rpc.error.message };
-  return { ok: true, slugs: (rpc.data as CharacterSlugRow[]) ?? [] };
+  return { ok: true, slugs: (rpc.data as unknown as CharacterSlugRow[]) ?? [] };
 }
 
 export interface PublicCharacterResult {
