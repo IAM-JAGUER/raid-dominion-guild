@@ -270,10 +270,27 @@ const PUBLIC_LINKS = [
     const scrollUpBtn = document.getElementById('scroll-up') as HTMLButtonElement | null;
     const scrollDownBtn = document.getElementById('scroll-down') as HTMLButtonElement | null;
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]:not(.guide-panel)'));
+
+    // Solo las secciones REALMENTE visibles cuentan: las vistas auto-gate
+    // (detalle/portal/dashboard/upload) arrancan ocultas y muestran una tras
+    // resolver datos en cliente; las ocultas tienen offsetHeight 0 y NO deben
+    // interferir con la detección ni con la navegación ↑/↓.
+    function visibleSections(): HTMLElement[] {
+      return sections.filter((s) => s.offsetHeight > 0);
+    }
+
+    // Posición absoluta de la sección en el documento (offsetTop es relativo
+    // al offsetParent y se rompe dentro de contenedores .relative).
+    function sectionTopY(section: HTMLElement): number {
+      return section.getBoundingClientRect().top + window.scrollY;
+    }
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
     
     // Variable para rastrear la sección actual
     let currentSectionIndex = 0;
+    // Última sección resaltada en el menú (evita mutar clases en cada scroll,
+    // lo que alimentaría al MutationObserver de los botones flotantes).
+    let lastActiveSectionId = '';
     
     // Verificar que los elementos existen antes de usarlos
     if (!mobileMenuButton || !mobileMenu || !scrollUpBtn || !scrollDownBtn) {
@@ -307,8 +324,7 @@ const PUBLIC_LINKS = [
       if (!element) return;
       
       const headerOffset = 80; // Ajusta según la altura de tu barra de navegación
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      const offsetPosition = sectionTopY(element) - headerOffset;
 
       window.scrollTo({
         top: offsetPosition,
@@ -370,9 +386,11 @@ const PUBLIC_LINKS = [
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
         const scrollThreshold = 100;
+        const vis = visibleSections();
+        const cur = Math.max(0, vis.indexOf(sections[currentSectionIndex]));
 
         // Botón subir: visible si hay sección anterior o ya se hizo scroll
-        if (scrollY > scrollThreshold || currentSectionIndex > 0) {
+        if (scrollY > scrollThreshold || cur > 0) {
           upButton.classList.remove('opacity-0', 'translate-y-4');
           upButton.classList.add('opacity-100', 'translate-y-0');
         } else {
@@ -380,8 +398,8 @@ const PUBLIC_LINKS = [
           upButton.classList.remove('opacity-100', 'translate-y-0');
         }
 
-        // Botón bajar: oculto en la última sección (donaciones) — no hay destino
-        const haySiguiente = currentSectionIndex < sections.length - 1 &&
+        // Botón bajar: oculto en la última sección visible o al pie de página
+        const haySiguiente = cur < vis.length - 1 &&
           scrollY < documentHeight - windowHeight - scrollThreshold;
         if (haySiguiente) {
           downButton.classList.remove('opacity-0', 'translate-y-4');
@@ -402,27 +420,42 @@ const PUBLIC_LINKS = [
       // Actualizar al cargar, hacer scroll y redimensionar
       window.addEventListener('scroll', onScrollOrUpdate);
       window.addEventListener('resize', onScrollOrUpdate);
+
+      // Las vistas auto-gate se muestran tras resolver datos en cliente
+      // (async): un MutationObserver re-sincroniza la detección cada vez que
+      // una sección aparece u oculta (tabs, vistas, resultados de upload).
+      // Coalesce por frame (rAF) para no forzar layout en cada mutación.
+      let observerFrame = 0;
+      new MutationObserver(() => {
+        if (observerFrame) return;
+        observerFrame = requestAnimationFrame(() => {
+          observerFrame = 0;
+          onScrollOrUpdate();
+        });
+      }).observe(
+        document.body,
+        { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] },
+      );
+
       onScrollOrUpdate();
 
       // Navegar a la siguiente sección
       downButton.addEventListener('click', () => {
-        if (currentSectionIndex < sections.length - 1) {
-          currentSectionIndex++;
-          const nextSection = sections[currentSectionIndex];
-          if (nextSection) {
-            scrollToSection(`#${nextSection.id}`);
-          }
+        const vis = visibleSections();
+        const cur = Math.max(0, vis.indexOf(sections[currentSectionIndex]));
+        if (cur < vis.length - 1) {
+          const next = vis[cur + 1];
+          if (next) scrollToSection(`#${next.id}`);
         }
       });
 
       // Navegar a la sección anterior
       upButton.addEventListener('click', () => {
-        if (currentSectionIndex > 0) {
-          currentSectionIndex--;
-          const prevSection = sections[currentSectionIndex];
-          if (prevSection) {
-            scrollToSection(`#${prevSection.id}`);
-          }
+        const vis = visibleSections();
+        const cur = Math.max(0, vis.indexOf(sections[currentSectionIndex]));
+        if (cur > 0) {
+          const prev = vis[cur - 1];
+          if (prev) scrollToSection(`#${prev.id}`);
         } else {
           // Si está en la primera sección, ir al inicio
           window.scrollTo({ top: 0, behavior: 'smooth' as ScrollBehavior });
@@ -432,12 +465,25 @@ const PUBLIC_LINKS = [
 
     // Actualizar sección actual al hacer scroll
     function updateCurrentSection(): void {
+      const vis = visibleSections();
+      const prevActive = lastActiveSectionId;
+      if (vis.length === 0) {
+        currentSectionIndex = -1;
+        if (prevActive) {
+          lastActiveSectionId = '';
+          document.querySelectorAll<HTMLAnchorElement>('.nav-link, #mobile-menu a:not(.site-logo)').forEach(link => {
+            link.classList.remove('bg-amber-800/50', 'text-white', 'nav-link-active');
+            link.classList.add('text-amber-200');
+          });
+        }
+        return;
+      }
       const scrollPosition = window.scrollY + 100; // Ajuste para la detección
-      let currentSection = sections[0]; // Por defecto, la primera sección
+      let currentSection = vis[0]; // Por defecto, la primera sección visible
       
       // Encontrar la sección actual basada en la posición de desplazamiento
-      for (const section of sections) {
-        const sectionTop = section.offsetTop - 150; // Añadir un pequeño margen superior
+      for (const section of vis) {
+        const sectionTop = sectionTopY(section) - 150; // Añadir un pequeño margen superior
         const sectionHeight = section.offsetHeight;
         const sectionBottom = sectionTop + sectionHeight;
         
@@ -454,10 +500,13 @@ const PUBLIC_LINKS = [
       }
       
       // Actualizar el índice de la sección actual
-      currentSectionIndex = Array.from(sections).indexOf(currentSection);
+      currentSectionIndex = sections.indexOf(currentSection);
       
-      // Actualizar todos los enlaces del menú (excluyendo el logo)
-      if (currentSection) {
+      // Actualizar todos los enlaces del menú (excluyendo el logo) SOLO cuando
+      // la sección activa cambia; así la clase no muta en cada scroll y el
+      // MutationObserver de los botones flotantes no entra en bucle.
+      if (currentSection && currentSection.id !== prevActive) {
+        lastActiveSectionId = currentSection.id;
         // Primero, quitar la clase activa de todos los enlaces de navegación
         document.querySelectorAll<HTMLAnchorElement>('.nav-link, #mobile-menu a:not(.site-logo)').forEach(link => {
           link.classList.remove('bg-amber-800/50', 'text-white', 'nav-link-active');

@@ -37,7 +37,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
             <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Portal de hermandad</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1 flex items-center">
+                <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z"/></svg>
+                <span>Portal de hermandad</span>
+              </p>
               <h1 id="guild-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide"></h1>
             </div>
             <div class="flex items-center gap-2">
@@ -45,34 +48,49 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
               <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest">Discord</a>
             </div>
           </div>
-          <p id="guild-description" class="text-sm text-gray-300 italic max-w-3xl leading-relaxed"></p>
+          <p id="guild-description" class="text-sm text-gray-300 max-w-3xl leading-relaxed"></p>
           <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
           <p id="snapshot-updated" class="hidden text-xs text-gray-500 mt-4 italic"></p>
         </header>
 
-        <!-- Métricas -->
-        <section id="stats" class="grid grid-cols-3 gap-4 animate-fade-in-1" style="animation-delay: 0.1s" aria-label="Resumen del análisis">
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
-            <p class="text-3xl font-black text-amber-300" id="stat-members">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
-          </div>
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
-            <p class="text-3xl font-black text-amber-300" id="stat-bands">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
-          </div>
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
-            <p class="text-3xl font-black text-amber-300" id="stat-rules">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
-          </div>
-        </section>
+        <!-- Pestañas: Miembros · Bandas · Reglas -->
+        <div id="portal-tabs" class="hidden">
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-wrap gap-1 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s"></nav>
 
-        <!-- Jerarquía de rangos (registry.guild.ranks; 0 = líder) -->
-        <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Jerarquía de rangos
-          </h2>
-          <div id="viewer-ranks" class="flex flex-wrap gap-2"></div>
-        </section>
+          <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
+            <!-- Jerarquía de rangos (registry.guild.ranks; 0 = líder) -->
+            <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
+              <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Jerarquía de rangos
+              </h2>
+              <div id="viewer-ranks" class="flex flex-wrap gap-2"></div>
+            </section>
+            <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
+              <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
+              </h2>
+              <div id="roster-stats" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+              <div id="viewer-roster-wrap"></div>
+            </section>
+          </div>
+
+          <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6 pt-6">
+            <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div id="bandas-empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-6 text-center">
+              <p class="text-sm text-gray-400 italic">Esta hermandad aún no publica bandas.</p>
+            </div>
+          </div>
+
+          <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6 pt-6">
+            <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
+              <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
+              </h2>
+              <div id="viewer-rules" class="space-y-3"></div>
+              <p id="reglas-empty" class="hidden text-sm text-gray-400 italic">Esta hermandad aún no publica reglas.</p>
+            </section>
+          </div>
+        </div>
 
         <!-- Sin snapshot -->
         <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-6 sm:p-8 text-center">
@@ -80,31 +98,6 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
           <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
         </div>
-
-        <!-- Bandas -->
-        <section id="bands-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas de raid
-          </h2>
-          <div id="viewer-bands" class="space-y-4"></div>
-        </section>
-
-        <!-- Reglas -->
-        <section id="rules-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
-          </h2>
-          <ul id="viewer-rules" class="space-y-3"></ul>
-        </section>
-
-        <!-- Roster -->
-        <section id="roster-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
-          </h2>
-          <div id="roster-stats" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5"></div>
-          <div id="viewer-roster-wrap" class="overflow-x-auto"></div>
-        </section>
       </div>
     </div>
   </main>
@@ -113,10 +106,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 <script>
   import { getPublicGuildBySlug, getGuildSnapshot, listGuildPortalBands, getPublicCharactersByUser, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
-  import { supabase } from '@/lib/supabase';
   import { slugify } from '@/lib/routes';
-  import { renderBand, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
-  import { handleFromSlug } from '@/lib/ui/playerNames';
+  import { renderBandCard, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
+  import { createTabBar, PORTAL_TABS } from '@/lib/ui/tabs';
+  import { mergeBandPlayers } from '@/lib/bandMerge';
 
   const RESERVED = new Set([
     'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
@@ -160,9 +153,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(g.name);
 
       (document.getElementById('guild-name') as HTMLElement).textContent = g.name;
-      (document.getElementById('guild-description') as HTMLElement).textContent =
-        g.description || 'Esta hermandad aún no escribe su presentación.';
-      (document.getElementById('guild-description') as HTMLElement).classList.toggle('italic', !g.description);
+      const descEl = document.getElementById('guild-description') as HTMLElement;
+      descEl.textContent = g.description || '';
+      descEl.classList.toggle('hidden', !g.description);
 
       const metaEl = document.getElementById('guild-meta') as HTMLElement;
       if (g.server) {
@@ -186,45 +179,22 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       }
       if (g.faction) metaEl.appendChild(metaChip(g.faction === 'Horde' ? 'Horda' : 'Alianza'));
 
-      // Enlace al maestro de la hermandad (solo si su perfil es público). El
-      // chip ★ se atribuye únicamente al personaje rango 0 (sv_is_gm) de ESTA
-      // hermandad; sin maestro rango 0 público la identidad cae al handle @hex.
-      const ownerRes = await supabase
-        .from('raiddominion_profiles')
-        .select('slug, display_name, is_public')
-        .eq('id', g.owner_id)
-        .maybeSingle();
-      if (!ownerRes.error) {
-        const owner = ownerRes.data as { slug: string | null; display_name: string | null; is_public: boolean } | null;
-        if (owner && owner.is_public && owner.slug) {
-          const ownerChip = document.createElement('a');
-          ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
-          if ((owner.display_name ?? '').trim()) {
-            ownerChip.href = `/jugador/${owner.slug}`;
-            ownerChip.textContent = `★ ${owner.display_name}`;
-          } else {
-            const charsRes = await getPublicCharactersByUser(g.owner_id);
-            const chars = charsRes.ok ? (charsRes.items ?? []) : [];
-            // El único criterio de maestro de hermandad es el rango 0: un
-            // personaje NO se presenta como maestro solo porque es público en
-            // el perfil. Se atribuye el chip ★ al personaje rango 0 de ESTA
-            // hermandad (sv_is_gm deriva de registry.guild.isGM del addon).
-            const guildName = g.name.trim().toLowerCase();
-            const gmChar = chars.find(
-              (c) => c.sv_is_gm && c.sv_guild_name?.trim().toLowerCase() === guildName
-            );
-            if (gmChar) {
-              ownerChip.href = gmChar.slug ? `/personaje/${gmChar.slug}` : `/jugador/${owner.slug}`;
-              ownerChip.textContent = `★ ${gmChar.name}`;
-            } else {
-              // Sin maestro rango 0 público: la identidad del dueño cae al
-              // handle estable del perfil (@hex), nunca a otro personaje.
-              ownerChip.href = `/jugador/${owner.slug}`;
-              ownerChip.textContent = `★ ${handleFromSlug(owner.slug)}`;
-            }
-          }
-          metaEl.appendChild(ownerChip);
-        }
+      // Atribución de la hermandad: el chip ★ se muestra SOLO cuando el
+      // personaje rango 0 (sv_is_gm) de ESTA hermandad es público y tiene
+      // slug. La guild NUNCA se atribuye al perfil del jugador (cuenta): si
+      // no hay personaje GM público, no se muestra ninguna atribución.
+      const charsRes = await getPublicCharactersByUser(g.owner_id);
+      const chars = charsRes.ok ? (charsRes.items ?? []) : [];
+      const guildName = g.name.trim().toLowerCase();
+      const gmChar = chars.find(
+        (c) => c.sv_is_gm && c.sv_guild_name?.trim().toLowerCase() === guildName
+      );
+      if (gmChar && gmChar.slug) {
+        const ownerChip = document.createElement('a');
+        ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
+        ownerChip.href = `/personaje/${gmChar.slug}`;
+        ownerChip.textContent = `★ ${gmChar.name}`;
+        metaEl.appendChild(ownerChip);
       }
 
       if (g.claim_status === 'verified') {
@@ -260,11 +230,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
       } else {
-        if (snapshot) {
-          (document.getElementById('stat-members') as HTMLElement).textContent = String(snapshot.members.length);
-          (document.getElementById('stat-rules') as HTMLElement).textContent = String(snapshot.rules.length);
-        }
-        // stat-bands se fija más abajo con el conteo fusionado (merge).
+        // Pestañas Miembros / Bandas / Reglas: los conteos viven como badges
+        // de la barra (reemplazan al antiguo strip de métricas). Los paneles
+        // vacíos se mantienen visibles con placeholder.
+        const members = snapshot?.members ?? [];
+        const rules = snapshot?.rules ?? [];
+        const ranks = snapshot?.ranks;
+
+        document.getElementById('portal-tabs')?.classList.remove('hidden');
 
         if (snapshot?.lastUpdate) {
           const upd = document.getElementById('snapshot-updated') as HTMLElement;
@@ -273,9 +246,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         }
 
         // Jerarquía de rangos: se muestra cuando el snapshot la trae.
-        if (snapshot?.ranks && snapshot.ranks.length > 0) {
+        if (ranks && ranks.length > 0) {
           const ranksBox = document.getElementById('viewer-ranks') as HTMLElement;
-          const sorted = [...snapshot.ranks].sort((a, b) => a.index - b.index);
+          const sorted = [...ranks].sort((a, b) => a.index - b.index);
           sorted.forEach((r) => {
             const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
             ranksBox.appendChild(el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ' +
@@ -285,47 +258,46 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           document.getElementById('ranks-section')?.classList.remove('hidden');
         }
 
-        if (snapshot) {
-          if (snapshot.rules.length > 0) document.getElementById('rules-section')?.classList.remove('hidden');
-          if (snapshot.members.length > 0) {
-            document.getElementById('roster-section')?.classList.remove('hidden');
-            renderRosterStats(document.getElementById('roster-stats') as HTMLElement, snapshot.members);
-          }
-          renderParsedSections(
-            { guild: { members: snapshot.members }, bands: [], rules: snapshot.rules, ranks: snapshot.ranks } as never,
-            {
-              bands: document.getElementById('viewer-bands') as HTMLElement,
-              rules: document.getElementById('viewer-rules') as HTMLElement,
-              rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
-            },
-          );
+        // Panel Miembros: stats de distribución + roster paginado.
+        if (members.length > 0) {
+          document.getElementById('roster-stats')?.classList.remove('hidden');
+          renderRosterStats(document.getElementById('roster-stats') as HTMLElement, members);
+        }
+        renderParsedSections(
+          { guild: { members }, bands: [], rules, ranks } as never,
+          {
+            bands: document.getElementById('viewer-bands') as HTMLElement,
+            rules: document.getElementById('viewer-rules') as HTMLElement,
+            rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
+          },
+        );
+
+        // Panel Reglas: placeholder si no hay reglas publicadas.
+        if (rules.length === 0) {
+          document.getElementById('reglas-empty')?.classList.remove('hidden');
         }
 
-        // Bandas integradas (jugadores ya filtrados si hide_players). Se
-        // renderizan DESPUÉS de renderParsedSections para que no las borre.
+        // Panel Bandas: cards compactas enlazando a la vista de cada banda.
         // Una banda del GM y una banda integrada por un miembro que coinciden
-        // en nombre/horario/GS se muestran como UNA, destacando al personaje
-        // fuente de la integración.
+        // en nombre/horario/GS se muestran como UNA, con conteo fusionado y
+        // badge "Integrada" cuando la fuente es un personaje de un miembro.
         const merged = mergePortalBands(portalBands, g.owner_id);
-        (document.getElementById('stat-bands') as HTMLElement).textContent = String(merged.length);
-        if (merged.length > 0) {
-          document.getElementById('bands-section')?.classList.remove('hidden');
-          const bandsBox = document.getElementById('viewer-bands') as HTMLElement;
-          bandsBox.innerHTML = '';
-          merged.forEach(({ band, source }) => {
-            const cardEl = renderBand(
-              { name: band.name, players: (band.players as never[]) ?? [] } as never,
-              { hidePlayers: band.hide_players },
-            );
-            if (source) {
-              const badge = el('span', 'inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-md px-2 py-0.5');
-              badge.textContent = `fuente: ${source}`;
-              const header = cardEl.firstElementChild as HTMLElement | null;
-              if (header) header.appendChild(badge);
-            }
-            bandsBox.appendChild(cardEl);
-          });
+        const bandsBox = document.getElementById('viewer-bands') as HTMLElement;
+        bandsBox.innerHTML = '';
+        merged.forEach(({ band, source, playerCount }) => {
+          bandsBox.appendChild(renderBandCard(band, { source, playerCount }));
+        });
+        if (merged.length === 0) {
+          document.getElementById('bandas-empty')?.classList.remove('hidden');
         }
+
+        // Barra de pestañas (deep-link por hash #miembros/#bandas/#reglas).
+        createTabBar({
+          tabs: PORTAL_TABS,
+          barId: 'portal-tab-bar',
+          defaultId: 'miembros',
+          badgeCounts: { miembros: members.length, bandas: merged.length, reglas: rules.length },
+        });
       }
     }
   }
@@ -342,26 +314,32 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   // Fusiona bandas del portal: agrupa por clave; la base es la banda del GM
   // (owner de la hermandad) si existe en el grupo; la fuente destacada es el
-  // character_name del personaje que integró la banda de un miembro.
-  function mergePortalBands(bands: BandRow[], guildOwnerId: string): Array<{ band: BandRow; source: string | null }> {
+  // character_name del personaje que integró la banda de un miembro. El conteo
+  // de jugadores es la unión del grupo (mergeBandPlayers), 0 si hide_players.
+  function mergePortalBands(bands: BandRow[], guildOwnerId: string): Array<{ band: BandRow; source: string | null; playerCount: number }> {
     const groups = new Map<string, BandRow[]>();
     bands.forEach((b) => {
       const key = portalBandKey(b);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(b);
     });
-    const out: Array<{ band: BandRow; source: string | null }> = [];
+    const out: Array<{ band: BandRow; source: string | null; playerCount: number }> = [];
     groups.forEach((group) => {
       if (group.length === 1) {
         const only = group[0];
-        out.push({ band: only, source: only.character_name && only.owner_id !== guildOwnerId ? only.character_name : null });
+        out.push({
+          band: only,
+          source: only.character_name && only.owner_id !== guildOwnerId ? only.character_name : null,
+          playerCount: only.hide_players ? 0 : mergeBandPlayers(group).length,
+        });
         return;
       }
       const gmBand = group.find((b) => b.owner_id === guildOwnerId);
       const memberBand = group.find((b) => b.owner_id !== guildOwnerId);
       const base = gmBand ?? memberBand ?? group[0];
       const source = memberBand?.character_name ?? null;
-      out.push({ band: base, source });
+      const playerCount = base.hide_players ? 0 : mergeBandPlayers(group).length;
+      out.push({ band: base, source, playerCount });
     });
     return out;
   }

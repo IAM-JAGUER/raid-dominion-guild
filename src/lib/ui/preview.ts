@@ -1,6 +1,8 @@
 import type { ParsedSavedVariables, GuildMember, GuildRank, BandPlayer } from '@/types/parser';
+import type { MergePlayer } from '@/lib/bandMerge';
 import { classColor } from '@/lib/ui/classColors';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
+import { roleLabel } from '@/lib/ui/itemQuality';
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
 // `rankIndex` (opcional) permite ordenar/agrupar por jerarquía de rangos.
@@ -102,6 +104,65 @@ export function renderBand(
   return card;
 }
 
+// ── Card compacta de banda (portal de hermandad y directorios) ──────────────
+// Mismo lenguaje que la card del directorio /bandas: ícono + nombre, chips de
+// horario/GS/jugadores, badge de integración y footer "Ver banda →" hacia la
+// vista de banda (/banda/:slug). NUNCA muestra la lista de jugadores inline.
+
+export interface BandCardInput {
+  slug: string;
+  name: string;
+  schedule?: string | null;
+  min_gs?: number | null;
+  hide_players?: boolean;
+}
+
+export interface BandCardOpts {
+  // Fuente de la integración (character_name de un miembro): activa el badge
+  // "Integrada" cuando la banda del GM fue integrada por un miembro.
+  source?: string | null;
+  // Conteo de jugadores YA fusionado (unión del grupo); si viene undefined se
+  // omite el chip (banda con hide_players).
+  playerCount?: number;
+}
+
+export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLElement {
+  const link = el(
+    'a',
+    'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5',
+  ) as HTMLAnchorElement;
+  link.href = `/banda/${encodeURIComponent(band.slug)}`;
+
+  const head = el('div', 'flex items-center gap-3 mb-3');
+  const icon = el(
+    'div',
+    'w-10 h-10 rounded-md bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0',
+    (band.name[0] || '?').toUpperCase(),
+  );
+  head.appendChild(icon);
+  head.appendChild(el('h3', 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug', band.name));
+  link.appendChild(head);
+
+  const meta = el('div', 'flex flex-wrap gap-1.5');
+  if (band.schedule) meta.appendChild(chip(band.schedule));
+  if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(chip(`GS ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+  if (band.hide_players) {
+    meta.appendChild(chip('jugadores ocultos', '!text-gray-500'));
+  } else if (typeof opts?.playerCount === 'number') {
+    meta.appendChild(chip(`${opts.playerCount} jugador${opts.playerCount === 1 ? '' : 'es'}`));
+  }
+  if (opts?.source) {
+    meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
+  }
+  link.appendChild(meta);
+
+  const foot = el('p', 'text-xs text-gray-500 mt-3');
+  foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver banda →'));
+  link.appendChild(foot);
+
+  return link;
+}
+
 // ── Vista expandida para el dashboard (Mis Bandas) ─────────────────────────
 // Jugadores siempre visibles con todos sus campos + spammer completo.
 
@@ -183,6 +244,124 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   if (band.spammer) card.appendChild(renderSpammer(band.spammer));
 
   return card;
+}
+
+// ── Core de banda (estilo lista de asistencia de raids de guild-portal) ─────
+// El roster de una banda se agrupa por rol (TANQUES/SANADORES/DPS/OTROS) con
+// cabeceras de color + ícono + conteo + chevron colapsable, y un grid de
+// fichas con nombre coloreado por clase y badges (líder/baneado/sanción/
+// integración/puntos/dual). Mismo lenguaje visual que el Core de guild-portal.
+
+const CORE_ICONS: Record<string, string> = {
+  tank: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>',
+  healer: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
+  dps: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.37 15.83L11.5 8 10 9.5l7.83 7.87-1.42 1.42L8.54 11 7.13 12.41 15 20.28l-1.41 1.41L5.72 13.83l-1.41 1.41L2.89 13.83l1.41-1.41L2.89 11l1.41-1.41L5.72 8.17l1.41 1.41L15 1.72l1.41 1.41-7.87 7.87 1.42 1.42 7.83-7.83 1.42 1.42-7.83 7.83 1.41 1.41 1.41-1.41z"/></svg>',
+  other: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
+};
+
+function coreRoleGroup(p: MergePlayer): 'tank' | 'healer' | 'dps' | 'other' {
+  const r = (p.role || '').trim().toLowerCase();
+  if (r === 't' || r.includes('tanque') || r.includes('tank')) return 'tank';
+  if (r === 'h' || r.includes('sanador') || r.includes('heal')) return 'healer';
+  if (r === 'd' || r.includes('dps') || r.includes('melee') || r.includes('ranged') || r.includes('cuerpo') || r.includes('distancia')) return 'dps';
+  return 'other';
+}
+
+function coreBadge(text: string, extra: string): HTMLElement {
+  return el('span', `text-[9px] font-black uppercase tracking-widest rounded px-1.5 py-0.5 border ${extra}`, text);
+}
+
+function renderCoreSection(title: string, count: number, color: string, iconSvg: string, rows: HTMLElement[]): HTMLElement {
+  const section = el('div', 'mb-4');
+
+  const header = document.createElement('button');
+  header.type = 'button';
+  header.className = 'w-full flex items-center gap-2 px-1 py-1 cursor-pointer group/header select-none rounded-md hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+  header.setAttribute('aria-expanded', 'true');
+
+  const icon = el('span', `shrink-0 ${color}`);
+  icon.innerHTML = iconSvg;
+  header.appendChild(icon);
+  header.appendChild(el('h4', `text-[10px] font-black tracking-widest uppercase ${color}`, title));
+  header.appendChild(el('div', 'flex-1 h-[1px] bg-gradient-to-r from-white/10 to-transparent ml-2'));
+  header.appendChild(el('span', 'text-[10px] font-bold text-white/40 mr-2', String(count)));
+  const chevron = el('span', 'text-white/20 group-hover/header:text-white/50 transition-transform shrink-0', '');
+  chevron.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+  header.appendChild(chevron);
+
+  const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
+  rows.forEach((r) => grid.appendChild(r));
+
+  header.addEventListener('click', () => {
+    const isHidden = grid.classList.toggle('hidden');
+    header.setAttribute('aria-expanded', String(!isHidden));
+    chevron.classList.toggle('-rotate-90', isHidden);
+  });
+
+  section.append(header, grid);
+  return section;
+}
+
+function renderCorePlayer(p: MergePlayer, isSource: boolean): HTMLElement {
+  const color = classColor(p.class);
+  const row = el('div', 'flex items-center justify-between gap-2 rounded-md border border-gray-700/40 bg-gray-800/40 px-3 py-2 hover:border-amber-500/30 transition-colors');
+  const left = el('div', 'flex items-center gap-2 min-w-0');
+  const name = el('span', 'font-bold italic truncate text-sm', p.name || '?');
+  name.style.color = color;
+  left.appendChild(name);
+  if (isSource) left.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
+  if (p.leader) left.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
+  if (p.banned) left.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
+  row.appendChild(left);
+
+  const right = el('div', 'flex flex-wrap justify-end gap-1.5 text-[10px]');
+  if (p.role) right.appendChild(el('span', 'text-amber-300', roleLabel(p.role) || p.role));
+  if (p.dual) right.appendChild(el('span', 'text-gray-400', `dual: ${p.dual}`));
+  if (p.sanction) right.appendChild(el('span', 'text-orange-300', `sanción: ${p.sanction}`));
+  if (typeof p.points === 'number') right.appendChild(el('span', 'text-amber-200', `${p.points} pts`));
+  if (p.class) right.appendChild(el('span', 'text-gray-500', p.class));
+  row.appendChild(right);
+  return row;
+}
+
+export interface BandCoreOpts {
+  // Nombres de las fuentes de integración (bandas de miembros): los jugadores
+  // cuyo nombre coincide reciben el badge "integración".
+  sourceNames?: string[];
+}
+
+export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTMLElement {
+  const sourceSet = new Set((opts?.sourceNames ?? []).map((n) => (n || '').trim().toLowerCase()));
+  const groups: Record<'tank' | 'healer' | 'dps' | 'other', MergePlayer[]> = {
+    tank: [],
+    healer: [],
+    dps: [],
+    other: [],
+  };
+  players.forEach((p) => {
+    const key = coreRoleGroup(p);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p);
+  });
+
+  const sections: Array<{ key: 'tank' | 'healer' | 'dps' | 'other'; title: string; color: string }> = [
+    { key: 'tank', title: 'Tanques', color: 'text-blue-400' },
+    { key: 'healer', title: 'Sanadores', color: 'text-green-400' },
+    { key: 'dps', title: 'DPS', color: 'text-red-400' },
+    { key: 'other', title: 'Otros', color: 'text-gray-400' },
+  ];
+
+  const wrap = el('div', '');
+  let any = false;
+  sections.forEach((cfg) => {
+    const rows = (groups[cfg.key] ?? []).map((p) => renderCorePlayer(p, sourceSet.has((p.name || '').trim().toLowerCase())));
+    if (rows.length === 0) return;
+    any = true;
+    wrap.appendChild(renderCoreSection(cfg.title, rows.length, cfg.color, CORE_ICONS[cfg.key], rows));
+  });
+
+  if (!any) return el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.');
+  return wrap;
 }
 
 // Lista única de jugadores a través de todas las bandas (con flags agregados)
