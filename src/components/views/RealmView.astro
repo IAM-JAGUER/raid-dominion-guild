@@ -5,23 +5,23 @@
 // del servidor (realmlist) que enlaza a /servidor/:server.
 ---
 <section id="view-reino" class="hidden">
-  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1 mb-6">
+  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1 mb-6">
     <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Reino</p>
     <div class="flex flex-wrap items-center gap-3">
       <h1 id="rv-realm" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-all"></h1>
-      <a id="rv-server-chip" href="#" class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
+      <a id="rv-server-chip" href="#" class="inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
     </div>
   </header>
 
   <div id="rv-section" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+    <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
       <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
         <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades
       </h2>
       <div id="rv-guilds" class="space-y-3"></div>
       <p id="rv-guilds-empty" class="hidden text-sm text-gray-500 italic">Sin hermandades públicas en este reino.</p>
     </section>
-    <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+    <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
       <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
         <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personajes
       </h2>
@@ -100,7 +100,7 @@
       document.getElementById('rv-guilds-empty')?.classList.remove('hidden');
     }
     realmGuilds.forEach((g) => {
-      const a = el('a', 'group block bg-gray-900/40 border border-amber-600/20 hover:border-amber-500/40 rounded-lg p-4 transition-all duration-200') as HTMLAnchorElement;
+      const a = el('a', 'group block bg-gray-900/40 border border-amber-600/20 hover:border-amber-500/40 rounded-md p-4 transition-all duration-200') as HTMLAnchorElement;
       a.href = `/${g.slug}`;
       a.appendChild(el('h3', 'font-bold text-white group-hover:text-amber-200 transition-colors text-sm', g.name));
       a.appendChild(el('p', 'text-xs text-gray-500 mt-1', 'Ver portal →'));
@@ -113,7 +113,7 @@
     }
     realmChars.slice(0, 100).forEach((c: CharacterRow) => {
       const color = classColor(c.class, c.class_file);
-      const a = el('a', 'flex items-center gap-3 bg-gray-900/40 border border-amber-600/20 hover:border-amber-500/40 rounded-lg p-3 transition-all duration-200') as HTMLAnchorElement;
+      const a = el('a', 'flex items-center gap-3 bg-gray-900/40 border border-amber-600/20 hover:border-amber-500/40 rounded-md p-3 transition-all duration-200') as HTMLAnchorElement;
       a.href = c.slug ? `/personaje/${c.slug}` : `/personajes`;
       const avatar = el('div', 'w-9 h-9 rounded-md flex items-center justify-center font-black italic text-base shrink-0 border border-gray-700/50');
       avatar.style.backgroundColor = `${color}26`;

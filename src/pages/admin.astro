@@ -17,11 +17,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       </div>
 
       <!-- Sin autorización -->
-      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         <h1 class="text-xl font-bold text-white mb-2">Acceso restringido</h1>
         <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta área es exclusiva para administradores.</p>
-        <a href="/" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
+        <a href="/" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
       </div>
 
       <!-- Panel -->
@@ -40,11 +40,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <div class="relative animate-fade-in-1" style="animation-delay: 0.1s">
             <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input type="search" id="search" placeholder="Buscar por correo, nombre o personaje…"
-              class="w-full pl-9 pr-4 py-2.5 rounded-lg bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+              class="w-full pl-9 pr-4 py-2.5 rounded-md bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
           </div>
 
           <!-- Usuarios -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
             <p id="users-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando usuarios…</p>
             <ul id="users-list" class="space-y-3"></ul>
           </section>
@@ -53,42 +53,42 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         <!-- Vista: detalle de usuario -->
         <div id="view-detail" class="hidden space-y-6">
           <button type="button" id="detail-back"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Volver al listado
           </button>
 
           <!-- Perfil completo -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
             <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
               <div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Detalle de usuario</p>
                 <h2 id="detail-name" class="text-2xl font-bold text-amber-200"></h2>
                 <p id="detail-email" class="text-sm text-gray-400 mt-1"></p>
               </div>
-              <span id="detail-role-badge" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border"></span>
+              <span id="detail-role-badge" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border"></span>
             </div>
 
             <dl id="detail-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></dl>
           </section>
 
           <!-- Gestión de rol (solo admin) -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
             <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
               <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Gestión de rol
             </h2>
             <div class="flex flex-wrap items-center gap-3">
-              <select id="detail-role-select" class="px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700 focus:border-amber-500 outline-none text-gray-100 text-sm"></select>
+              <select id="detail-role-select" class="px-3 py-2 rounded-md bg-gray-900/80 border border-gray-700 focus:border-amber-500 outline-none text-gray-100 text-sm"></select>
               <button id="detail-role-save" type="button"
-                class="px-5 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:pointer-events-none">
+                class="px-5 py-2 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:pointer-events-none">
                 Guardar rol
               </button>
             </div>
-            <p id="detail-role-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+            <p id="detail-role-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
           </section>
 
           <!-- Historial de auditoría del usuario -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
             <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
               <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Historial de auditoría
             </h2>
@@ -200,7 +200,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     ROLES.forEach((role) => {
       const count = users.filter((u) => u.role === role).length;
       const card = document.createElement('div');
-      card.className = `bg-gray-900/60 backdrop-blur-sm border rounded-lg p-4 ${ROLE_BADGE[role]}`;
+      card.className = `bg-gray-900/60 backdrop-blur-sm border rounded-md p-4 ${ROLE_BADGE[role]}`;
       const num = document.createElement('p');
       num.className = 'text-3xl font-black';
       num.textContent = String(count);
@@ -229,7 +229,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function userRow(u: AdminUserRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-lg px-4 py-3';
+    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
 
     const info = document.createElement('div');
     info.className = 'min-w-0';
@@ -251,13 +251,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     right.className = 'flex items-center gap-2 shrink-0';
 
     const badge = document.createElement('span');
-    badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
+    badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
     badge.textContent = ROLE_LABELS[u.role];
     right.appendChild(badge);
 
     const detailBtn = document.createElement('button');
     detailBtn.type = 'button';
-    detailBtn.className = 'px-4 py-2 rounded-lg border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest';
+    detailBtn.className = 'px-4 py-2 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest';
     detailBtn.textContent = 'Detalle';
     detailBtn.addEventListener('click', () => openDetail(u.id));
     right.appendChild(detailBtn);
@@ -282,7 +282,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     const badge = document.getElementById('detail-role-badge') as HTMLElement;
     badge.textContent = ROLE_LABELS[u.role];
-    badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
+    badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
 
     // Perfil completo (los datos provienen de adminListUsers).
     const fields = document.getElementById('detail-fields') as HTMLElement;
@@ -347,7 +347,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     const newRole = sel.value as RaiddominionRole;
     if (newRole === u.role) {
-      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-gray-800/60 border border-gray-600/40 text-gray-300';
+      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-gray-800/60 border border-gray-600/40 text-gray-300';
       msg.textContent = 'El rol seleccionado ya es el actual; no hay cambios.';
       return;
     }
@@ -356,7 +356,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (saveBtn.dataset.confirm !== 'yes') {
       saveBtn.dataset.confirm = 'yes';
       saveBtn.textContent = '¿Confirmar cambio?';
-      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-amber-950/40 border border-amber-600/40 text-amber-200';
+      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-amber-950/40 border border-amber-600/40 text-amber-200';
       msg.textContent = `Se cambiará el rol de ${u.email ?? u.id} a «${ROLE_LABELS[newRole]}».`;
       window.setTimeout(() => {
         if (saveBtn.dataset.confirm === 'yes') {
@@ -375,7 +375,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     saveBtn.disabled = false;
     if (r.ok) {
       u.role = newRole;
-      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
+      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
       msg.textContent = 'Rol actualizado.';
       saveBtn.textContent = 'Guardar rol';
       renderStats();
@@ -383,9 +383,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       // refresca el badge del detalle
       const badge = document.getElementById('detail-role-badge') as HTMLElement;
       badge.textContent = ROLE_LABELS[newRole];
-      badge.className = `px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
+      badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
     } else {
-      msg.className = 'mt-3 text-sm rounded-lg px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
+      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
       msg.textContent = r.error || 'No se pudo cambiar el rol.';
       saveBtn.textContent = 'Guardar rol';
     }

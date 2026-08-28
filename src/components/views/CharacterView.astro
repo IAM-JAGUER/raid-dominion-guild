@@ -3,9 +3,9 @@
 // Auto-gate: solo actúa cuando el primer segmento de la ruta es "personaje".
 ---
 <section id="view-personaje" class="hidden">
-  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1 mb-6">
+  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1 mb-6">
     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-      <div id="pv-avatar" class="w-20 h-20 rounded-lg bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
+      <div id="pv-avatar" class="w-20 h-20 rounded-md bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
       <div class="flex-1 min-w-0 text-center sm:text-left">
         <h1 id="pv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
         <div id="pv-chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
@@ -47,11 +47,11 @@
   }
 
   function chip(text: string, extra = ''): HTMLElement {
-    return el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
+    return el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
   }
 
   function linkChip(text: string, href: string, extra = ''): HTMLElement {
-    const a = el('a', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/30 hover:bg-sky-900/40 transition-all' + (extra ? ` ${extra}` : ''), text);
+    const a = el('a', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/30 hover:bg-sky-900/40 transition-all' + (extra ? ` ${extra}` : ''), text);
     (a as HTMLAnchorElement).href = href;
     return a;
   }
@@ -87,7 +87,7 @@
     if (p?.slug) {
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
-      a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all';
+      a.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all';
       // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
       // el perfil dueño no declara nombre visible, la cuenta cae al handle
       // estable @hex del perfil, no al personaje público más relevante.
@@ -106,7 +106,7 @@
       if (gRes.ok && gRes.guild?.is_public && gRes.guild.name.trim().toLowerCase() === myGuildName) {
         const a = document.createElement('a');
         a.href = `/${gRes.guild.slug}`;
-        a.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
+        a.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
         a.textContent = `★ ${gRes.guild.name}`;
         links.appendChild(a);
       }
@@ -123,7 +123,7 @@
   }
 
   function statsCard(c: CharacterRow): HTMLElement {
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
     const color = classColor(c.class, c.class_file);
     const head = el('div', 'flex items-center gap-3 mb-4');
     const avatar = el('div', 'w-11 h-11 rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50');
@@ -139,7 +139,7 @@
 
     const stats = el('div', 'grid grid-cols-3 gap-3');
     const stat = (label: string, value: string | number): HTMLElement => {
-      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-3');
+      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-3');
       box.appendChild(el('p', 'text-2xl font-black text-amber-200 italic', String(value)));
       box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
       return box;
@@ -154,7 +154,7 @@
   function equipmentCard(c: CharacterRow): HTMLElement | null {
     const eq = c.equipment ?? [];
     if (eq.length === 0) return null;
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
     card.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Equipamiento'));
     card.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
     const list = el('div', 'grid grid-cols-1 gap-1');
@@ -175,7 +175,7 @@
   }
 
   function bandsCard(bands: Array<{ name: string; schedule?: string; minGS?: number; role?: string }>): HTMLElement {
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
     card.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Bandas de raid'));
     card.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
     const list = el('div', 'flex flex-wrap gap-2');
@@ -185,7 +185,7 @@
       if (rol) parts.push(rol);
       if (b.schedule) parts.push(b.schedule);
       if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-      list.appendChild(el('span', 'px-3 py-1.5 rounded-lg text-[11px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
+      list.appendChild(el('span', 'px-3 py-1.5 rounded-md text-[11px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
     });
     card.appendChild(list);
     return card;

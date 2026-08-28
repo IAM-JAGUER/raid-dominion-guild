@@ -17,11 +17,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       </div>
 
       <!-- Sin autorización -->
-      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         <h1 class="text-xl font-bold text-white mb-2">Acceso restringido</h1>
         <p id="denied-msg" class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta área es solo para moderadores y administradores.</p>
-        <a href="/" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
+        <a href="/" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
       </div>
 
       <!-- Panel -->
@@ -32,7 +32,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </header>
 
         <!-- Cola de claims -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Claims pendientes
           </h2>
@@ -41,7 +41,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </section>
 
         <!-- Hermandades verificadas -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades verificadas
           </h2>
@@ -50,7 +50,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </section>
 
         <!-- Auditoría -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6 animate-fade-in-1" style="animation-delay: 0.2s">
+        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.2s">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bitácora reciente
           </h2>
@@ -68,8 +68,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function msgCls(ok: boolean): string {
     return ok
-      ? 'mt-2 text-xs rounded-lg px-3 py-2 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300'
-      : 'mt-2 text-xs rounded-lg px-3 py-2 bg-red-950/40 border border-red-600/40 text-red-300';
+      ? 'mt-2 text-xs rounded-md px-3 py-2 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300'
+      : 'mt-2 text-xs rounded-md px-3 py-2 bg-red-950/40 border border-red-600/40 text-red-300';
   }
 
   const res = await getMyProfile();
@@ -119,7 +119,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function claimCard(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4';
+    li.className = 'bg-gray-800/50 border border-amber-700/40 rounded-md p-4';
     li.dataset.guildId = g.id;
 
     const head = document.createElement('div');
@@ -134,7 +134,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     title.append(name, meta);
 
     const badge = document.createElement('span');
-    badge.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-amber-950/30 border-amber-600/40 text-amber-300 shrink-0';
+    badge.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-amber-950/30 border-amber-600/40 text-amber-300 shrink-0';
     badge.textContent = 'Pendiente';
     head.append(title, badge);
     li.appendChild(head);
@@ -151,11 +151,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     const approve = document.createElement('button');
     approve.type = 'button';
-    approve.className = 'px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50';
+    approve.className = 'px-4 py-2 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50';
     approve.textContent = '✓ Aprobar';
     const reject = document.createElement('button');
     reject.type = 'button';
-    reject.className = 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50';
+    reject.className = 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50';
     reject.textContent = '✕ Rechazar';
 
     const out = document.createElement('p');
@@ -184,7 +184,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function verifiedRow(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-lg px-4 py-3';
+    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
 
     const info = document.createElement('div');
     const name = document.createElement('p');
@@ -199,8 +199,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = g.is_public
-      ? 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
-      : 'px-4 py-2 rounded-lg border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
+      ? 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
+      : 'px-4 py-2 rounded-md border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
     btn.textContent = g.is_public ? 'Retirar del directorio' : 'Republicar';
 
     btn.addEventListener('click', async () => {
@@ -210,8 +210,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         meta.textContent = `/${g.slug} · ${!g.is_public ? 'Pública' : 'Retirada'}`;
         btn.textContent = !g.is_public ? 'Retirar del directorio' : 'Republicar';
         btn.className = !g.is_public
-          ? 'px-4 py-2 rounded-lg border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
-          : 'px-4 py-2 rounded-lg border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
+          ? 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
+          : 'px-4 py-2 rounded-md border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
       }
       btn.disabled = false;
     });

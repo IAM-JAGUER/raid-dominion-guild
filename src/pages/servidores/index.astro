@@ -21,11 +21,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       <p id="status" class="text-sm text-gray-400 italic mb-4" aria-live="polite">Cargando servidores…</p>
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de servidores"></section>
 
-      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
+      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-8 sm:p-10 text-center">
         <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
         <p class="font-bold text-white mb-1">Aún no hay servidores con datos públicos</p>
         <p class="text-sm text-gray-400 max-w-md mx-auto">Sube tu SavedVariables para que tu reino y hermandad aparezcan en el directorio.</p>
-        <a href="/upload" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Sube tu SavedVariables</a>
+        <a href="/upload" class="inline-block mt-5 px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Sube tu SavedVariables</a>
       </div>
     </div>
   </main>
@@ -58,12 +58,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   function card(server: string, stats: Awaited<ReturnType<typeof getServerStats>>): HTMLElement {
     const link = document.createElement('a');
     link.href = `/servidor/${encodeURIComponent(server)}`;
-    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5';
 
     const head = document.createElement('div');
     head.className = 'flex items-center gap-3 mb-3';
     const icon = document.createElement('div');
-    icon.className = 'w-10 h-10 rounded-lg bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0';
+    icon.className = 'w-10 h-10 rounded-md bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0';
     icon.textContent = (server[0] || '?').toUpperCase();
     head.appendChild(icon);
     const name = document.createElement('h2');
@@ -82,7 +82,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     statsRow.className = 'grid grid-cols-3 gap-2 mt-3';
     const stat = (label: string, value: number | undefined): HTMLElement => {
       const box = document.createElement('div');
-      box.className = 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-2';
+      box.className = 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-2';
       const val = document.createElement('p');
       val.className = 'text-lg font-black text-amber-200 italic';
       val.textContent = String(value ?? 0);
@@ -106,7 +106,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function chip(text: string): HTMLElement {
     const c = document.createElement('span');
-    c.className = 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    c.className = 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
     c.textContent = text;
     return c;
   }

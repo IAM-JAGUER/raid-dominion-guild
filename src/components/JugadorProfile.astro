@@ -13,24 +13,24 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     </div>
 
     <!-- No encontrado -->
-    <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+    <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
       <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
       <h1 id="not-found-title" class="text-xl font-bold text-white mb-2">Personaje no encontrado</h1>
       <p id="not-found-msg" class="text-sm text-gray-400 max-w-md mx-auto">Este personaje no existe, es privado o cambió su enlace.</p>
-      <a id="not-found-cta" href="/personajes" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver personajes</a>
+      <a id="not-found-cta" href="/personajes" class="inline-block mt-5 px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver personajes</a>
     </div>
 
     <!-- Ficha del personaje -->
     <div id="profile" class="hidden space-y-10">
-      <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1">
+      <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1">
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-          <div id="avatar" class="w-20 h-20 rounded-lg bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
+          <div id="avatar" class="w-20 h-20 rounded-md bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
           <div class="flex-1 min-w-0 text-center sm:text-left">
             <h1 id="display-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
             <div id="chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
             <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
-              <span id="role-badge" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300">★ Maestro de hermandad</span>
-              <a id="guild-card" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all">
+              <span id="role-badge" class="hidden inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300">★ Maestro de hermandad</span>
+              <a id="guild-card" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all">
                 <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
                 <span id="guild-card-name"></span>
               </a>
@@ -117,7 +117,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function chip(text: string): HTMLElement {
     const c = document.createElement('span');
-    c.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    c.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
     c.textContent = text;
     return c;
   }
@@ -296,7 +296,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (mainTitle?.lastChild) mainTitle.lastChild.textContent = 'Personajes';
     } else {
       // Perfil público sin personajes publicados: ficha vacía informativa.
-      const emptyCard = makeEl('div', 'bg-gray-900/60 border border-amber-600/25 rounded-lg p-8 text-center');
+      const emptyCard = makeEl('div', 'bg-gray-900/60 border border-amber-600/25 rounded-md p-6 sm:p-8 text-center');
       emptyCard.appendChild(makeEl('p', 'text-sm text-gray-400 italic', 'Este jugador aún no publica personajes.'));
       mainCard.appendChild(emptyCard);
       if (mainTitle?.lastChild) mainTitle.lastChild.textContent = 'Personajes';
@@ -342,7 +342,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (rol) parts.push(rol);
       if (b.schedule) parts.push(b.schedule);
       if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-      list.appendChild(makeEl('span', 'px-2 py-1 rounded-lg text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
+      list.appendChild(makeEl('span', 'px-2 py-1 rounded-md text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
     });
     wrap.appendChild(list);
     return wrap;
@@ -354,13 +354,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (c.server) {
       const s = document.createElement('a');
       s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/30 hover:bg-sky-900/40 transition-all';
+      s.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/30 hover:bg-sky-900/40 transition-all';
       s.textContent = c.server;
       row.appendChild(s);
     }
     if (c.realm) {
       const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+      const cls = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
       if (c.server) {
         (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
         r.className = `${cls} hover:bg-gray-800/80 transition-all`;
@@ -400,7 +400,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function richCharacterCard(c: CharacterRow, bands: PublicBandSummary[], featured: boolean): HTMLElement {
     const color = classColor(c.class, c.class_file);
-    const card = makeEl('article', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-lg overflow-hidden transition-colors duration-200 ' + (featured ? 'p-5 pl-6' : 'p-4 pl-5'));
+    const card = makeEl('article', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-md overflow-hidden transition-colors duration-200 ' + (featured ? 'p-5 pl-6' : 'p-4 pl-5'));
 
     const accent = makeEl('div', 'absolute top-0 left-0 w-1 h-full');
     accent.style.backgroundColor = color;
@@ -426,7 +426,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     // Stats principales
     const stats = makeEl('div', 'grid grid-cols-3 gap-2 mb-4');
     const stat = (label: string, value: string | number): HTMLElement => {
-      const box = makeEl('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-lg px-2 py-2');
+      const box = makeEl('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-2');
       box.appendChild(makeEl('p', 'text-lg font-black text-amber-200 italic', String(value)));
       box.appendChild(makeEl('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
       return box;

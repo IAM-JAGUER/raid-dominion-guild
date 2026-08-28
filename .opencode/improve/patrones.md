@@ -36,7 +36,7 @@ Patrones que funcionan y deben reutilizarse.
 ## P007: Tema WoW (ámbar/dorado)
 - Tokens en `src/lib/ui/design.ts`
 - Importar tokens, no duplicar literales
-- `rounded-lg` para elementos con texto
+- `rounded-md` para elementos con texto
 - `rounded-full` solo para elementos sin texto
 
 ## P008: Multi-app Supabase

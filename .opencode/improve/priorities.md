@@ -75,8 +75,8 @@ Permitirá advertir al usuario si su archivo es anterior a 3.0.0.
 ## Convenciones de diseño v1
 
 - Fuente de verdad visual: `src/lib/ui/design.ts` (tokens `ui.*`). Importar tokens, no duplicar literales.
-- Bordes: máximo `rounded-lg`, salvo círculos inherentes (`rounded-full`). Prohibidos `rounded-xl/2xl/3xl` en `src/`.
-- Criterio geométrico vinculante: todo elemento CON TEXTO (chips, badges, contadores, botones filtro) usa `rounded-lg`, sin excepción. `rounded-full` solo se permite en elementos SIN texto cuya forma es inherentemente píldora/círculo (dots, indicadores, medallones de icono circular, botones flotantes circulares).
+- Bordes: máximo `rounded-md`, salvo círculos inherentes (`rounded-full`). Prohibidos `rounded-xl/2xl/3xl` en `src/`.
+- Criterio geométrico vinculante: todo elemento CON TEXTO (chips, badges, contadores, botones filtro) usa `rounded-md`, sin excepción. `rounded-full` solo se permite en elementos SIN texto cuya forma es inherentemente píldora/círculo (dots, indicadores, medallones de icono circular, botones flotantes circulares).
 - La excepción de divisores finos (h-1 con extremos suaves) vive EXCLUSIVAMENTE en el token `ui.sectionRule`; no duplicar `rounded-full` en divisores fuera de ese token.
 - Encabezados de sección siempre vía `src/components/ui/SectionHeader.astro`.
 - Superficie única: `ui.panel`; añadir `ui.panelHover` solo si el elemento es interactivo.
@@ -88,7 +88,7 @@ Permitirá advertir al usuario si su archivo es anterior a 3.0.0.
 
 ## Convenciones de diseño v2
 - **R1 Monogramas (enmienda al criterio geométrico):** `rounded-full` admite texto SOLO si es un único glifo (inicial de avatar, dígito de paso) en contenedor cuadrado `w-N h-N`. Palabras o frases jamás en `rounded-full`.
-- **R2 Radio único:** todo chip/badge/contador con texto usa `rounded-lg` (idealmente vía token); prohibido `rounded-md` flotante en chips. Radio menor permitido: `rounded-t-lg` en pestañas ancladas a una barra.
+- **R2 Radio único:** todo chip/badge/contador con texto usa `rounded-md` (idealmente vía token); prohibido `rounded-lg` flotante en chips. Radio menor permitido: `rounded-t-lg` en pestañas ancladas a una barra.
 - **R3 Superficie única en dashboards:** paneles siempre via `${ui.panel}` (borde canónico `amber-600/30`); prohibido reescribir el literal bg/border/rounded. Interactivo → añadir `ui.panelHover`.
 - **R4 Alcance SectionHeader:** solo landing/páginas de contenido. Dashboards: h1 de página + `ui.subTitle`; no mezclar sistemas de encabezado.
 

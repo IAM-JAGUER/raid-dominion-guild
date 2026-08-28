@@ -11,7 +11,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       <Breadcrumb />
       <!-- Header -->
       <header class="text-center mb-12 animate-fade-in-1">
-        <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/20">
+        <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-amber-600 to-amber-800 rounded-md flex items-center justify-center shadow-lg shadow-amber-900/20">
           <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
@@ -26,11 +26,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       </header>
 
       <!-- Dropzone -->
-      <section class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-lg p-6 sm:p-8 mb-8">
+      <section class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-md p-4 sm:p-6 md:p-8 mb-8">
         <label
           for="sv-file"
           id="dropzone"
-          class="flex flex-col items-center justify-center border-2 border-dashed border-amber-600/40 rounded-lg p-10 cursor-pointer hover:border-amber-500/70 hover:bg-amber-900/10 transition-all"
+          class="flex flex-col items-center justify-center border-2 border-dashed border-amber-600/40 rounded-md p-8 sm:p-10 cursor-pointer hover:border-amber-500/70 hover:bg-amber-900/10 transition-all"
         >
           <svg class="w-10 h-10 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -49,7 +49,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       <!-- Resultado -->
       <section id="result" class="hidden space-y-6">
         <!-- Claim de maestro (solo vía SV; sin formularios) -->
-        <div id="claim-banner" class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-lg p-6">
+        <div id="claim-banner" class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-md p-4 sm:p-6">
           <h2 class="text-xl font-bold text-amber-300 mb-2">¡Eres candidato a maestro de hermandad!</h2>
           <p class="text-sm text-gray-300 mb-4">
             Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
@@ -59,24 +59,24 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <p id="claim-status-note" class="hidden text-sm text-amber-200/80">
             Si tu rango no es de liderazgo, tu solicitud quedará en revisión para un moderador.
           </p>
-          <p id="claim-msg" class="hidden mt-3 text-sm rounded-lg px-4 py-2.5" role="status"></p>
+          <p id="claim-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
         </div>
 
         <!-- Cifras del procesamiento -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-guilds">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-characters">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Personajes</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-bands">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-rules">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
           </div>
@@ -84,12 +84,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
         <!-- Enlace al dashboard: el detalle vive en Mi cuenta -->
         <div class="text-center">
-          <a href="/dashboard" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ir a Mi dashboard →</a>
+          <a href="/dashboard" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ir a Mi dashboard →</a>
         </div>
       </section>
 
       <!-- Error -->
-      <section id="error" class="hidden bg-red-950/40 border border-red-600/40 rounded-lg p-6">
+      <section id="error" class="hidden bg-red-950/40 border border-red-600/40 rounded-md p-4 sm:p-6">
         <h2 class="text-lg font-bold text-red-300 mb-2">No se pudo procesar el archivo</h2>
         <p id="error-msg" class="text-sm text-red-200/80"></p>
       </section>
@@ -137,14 +137,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   }
 
   function addWarning(msg: string): void {
-    warningsEl.appendChild(el('div', 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg', '⚠ ' + msg));
+    warningsEl.appendChild(el('div', 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-md', '⚠ ' + msg));
   }
 
   // Persiste el parseo si hay sesión activa; si no, invita a iniciar sesión
   async function persistIfLoggedIn(data: ParsedSavedVariables): Promise<void> {
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session?.user) {
-      const info = el('div', 'text-xs text-gray-400 bg-gray-900/60 border-l-2 border-amber-500/50 px-4 py-2 rounded-lg mt-2');
+      const info = el('div', 'text-xs text-gray-400 bg-gray-900/60 border-l-2 border-amber-500/50 px-4 py-2 rounded-md mt-2');
       info.appendChild(document.createTextNode('Inicia sesión para guardar este análisis en tu historial. '));
       const link = el('a', 'text-amber-300 underline hover:text-amber-200', 'Iniciar Sesión');
       link.href = '/login?next=%2Fupload';
@@ -343,7 +343,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const cls = kind === 'success'
       ? 'text-emerald-200 bg-emerald-950/40 border-l-2 border-emerald-500/60'
       : 'text-amber-100 bg-amber-950/30 border-l-2 border-amber-500/60';
-    const box = el('div', 'text-xs px-4 py-3 rounded-lg mb-2 ' + cls);
+    const box = el('div', 'text-xs px-4 py-3 rounded-md mb-2 ' + cls);
     box.textContent = kind === 'success' ? '✓ ' + msg : '⬆ ' + msg;
     warningsEl.prepend(box);
   }

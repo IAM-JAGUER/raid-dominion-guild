@@ -37,7 +37,7 @@ const accounts = [
           {account.qr ? (
             <div class="mb-4">
               <p class="text-sm text-gray-400 mb-2">Escanea el código QR</p>
-              <div class="bg-white p-2 rounded-lg">
+              <div class="bg-white p-2 rounded-md">
                 <ImageComponent
                   classes="w-32 h-32 sm:w-36 sm:h-36 object-contain"
                   imageName={account.service.toLowerCase().replace(" ", "_") + "qr.jpeg"}
@@ -61,7 +61,7 @@ const accounts = [
                 href={account.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors duration-300 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition-colors duration-300 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
               >
                 Donar con {account.service}
                 <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

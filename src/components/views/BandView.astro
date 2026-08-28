@@ -7,11 +7,11 @@
 // dueño (/jugador/:slug) según corresponda.
 ---
 <section id="view-banda" class="hidden">
-  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1 mb-6">
+  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1 mb-6">
     <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Banda de raid</p>
     <div class="flex flex-wrap items-center gap-3">
       <h1 id="bv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-all"></h1>
-      <a id="bv-owner-link" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
+      <a id="bv-owner-link" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
   </header>
@@ -53,7 +53,7 @@
   }
 
   function metaChip(text: string, extra = ''): HTMLElement {
-    return el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
+    return el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
   }
 
   interface BandRule {
@@ -93,11 +93,11 @@
 
     // Roster (omitido si el líder ocultó jugadores al público)
     if (band.hide_players) {
-      const hiddenCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      const hiddenCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
       hiddenCard.appendChild(el('p', 'text-sm text-gray-400 italic', 'Esta banda mantiene oculta su lista de jugadores al público.'));
       body.appendChild(hiddenCard);
     } else {
-      const rosterCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      const rosterCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
       rosterCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Roster'));
       rosterCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
       if (players.length === 0) {
@@ -105,7 +105,7 @@
       } else {
         const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
         players.forEach((p) => {
-          const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-lg px-3 py-2');
+          const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2');
           const head = el('div', 'flex items-center gap-2');
           head.appendChild(el('span', 'font-bold text-white text-sm', p.name || '?'));
           if (p.leader) head.appendChild(el('span', 'text-[9px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-600/40 rounded px-1.5 py-0.5', 'líder'));
@@ -134,7 +134,7 @@
     // Reglas
     const rules = Array.isArray(band.rules) ? (band.rules as BandRule[]) : [];
     if (rules.length > 0) {
-      const rulesCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6');
+      const rulesCard = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
       rulesCard.appendChild(el('h2', 'text-lg font-bold text-amber-200 mb-4 flex items-center', 'Reglas'));
       rulesCard.querySelector('h2')?.prepend(el('span', 'w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]'));
       const list = el('ul', 'space-y-3');

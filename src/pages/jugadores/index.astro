@@ -24,11 +24,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       <p id="status" class="text-sm text-gray-400 italic mb-4" aria-live="polite">Cargando jugadores…</p>
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de jugadores"></section>
 
-      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-10 text-center">
+      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-8 sm:p-10 text-center">
         <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
         <p class="font-bold text-white mb-1">Aún no hay jugadores con perfil público</p>
         <p class="text-sm text-gray-400 max-w-md mx-auto">Activa la visibilidad de tu perfil desde el dashboard para aparecer en el directorio.</p>
-        <a href="/login" class="inline-block mt-5 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Inicia sesión</a>
+        <a href="/login" class="inline-block mt-5 px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Inicia sesión</a>
       </div>
     </div>
   </main>
@@ -51,7 +51,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   }
 
   function chip(text: string, extra = ''): HTMLElement {
-    return el('span', 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ' +
+    return el('span', 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ' +
       (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20'), text);
   }
 
@@ -72,10 +72,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const charPublic = principalPublic;
     const link = document.createElement('a');
     link.href = `/jugador/${p.slug}`;
-    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-lg p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5';
 
     const head = el('div', 'flex items-center gap-3 mb-3');
-    const avatar = el('div', 'w-11 h-11 rounded-lg flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 ' +
+    const avatar = el('div', 'w-11 h-11 rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 ' +
       (fromHandle ? 'bg-gray-800/70 text-gray-500' : 'bg-amber-600/15 text-amber-300'));
     avatar.textContent = playerInitial(name);
     head.appendChild(avatar);

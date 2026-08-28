@@ -17,32 +17,32 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       </div>
 
       <!-- No encontrado -->
-      <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-lg p-10 text-center">
+      <div id="not-found" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <h1 class="text-xl font-bold text-white mb-2">Portal no encontrado</h1>
         <p id="not-found-msg" class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta hermandad no existe o su portal es privado.</p>
-        <a href="/guilds" class="inline-block px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver directorio</a>
+        <a href="/guilds" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ver directorio</a>
       </div>
 
       <!-- Portal -->
       <div id="portal" class="hidden space-y-8">
 
         <!-- Vista previa privada (owner) -->
-        <div id="preview-banner" class="hidden bg-sky-950/40 border border-sky-700/40 rounded-lg p-4 flex items-start gap-3">
+        <div id="preview-banner" class="hidden bg-sky-950/40 border border-sky-700/40 rounded-md p-4 flex items-start gap-3">
           <svg class="w-5 h-5 text-sky-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           <p class="text-sm text-sky-200"><span class="font-bold">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
         </div>
 
         <!-- Hero -->
-        <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-lg p-8 animate-fade-in-1">
+        <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
             <div>
               <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Portal de hermandad</p>
               <h1 id="guild-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide"></h1>
             </div>
             <div class="flex items-center gap-2">
-              <span id="verified-badge" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-emerald-950/30 border-emerald-600/40 text-emerald-300">✓ Verificada</span>
-              <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-lg border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest">Discord</a>
+              <span id="verified-badge" class="hidden px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border bg-emerald-950/30 border-emerald-600/40 text-emerald-300">✓ Verificada</span>
+              <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest">Discord</a>
             </div>
           </div>
           <p id="guild-description" class="text-sm text-gray-300 italic max-w-3xl leading-relaxed"></p>
@@ -52,22 +52,22 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
         <!-- Métricas -->
         <section id="stats" class="grid grid-cols-3 gap-4 animate-fade-in-1" style="animation-delay: 0.1s" aria-label="Resumen del análisis">
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
             <p class="text-3xl font-black text-amber-300" id="stat-members">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Miembros</p>
           </div>
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
             <p class="text-3xl font-black text-amber-300" id="stat-bands">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
           </div>
-          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-lg p-4 text-center">
+          <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/20 rounded-md p-4 text-center">
             <p class="text-3xl font-black text-amber-300" id="stat-rules">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
           </div>
         </section>
 
         <!-- Jerarquía de rangos (registry.guild.ranks; 0 = líder) -->
-        <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+        <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Jerarquía de rangos
           </h2>
@@ -75,14 +75,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </section>
 
         <!-- Sin snapshot -->
-        <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-lg p-8 text-center">
+        <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-6 sm:p-8 text-center">
           <svg class="w-9 h-9 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
           <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
         </div>
 
         <!-- Bandas -->
-        <section id="bands-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+        <section id="bands-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas de raid
           </h2>
@@ -90,7 +90,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </section>
 
         <!-- Reglas -->
-        <section id="rules-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+        <section id="rules-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
           </h2>
@@ -98,7 +98,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         </section>
 
         <!-- Roster -->
-        <section id="roster-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-lg p-6">
+        <section id="roster-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
           <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
           </h2>
@@ -140,7 +140,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
   function metaChip(text: string): HTMLElement {
     const chip = document.createElement('span');
-    chip.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    chip.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
     chip.textContent = text;
     return chip;
   }
@@ -168,13 +168,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       if (g.server) {
         const serverChip = document.createElement('a');
         serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-        serverChip.className = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-sky-950/40 border border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all';
+        serverChip.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-sky-950/40 border border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all';
         serverChip.textContent = g.server;
         metaEl.appendChild(serverChip);
       }
       if (g.realm) {
         const realmChip = document.createElement(g.server ? 'a' : 'span');
-        const cls = 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+        const cls = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
         if (g.server) {
           (realmChip as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(g.server)}/reino/${encodeURIComponent(slugify(g.realm))}`;
           realmChip.className = `${cls} hover:bg-gray-800/80 transition-all`;
@@ -198,7 +198,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         const owner = ownerRes.data as { slug: string | null; display_name: string | null; is_public: boolean } | null;
         if (owner && owner.is_public && owner.slug) {
           const ownerChip = document.createElement('a');
-          ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
+          ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
           if ((owner.display_name ?? '').trim()) {
             ownerChip.href = `/jugador/${owner.slug}`;
             ownerChip.textContent = `★ ${owner.display_name}`;
@@ -278,7 +278,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           const sorted = [...snapshot.ranks].sort((a, b) => a.index - b.index);
           sorted.forEach((r) => {
             const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
-            ranksBox.appendChild(el('span', 'px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ' +
+            ranksBox.appendChild(el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ' +
               (r.index === 0 ? 'text-amber-300 border-amber-500/40 bg-amber-900/20' : 'text-gray-300 bg-gray-800/60 border-amber-600/20'),
               `${r.index}: ${label}`));
           });
@@ -318,7 +318,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
               { hidePlayers: band.hide_players },
             );
             if (source) {
-              const badge = el('span', 'inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-lg px-2 py-0.5');
+              const badge = el('span', 'inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-md px-2 py-0.5');
               badge.textContent = `fuente: ${source}`;
               const header = cardEl.firstElementChild as HTMLElement | null;
               if (header) header.appendChild(badge);

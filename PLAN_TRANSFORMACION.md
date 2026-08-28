@@ -256,7 +256,7 @@ Skills inyectables que codifican conocimiento crítico para los subagentes:
 
 | Skill | La invocan | Contenido |
 | --- | --- | --- |
-| `wow-theme` | `ui-ux`, `product` | Tema WoW: ámbar/dorado sobre oscuro, `rounded-lg` máx salvo círculos, patrones de componentes |
+| `wow-theme` | `ui-ux`, `product` | Tema WoW: ámbar/dorado sobre oscuro, `rounded-md` máx salvo círculos, patrones de componentes |
 | `sv-parser-v3` | `development`, `qa` | Formato real RaidDominionDB v3.0.0 (perfiles JUNGJX/IAMM), parser estructural, casos borde, límite 2 MB |
 | `supabase-multiapp` | `development`, `qa` | Ecosistema compartido: prefijos, RLS, `handle_new_user()`, RPCs SECURITY DEFINER |
 | `public-slugs` | `development`, `qa` | Esquema `/:slug` + `/p/:slug`, slugs reservados, catch-all, SEO mínimo |

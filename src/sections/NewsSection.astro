@@ -43,7 +43,7 @@ function formatDate(dateString: string): string {
   {news.map((item) => (
     <article 
       data-id={item.id}
-      class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+      class="bg-white dark:bg-gray-800 rounded-md overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
     >
       <div class="h-48 overflow-hidden">
         <img 
@@ -53,7 +53,7 @@ function formatDate(dateString: string): string {
           loading="lazy"
         />
       </div>
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
           <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-amber-900 dark:text-amber-300">
             {item.category}

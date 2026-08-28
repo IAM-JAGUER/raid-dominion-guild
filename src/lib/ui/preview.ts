@@ -22,7 +22,7 @@ export function el(tag: string, cls: string, text?: string): HTMLElement {
 function chip(text: string, extra = ''): HTMLElement {
   return el(
     'span',
-    'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-2.5 py-1' + (extra ? ` ${extra}` : ''),
+    'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-2.5 py-1' + (extra ? ` ${extra}` : ''),
     text,
   );
 }
@@ -32,17 +32,17 @@ export function renderBand(
   opts?: { hidePlayers?: boolean },
 ): HTMLElement {
   const hidePlayers = opts?.hidePlayers ?? false;
-  const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-lg p-4');
+  const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-md p-4');
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   header.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
 
   const meta = el('div', 'flex flex-wrap gap-2');
-  if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', band.schedule));
-  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `GS ${band.minGS}`));
+  if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', band.schedule));
+  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `GS ${band.minGS}`));
   if (hidePlayers) {
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', 'jugadores ocultos'));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', 'jugadores ocultos'));
   } else {
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-lg px-3 py-1', `${band.players.length} jugadores`));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.players.length} jugadores`));
   }
   header.appendChild(meta);
   card.appendChild(header);
@@ -55,7 +55,7 @@ export function renderBand(
     });
     const chips = el('div', 'flex flex-wrap gap-2');
     Array.from(roles.entries()).forEach(([role, count]) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-lg px-2 py-0.5', `${role}: ${count}`));
+      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
     card.appendChild(chips);
 
@@ -87,7 +87,7 @@ export function renderBand(
   }
 
   if (band.spammer) {
-    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-gray-900/40 border border-gray-700/50 rounded-lg px-3 py-2');
+    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-gray-900/40 border border-gray-700/50 rounded-md px-3 py-2');
     let txt = 'Spammer';
     if (typeof band.spammer.duration === 'number') txt += ` · ${band.spammer.duration}s`;
     const channels = band.spammer.channels
@@ -107,7 +107,7 @@ export function renderBand(
 
 function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   const color = classColor(p.class);
-  const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-lg px-3 py-2');
+  const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2');
   const head = el('div', 'flex flex-wrap items-center gap-2');
   const name = el('span', 'font-bold italic', p.name);
   name.style.color = color;
@@ -128,7 +128,7 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
 }
 
 function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number]['spammer']>): HTMLElement {
-  const box = el('div', 'mt-4 text-xs bg-gray-900/40 border border-amber-700/30 rounded-lg px-4 py-3');
+  const box = el('div', 'mt-4 text-xs bg-gray-900/40 border border-amber-700/30 rounded-md px-4 py-3');
   box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80 mb-1', 'Spammer de la banda'));
   const details = el('div', 'flex flex-wrap gap-2');
   if (typeof spammer.duration === 'number') details.appendChild(chip(`Ciclo ${spammer.duration}s`));
@@ -145,11 +145,11 @@ function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number
 // Banda expandida: nombre, horario, GS, distribución de roles, jugadores
 // completos (siempre visibles) y spammer con su configuración.
 export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]): HTMLElement {
-  const card = el('div', 'bg-gray-900/60 border border-amber-700/40 rounded-lg p-5');
+  const card = el('div', 'bg-gray-900/60 border border-amber-700/40 rounded-md p-5');
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
   titleWrap.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
-  if (band.icon) titleWrap.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-900/60 border border-amber-600/20 rounded-lg px-2.5 py-1', `icon ${band.icon}`));
+  if (band.icon) titleWrap.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-900/60 border border-amber-600/20 rounded-md px-2.5 py-1', `icon ${band.icon}`));
   header.appendChild(titleWrap);
 
   const meta = el('div', 'flex flex-wrap gap-2');
@@ -167,7 +167,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   if (roles.size > 0) {
     const chips = el('div', 'flex flex-wrap gap-2');
     Array.from(roles.entries()).forEach(([role, count]) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-lg px-2 py-0.5', `${role}: ${count}`));
+      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
     card.appendChild(chips);
   }
@@ -213,7 +213,7 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
   const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
   Array.from(unique.values()).forEach((u) => {
     const color = classColor(u.classes.size ? Array.from(u.classes).join(',') : undefined);
-    const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-lg px-3 py-2 flex flex-wrap items-center justify-between gap-2');
+    const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2 flex flex-wrap items-center justify-between gap-2');
     const left = el('div', 'flex flex-wrap items-center gap-2');
     const name = el('span', 'font-bold italic', u.name);
     name.style.color = color;
@@ -301,7 +301,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
         grid.appendChild(hdr);
       }
       const color = classColor(m.class);
-      const card = el('div', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-lg p-4 pl-5 overflow-hidden transition-colors duration-200');
+      const card = el('div', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-md p-4 pl-5 overflow-hidden transition-colors duration-200');
       const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
       accent.style.backgroundColor = color;
       card.appendChild(accent);
@@ -317,7 +317,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
       card.appendChild(row);
 
       const meta = el('div', 'flex flex-wrap gap-1.5');
-      if (m.class) meta.appendChild(el('span', 'px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border text-gray-300 bg-gray-800/60 border-amber-600/20', m.class));
+      if (m.class) meta.appendChild(el('span', 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border text-gray-300 bg-gray-800/60 border-amber-600/20', m.class));
       if (m.publicNote) meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
       card.appendChild(meta);
 
@@ -325,7 +325,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
     });
   };
 
-  const btnCls = 'w-8 h-8 flex items-center justify-center rounded-lg border border-amber-600/30 bg-amber-900/20 text-amber-200 hover:bg-amber-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200';
+  const btnCls = 'w-8 h-8 flex items-center justify-center rounded-md border border-amber-600/30 bg-amber-900/20 text-amber-200 hover:bg-amber-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200';
   const prev = el('button', btnCls) as HTMLButtonElement;
   prev.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
   prev.setAttribute('aria-label', 'Página anterior');
@@ -371,11 +371,11 @@ export function renderRosterStats(wrap: HTMLElement, members: RosterMember[]): v
   };
 
   const card = (title: string, dist: Array<{ name: string; count: number; pct: number }>): HTMLElement => {
-    const box = el('div', 'bg-gray-900/50 border border-amber-600/20 rounded-lg p-4');
+    const box = el('div', 'bg-gray-900/50 border border-amber-600/20 rounded-md p-4');
     box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2', `${title} · ${dist.length}`));
     const chips = el('div', 'flex flex-wrap gap-2');
     dist.forEach((d) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-lg px-2 py-0.5', `${d.name}: ${d.count} (${d.pct}%)`));
+      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${d.name}: ${d.count} (${d.pct}%)`));
     });
     box.appendChild(chips);
     return box;
