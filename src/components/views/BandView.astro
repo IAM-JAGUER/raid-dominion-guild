@@ -41,7 +41,7 @@
 </section>
 
 <script>
-  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, type BandRow } from '@/lib/api';
+  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { renderBandCore } from '@/lib/ui/preview';
@@ -123,7 +123,15 @@
     } else if (players.length === 0) {
       coreBox.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.'));
     } else {
-      coreBox.appendChild(renderBandCore(players, { sourceNames: merged.sourceNames }));
+      // Slugs públicos de los jugadores del core → enlaces a /personaje/:slug.
+      let slugMap: Record<string, string> = {};
+      try {
+        const slugRes = await getPublicCharacterSlugsByNames(players.map((p) => p.name).filter((n): n is string => !!n));
+        if (slugRes.ok && slugRes.slugs) slugMap = slugRes.slugs;
+      } catch {
+        // Silencioso: el core se renderiza sin enlaces si la consulta falla.
+      }
+      coreBox.appendChild(renderBandCore(players, { sourceNames: merged.sourceNames, slugMap }));
     }
 
     // Reglas

@@ -28,7 +28,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <span>Jugador</span>
         </p>
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-          <div id="avatar" class="w-20 h-20 rounded-md bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
+          <div id="avatar" class="w-20 h-20 rounded-md border border-amber-600/30 shadow-lg shrink-0 overflow-hidden bg-gray-900/40"></div>
           <div class="flex-1 min-w-0 text-center sm:text-left">
             <h1 id="display-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
             <div id="chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
@@ -69,8 +69,9 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   import { getPublicCharacterBySlug, getPublicProfileBySlug, getPublicGuildByOwner, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, getPublicAccountNames, type PublicBandSummary } from '@/lib/api';
   import { slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
+  import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-  import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
+  import { itemQualityColor, equipmentSlotLabel, roleLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
   import type { ProfileRow, RaiddominionRole } from '@/types/database';
 
@@ -149,7 +150,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
     (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(c.name);
 
-    (document.getElementById('avatar') as HTMLElement).textContent = c.name[0].toUpperCase();
+    (document.getElementById('avatar') as HTMLElement).replaceChildren(classIconEl(c.class, c.class_file, 'w-full h-full object-cover'));
     (document.getElementById('display-name') as HTMLElement).textContent = c.name;
 
     const chipsEl = document.getElementById('chips') as HTMLElement;
@@ -243,7 +244,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     document.title = `${displayName} - RaidDominion`;
     (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(displayName);
 
-    (document.getElementById('avatar') as HTMLElement).textContent = displayName[0].toUpperCase();
+    (document.getElementById('avatar') as HTMLElement).replaceChildren(classIconEl(main?.class ?? chars[0]?.class, main?.class_file ?? chars[0]?.class_file, 'w-full h-full object-cover'));
     (document.getElementById('display-name') as HTMLElement).textContent = displayName;
 
     const chipsEl = document.getElementById('chips') as HTMLElement;
@@ -324,9 +325,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       const row = makeEl('div', 'flex items-center gap-2 rounded px-2 py-1 bg-gray-900/40 border-l-2');
       row.style.borderColor = qc;
       row.appendChild(makeEl('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(piece.slot)));
-      const nm = makeEl('span', 'text-xs truncate');
+      const nm = makeEl('a', 'text-xs truncate hover:underline');
       nm.style.color = qc;
       nm.textContent = piece.name;
+      nm.setAttribute('href', wowItemUrl(piece.name));
+      nm.setAttribute('target', '_blank');
+      nm.setAttribute('rel', 'noopener noreferrer');
+      nm.setAttribute('title', `Ver "${piece.name}" en UltimoWoW`);
       row.appendChild(nm);
       row.appendChild(makeEl('span', 'text-xs text-gray-400 shrink-0', `i${piece.ilvl}`));
       grid.appendChild(row);
@@ -412,10 +417,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     // Cabecera: avatar + nombre en color de clase
     const head = makeEl('div', 'flex items-center gap-3 mb-3');
-    const avatar = makeEl('div', (featured ? 'w-12 h-12 ' : 'w-10 h-10 ') + 'rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50');
-    avatar.style.backgroundColor = `${color}26`;
-    avatar.style.color = color;
-    avatar.textContent = (c.name || '?')[0].toUpperCase();
+    const avatar = classIconEl(c.class, c.class_file, (featured ? 'w-12 h-12 ' : 'w-10 h-10 ') + 'rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
     head.appendChild(avatar);
 
     const nameWrap = makeEl('div', 'min-w-0');

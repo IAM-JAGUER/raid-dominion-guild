@@ -104,10 +104,11 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 </Layout>
 
 <script>
-  import { getPublicGuildBySlug, getGuildSnapshot, listGuildPortalBands, getPublicCharactersByUser, type GuildPortalSnapshot } from '@/lib/api';
+  import { getPublicGuildBySlug, getGuildSnapshot, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
   import { slugify } from '@/lib/routes';
   import { renderBandCard, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
+  import { sortRanks } from '@/lib/ui/ranks';
   import { createTabBar, PORTAL_TABS } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
 
@@ -237,6 +238,23 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         const rules = snapshot?.rules ?? [];
         const ranks = snapshot?.ranks;
 
+        // Enlaza al roster con las fichas públicas: resuelve los slugs de
+        // /personaje/:slug por nombre y los adjunta a cada miembro. Los que
+        // no tienen ficha pública (o RLS no los expone) se quedan sin slug y
+        // se muestran como texto plano.
+        try {
+          const slugRes = await getPublicCharacterSlugsByNames(members.map((m) => m.name));
+          if (slugRes.ok && slugRes.slugs) {
+            const slugs = slugRes.slugs;
+            members.forEach((m) => {
+              const s = slugs[(m.name || '').trim().toLowerCase()];
+              if (s) m.slug = s;
+            });
+          }
+        } catch {
+          // Silencioso: sin slugs el roster no enlaza, no rompe el panel.
+        }
+
         document.getElementById('portal-tabs')?.classList.remove('hidden');
 
         if (snapshot?.lastUpdate) {
@@ -245,16 +263,46 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           upd.classList.remove('hidden');
         }
 
-        // Jerarquía de rangos: se muestra cuando el snapshot la trae.
+        // Jerarquía de rangos con distribución maestría/miembros: chips con
+        // barra de progreso y conteo (n y %). Rangos declarados en orden;
+        // los rankIndex que existen en el roster pero no en la jerarquía se
+        // agrupan como "Otros" al final (huérfanos, ej. versión antigua del SV).
         if (ranks && ranks.length > 0) {
           const ranksBox = document.getElementById('viewer-ranks') as HTMLElement;
-          const sorted = [...ranks].sort((a, b) => a.index - b.index);
-          sorted.forEach((r) => {
-            const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
-            ranksBox.appendChild(el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ' +
-              (r.index === 0 ? 'text-amber-300 border-amber-500/40 bg-amber-900/20' : 'text-gray-300 bg-gray-800/60 border-amber-600/20'),
-              `${r.index}: ${label}`));
+          const total = members.length;
+          const byIndex = new Map<number, number>();
+          members.forEach((m) => {
+            if (typeof m.rankIndex === 'number') byIndex.set(m.rankIndex, (byIndex.get(m.rankIndex) ?? 0) + 1);
           });
+
+          const declared = sortRanks([...ranks]);
+          const declaredIndexes = new Set(declared.map((r) => r.index));
+          const orphans = Array.from(byIndex.keys()).filter((i) => !declaredIndexes.has(i)).sort((a, b) => a - b);
+
+          const chip = (label: string, count: number, isLeader: boolean): HTMLElement => {
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const box = el('div', 'min-w-[150px] flex-1 sm:flex-none rounded-md px-3 py-2 border ' +
+              (isLeader ? 'text-amber-300 border-amber-500/40 bg-amber-900/20' : 'text-gray-300 bg-gray-800/60 border-amber-600/20'));
+            const head = el('div', 'flex items-center justify-between gap-2 mb-1.5');
+            head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate', label));
+            head.appendChild(el('span', 'text-[10px] font-bold tabular-nums shrink-0', `${count} (${pct}%)`));
+            box.appendChild(head);
+            const barWrap = el('div', 'w-full h-1.5 rounded-full bg-gray-900/60 overflow-hidden');
+            const bar = el('div', 'h-full rounded-full ' + (isLeader ? 'bg-amber-400' : 'bg-amber-600/70'));
+            bar.style.width = `${Math.max(2, pct)}%`;
+            barWrap.appendChild(bar);
+            box.appendChild(barWrap);
+            return box;
+          };
+
+          declared.forEach((r) => {
+            const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
+            ranksBox.appendChild(chip(label, byIndex.get(r.index) ?? 0, r.index === 0));
+          });
+          if (orphans.length > 0) {
+            const orphanCount = orphans.reduce((acc, i) => acc + (byIndex.get(i) ?? 0), 0);
+            if (orphanCount > 0) ranksBox.appendChild(chip('Otros', orphanCount, false));
+          }
           document.getElementById('ranks-section')?.classList.remove('hidden');
         }
 

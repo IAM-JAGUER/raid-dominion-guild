@@ -9,7 +9,7 @@
       <span>Personaje</span>
     </p>
     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-      <div id="pv-avatar" class="w-20 h-20 rounded-md bg-gradient-to-br from-amber-600/25 to-amber-800/25 border border-amber-600/30 flex items-center justify-center text-4xl font-black italic text-amber-300 shadow-lg shrink-0"></div>
+      <div id="pv-avatar" class="w-20 h-20 rounded-md border border-amber-600/30 shadow-lg shrink-0 overflow-hidden bg-gray-900/40"></div>
       <div class="flex-1 min-w-0 text-center sm:text-left">
         <h1 id="pv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
         <div id="pv-chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
@@ -26,8 +26,9 @@
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
+  import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-  import { itemQualityColor, equipmentSlotLabel, roleLabel } from '@/lib/ui/itemQuality';
+  import { itemQualityColor, equipmentSlotLabel, roleLabel, wowItemUrl } from '@/lib/ui/itemQuality';
 
   if (currentSection() === 'personaje') {
     const slug = currentSlug();
@@ -62,7 +63,7 @@
 
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
     document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
-    (document.getElementById('pv-avatar') as HTMLElement).textContent = (c.name || '?')[0].toUpperCase();
+    (document.getElementById('pv-avatar') as HTMLElement).replaceChildren(classIconEl(c.class, c.class_file, 'w-full h-full object-cover'));
     (document.getElementById('pv-name') as HTMLElement).textContent = c.name;
     (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(c.name);
 
@@ -130,10 +131,7 @@
     const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
     const color = classColor(c.class, c.class_file);
     const head = el('div', 'flex items-center gap-3 mb-4');
-    const avatar = el('div', 'w-11 h-11 rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50');
-    avatar.style.backgroundColor = `${color}26`;
-    avatar.style.color = color;
-    avatar.textContent = (c.name || '?')[0].toUpperCase();
+    const avatar = classIconEl(c.class, c.class_file, 'w-11 h-11 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
     head.appendChild(avatar);
     const name = el('h2', 'font-black italic text-lg');
     name.style.color = color;
@@ -167,9 +165,13 @@
       const row = el('div', 'flex items-center gap-2 rounded px-2 py-1 bg-gray-900/40 border-l-2');
       row.style.borderColor = qc;
       row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(piece.slot)));
-      const nm = el('span', 'text-xs truncate');
+      const nm = el('a', 'text-xs truncate hover:underline');
       nm.style.color = qc;
       nm.textContent = piece.name;
+      nm.setAttribute('href', wowItemUrl(piece.name));
+      nm.setAttribute('target', '_blank');
+      nm.setAttribute('rel', 'noopener noreferrer');
+      nm.setAttribute('title', `Ver "${piece.name}" en UltimoWoW`);
       row.appendChild(nm);
       row.appendChild(el('span', 'text-xs text-gray-400 shrink-0', `i${piece.ilvl}`));
       list.appendChild(row);

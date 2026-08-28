@@ -1,17 +1,20 @@
 import type { ParsedSavedVariables, GuildMember, GuildRank, BandPlayer } from '@/types/parser';
 import type { MergePlayer } from '@/lib/bandMerge';
 import { classColor } from '@/lib/ui/classColors';
+import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
 // `rankIndex` (opcional) permite ordenar/agrupar por jerarquía de rangos.
+// `slug` (opcional) enlaza la ficha pública del personaje (/personaje/:slug).
 export interface RosterMember {
   name: string;
   class?: string;
   rank?: string;
   rankIndex?: number;
   publicNote?: string;
+  slug?: string;
 }
 
 export function el(tag: string, cls: string, text?: string): HTMLElement {
@@ -69,7 +72,8 @@ export function renderBand(
     const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2');
     band.players.forEach((p) => {
       const row = el('div', 'text-xs text-gray-300 bg-gray-900/40 rounded px-2 py-1');
-      const left = el('div', '');
+      const left = el('div', 'flex flex-wrap items-center gap-1.5');
+      left.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
       left.appendChild(el('span', 'font-bold text-white', p.name));
       const badges = el('div', 'flex flex-wrap gap-1.5 mt-0.5');
       if (p.role) badges.appendChild(el('span', 'text-[10px] text-amber-300', p.role));
@@ -170,6 +174,7 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   const color = classColor(p.class);
   const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2');
   const head = el('div', 'flex flex-wrap items-center gap-2');
+  head.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
   const name = el('span', 'font-bold italic', p.name);
   name.style.color = color;
   head.appendChild(name);
@@ -271,6 +276,26 @@ function coreBadge(text: string, extra: string): HTMLElement {
   return el('span', `text-[9px] font-black uppercase tracking-widest rounded px-1.5 py-0.5 border ${extra}`, text);
 }
 
+// Indicador de ficha pública: enlace a /personaje/:slug con icono de enlace
+// externo. Acompaña al nombre de personajes del roster/core con página
+// pública; el nombre ya enlaza, el icono lo hace explícito.
+function publicProfileLink(slug: string): HTMLElement {
+  const a = el('a', 'ml-1 shrink-0 inline-flex text-amber-400/90 hover:text-amber-300 transition-colors') as HTMLAnchorElement;
+  a.href = `/personaje/${slug}`;
+  a.setAttribute('aria-label', 'Ver ficha pública');
+  a.setAttribute('title', 'Ver ficha pública');
+  const svg = el('svg', 'w-3.5 h-3.5');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.innerHTML = '<rect x="3" y="11" width="14" height="10" rx="2"/><path d="M10 14h11M17 10l3-3M21 13v-2h-2"/>';
+  a.appendChild(svg);
+  return a;
+}
+
 function renderCoreSection(title: string, count: number, color: string, iconSvg: string, rows: HTMLElement[]): HTMLElement {
   const section = el('div', 'mb-4');
 
@@ -302,13 +327,20 @@ function renderCoreSection(title: string, count: number, color: string, iconSvg:
   return section;
 }
 
-function renderCorePlayer(p: MergePlayer, isSource: boolean): HTMLElement {
+function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTMLElement {
   const color = classColor(p.class);
   const row = el('div', 'flex items-center justify-between gap-2 rounded-md border border-gray-700/40 bg-gray-800/40 px-3 py-2 hover:border-amber-500/30 transition-colors');
   const left = el('div', 'flex items-center gap-2 min-w-0');
-  const name = el('span', 'font-bold italic truncate text-sm', p.name || '?');
+  left.appendChild(classIconEl(p.class, undefined, 'w-6 h-6 rounded-md border border-gray-700/50 shrink-0 object-cover'));
+  const name = el(slug ? 'a' : 'span', 'font-bold italic truncate text-sm');
   name.style.color = color;
+  name.textContent = p.name || '?';
+  if (slug) {
+    (name as HTMLAnchorElement).href = `/personaje/${slug}`;
+    name.classList.add('underline', 'decoration-amber-600/50', 'underline-offset-2', 'hover:decoration-amber-400');
+  }
   left.appendChild(name);
+  if (slug) left.appendChild(publicProfileLink(slug));
   if (isSource) left.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
   if (p.leader) left.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
   if (p.banned) left.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
@@ -328,10 +360,14 @@ export interface BandCoreOpts {
   // Nombres de las fuentes de integración (bandas de miembros): los jugadores
   // cuyo nombre coincide reciben el badge "integración".
   sourceNames?: string[];
+  // Mapa lowercased(nombre) → slug público (/personaje/:slug) para enlazar
+  // los miembros del core que tienen ficha pública.
+  slugMap?: Record<string, string>;
 }
 
 export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTMLElement {
   const sourceSet = new Set((opts?.sourceNames ?? []).map((n) => (n || '').trim().toLowerCase()));
+  const slugMap = opts?.slugMap ?? {};
   const groups: Record<'tank' | 'healer' | 'dps' | 'other', MergePlayer[]> = {
     tank: [],
     healer: [],
@@ -354,7 +390,13 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
   const wrap = el('div', '');
   let any = false;
   sections.forEach((cfg) => {
-    const rows = (groups[cfg.key] ?? []).map((p) => renderCorePlayer(p, sourceSet.has((p.name || '').trim().toLowerCase())));
+    const rows = (groups[cfg.key] ?? []).map((p) =>
+      renderCorePlayer(
+        p,
+        sourceSet.has((p.name || '').trim().toLowerCase()),
+        slugMap[(p.name || '').trim().toLowerCase()],
+      ),
+    );
     if (rows.length === 0) return;
     any = true;
     wrap.appendChild(renderCoreSection(cfg.title, rows.length, cfg.color, CORE_ICONS[cfg.key], rows));
@@ -394,6 +436,7 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
     const color = classColor(u.classes.size ? Array.from(u.classes).join(',') : undefined);
     const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2 flex flex-wrap items-center justify-between gap-2');
     const left = el('div', 'flex flex-wrap items-center gap-2');
+    left.appendChild(classIconEl(Array.from(u.classes)[0], undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
     const name = el('span', 'font-bold italic', u.name);
     name.style.color = color;
     left.appendChild(name);
@@ -486,10 +529,18 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
       card.appendChild(accent);
 
       const row = el('div', 'flex items-center justify-between gap-2 mb-2');
-      const name = el('div', 'font-black italic truncate text-sm');
+      const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
+      nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+      const name = el(m.slug ? 'a' : 'div', 'font-black italic truncate text-sm');
       name.style.color = color;
       name.textContent = m.name;
-      row.appendChild(name);
+      if (m.slug) {
+        (name as HTMLAnchorElement).href = `/personaje/${m.slug}`;
+        name.classList.add('underline', 'decoration-amber-600/50', 'underline-offset-2', 'hover:decoration-amber-400');
+      }
+      nameWrap.appendChild(name);
+      if (m.slug) nameWrap.appendChild(publicProfileLink(m.slug));
+      row.appendChild(nameWrap);
       if (m.rank) {
         row.appendChild(el('span', `shrink-0 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${rankBadgeClass(m.rank)}`, m.rank));
       }

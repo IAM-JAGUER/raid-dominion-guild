@@ -39,6 +39,7 @@
   import type { GuildRow } from '@/types/database';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
   import { classColor } from '@/lib/ui/classColors';
+  import { classIconEl } from '@/lib/ui/classIcon';
 
   const seg = currentSegments();
   if (
@@ -114,14 +115,11 @@
     if (realmChars.length === 0) {
       document.getElementById('rv-chars-empty')?.classList.remove('hidden');
     }
-    realmChars.slice(0, 100).forEach((c: CharacterRow) => {
+    realmChars.slice(0, 200).forEach((c: CharacterRow) => {
       const color = classColor(c.class, c.class_file);
       const a = el('a', 'flex items-center gap-3 bg-gray-900/40 border border-amber-600/20 hover:border-amber-500/40 rounded-md p-3 transition-all duration-200') as HTMLAnchorElement;
       a.href = c.slug ? `/personaje/${c.slug}` : `/personajes`;
-      const avatar = el('div', 'w-9 h-9 rounded-md flex items-center justify-center font-black italic text-base shrink-0 border border-gray-700/50');
-      avatar.style.backgroundColor = `${color}26`;
-      avatar.style.color = color;
-      avatar.textContent = (c.name || '?')[0].toUpperCase();
+      const avatar = classIconEl(c.class, c.class_file, 'w-9 h-9 rounded-md shrink-0 border border-gray-700/50 object-cover');
       a.appendChild(avatar);
       const wrap = el('div', 'min-w-0');
       const nm = el('p', 'font-black italic truncate text-sm');

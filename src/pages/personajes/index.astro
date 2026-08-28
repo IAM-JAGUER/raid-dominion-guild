@@ -49,6 +49,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 <script>
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
+  import { classIconEl } from '@/lib/ui/classIcon';
   import { ensureMyCharacterSlugs, getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
 
@@ -93,14 +94,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     accent.style.backgroundColor = color;
     link.appendChild(accent);
 
-    // Cabecera: avatar con inicial de clase + nombre en color de clase
+    // Cabecera: avatar con ícono de clase + nombre en color de clase
     const head = document.createElement('div');
     head.className = 'flex items-center gap-3 mb-3';
-    const avatar = document.createElement('div');
-    avatar.className = 'w-9 h-9 rounded-md flex items-center justify-center font-black italic text-base shrink-0 shadow-lg border border-gray-700/50';
-    avatar.style.backgroundColor = `${color}26`;
-    avatar.style.color = color;
-    avatar.textContent = (c.name || '?')[0].toUpperCase();
+    const avatar = classIconEl(c.class, c.class_file, 'w-9 h-9 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
     head.appendChild(avatar);
 
     const nameWrap = document.createElement('div');

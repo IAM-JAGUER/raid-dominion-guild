@@ -46,7 +46,9 @@ function renderLine(line: string): string {
 }
 
 // Botones prev/next del pie de cada panel (estilo consistente con ui.btnGhost).
-const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent w-full truncate`;
+// En móvil el label baja a text-xs para que el título completo de la guía
+// quepa sin truncarse; en sm+ vuelve al tamaño estándar (text-sm).
+const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent w-full truncate !text-xs sm:!text-sm !px-2.5 sm:!px-4`;
 ---
 
 <div class="mt-8" id="addon-guides">
@@ -115,6 +117,14 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                         </li>
                       ))}
                     </ul>
+                    <button
+                      type="button"
+                      class="guide-collapse mt-4 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300/80 hover:text-amber-200 transition-colors rounded-md px-2 -mx-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                      aria-expanded="true"
+                    >
+                      <svg class="w-3 h-3 guide-collapse-ico" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" /></svg>
+                      <span class="guide-collapse-label">Colapsar sección</span>
+                    </button>
                   </div>
                 </details>
               ))}
@@ -246,6 +256,29 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
       closeAll();
       const card = cards[Number(btn.getAttribute('data-guide-index'))];
       if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // "Colapsar sección": pliega/expande SOLO el <details> que contiene el
+  // botón (toggle). El estado visual del botón se sincroniza con el evento
+  // nativo 'toggle' del <details>, así el label/flecha quedan consistentes
+  // aunque la sección también se abra/cierre desde el <summary> nativo.
+  document.querySelectorAll<HTMLElement>('.guide-collapse').forEach((btn) => {
+    const details = btn.closest('details');
+    if (!details) return;
+    const label = btn.querySelector('.guide-collapse-label');
+    const ico = btn.querySelector('.guide-collapse-ico');
+    const sync = (open: boolean): void => {
+      btn.setAttribute('aria-expanded', String(open));
+      if (label) label.textContent = open ? 'Colapsar sección' : 'Expandir sección';
+      if (ico) ico.classList.toggle('rotate-180', !open);
+    };
+    details.addEventListener('toggle', () => sync(details.open));
+    sync(details.open);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      details.open = !details.open;
     });
   });
 

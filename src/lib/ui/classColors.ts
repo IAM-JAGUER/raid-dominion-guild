@@ -16,8 +16,7 @@ const CLASS_COLORS: Record<string, string> = {
   DRUID: '#FF7D0A',
 };
 
-const CLASS_ALIASES: Record<string, string> = {
-  // File IDs / inglés
+export const CLASS_ALIASES: Record<string, string> = {
   WARRIOR: 'WARRIOR',
   PALADIN: 'PALADIN',
   HUNTER: 'HUNTER',
@@ -47,10 +46,16 @@ const CLASS_ALIASES: Record<string, string> = {
 
 export const DEFAULT_CLASS_COLOR = '#f59e0b'; // amber-500 (tema)
 
-export function classColor(className?: string | null, classFile?: string | null): string {
+// Clave canónica de clase (WARRIOR, MAGE, ...) a partir de class_file
+// (file ID) o del nombre localizado esMX/inglés que guarda el addon.
+export function classKey(className?: string | null, classFile?: string | null): string | undefined {
   const raw = [classFile, className].find((v) => v && v.trim());
   const key = (raw ?? '').trim().toUpperCase();
-  const file = CLASS_ALIASES[key] ?? CLASS_ALIASES[(className ?? '').trim()];
+  return CLASS_ALIASES[key] ?? CLASS_ALIASES[(className ?? '').trim()];
+}
+
+export function classColor(className?: string | null, classFile?: string | null): string {
+  const file = classKey(className, classFile);
   const color = file ? CLASS_COLORS[file] : undefined;
   return color ?? DEFAULT_CLASS_COLOR;
 }

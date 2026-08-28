@@ -176,6 +176,7 @@ export interface GuildPortalSnapshot {
     rank: string;
     rankIndex?: number;
     publicNote: string;
+    slug?: string;
   }>;
   bands: ParsedSavedVariables['bands'];
   rules: ParsedSavedVariables['rules'];
@@ -365,12 +366,17 @@ export async function getServerStats(
 // Resumen público de un reino (anidado en un servidor): hermandades y
 // personajes públicos de ese reino en ese servidor. server+realm definen la
 // capa: el mismo nombre de reino puede existir en servidores distintos.
+// Las HERMANDADES se filtran SOLO por reino (ilike): el claim histórico de
+// maestro guarda realm pero no server (la migración 20260905 backfills
+// server), así que exigir .eq('server', …) ocultaría guilds legítimas del
+// reino que sí aparecen en /hermandades. Los personajes sí tienen server y
+// mantienen el filtro por capa.
 export async function getRealmOverview(
   server: string,
   realm: string
 ): Promise<{ ok: boolean; guilds?: GuildRow[]; characters?: CharacterRow[]; error?: string }> {
   const [guildsRes, charsRes] = await Promise.all([
-    supabase.from('raiddominion_guilds').select('*').eq('is_public', true).eq('server', server).ilike('realm', realm).order('name', { ascending: true }).limit(200),
+    supabase.from('raiddominion_guilds').select('*').eq('is_public', true).ilike('realm', realm).order('name', { ascending: true }).limit(200),
     supabase.from('raiddominion_characters').select('*').eq('is_public', true).eq('server', server).ilike('realm', realm).order('avg_ilvl', { ascending: false }).limit(200),
   ]);
   if (guildsRes.error) return { ok: false, error: guildsRes.error.message };
@@ -1087,6 +1093,36 @@ export interface PublicBandSummary {
   schedule?: string;
   minGS?: number;
   role?: string;
+}
+
+// Resuelve slugs públicos de /personaje/:slug por nombre. La clave del mapa
+// es el nombre normalizado en minúsculas (join por nombre, como
+// getPublicBandsForCharacter): se leen TODOS los personajes públicos con
+// slug y se cruzan en cliente, porque .in('name', …) de PostgREST compara
+// con mayúsculas exactas y el addon/SV puede guardar distinta capitalización.
+// Alimenta los enlaces del roster del portal y del core de banda.
+export async function getPublicCharacterSlugsByNames(
+  names: string[],
+): Promise<{ ok: boolean; slugs?: Record<string, string>; error?: string }> {
+  const clean = Array.from(new Set(names.map((n) => (n ?? '').trim()).filter(Boolean)));
+  if (clean.length === 0) return { ok: true, slugs: {} };
+
+  const res = await supabase
+    .from('raiddominion_characters')
+    .select('name, slug')
+    .eq('is_public', true)
+    .not('slug', 'is', null)
+    .limit(500);
+
+  if (res.error) return { ok: false, error: res.error.message };
+
+  const wanted = new Set(clean.map((n) => n.toLowerCase()));
+  const slugs: Record<string, string> = {};
+  ((res.data as Array<{ name: string; slug: string }>) ?? []).forEach((r) => {
+    const key = (r.name || '').trim().toLowerCase();
+    if (key && wanted.has(key) && r.slug && !slugs[key]) slugs[key] = r.slug;
+  });
+  return { ok: true, slugs };
 }
 
 // Bandas públicas donde aparece un personaje: cruza la tabla raiddominion_bands
