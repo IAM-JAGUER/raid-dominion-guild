@@ -226,11 +226,12 @@ GRANT EXECUTE ON FUNCTION public.raiddominion_claim_from_sv(UUID) TO authenticat
 
 -- ─── Backfill legacy: server desde el personaje del dueño ──────────────
 -- 1) Prioridad: personaje del MISMO reino (el que reclama la hermandad).
+-- raiddominion_characters pertenece vía user_id (no owner_id).
 UPDATE public.raiddominion_guilds g
 SET server = c.server
 FROM public.raiddominion_characters c
 WHERE g.server IS NULL
-  AND c.owner_id = g.owner_id
+  AND c.user_id = g.owner_id
   AND c.server IS NOT NULL
   AND lower(COALESCE(c.realm, '')) = lower(COALESCE(g.realm, ''));
 
@@ -239,6 +240,6 @@ UPDATE public.raiddominion_guilds g
 SET server = c.server
 FROM public.raiddominion_characters c
 WHERE g.server IS NULL
-  AND c.owner_id = g.owner_id
+  AND c.user_id = g.owner_id
   AND c.server IS NOT NULL
   AND c.is_public = TRUE;

@@ -3,15 +3,15 @@
 // Auto-gate: solo actúa cuando el primer segmento de la ruta es "personaje".
 ---
 <section id="view-personaje" class="hidden">
-  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1 mb-6">
+  <header class="animate-fade-in-1 mb-6">
     <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-2 flex items-center">
       <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
       <span>Personaje</span>
     </p>
     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-      <div id="pv-avatar" class="w-20 h-20 rounded-md border border-amber-600/30 shadow-lg shrink-0 overflow-hidden bg-gray-900/40"></div>
+      <div id="pv-avatar" class="w-24 h-24 rounded-md border border-amber-600/30 shadow-lg shrink-0 overflow-hidden bg-gray-900/40"></div>
       <div class="flex-1 min-w-0 text-center sm:text-left">
-        <h1 id="pv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-words"></h1>
+        <h1 id="pv-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-tight break-words"></h1>
         <div id="pv-chips" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
         <div id="pv-links" class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3"></div>
       </div>
@@ -25,7 +25,6 @@
   import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, getPublicAccountNames, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
-  import { classColor } from '@/lib/ui/classColors';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, roleLabel, wowItemUrl } from '@/lib/ui/itemQuality';
@@ -118,39 +117,12 @@
     }
 
     const body = document.getElementById('pv-body') as HTMLElement;
-    body.appendChild(statsCard(c));
     const eq = equipmentCard(c);
     if (eq) body.appendChild(eq);
     const bands = await getPublicBandsForCharacter(c.name, c.sv_guild_name);
     if (bands.ok && bands.bands && bands.bands.length > 0) body.appendChild(bandsCard(bands.bands));
 
     showView('view-personaje');
-  }
-
-  function statsCard(c: CharacterRow): HTMLElement {
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6');
-    const color = classColor(c.class, c.class_file);
-    const head = el('div', 'flex items-center gap-3 mb-4');
-    const avatar = classIconEl(c.class, c.class_file, 'w-11 h-11 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
-    head.appendChild(avatar);
-    const name = el('h2', 'font-black italic text-lg');
-    name.style.color = color;
-    name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    head.appendChild(name);
-    card.appendChild(head);
-
-    const stats = el('div', 'grid grid-cols-3 gap-3');
-    const stat = (label: string, value: string | number): HTMLElement => {
-      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-3');
-      box.appendChild(el('p', 'text-2xl font-black text-amber-200 italic', String(value)));
-      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
-      return box;
-    };
-    stats.appendChild(stat('Nivel', c.level ?? '—'));
-    stats.appendChild(stat('ilvl', c.avg_ilvl ?? '—'));
-    stats.appendChild(stat('Clase', c.class ?? '—'));
-    card.appendChild(stats);
-    return card;
   }
 
   function equipmentCard(c: CharacterRow): HTMLElement | null {

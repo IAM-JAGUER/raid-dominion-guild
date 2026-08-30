@@ -23,6 +23,13 @@ export const ui = {
   container: 'max-w-6xl mx-auto',
   panel: 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-md',
   panelHover: 'hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300',
+  // Ventana estilo terminal del dashboard: cabecera + cuerpo contiguos, sin
+  // radio en la junta y esquina inferior cuadrada. Van SIEMPRE en pares:
+  // sectionHead (barra de título, gradiente aparte) + sectionBody (cuerpo)
+  // como hermanos consecutivos; el border-b del head hace de divisor único y
+  // el body no repite borde superior (border-t-0), contiguos sin micro-gap.
+  sectionHead: 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-t-md rounded-b-none p-4 sm:p-6',
+  sectionBody: 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 border-t-0 rounded-none p-4 sm:p-6',
   btnBase:
     'inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400',
   btnPrimary:

@@ -88,7 +88,7 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
   if (!bar) return { activate: () => undefined };
 
   const tabBtnCls =
-    'tab-btn px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+    'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
     const btn = document.createElement('button');

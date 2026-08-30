@@ -584,37 +584,6 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   update();
 }
 
-// Cifras del roster: distribuciones de clase y rango (estilo guild-portal).
-export function renderRosterStats(wrap: HTMLElement, members: RosterMember[]): void {
-  const total = members.length;
-  if (total === 0) return;
-
-  const distribute = (key: 'class' | 'rank'): Array<{ name: string; count: number; pct: number }> => {
-    const map = new Map<string, number>();
-    members.forEach((m) => {
-      const value = (m[key] as string | undefined)?.trim() || 'Sin dato';
-      map.set(value, (map.get(value) || 0) + 1);
-    });
-    return Array.from(map.entries())
-      .map(([name, count]) => ({ name, count, pct: Math.round((count / total) * 100) }))
-      .sort((a, b) => b.count - a.count);
-  };
-
-  const card = (title: string, dist: Array<{ name: string; count: number; pct: number }>): HTMLElement => {
-    const box = el('div', 'bg-gray-900/50 border border-amber-600/20 rounded-md p-4');
-    box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2', `${title} · ${dist.length}`));
-    const chips = el('div', 'flex flex-wrap gap-2');
-    dist.forEach((d) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${d.name}: ${d.count} (${d.pct}%)`));
-    });
-    box.appendChild(chips);
-    return box;
-  };
-
-  wrap.innerHTML = '';
-  wrap.append(card('Clases', distribute('class')), card('Rangos', distribute('rank')));
-}
-
 // Renderiza bandas (con fallback a Core), reglas y roster dentro de contenedores.
 // `data.ranks` (opcional) entrega la jerarquía de rangos para organizar el roster.
 export function renderParsedSections(

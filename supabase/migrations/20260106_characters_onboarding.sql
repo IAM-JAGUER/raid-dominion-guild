@@ -72,6 +72,9 @@ ALTER TABLE public.raiddominion_roster_evidence ENABLE ROW LEVEL SECURITY;
 
 -- ─── Nuevas cuentas nacen visitante ────────────────────────────────
 -- handle_new_user() es canónica compartida; el ajuste raiddominion vive aquí.
+-- Idempotente ante re-ejecución: el trigger que depende de la función debe
+-- dropearse PRIMERO (si no, re-correr la migración falla con 2BP01).
+DROP TRIGGER IF EXISTS trg_raiddominion_profiles_visitante ON public.raiddominion_profiles;
 DROP FUNCTION IF EXISTS public.raiddominion_force_visitante();
 CREATE OR REPLACE FUNCTION public.raiddominion_force_visitante()
 RETURNS TRIGGER

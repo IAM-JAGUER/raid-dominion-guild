@@ -7,19 +7,19 @@
 // dueño (/jugador/:slug) según corresponda.
 ---
 <section id="view-banda" class="hidden">
-  <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1 mb-6">
+  <header class="animate-fade-in-1 mb-6">
     <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1 flex items-center">
       <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.36-1.86M17 20H7m10 0v-2c-.17-1.24-1.03-2.29-2.2-2.72M7 20H2v-2a3 3 0 015.2-2.11M9 9a3 3 0 100-6 3 3 0 000 6z"/></svg>
       <span>Banda de raid</span>
     </p>
-    <div class="flex flex-wrap items-center gap-3">
-      <h1 id="bv-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide break-all"></h1>
+    <div class="flex flex-wrap items-end gap-3">
+      <h1 id="bv-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-tight break-all"></h1>
       <a id="bv-owner-link" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
   </header>
 
-  <nav id="band-tab-bar" role="tablist" aria-label="Secciones de la banda" class="flex flex-wrap gap-1 mb-6 border-b border-amber-600/30"></nav>
+  <nav id="band-tab-bar" role="tablist" aria-label="Secciones de la banda" class="flex flex-nowrap items-center gap-1 mb-6 border-b border-amber-600/30 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
 
   <div id="panel-core" role="tabpanel" aria-labelledby="tab-core" class="space-y-6">
     <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
@@ -41,7 +41,7 @@
 </section>
 
 <script>
-  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, type BandRow } from '@/lib/api';
+  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, getGuildBandIntegrationRules, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { renderBandCore } from '@/lib/ui/preview';
@@ -134,8 +134,50 @@
       coreBox.appendChild(renderBandCore(players, { sourceNames: merged.sourceNames, slugMap }));
     }
 
-    // Reglas
-    const rules = Array.isArray(band.rules) ? (band.rules as BandRule[]) : [];
+    // Reglas. SIEMPRE que la banda está INTEGRADA (guild_id + is_rank_integrated)
+    // — sea del GM o de un miembro — la autoridad es el visor "Bandas
+    // propuestas" del GM (band_integration_rules): SOLO se publican las reglas
+    // que el GM activó EXPLÍCITAMENTE. Sin selección guardada no se publica
+    // ninguna. El contenido siempre se lee en vivo de bands.rules del
+    // proponente. La identidad de cada regla es su TÍTULO (así los cambios de
+    // CONTENIDO del proponente en reglas activadas quedan sincronizados; las
+    // que añada y el GM no active, NO aparecen). Se acepta la clave legacy
+    // title|content. Cuando N bandas del mismo grupo (nombre|horario|GS) se
+    // combinan en el portal, se muestra la UNIÓN de las reglas activadas de
+    // cada una (todas las que el GM marcó, en orden de banda). Bandas
+    // personales (guild_id NULL) muestran sus reglas.
+    let rules = Array.isArray(band.rules) ? (band.rules as BandRule[]) : [];
+    if (band.guild_id && band.is_rank_integrated) {
+      const rulesRes = await getGuildBandIntegrationRules(band.guild_id);
+      const selection = rulesRes.ok && rulesRes.selection ? rulesRes.selection : {};
+      // La autoridad es el visor "Bandas propuestas" del GM, banda por banda.
+      // Como varias bandas del mismo grupo (nombre|horario|GS) se integran
+      // como UNA en el portal, las reglas publicadas son la UNIÓN de las
+      // reglas ACTIVADAS de TODAS las bandas del grupo: el GM controla cada
+      // una por separado y ninguna regla activada queda fuera. Cada banda sin
+      // selección guardada aporta 0 reglas (nada se publica sin activación).
+      const portal = await listGuildPortalBands(band.guild_id);
+      const group = portal.ok && portal.bands
+        ? portal.bands.filter((x) => bandMergeKey(x) === bandMergeKey(band))
+        : [];
+      if (group.length === 0) group.push(band);
+      const seen = new Set<string>();
+      const union: BandRule[] = [];
+      group.forEach((member) => {
+        const list = Array.isArray(member.rules) ? (member.rules as BandRule[]) : [];
+        const keys = new Set(Array.isArray(selection[member.id]) ? selection[member.id] : []);
+        list.forEach((r) => {
+          const t = (r.title ?? '').trim();
+          const identity = (t || (r.content ?? '').trim()).toLowerCase();
+          if (seen.has(identity)) return;
+          if ((t && keys.has(t)) || keys.has(`${t}|${(r.content ?? '').trim()}`)) {
+            seen.add(identity);
+            union.push(r);
+          }
+        });
+      });
+      rules = union;
+    }
     const rulesBox = document.getElementById('bv-rules') as HTMLElement;
     if (rules.length === 0) {
       rulesBox.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no publica reglas.'));

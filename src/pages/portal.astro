@@ -33,15 +33,15 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <p class="text-sm text-sky-200"><span class="font-bold">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
         </div>
 
-        <!-- Hero -->
-        <header class="bg-gradient-to-br from-gray-900/80 to-gray-800/50 border border-amber-600/25 rounded-md p-6 sm:p-8 animate-fade-in-1">
+        <!-- Hero (sin caja: sin padding, borde ni fondo, tipografía limpia) -->
+        <header class="animate-fade-in-1">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
             <div>
               <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1 flex items-center">
                 <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z"/></svg>
                 <span>Portal de hermandad</span>
               </p>
-              <h1 id="guild-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wide"></h1>
+              <h1 id="guild-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-tight"></h1>
             </div>
             <div class="flex items-center gap-2">
               <span id="verified-badge" class="hidden px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border bg-emerald-950/30 border-emerald-600/40 text-emerald-300">✓ Verificada</span>
@@ -50,27 +50,43 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           </div>
           <p id="guild-description" class="text-sm text-gray-300 max-w-3xl leading-relaxed"></p>
           <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
-          <p id="snapshot-updated" class="hidden text-xs text-gray-500 mt-4 italic"></p>
+          <p id="snapshot-updated" class="hidden text-xs text-gray-500 mt-3 italic"></p>
         </header>
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-wrap gap-1 border-b border-amber-600/30 animate-fade-in-1" style="animation-delay: 0.15s"></nav>
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 border-b border-amber-600/30 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
-            <!-- Jerarquía de rangos (registry.guild.ranks; 0 = líder) -->
-            <section id="ranks-section" class="hidden bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-              <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Jerarquía de rangos
-              </h2>
-              <div id="viewer-ranks" class="flex flex-wrap gap-2"></div>
-            </section>
+            <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
+                 clases conservan su ícono) + buscador por nombre. Todos filtran
+                 la lista de jugadores de abajo (renderRoster). -->
             <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
               <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
                 <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
               </h2>
-              <div id="roster-stats" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
-              <div id="viewer-roster-wrap"></div>
+              <div id="stats-grid" class="grid grid-cols-1 gap-2 md:gap-4 items-start">
+                <div id="stats-ranks" class="hidden grid grid-cols-2 gap-2 content-start min-w-0"></div>
+                <div id="stats-classes" class="hidden grid grid-cols-2 gap-2 content-start min-w-0"></div>
+              </div>
+              <!-- Control de texto: filtra por nombre -->
+              <div id="roster-search-wrap" class="hidden mt-4">
+                <div class="relative">
+                  <svg class="w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                  <input
+                    id="roster-search"
+                    type="search"
+                    autocomplete="off"
+                    class="w-full bg-gray-950/60 border border-amber-600/25 rounded-md pl-9 pr-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-400/60 focus:border-amber-500/50 transition-all"
+                    placeholder="Buscar jugador por nombre…"
+                    aria-label="Buscar jugador por nombre"
+                  />
+                </div>
+              </div>
+              <p id="roster-empty-filter" class="hidden mt-4 text-sm text-gray-400 italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4">
+                Ningún jugador coincide con estos filtros.
+              </p>
+              <div id="viewer-roster-wrap" class="mt-4"></div>
             </section>
           </div>
 
@@ -104,12 +120,14 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 </Layout>
 
 <script>
-  import { getPublicGuildBySlug, getGuildSnapshot, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
+  import { getPublicGuildBySlug, getGuildSnapshot, getGuildRules, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
+  import type { ContentItem } from '@/types/parser';
   import { slugify } from '@/lib/routes';
-  import { renderBandCard, renderParsedSections, renderRosterStats, el } from '@/lib/ui/preview';
+  import { renderBandCard, renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
+  import { classIconEl } from '@/lib/ui/classIcon';
   import { sortRanks } from '@/lib/ui/ranks';
-  import { createTabBar, PORTAL_TABS } from '@/lib/ui/tabs';
+  import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
 
   const RESERVED = new Set([
@@ -216,18 +234,24 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       // autorizado (listGuildPortalBands). Si una banda oculta jugadores,
       // players[] ya viene vacío y el contador se omite.
       let snapshot: GuildPortalSnapshot | undefined;
-      const [snapRes, bandsRes] = await Promise.all([
+      let manualRules: ContentItem[] | undefined;
+      const [snapRes, bandsRes, rulesRes] = await Promise.all([
         getGuildSnapshot(g.id),
         listGuildPortalBands(g.id),
+        getGuildRules(g.id),
       ]);
       if (snapRes.ok) snapshot = snapRes.snapshot;
+      if (rulesRes.ok && Array.isArray(rulesRes.items)) manualRules = rulesRes.items;
       const portalBands = bandsRes.ok ? bandsRes.bands ?? [] : [];
 
       const loading = document.getElementById('loading') as HTMLElement;
       loading.classList.add('hidden');
       document.getElementById('portal')?.classList.remove('hidden');
 
-      const hasSnapshotContent = !!snapshot && (snapshot.members.length > 0 || snapshot.rules.length > 0);
+      // Las reglas publicadas son SOLO las que eligió el maestro en su
+      // dashboard (#hermandad). Subir un SV no llena reglas del portal:
+      // si el maestro no eligió ninguna, no hay sección de reglas.
+      const hasSnapshotContent = (!!snapshot && snapshot.members.length > 0) || (manualRules?.length ?? 0) > 0;
       if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
       } else {
@@ -235,7 +259,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         // de la barra (reemplazan al antiguo strip de métricas). Los paneles
         // vacíos se mantienen visibles con placeholder.
         const members = snapshot?.members ?? [];
-        const rules = snapshot?.rules ?? [];
+        const rules = manualRules ?? [];
         const ranks = snapshot?.ranks;
 
         // Enlaza al roster con las fichas públicas: resuelve los slugs de
@@ -263,53 +287,148 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           upd.classList.remove('hidden');
         }
 
-        // Jerarquía de rangos con distribución maestría/miembros: chips con
-        // barra de progreso y conteo (n y %). Rangos declarados en orden;
-        // los rankIndex que existen en el roster pero no en la jerarquía se
-        // agrupan como "Otros" al final (huérfanos, ej. versión antigua del SV).
-        if (ranks && ranks.length > 0) {
-          const ranksBox = document.getElementById('viewer-ranks') as HTMLElement;
+        // Filtros del roster: rangos y clases comparten el mismo chip de
+        // barra de progreso (las clases conservan su ícono) y, debajo, un
+        // buscador de texto. Los tres filtran la lista de jugadores vía
+        // renderRoster; un clic aplica el filtro y otro lo quita.
+        if (members.length > 0) {
           const total = members.length;
-          const byIndex = new Map<number, number>();
-          members.forEach((m) => {
-            if (typeof m.rankIndex === 'number') byIndex.set(m.rankIndex, (byIndex.get(m.rankIndex) ?? 0) + 1);
-          });
+          const ranksBox = document.getElementById('stats-ranks') as HTMLElement;
+          const classesBox = document.getElementById('stats-classes') as HTMLElement;
+          const rosterWrap = document.getElementById('viewer-roster-wrap') as HTMLElement;
+          const emptyFilter = document.getElementById('roster-empty-filter') as HTMLElement;
+          const searchInput = document.getElementById('roster-search') as HTMLInputElement;
 
-          const declared = sortRanks([...ranks]);
+          // Clave de agrupación de rango: su índice si está declarado en la
+          // jerarquía; huérfanos y sin rankIndex comparten el grupo "Otros".
+          const declared = sortRanks([...(ranks ?? [])]);
           const declaredIndexes = new Set(declared.map((r) => r.index));
-          const orphans = Array.from(byIndex.keys()).filter((i) => !declaredIndexes.has(i)).sort((a, b) => a - b);
+          const rankKey = (m: (typeof members)[number]): number | 'others' =>
+            typeof m.rankIndex === 'number' && declaredIndexes.has(m.rankIndex) ? m.rankIndex : 'others';
 
-          const chip = (label: string, count: number, isLeader: boolean): HTMLElement => {
-            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-            const box = el('div', 'min-w-[150px] flex-1 sm:flex-none rounded-md px-3 py-2 border ' +
-              (isLeader ? 'text-amber-300 border-amber-500/40 bg-amber-900/20' : 'text-gray-300 bg-gray-800/60 border-amber-600/20'));
-            const head = el('div', 'flex items-center justify-between gap-2 mb-1.5');
-            head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate', label));
-            head.appendChild(el('span', 'text-[10px] font-bold tabular-nums shrink-0', `${count} (${pct}%)`));
-            box.appendChild(head);
-            const barWrap = el('div', 'w-full h-1.5 rounded-full bg-gray-900/60 overflow-hidden');
-            const bar = el('div', 'h-full rounded-full ' + (isLeader ? 'bg-amber-400' : 'bg-amber-600/70'));
-            bar.style.width = `${Math.max(2, pct)}%`;
+          const state = { rank: undefined as number | 'others' | undefined, cls: undefined as string | undefined, query: '' };
+
+          const statChip = (o: {
+            label: string; count: number; pct: number; icon?: HTMLImageElement | null;
+            leader?: boolean; active: boolean; dataset: Record<string, string>;
+          }): HTMLButtonElement => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            // Fila 1: solo el nombre (con elipsis). Fila 2: barra + cifra/porcentaje al final.
+            btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
+              (o.leader
+                ? 'text-amber-300 border-amber-500/40 bg-amber-900/20 hover:bg-amber-900/35'
+                : 'text-gray-300 bg-gray-800/60 border-amber-600/20 hover:bg-gray-700/50');
+            Object.entries(o.dataset).forEach(([k, v]) => btn.setAttribute(`data-${k}`, v));
+            btn.setAttribute('aria-pressed', String(o.active));
+            if (o.active) btn.classList.add('ring-2', 'ring-amber-400/70', 'border-amber-500/80');
+            const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
+            if (o.icon) {
+              o.icon.className = 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover';
+              nameRow.appendChild(o.icon);
+            }
+            nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
+            btn.appendChild(nameRow);
+            const barRow = el('div', 'flex items-center gap-2 min-w-0');
+            const barWrap = el('div', 'flex-1 min-w-0 h-1.5 rounded-full bg-gray-900/60 overflow-hidden');
+            const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-amber-400' : 'bg-amber-600/70'));
+            bar.style.width = `${Math.max(2, o.pct)}%`;
             barWrap.appendChild(bar);
-            box.appendChild(barWrap);
-            return box;
+            barRow.appendChild(barWrap);
+            barRow.appendChild(el('span', 'text-[10px] font-bold tabular-nums shrink-0', `${o.count} (${o.pct}%)`));
+            btn.appendChild(barRow);
+            return btn;
           };
 
-          declared.forEach((r) => {
-            const label = (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
-            ranksBox.appendChild(chip(label, byIndex.get(r.index) ?? 0, r.index === 0));
-          });
-          if (orphans.length > 0) {
-            const orphanCount = orphans.reduce((acc, i) => acc + (byIndex.get(i) ?? 0), 0);
-            if (orphanCount > 0) ranksBox.appendChild(chip('Otros', orphanCount, false));
-          }
-          document.getElementById('ranks-section')?.classList.remove('hidden');
-        }
+          const renderStats = (): void => {
+            ranksBox.innerHTML = '';
+            classesBox.innerHTML = '';
 
-        // Panel Miembros: stats de distribución + roster paginado.
-        if (members.length > 0) {
-          document.getElementById('roster-stats')?.classList.remove('hidden');
-          renderRosterStats(document.getElementById('roster-stats') as HTMLElement, members);
+            // Rangos en orden de jerarquía + "Otros" al final.
+            const byRank = new Map<number | 'others', number>();
+            members.forEach((m) => {
+              const k = rankKey(m);
+              byRank.set(k, (byRank.get(k) ?? 0) + 1);
+            });
+            const rankChips: HTMLButtonElement[] = [];
+            declared.forEach((r) => {
+              const count = byRank.get(r.index) ?? 0;
+              if (count === 0) return;
+              rankChips.push(statChip({
+                label: (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`),
+                count, pct: Math.round((count / total) * 100), leader: r.index === 0,
+                active: state.rank === r.index, dataset: { 'rank-key': String(r.index) },
+              }));
+            });
+            const others = byRank.get('others') ?? 0;
+            if (others > 0) {
+              rankChips.push(statChip({
+                label: 'Otros', count: others, pct: Math.round((others / total) * 100),
+                active: state.rank === 'others', dataset: { 'rank-key': 'others' },
+              }));
+            }
+            rankChips.forEach((c) => ranksBox.appendChild(c));
+            ranksBox.classList.toggle('hidden', rankChips.length === 0);
+
+            // Clases con su ícono y la misma barra; sin clase → "Sin dato" con ícono por defecto.
+            const byClass = new Map<string, { label: string; cls?: string; count: number }>();
+            members.forEach((m) => {
+              const cls = (m.class || '').trim();
+              const key = cls ? cls.toLowerCase() : '__none__';
+              const cur = byClass.get(key) ?? { label: cls || 'Sin dato', cls: cls || undefined, count: 0 };
+              cur.count += 1;
+              byClass.set(key, cur);
+            });
+            const classChips = Array.from(byClass.values())
+              .sort((a, b) => b.count - a.count)
+              .map((c) => statChip({
+                label: c.label, count: c.count, pct: Math.round((c.count / total) * 100),
+                icon: classIconEl(c.cls, undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'),
+                active: state.cls === (c.cls ? c.cls.toLowerCase() : '__none__'),
+                dataset: { 'class-key': c.cls ? c.cls.toLowerCase() : '__none__' },
+              }));
+            classChips.forEach((c) => classesBox.appendChild(c));
+            classesBox.classList.toggle('hidden', classChips.length === 0);
+          };
+
+          const applyFilters = (): void => {
+            const q = state.query.trim().toLowerCase();
+            const filtered = members.filter((m) => {
+              if (state.rank !== undefined && rankKey(m) !== state.rank) return false;
+              const cls = (m.class || '').trim();
+              if (state.cls !== undefined && cls.toLowerCase() !== state.cls) return false;
+              if (q && !(m.name || '').toLowerCase().includes(q)) return false;
+              return true;
+            });
+            renderRoster(rosterWrap, filtered, ranks);
+            const any = state.rank !== undefined || state.cls !== undefined || q !== '';
+            emptyFilter.classList.toggle('hidden', !(any && filtered.length === 0));
+          };
+
+          ranksBox.addEventListener('click', (e) => {
+            const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-rank-key]');
+            if (!btn) return;
+            const k: number | 'others' = btn.dataset.rankKey === 'others' ? 'others' : Number(btn.dataset.rankKey);
+            state.rank = state.rank === k ? undefined : k;
+            renderStats();
+            applyFilters();
+          });
+          classesBox.addEventListener('click', (e) => {
+            const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-class-key]');
+            if (!btn) return;
+            const k = btn.dataset.classKey ?? '';
+            state.cls = state.cls === k ? undefined : k;
+            renderStats();
+            applyFilters();
+          });
+          searchInput.addEventListener('input', () => {
+            state.query = searchInput.value;
+            applyFilters();
+          });
+
+          document.getElementById('roster-search-wrap')?.classList.remove('hidden');
+          renderStats();
+          applyFilters();
         }
         renderParsedSections(
           { guild: { members }, bands: [], rules, ranks } as never,
@@ -340,12 +459,50 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         }
 
         // Barra de pestañas (deep-link por hash #miembros/#bandas/#reglas).
+        // Las cifras viven en el encabezado (chips en #guild-meta), no en los tabs.
+        // Cifras del encabezado (chips de Miembros/Bandas/Reglas): grupo
+        // segmentado unificado (1px de separador vía gap-px con el fondo del
+        // contenedor) que enlaza a cada tab por hash (#miembros/#bandas/#reglas).
+        // Orden y textos salen SOLO de PORTAL_TABS (contrato único de tabs).
+        const metaEl = document.getElementById('guild-meta') as HTMLElement;
+        const metaChips: Record<string, HTMLAnchorElement> = {};
+        const metaGroup = document.createElement('div');
+        metaGroup.className = 'inline-flex flex-wrap gap-px rounded-lg border border-amber-600/30 bg-amber-600/20 overflow-hidden';
+        PORTAL_TABS.forEach((t) => {
+          const n = t.id === 'miembros' ? members.length : t.id === 'bandas' ? merged.length : rules.length;
+          const chip = document.createElement('a');
+          chip.href = t.href;
+          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gray-900/80 hover:bg-amber-900/40 text-gray-400';
+          chip.textContent = `${t.label} · ${n}`;
+          metaGroup.appendChild(chip);
+          metaChips[t.id] = chip;
+        });
+        metaEl.appendChild(metaGroup);
+
+        // Ilumina el chip correspondiente a la tab activa (hash); falla a la
+        // tab por defecto igual que createTabBar. Se re-sincroniza al navegar
+        // por hash o al pulsar un botón de la barra (activate usa replaceState,
+        // que no dispara hashchange).
+        const syncMetaChips = (): void => {
+          let active = tabFromHash(window.location.hash);
+          if (!metaChips[active]) active = 'miembros';
+          Object.entries(metaChips).forEach(([id, chip]) => {
+            const on = id === active;
+            chip.classList.toggle('bg-amber-500/20', on);
+            chip.classList.toggle('text-amber-200', on);
+            chip.classList.toggle('text-gray-400', !on);
+            if (on) chip.setAttribute('aria-current', 'page');
+            else chip.removeAttribute('aria-current');
+          });
+        };
         createTabBar({
           tabs: PORTAL_TABS,
           barId: 'portal-tab-bar',
           defaultId: 'miembros',
-          badgeCounts: { miembros: members.length, bandas: merged.length, reglas: rules.length },
         });
+        syncMetaChips();
+        window.addEventListener('hashchange', syncMetaChips);
+        document.getElementById('portal-tab-bar')?.addEventListener('click', syncMetaChips);
       }
     }
   }

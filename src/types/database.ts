@@ -105,6 +105,10 @@ export type BandRow = {
   integration_proposed_by: string | null;
   integration_proposed_at: string | null;
   integration_decided_at: string | null;
+  // DESTINO de la propuesta de integración: la hermandad elegida por el
+  // dueño en Mis Bandas. guild_id (atribución real al portal) solo se
+  // escribe cuando el GM aprueba (raiddominion_set_band_integration).
+  integration_target_guild_id: string | null;
   created_at: string;
   updated_at: string;
 }

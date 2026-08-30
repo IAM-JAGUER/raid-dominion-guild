@@ -221,13 +221,17 @@ export function buildPortalSnapshot(data: ParsedSavedVariables): GuildPortalSnap
     }))
   );
   if (members.length === 0) data.guild.members.forEach((m) => push(m));
+  // Las reglas NUNCA viajan en el snapshot: subir un SV no llena las reglas
+  // del portal ni las de una banda. La regla de producto (2026-09-06): solo
+  // el usuario agrega/quita reglas desde su dashboard (guild_rules y
+  // set_band_rules / band_integration_rules).
   return {
     generatedBy: data.generatedBy ?? null,
     lastUpdate: data.lastUpdate ?? null,
     ranks: ranks.length > 0 ? ranks : undefined,
     members,
     bands: data.bands ?? [],
-    rules: data.rules ?? [],
+    rules: [],
   };
 }
 
@@ -590,8 +594,14 @@ export async function proposeBandIntegration(bandId: string): Promise<{ ok: bool
 }
 
 // El GM (owner de la hermandad) aprueba/rechaza la integración de una banda
-// propuesta por un miembro. Vía RPC (solo owner de la guild).
-export async function setBandIntegration(bandId: string, status: 'approved' | 'rejected' | 'none'): Promise<{ ok: boolean; error?: string }> {
+// propuesta por un miembro. Solo mueve el estado de integración; NUNCA toca
+// las reglas de la banda: las reglas viven en la banda del proponente y la
+// selección del GM (qué se publica) se persiste aparte vía
+// setGuildBandIntegrationRules. Vía RPC (solo owner de la guild).
+export async function setBandIntegration(
+  bandId: string,
+  status: 'approved' | 'rejected' | 'none'
+): Promise<{ ok: boolean; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_set_band_integration', {
     p_band_id: bandId,
     p_status: status,
@@ -613,6 +623,7 @@ export interface GuildBandProposal {
   integration_proposed_at: string | null;
   integration_decided_at: string | null;
   owner_id: string;
+  rules: ContentItem[] | null;
   proposer: {
     slug: string | null;
     display_name: string | null;
@@ -670,7 +681,9 @@ export async function getPublicGuildByOwner(ownerId: string): Promise<{ ok: bool
   return { ok: true, guild: (res.data as GuildRow | null) ?? undefined };
 }
 
-// Snapshot público del portal (roster/bandas/reglas) desde guild_config
+// Snapshot público del portal (roster/rangos) desde guild_config. Las reglas
+// NO viajan en el snapshot: el maestro las fija a mano (guild_rules) o por
+// banda vía band_integration_rules/set_band_rules.
 export async function getGuildSnapshot(guildId: string): Promise<{ ok: boolean; snapshot?: GuildPortalSnapshot; error?: string }> {
   const res = await supabase
     .from('raiddominion_guild_config')
@@ -689,6 +702,79 @@ export async function saveGuildSnapshot(guildId: string, snapshot: GuildPortalSn
     .from('raiddominion_guild_config')
     .upsert(
       { guild_id: guildId, config_key: 'portal_snapshot', config_value: snapshot },
+      { onConflict: 'guild_id,config_key' }
+    );
+
+  if (upsert.error) return { ok: false, error: upsert.error.message };
+  return { ok: true };
+}
+
+// ─── Reglas por hermandad (elección del maestro, separada del SV) ────────
+// Se persisten en raiddominion_guild_config(config_key='guild_rules'), su
+// propia fila: un re-upload solo toca 'portal_snapshot', así la selección
+// manual del maestro NO se pisa con el catálogo crudo del SV cada vez.
+// RLS: select público; insert/update solo del owner de la guild (upsert
+// directo del cliente, mismo patrón que saveGuildSnapshot).
+
+// Reglas seleccionadas por el maestro para el portal de UNA hermandad.
+// 'items' indefinido = el maestro aún no ha fijado selección: el portal no
+// muestra reglas (el snapshot ya no aporta catálogo desde 2026-09-06).
+export async function getGuildRules(guildId: string): Promise<{ ok: boolean; items?: ContentItem[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_guild_config')
+    .select('config_value')
+    .eq('guild_id', guildId)
+    .eq('config_key', 'guild_rules')
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return {
+    ok: true,
+    items: Array.isArray(res.data?.config_value) ? (res.data.config_value as ContentItem[]) : undefined,
+  };
+}
+
+// El maestro fija qué reglas del catálogo aplican al portal de su hermandad.
+export async function setGuildRules(guildId: string, rules: ContentItem[]): Promise<{ ok: boolean; error?: string }> {
+  const upsert = await supabase
+    .from('raiddominion_guild_config')
+    .upsert(
+      { guild_id: guildId, config_key: 'guild_rules', config_value: rules ?? [] },
+      { onConflict: 'guild_id,config_key' }
+    );
+
+  if (upsert.error) return { ok: false, error: upsert.error.message };
+  return { ok: true };
+}
+
+// ─── Reglas de bandas integradas (selección del GM, aparte del proponente) ─
+// El GM TOGGLEA qué reglas de cada banda propuesta se publican en el portal.
+// La selección vive en guild_config(config_key='band_integration_rules') — la
+// data del GM — y el contenido SIEMPRE se lee de la banda del proponente al
+// renderizar: no se graba ni se elimina nada de bands.rules.
+export type BandIntegrationRules = Record<string, string[]>;
+
+export async function getGuildBandIntegrationRules(guildId: string): Promise<{ ok: boolean; selection?: BandIntegrationRules; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_guild_config')
+    .select('config_value')
+    .eq('guild_id', guildId)
+    .eq('config_key', 'band_integration_rules')
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  const v = res.data?.config_value;
+  const selection = v && typeof v === 'object' && !Array.isArray(v)
+    ? (v as unknown as BandIntegrationRules)
+    : undefined;
+  return { ok: true, selection };
+}
+
+export async function setGuildBandIntegrationRules(guildId: string, selection: BandIntegrationRules): Promise<{ ok: boolean; error?: string }> {
+  const upsert = await supabase
+    .from('raiddominion_guild_config')
+    .upsert(
+      { guild_id: guildId, config_key: 'band_integration_rules', config_value: selection ?? {} },
       { onConflict: 'guild_id,config_key' }
     );
 

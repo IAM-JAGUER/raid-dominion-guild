@@ -36,8 +36,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
           <span class="text-sm text-amber-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
-          <span class="text-xs text-gray-500 mt-1">RaidDominion.lua · máx. 2 MB</span>
-          <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" />
+          <span class="text-xs text-gray-500 mt-1">RaidDominion.lua · máx. 2 MB · uno o varios archivos</span>
+          <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" multiple />
         </label>
 
         <div id="status" class="mt-4 text-sm text-gray-400 text-center" aria-live="polite"></div>
@@ -82,9 +82,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           </div>
         </div>
 
-        <!-- Enlace al dashboard: el detalle vive en Mi cuenta -->
+        <!-- Enlace al dashboard: el detalle vive en Mi cuenta. Arranca
+             deshabilitado y se habilita solo cuando el parseo + procesamiento
+             termina por completo (persistIfLoggedIn) -->
         <div class="text-center">
-          <a href="/dashboard" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Ir a Mi dashboard →</a>
+          <a id="dash-link" href="/dashboard" aria-disabled="true"
+             class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 opacity-40 pointer-events-none select-none">Ir a Mi dashboard →</a>
         </div>
       </section>
 
@@ -136,6 +139,56 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     warningsEl.innerHTML = '';
   }
 
+  // El enlace al dashboard NO se habilita hasta que el parseo y todo el
+  // procesamiento (historial, personajes, evidencia, bandas, promoción,
+  // reclamos, portales) termina. Con varios archivos se vuelve a deshabilitar
+  // por cada tanda y se rehabilita solo al terminar TODA la cola.
+  const dashLink = document.getElementById('dash-link') as HTMLAnchorElement | null;
+  function disableDashboardLink(): void {
+    if (!dashLink) return;
+    dashLink.classList.add('opacity-40', 'pointer-events-none', 'select-none');
+    dashLink.setAttribute('aria-disabled', 'true');
+  }
+  function enableDashboardLink(): void {
+    if (!dashLink) return;
+    dashLink.classList.remove('opacity-40', 'pointer-events-none', 'select-none');
+    dashLink.removeAttribute('aria-disabled');
+  }
+
+  // ── Cola de procesamiento ─────────────────────────────────────────────────
+  // Varios archivos pueden subirse a la vez (y uno detrás de otro). Cada uno
+  // se procesa en SERIE: el siguiente espera a que el anterior haya guardado
+  // en BD (historial, personajes, bandas…), así siempre encuentra los datos
+  // de su antecesor y las bandas del mismo nombre se COMBINAN en vez de
+  // duplicarse. Mientras haya trabajo, la subida y el enlace quedan
+  // bloqueados: no se aceptan más archivos hasta terminar la cola.
+  let processingChain: Promise<void> = Promise.resolve();
+  let pendingCount = 0;
+
+  function setUploadBusy(busy: boolean): void {
+    fileInput.disabled = busy;
+    dropzone.classList.toggle('pointer-events-none', busy);
+    dropzone.classList.toggle('opacity-60', busy);
+    dropzone.setAttribute('aria-disabled', String(busy));
+  }
+
+  function enqueueFiles(files: File[]): void {
+    if (files.length === 0) return;
+    // Bloqueo: si viene una cola en curso, las nuevas subidas se ignoran
+    // (la espera garantiza que el sucesor encuentre los datos del antecesor).
+    if (fileInput.disabled || pendingCount > 0) return;
+    setUploadBusy(true);
+    disableDashboardLink();
+    pendingCount += files.length;
+    processingChain = processingChain
+      .then(() => files.reduce((p, f) => p.then(() => handleFile(f)), Promise.resolve()))
+      .finally(() => {
+        pendingCount = 0;
+        setUploadBusy(false);
+        enableDashboardLink();
+      });
+  }
+
   function addWarning(msg: string): void {
     warningsEl.appendChild(el('div', 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-md', '⚠ ' + msg));
   }
@@ -150,6 +203,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       link.href = '/login?next=%2Fupload';
       info.appendChild(link);
       warningsEl.appendChild(info);
+      enableDashboardLink();
       return;
     }
 
@@ -157,6 +211,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const saved = await saveUpload(data);
     if (!saved.ok) {
       setStatus('Archivo procesado, pero no se pudo guardar en el historial: ' + (saved.error || 'error desconocido'));
+      enableDashboardLink();
       return;
     }
 
@@ -333,10 +388,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           ? 'Archivo procesado y guardado. Portal(es) de tu hermandad actualizado(s).'
           : 'Archivo procesado y guardado. El SV no coincide con tus hermandades registradas; usa el personaje maestro para actualizar el portal.')
         : 'Archivo procesado y guardado, pero no se pudo actualizar el portal: ' + (snap.error || ''));
+      enableDashboardLink();
       return;
     }
 
     setStatus('Archivo procesado y guardado en tu historial.');
+    enableDashboardLink();
   }
 
   function renderOnboardingBanner(kind: 'success' | 'visitor', msg: string): void {
@@ -376,45 +433,59 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     resultEl.classList.remove('hidden');
   }
 
-  // Muestra formulario de reclamo (con sesión) o CTA de login; valida el SV
-  function handleFile(file: File): void {
+  // Procesa UN archivo hasta el final (parseo + persistencia en BD). Resuelve
+  // cuando todo terminó, para que la cola garantice que el archivo siguiente
+  // encuentra ya los datos de este.
+  function handleFile(file: File): Promise<void> {
     clearWarnings();
     if (file.size > 2 * 1024 * 1024) {
       showError('El archivo supera el límite de 2 MB.');
-      return;
+      return Promise.resolve();
     }
     setStatus('Leyendo archivo…');
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result || '');
-      setStatus('Parseando RaidDominion.lua…');
-      try {
-        const result = parseSavedVariables(text);
-        if (!result.ok) {
-          showError(result.errors.join(' '));
-          return;
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const text = String(reader.result || '');
+        setStatus('Parseando RaidDominion.lua…');
+        try {
+          const result = parseSavedVariables(text);
+          if (!result.ok) {
+            showError(result.errors.join(' '));
+            return;
+          }
+          result.warnings.forEach(addWarning);
+          renderResult(result.data as ParsedSavedVariables);
+          await persistIfLoggedIn(result.data as ParsedSavedVariables);
+        } catch (e) {
+          showError('Error inesperado al parsear: ' + String(e));
+        } finally {
+          resolve();
         }
-        result.warnings.forEach(addWarning);
-        renderResult(result.data as ParsedSavedVariables);
-        void persistIfLoggedIn(result.data as ParsedSavedVariables);
-      } catch (e) {
-        showError('Error inesperado al parsear: ' + String(e));
-      }
-    };
-    reader.onerror = () => showError('No se pudo leer el archivo.');
-    reader.readAsText(file);
+      };
+      reader.onerror = () => {
+        showError('No se pudo leer el archivo.');
+        resolve();
+      };
+      reader.readAsText(file);
+    });
   }
 
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0];
-    if (file) handleFile(file);
+    const files = Array.from(fileInput.files ?? []);
+    if (files.length === 0) return;
+    enqueueFiles(files);
+    // Permite volver a seleccionar el mismo archivo en una subida futura.
+    fileInput.value = '';
   });
 
   ['dragover', 'drop'].forEach((evt) => {
     dropzone.addEventListener(evt, (e) => e.preventDefault());
   });
   dropzone.addEventListener('drop', (e) => {
-    const file = (e as DragEvent).dataTransfer?.files?.[0];
-    if (file) handleFile(file);
+    // Bloqueada durante una cola en curso (ver enqueueFiles).
+    if (e.defaultPrevented || fileInput.disabled || pendingCount > 0) return;
+    const files = Array.from((e as DragEvent).dataTransfer?.files ?? []);
+    if (files.length > 0) enqueueFiles(files);
   });
 </script>

@@ -69,6 +69,7 @@ const PUBLIC_LINKS = [
           {PUBLIC_LINKS.map((item) => (
             <a
               href={item.href}
+              data-directory={item.href}
               class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-amber-800/40 hover:text-amber-200 transition-all duration-200"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
@@ -203,6 +204,7 @@ const PUBLIC_LINKS = [
         {PUBLIC_LINKS.map((item) => (
           <a
             href={item.href}
+            data-directory={item.href}
             class="mobile-nav-link block w-full px-4 py-3 rounded-md text-base font-medium text-gray-200 hover:bg-amber-800/40 hover:text-white transition-all duration-200 hover:translate-x-1"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
@@ -210,36 +212,47 @@ const PUBLIC_LINKS = [
           </a>
         ))}
       </div>
-      <!-- Entrada de cuenta móvil (visible según sesión) -->
-      <div class="pt-2 mt-2 border-t border-amber-600/30 space-y-1">
+      <!-- Entrada de cuenta móvil (visible según sesión): mismo lenguaje visual
+           del dropdown de escritorio — panel del tema, filas a la izquierda con
+           punto de color y hover ámbar — pero con filas táctiles (py-3). -->
+      <div class="pt-2 mt-2 border-t border-amber-600/30 space-y-2">
         <a
           href="/login"
           data-auth-link="guest"
-          class="block w-full px-4 py-3 rounded-md text-base font-bold text-center text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 transition-all duration-200"
+          class="block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 transition-all duration-200"
         >Iniciar Sesión</a>
         <div class="hidden" data-auth-dropdown="user">
-          {DASHBOARD_TABS.map((t) => (
+          <div class="rounded-lg border border-amber-600/30 bg-gray-950/60 backdrop-blur-sm overflow-hidden">
+            {DASHBOARD_TABS.map((t) => (
+              <a
+                href={t.href}
+                class="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150"
+              >
+                <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-amber-500/70"></span>
+                {t.label}
+              </a>
+            ))}
+            <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
             <a
-              href={t.href}
-              class="block w-full px-4 py-3 rounded-md text-base font-bold text-center text-amber-100 border border-amber-500/50 bg-amber-900/40 hover:bg-amber-800/60 transition-all duration-200"
-            >{t.label}</a>
-          ))}
-          <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
-          <a
-            href="/moderate"
-            data-staff-link="moderate"
-            class="hidden block w-full px-4 py-3 rounded-md text-base font-bold text-center text-sky-200 border border-sky-500/40 bg-sky-900/30 hover:bg-sky-800/60 transition-all duration-200"
-          >Moderación</a>
-          <a
-            href="/admin"
-            data-staff-link="admin"
-            class="hidden block w-full px-4 py-3 rounded-md text-base font-bold text-center text-red-300 border border-red-500/40 bg-red-950/30 hover:bg-red-900/60 transition-all duration-200"
-          >Administración</a>
+              href="/moderate"
+              data-staff-link="moderate"
+              class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-sky-200 hover:bg-sky-900/30 hover:text-white transition-all duration-150"
+            >
+              <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-sky-500/70"></span>Moderación
+            </a>
+            <a
+              href="/admin"
+              data-staff-link="admin"
+              class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-red-300 hover:bg-red-900/30 hover:text-white transition-all duration-150"
+            >
+              <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-red-500/70"></span>Administración
+            </a>
+          </div>
         </div>
         <button
           type="button"
           data-auth-action="logout"
-          class="hidden block w-full px-4 py-3 rounded-md text-sm font-bold text-center uppercase tracking-widest text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
+          class="hidden w-full px-4 py-3 rounded-lg text-sm font-black uppercase tracking-widest text-center text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
         >Cerrar Sesión</button>
       </div>
     </div>
@@ -262,6 +275,8 @@ const PUBLIC_LINKS = [
 
 <!-- Script para la funcionalidad de navegación -->
 <script>
+  import { RESERVED } from '@/lib/routes';
+
   // Esperar a que el DOM esté completamente cargado
   document.addEventListener('DOMContentLoaded', () => {
     // Obtener referencias a los elementos del DOM
@@ -285,6 +300,49 @@ const PUBLIC_LINKS = [
       return section.getBoundingClientRect().top + window.scrollY;
     }
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
+
+    // Domino activo de los directorios públicos: los enlaces con
+    // data-directory se iluminan según la ruta actual (páginas índice Y
+    // dinámicas como /servidor/:server, /banda/:slug, /:slug, /p/:slug…),
+    // que no pasan currentPath a la Navigation. Mapea el primer segmento al
+    // directorio correspondiente; cualquier slug raíz no reservado es portal.
+    function directoryKeyFromPath(pathname: string): string | null {
+      const segs = pathname.split('/').filter(Boolean).map((s) => s.toLowerCase());
+      const first = segs[0] ?? '';
+      if (!first) return null;
+      if (first === 'servidores' || first === 'servidor' || first === 'reino') return '/servidores';
+      if (first === 'bandas' || first === 'banda') return '/bandas';
+      if (first === 'jugadores' || first === 'jugador' || first === 'p') return '/jugadores';
+      if (first === 'personajes' || first === 'personaje') return '/personajes';
+      if (first === 'hermandades' || first === 'hermandad' || first === 'guilds') return '/hermandades';
+      if (segs.length === 1 && !RESERVED.has(first)) return '/hermandades';
+      return null;
+    }
+
+    // Aplica/reparte el resaltado activo a los enlaces de directorio
+    // (escritorio y móvil): el que coincide con el dominio recibe
+    // bg-amber-800/50 text-white nav-link-active + aria-current="page"; al
+    // resto se le quita y se reponen sus colores base (text-gray-300
+    // escritorio / text-gray-200 móvil).
+    function setDirectoryActive(): void {
+      const key = directoryKeyFromPath(window.location.pathname);
+      document.querySelectorAll<HTMLAnchorElement>('[data-directory]').forEach((link) => {
+        const active = link.getAttribute('data-directory') === key;
+        const isMobile = link.closest('#mobile-menu') !== null;
+        link.classList.toggle('bg-amber-800/50', active);
+        link.classList.toggle('text-white', active);
+        link.classList.toggle('nav-link-active', active);
+        if (active) {
+          link.setAttribute('aria-current', 'page');
+          link.classList.remove('text-gray-300', 'text-gray-200');
+        } else {
+          link.removeAttribute('aria-current');
+          link.classList.add(isMobile ? 'text-gray-200' : 'text-gray-300');
+          link.classList.remove(isMobile ? 'text-gray-300' : 'text-gray-200');
+        }
+      });
+    }
+    setDirectoryActive();
     
     // Variable para rastrear la sección actual
     let currentSectionIndex = 0;
@@ -378,8 +436,10 @@ const PUBLIC_LINKS = [
       link.addEventListener('click', handleNavClick);
     });
 
-    // Navegación con botones flotantes
-    if (sections.length > 0) {
+    // Navegación con botones flotantes. Funciona siempre (aunque la página no
+    // exponga secciones detectadas, ej. portal de hermandad): con esa página
+    // ↑/↓ saltan al inicio/final; con secciones, navegan entre ellas.
+    if (upButton && downButton) {
       // Mostrar/ocultar botones con animación
       function updateButtonVisibility(): void {
         const scrollY = window.scrollY;
@@ -398,9 +458,10 @@ const PUBLIC_LINKS = [
           upButton.classList.remove('opacity-100', 'translate-y-0');
         }
 
-        // Botón bajar: oculto en la última sección visible o al pie de página
-        const haySiguiente = cur < vis.length - 1 &&
-          scrollY < documentHeight - windowHeight - scrollThreshold;
+        // Botón bajar: oculto en la última sección visible o al pie de página.
+        // Sin secciones (portal/banda…), basta con que quede fondo por recorrer.
+        const faltante = scrollY < documentHeight - windowHeight - scrollThreshold;
+        const haySiguiente = vis.length > 1 ? cur < vis.length - 1 && faltante : faltante;
         if (haySiguiente) {
           downButton.classList.remove('opacity-0', 'translate-y-4');
           downButton.classList.add('opacity-100', 'translate-y-0');
@@ -443,9 +504,12 @@ const PUBLIC_LINKS = [
       downButton.addEventListener('click', () => {
         const vis = visibleSections();
         const cur = Math.max(0, vis.indexOf(sections[currentSectionIndex]));
-        if (cur < vis.length - 1) {
+        if (vis.length > 1 && cur < vis.length - 1) {
           const next = vis[cur + 1];
           if (next) scrollToSection(`#${next.id}`);
+        } else {
+          // Sin secciones útiles: bajar directo al final de la página.
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' as ScrollBehavior });
         }
       });
 
@@ -453,11 +517,11 @@ const PUBLIC_LINKS = [
       upButton.addEventListener('click', () => {
         const vis = visibleSections();
         const cur = Math.max(0, vis.indexOf(sections[currentSectionIndex]));
-        if (cur > 0) {
+        if (vis.length > 1 && cur > 0) {
           const prev = vis[cur - 1];
           if (prev) scrollToSection(`#${prev.id}`);
         } else {
-          // Si está en la primera sección, ir al inicio
+          // Si está en la primera sección (o sin secciones), ir al inicio
           window.scrollTo({ top: 0, behavior: 'smooth' as ScrollBehavior });
         }
       });
@@ -471,7 +535,7 @@ const PUBLIC_LINKS = [
         currentSectionIndex = -1;
         if (prevActive) {
           lastActiveSectionId = '';
-          document.querySelectorAll<HTMLAnchorElement>('.nav-link, #mobile-menu a:not(.site-logo)').forEach(link => {
+          document.querySelectorAll<HTMLAnchorElement>('.nav-link:not([data-directory]), #mobile-menu a:not([data-directory]):not(.site-logo)').forEach(link => {
             link.classList.remove('bg-amber-800/50', 'text-white', 'nav-link-active');
             link.classList.add('text-amber-200');
           });
@@ -508,7 +572,7 @@ const PUBLIC_LINKS = [
       if (currentSection && currentSection.id !== prevActive) {
         lastActiveSectionId = currentSection.id;
         // Primero, quitar la clase activa de todos los enlaces de navegación
-        document.querySelectorAll<HTMLAnchorElement>('.nav-link, #mobile-menu a:not(.site-logo)').forEach(link => {
+        document.querySelectorAll<HTMLAnchorElement>('.nav-link:not([data-directory]), #mobile-menu a:not([data-directory]):not(.site-logo)').forEach(link => {
           link.classList.remove('bg-amber-800/50', 'text-white', 'nav-link-active');
           link.classList.add('text-amber-200');
         });
