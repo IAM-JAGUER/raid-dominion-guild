@@ -1,8 +1,9 @@
 # Prioridades de Mejora — RaidDominion Portal
 
-> Este archivo define el **backlog priorizado** y las **convenciones de diseño**
-> del portal. Las reglas multi-app, de migración y del parser viven en
-> `AGENTS.md` y sus secciones (`AGENTS.sections/`).
+> Este archivo es el **backlog operativo** — cambia seguido, se poda. Las
+> convenciones visuales PERMANENTES viven en `AGENTS.sections/design.md`
+> (no aquí, para que no se entierren bajo el backlog). Las reglas multi-app,
+> de migración y del parser viven en `AGENTS.md` y `AGENTS.sections/`.
 
 ---
 
@@ -10,50 +11,35 @@
 
 | División | Enfoque | Agente | Prioridad |
 |----------|---------|--------|-----------|
-| **QA** | Types, build, RLS, reglas multi-app, límites del parser | `@qa` | 🔴 Crítica |
+| **QA** | Types, build, RLS, reglas multi-app, límites del parser, gate mínimo de accesibilidad | `@qa` | 🔴 Crítica |
 | **Development** | Supabase, parser SV v3.0.0, dashboards, rutas | `@development` | 🔴 Crítica |
 | **Refactorer** | Refactor seguro, división de archivos, código muerto | `@refactorer` | 🔴 Crítica |
-| **UI/UX** | Accesibilidad, responsive, tema WoW, i18n | `@ui-ux` | 🟡 Alta |
-| **Product** | Features de comunidad, flujo member→guild_master, conversión | `@product` | 🟢 Media |
+| **UI/UX** | Accesibilidad, responsive, tema WoW, i18n, personalidad visual, motion | `@ui-ux` | 🟡 Alta |
+| **Product** | Features de comunidad, flujo member→guild_master, conversión, métricas | `@product` | 🟢 Media |
+
+Flujo: `product` define (con métrica) → `development`/`ui-ux` implementan →
+`refactorer` mantiene → `qa` aprueba antes de commit.
 
 ---
 
-## Backlog priorizado (estado 2026-08-23)
+## Modelo de sesión de trabajo (vigente 2026-08-30)
 
-Derivado de la auditoría portal↔addon. Atender EN ORDEN; marcar al completar.
+Una sola sesión de edición activa (Zeus, WSL bash) + servidor local
+auto-arrancado. No hay sesión secundaria de edición en paralelo. El
+escenario de conflicto de merge entre sesiones descrito abajo en
+"Histórico — decisiones resueltas" corresponde a un modelo anterior de
+varias sesiones simultáneas y **ya no debería poder repetirse** bajo este
+modelo. Si en el futuro se reactiva un modelo multi-sesión con edición
+paralela, revisar primero ese histórico antes de repetir el mismo patrón de
+conflicto.
 
-### 🔴 DECISIÓN CANÓNICA — Multi-hermandad (2026-08-25)
-El usuario aprobó el rumbo **MULTI-HERMANDAD**: un jugador puede ser maestro de
-varias guilds. `raiddominion_claim_from_sv` es idempotente y reclama TODAS las
-hermandades del SV con `isGM=true` (aplica a `member` y a `guild_master`,
-incluido el caso GM sin hermandad por seed manual). Fuente: sesión hades,
-migración `20260825_multi_guild.sql`.
+---
 
-Reglas derivadas (VINCULANTES):
-- **hades**: mantiene `20260825_multi_guild.sql` y su flujo en `upload.astro`
-  (`saveMyGuildSnapshotsFromSV`, `getMyGuilds`). Es el nuevo invariante.
-- **zeus**: DESCARTA `20260825_reclaim_guild_master.sql` y su re-claim
-  single-guild en `upload.astro` (subsumido por multi-guild). NUNCA fusionar
-  ambas migraciones: redefinen la misma función y la de zeus (orden
-  alfabético posterior) revertiría a hermandad única.
-- `preview.ts` (`RosterMember`, `renderRoster`) lo resuelve la versión de
-  poseidon (cards + classColor, ya en main) + la de hades; zeus descarta su
-  paginación.
-- Ambas sesiones (zeus/hades) deben `rebase main` y resolver antes de promover
-  (conflictos detectados 2026-08-25 en `preview.ts` y `upload.astro`).
-- QA debe verificar constraints/índices de `raiddominion_guilds` para
-  multi-owner (el índice por `owner_id` de hades + ausencia de UNIQUE(owner_id)).
+## Backlog priorizado (estado 2026-08-30)
 
-### 🔴 P0 — Parser: evidencia del roster GM v3 ✅ HECHO (2026-08-23, ronda 4)
-El addon v3 escribe el roster completo del maestro en
-`registry["Char-Realm"].guild.memberList` ({name, rank, rankIndex, level,
-class, classFile, online}, SIN notas por diseño). El parser actual SOLO lee
-la sección legacy raíz `Guild.memberList`, así que en archivos puros v3 esa
-evidencia se descarta. Tarea (@development):
-1. Extender `asRegistryGuild`/tipos para capturar `memberList` del registry. ✅ (`savedVariables.ts` asGuildMemberSummaries, `types/parser.ts` GuildMemberSummary)
-2. Incluirlo como evidencia primaria en `upload.astro` → `saveRosterEvidence`
-   (mapear `rankIndex`→liderazgo; conservar privacidad: no hay notas). ✅ (`upload.astro` orden a/b/c con dedupe)
-3. Validar con un SV real (fixture golden-file recomendado). ⏳ pendiente (requiere infra de tests)
+Atender EN ORDEN; marcar al completar y mover a "Histórico" cuando quede
+verificado en producción (no dejar ítems ✅ acumulándose indefinidamente
+en esta sección — ver criterio de poda al final del archivo).
 
 ### 🔴 P0 — Coordinar bloque `raiddominion` en `handle_new_user()`
 La canónica de `../supabase-shared/` NO tiene bloque raiddominion (verificado
@@ -63,34 +49,80 @@ NO editar supabase-shared sin ese consenso.
 
 ### 🟡 P1 — Guías fieles al addon real
 - Documentar el ítem "Registrar" (menú > RaidDominion) y su rol en /upload.
-- Quitar `/rdminimap` (no existe en RD_Init.lua) o añadirlo al addon.
+- Quitar `/rdminimap` (no existe en el addon real) o añadirlo al addon.
 - Reemplazar "Bandas Core" por bandas vivas reales (`bands[]`).
 - Añadir test fixture golden-file del SV real para el parser.
 
 ### 🟡 P1 — Capturar `characters[].version` del SV
 Permitirá advertir al usuario si su archivo es anterior a 3.0.0.
 
+### 🟡 P1 — Gap de UI/UX (auditoría 2026-08-30)
+Detectado al revisar `design.ts`: sin tokens de formulario, estado semántico
+ni loading pese a ser prioridades explícitas de `ui-ux.md`. Resuelto a nivel
+de tokens (`ui.text.*`, `ui.status.*`, `ui.form.*`, `ui.loading.*`,
+`ui.focusRing`, `ui.transition`, `ui.containerNav` agregados a `design.ts`,
+ver `AGENTS.sections/design.md` §§2-6). Migración de componentes COMPLETADA
+(2026-08-30): login, upload, admin, moderate, portal, listados y el
+`#panel-perfil` del dashboard usan los tokens; los renderers JS dinámicos
+migrados a módulos (`src/lib/ui/dashboard/*`). Pendiente opcional: tokenizar
+las clases sueltas del render JS (chips/tags) donde `ui.chip` coincide
+exactamente (sin cambiar el aspecto).
+
+### 🟢 P2 — Ledger de migraciones aplicadas manualmente (COMPLETADO, 2026-08-30)
+`.opencode/improve/ciclos.json` registra las 40 migraciones de
+`supabase/migrations/` en `migraciones_aplicadas` (todas confirmadas por el
+usuario como aplicadas vía SQL Editor manual, sin CLI; `project_ref_verificado:
+true`). El drift detectado en la auditoría del 2026-08-30 quedó resuelto
+(`frallas.md` F012 mitigada). A partir de ahora: registrar SIEMPRE cada
+aplicación en el ledger inmediatamente después de aplicarla.
+
+### 🟢 P2 — Split de `dashboard.astro` (COMPLETADO, 2026-08-30)
+`src/pages/dashboard.astro` bajó de 2824 → 1681 líneas. Módulos en
+`src/lib/ui/dashboard/`: `characters.ts` (characterCard con DI), `chips.ts`
+(configChip), `format.ts` (fmtDateTime, svLabel, ruleKey, ruleId, escapeHtml),
+`visitor.ts` (renderers del Registro + collectRegistryGuilds/renderRegistryGuildCards),
+`bands.ts` (bandPlayerCount/bandRuleCount/bandAssignedRules + renderBandDetail con DI),
+`guilds.ts` (setMsg, loadGuildStats, loadBandProposals, renderGuildCard con DI).
+Verificado con `verifica.sh --check` (0 errores, 0 warnings en dashboard).
+Pendiente opcional (P1 UI/UX): tokenizar las clases sueltas del render JS
+dinámico (chips de characterCard, tags de reglas) — los módulos conservan
+literales puntuales donde el token `ui.chip` no coincide en padding (no
+cambia el aspecto).
+
 ---
 
-## Convenciones de diseño v1
+## Histórico — decisiones resueltas
 
-- Fuente de verdad visual: `src/lib/ui/design.ts` (tokens `ui.*`). Importar tokens, no duplicar literales.
-- Bordes: máximo `rounded-md`, salvo círculos inherentes (`rounded-full`). Prohibidos `rounded-xl/2xl/3xl` en `src/`.
-- Criterio geométrico vinculante: todo elemento CON TEXTO (chips, badges, contadores, botones filtro) usa `rounded-md`, sin excepción. `rounded-full` solo se permite en elementos SIN texto cuya forma es inherentemente píldora/círculo (dots, indicadores, medallones de icono circular, botones flotantes circulares).
-- La excepción de divisores finos (h-1 con extremos suaves) vive EXCLUSIVAMENTE en el token `ui.sectionRule`; no duplicar `rounded-full` en divisores fuera de ese token.
-- Encabezados de sección siempre vía `src/components/ui/SectionHeader.astro`.
-- Superficie única: `ui.panel`; añadir `ui.panelHover` solo si el elemento es interactivo.
-- Botones: `ui.btnBase` + variante (`btnPrimary`/`btnSecondary`/`btnGhost`) + tamaño de `ui.btnSizes`.
-- Contenedor único `ui.container` (`max-w-6xl`). Excepción documentada: barra de navegación (max-w-7xl propio, nav ≠ contenedor de contenido).
-- Tokens nuevos: `ui.chip` para etiquetas CON texto (el color lo aporta la paleta de acentos por categoría) y `ui.kbd` para comandos/rutas estilo tecla en material de referencia.
-- Patrón reutilizable: estado activo de tarjetas interactivas vía atributo `aria-expanded` + CSS scoped `[aria-expanded='true']` (sin JS adicional para el reflejo visual).
-- Excepción documentada: botón "✕ Cerrar" del lector de guías (`AddonGuidesGrid.astro`) conserva literales propios — componerlo con `btnBase/btnGhost/btnSizes.sm` alteraría su jerarquía visual (peso, tamaño y color) sin ganancia de consistencia.
+### Multi-hermandad (decidido 2026-08-25, RESUELTO)
+El usuario aprobó el rumbo **MULTI-HERMANDAD**: un jugador puede ser maestro de
+varias guilds. `raiddominion_claim_from_sv` es idempotente y reclama TODAS las
+hermandades del SV con `isGM=true` (aplica a `member` y a `guild_master`,
+incluido el caso GM sin hermandad por seed manual).
 
-## Convenciones de diseño v2
-- **R1 Monogramas (enmienda al criterio geométrico):** `rounded-full` admite texto SOLO si es un único glifo (inicial de avatar, dígito de paso) en contenedor cuadrado `w-N h-N`. Palabras o frases jamás en `rounded-full`.
-- **R2 Radio único:** todo chip/badge/contador con texto usa `rounded-md` (idealmente vía token); prohibido `rounded-lg` flotante en chips. Radio menor permitido: `rounded-t-lg` en pestañas ancladas a una barra.
-- **R3 Superficie única en dashboards:** paneles siempre via `${ui.panel}` (borde canónico `amber-600/30`); prohibido reescribir el literal bg/border/rounded. Interactivo → añadir `ui.panelHover`.
-- **R4 Alcance SectionHeader:** solo landing/páginas de contenido. Dashboards: h1 de página + `ui.subTitle`; no mezclar sistemas de encabezado.
+Reglas derivadas vigentes:
+- La migración canónica es `20260825_multi_guild.sql` y su flujo en
+  `upload.astro` (`saveMyGuildSnapshotsFromSV`, `getMyGuilds`).
+- Cualquier migración anterior de re-claim single-guild quedó descartada,
+  subsumida por multi-guild. NUNCA fusionar ambas: redefinen la misma
+  función.
+- QA debe verificar constraints/índices de `raiddominion_guilds` para
+  multi-owner (índice por `owner_id`, sin UNIQUE(owner_id)).
 
-## Dataset estático players.json
-- `public/players.json` es contenido curado por staff; sus claves `officerNote` están todas vacías y NO provienen de SavedVariables de usuarios. Prohibido poblarlas desde datos de usuario (la evidencia v3 del parser viaja sin notas por diseño).
+**Nota de contexto histórico (ya no aplica):** esta decisión se cerró en
+medio de un conflicto de merge entre dos sesiones de edición simultáneas
+que habían implementado el mismo flujo de forma incompatible. Bajo el
+modelo de sesión única vigente desde 2026-08-30 (ver arriba), ese escenario
+de conflicto de autoría en paralelo no debería volver a producirse. Se
+conserva esta nota como referencia si el modelo de sesiones cambia en el
+futuro.
+
+---
+
+## Criterio de poda de este archivo
+
+- Ítems marcados ✅ y verificados en producción se mueven a "Histórico" con
+  una línea resumen, no se dejan expandidos indefinidamente en el backlog
+  activo.
+- Decisiones arquitectónicas con impacto duradero (como multi-hermandad)
+  quedan en "Histórico" permanentemente como referencia, pero fuera del
+  flujo de trabajo día a día.

@@ -1,8 +1,316 @@
 {
-  "version": "1.0",
+  "version": "1.3",
   "proyecto": "RaidDominion Portal",
   "tipo": "astro-supabase",
+  "schema": {
+    "_nota": "Este bloque documenta los campos esperados. No es un ciclo real y no cuenta en 'resumen'.",
+    "ciclo": {
+      "fecha": "YYYY-MM-DD",
+      "agente": "development | product | qa | refactorer | ui-ux",
+      "descripcion": "qué se hizo, una línea",
+      "archivos_tocados": [
+        "ruta/relativa"
+      ],
+      "migraciones_creadas": [
+        "archivo.sql (redactada, no aplicada por el agente)"
+      ],
+      "veredicto_qa": "APROBADO | APROBADO CON OBSERVACIONES | RECHAZADO | N/A",
+      "build": "ok | ok_check | fallo",
+      "exitoso": true
+    },
+    "migracion_aplicada": {
+      "archivo": "YYYYMMDD_descripcion.sql",
+      "fecha_aplicacion": "YYYY-MM-DD",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "opcional"
+    }
+  },
+  "_nota_ledger": "LEDGER COMPLETO (2026-08-30): las 40 migraciones de supabase/migrations/ fueron confirmadas como aplicadas por el usuario (aplicación manual vía SQL Editor, sin CLI, ver AGENTS.md §8). 'migraciones_aplicadas' es ahora la fuente de verdad completa desde el origen del proyecto (frallas.md F012 resuelto).",
   "ciclos": [],
+  "migraciones_aplicadas": [
+    {
+      "archivo": "20260101_raiddominion_rpcs.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260101_raiddominion_schema.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260102_profiles_is_public.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260103_public_pages.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260104_staff_admin.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260105_profiles_insert.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260106_characters_onboarding.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260107_guild_request.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260108_qa_fixes.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260109_guild_claim_sv.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260110_character_guild.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260111_community_stats.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260112_fix_reserved_slug.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260823_strip_officernote_snapshot.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260824_fix_claim_faction_array.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260824_gm_self_validation.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260824_profile_main_character_delete.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260824_reset_sv_data.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260825_character_slug.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260825_claim_gm_guard.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260825_guild_ranks.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260825_multi_guild.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260826_bands_server.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260827_character_slug_readable.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260828_character_slug_lowercase.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260829_band_rank_visibility.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260829_reset_sv_bands.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260830_bands_private_on_upload.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260830_promote_member_and_claim.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260831_bands_per_character.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260901_band_integration_proposal.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260902_allow_staff_claim.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260903_fix_band_guild.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260904_band_rules.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260905_fix_guild_server.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260906_gm_toggle_band_rules.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260908_reset_account_data_full.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260909_upsert_bands_empty_rules.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260910_band_attribution_on_approval.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260911_upsert_bands_merge_schedule.sql",
+      "fecha_aplicacion": "2026-08-30",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-08-30)."
+    }
+  ],
+  "migraciones_pendientes_confirmacion": [],
   "resumen": {
     "total_ciclos": 0,
     "exitosos": 0,

@@ -25,19 +25,43 @@ mantenibilidad y arquitectura sin cambiar lo que el portal hace.
 3. Extraer helpers solo si se reutilizan o aclaran el flujo.
 4. Dividir archivos muy grandes (p.ej. `sections/*.astro` > 700 líneas,
    `components/*.astro` con lógica JS embebida extensa).
-5. Eliminar código muerto (variables no usadas, imports sin usar, archivos
-   huérfanos como `HeroSection.astro`, `NewsSection.astro`, `YoutubeBanner.astro`
-   si no se importan).
-6. Deduplicar estilos/constantes repetidas hacia `src/utils/` o `src/data/`.
+5. Eliminar código muerto — ver procedimiento de detección abajo, NO una
+   lista fija de nombres (esa lista se desactualiza en cuanto algo cambia).
+6. Deduplicar estilos/constantes repetidas hacia `src/utils/`, `src/data/` o
+   `src/lib/ui/design.ts` si es un token visual.
+
+## Procedimiento de detección de código muerto
+
+En vez de asumir nombres de archivo específicos (que caducan), correr en
+cada ronda:
+
+```bash
+# Componentes/secciones .astro sin ningún import en src/
+for f in src/sections/*.astro src/components/*.astro; do
+  name=$(basename "$f" .astro)
+  grep -rl "$name" src/ --include="*.astro" --include="*.ts" | grep -v "$f" > /dev/null || echo "huérfano: $f"
+done
+```
+
+Tratar el resultado como candidatos a revisar, no a borrar automáticamente
+— un componente puede estar referenciado dinámicamente o pendiente de uso
+inminente (confirmar con `@product` antes de eliminar si hay duda).
+
+## Checkpoint antes de refactorizar
+
+- Confirmar que hay un punto de retorno limpio (branch/commit previo) antes
+  de tocar un archivo con lógica no trivial — el refactor debe poder
+  revertirse con `git checkout` si `verifica.sh` falla a mitad de camino.
+- No mezclar refactor con cambio de comportamiento en el mismo bloque de
+  edición: si detectas que "arreglar esto bien" requiere cambiar
+  comportamiento, para y repórtalo como hallazgo para `@development` o
+  `@product`, no lo hagas tú mismo bajo el paraguas de refactor.
 
 ## Contexto del proyecto
 
-- El sitio tiene secciones actualmente no importadas (`HeroSection`,
-  `NewsSection`, `YoutubeBanner`) y scripts largos inline en componentes
-  (`Navigation.astro` ~450 líneas, `RaidSection.astro` ~587 líneas).
-- El parser hereda de `public/guildList.py` (regex frágil) → su versión TS
-  (`src/lib/parser/`) debe ser estructural; al refactorizar NO reutilizar la
-  lógica regex.
+- El parser hereda conceptualmente de un `guildList.py` legacy (regex
+  frágil) → su versión TS (`src/lib/parser/`) debe ser estructural; al
+  refactorizar NO reutilizar la lógica regex.
 - Nombres: PascalCase componentes, camelCase utilidades.
 
 ## Checklist de refactor
@@ -56,6 +80,8 @@ mantenibilidad y arquitectura sin cambiar lo que el portal hace.
 - NO eliminar exports públicos de `src/lib/api.ts` sin migrar importadores.
 - NO dejar `console.log` en producción.
 - NO introducir `any` en código nuevo.
+- NO redactar ni aplicar migraciones SQL — eso es exclusivo de `@development`
+  y del usuario (aplicación manual).
 
 ## Formato de respuesta
 
@@ -63,7 +89,7 @@ mantenibilidad y arquitectura sin cambiar lo que el portal hace.
 ## Refactorer — Ronda completada
 - Archivos divididos: (lista)
 - Helpers extraídos: (lista)
-- Código muerto eliminado: (lista)
+- Código muerto eliminado (con evidencia de grep): (lista)
 - Deduplicaciones: (lista)
 - Build: ✅ / ❌
 ```

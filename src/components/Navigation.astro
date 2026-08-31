@@ -413,7 +413,7 @@ const PUBLIC_LINKS = [
         }
         const headerOffset = 80;
         const elementPosition = targetElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
         history.pushState(null, '', `#${anchorMatch[1]}`);
         return;
@@ -642,8 +642,9 @@ const PUBLIC_LINKS = [
 
     // Abrir/cerrar el dropdown de cuenta (escritorio)
     document.querySelectorAll<HTMLButtonElement>('[data-dropdown-trigger]').forEach((trigger) => {
-      const menu = document.getElementById(trigger.getAttribute('aria-controls') ?? '') as HTMLElement | null;
-      if (!menu) return;
+      const menuRaw = document.getElementById(trigger.getAttribute('aria-controls') ?? '');
+      if (!menuRaw) return;
+      const menu = menuRaw as HTMLElement;
       function closeDropdown(): void {
         menu.classList.add('hidden');
         menu.classList.remove('block');

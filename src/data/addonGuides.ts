@@ -1,7 +1,7 @@
 // Guías del addon RaidDominion v3.0.0.
 // Contenido alineado con las features REALES del addon (RD_Constants.lua,
-// RD_Init.lua y RD_Utils_Registry.lua del dev en
-// D:\WowClient esMX\Interface\AddOns\RaidDominion).
+// RD_Init.lua y RD_Utils_Registry.lua). La ruta local del addon dev vive
+// SOLO en AGENTS.sections/addon.md (contrato entre repos).
 
 export type GuideCategory =
   | 'Primeros pasos'

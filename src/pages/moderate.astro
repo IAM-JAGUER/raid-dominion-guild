@@ -2,59 +2,60 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import { ui } from '@/lib/ui/design';
 ---
 
 <Layout title="Moderación - RaidDominion" description="Panel de moderación: verificación de hermandades y control de portales públicos.">
   <Navigation currentPath="/moderate" />
   <main class="relative py-16">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto">
       <Breadcrumb />
 
       <!-- Cargando -->
       <div id="loading" class="text-center py-20">
-        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400 italic mt-4">Verificando permisos…</p>
+        <div class={`${ui.loading.spinner} w-8 h-8`}></div>
+        <p class={`${ui.loading.liveText} italic mt-4`}>Verificando permisos…</p>
       </div>
 
       <!-- Sin autorización -->
-      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
+      <div id="denied" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <h1 class="text-xl font-bold text-white mb-2">Acceso restringido</h1>
-        <p id="denied-msg" class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta área es solo para moderadores y administradores.</p>
-        <a href="/" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
+        <h1 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h1>
+        <p id="denied-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es solo para moderadores y administradores.</p>
+        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
       </div>
 
       <!-- Panel -->
       <div id="panel" class="hidden space-y-8">
         <header class="animate-fade-in-1">
-          <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Moderación</h1>
-          <p class="text-sm text-gray-400 italic mt-2">Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
+          <h1 class={`${ui.text.hero} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase`}>Moderación</h1>
+          <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
         </header>
 
         <!-- Cola de claims -->
         <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Claims pendientes
           </h2>
-          <p id="claims-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <p id="claims-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="claims-list" class="space-y-4"></ul>
         </section>
 
         <!-- Hermandades verificadas -->
         <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades verificadas
           </h2>
-          <p id="verified-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <p id="verified-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="verified-list" class="space-y-3"></ul>
         </section>
 
         <!-- Auditoría -->
         <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.2s">
-          <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
             <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bitácora reciente
           </h2>
-          <p id="audit-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+          <p id="audit-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="audit-list" class="space-y-2"></ul>
         </section>
       </div>
@@ -65,11 +66,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 <script>
   import { getMyProfile, staffListGuilds, verifyClaim, staffSetGuildPublic, listAuditLog, type StaffGuildRow } from '@/lib/api';
   import { isStaff } from '@/lib/roles';
+  import { ui } from '@/lib/ui/design';
 
   function msgCls(ok: boolean): string {
     return ok
-      ? 'mt-2 text-xs rounded-md px-3 py-2 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300'
-      : 'mt-2 text-xs rounded-md px-3 py-2 bg-red-950/40 border border-red-600/40 text-red-300';
+      ? `mt-2 text-xs rounded-md px-3 py-2 ${ui.status.success}`
+      : `mt-2 text-xs rounded-md px-3 py-2 ${ui.status.error}`;
   }
 
   const res = await getMyProfile();

@@ -79,8 +79,11 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
       window.__RD_ENV__ = { url: rdEnvUrl || "", key: rdEnvKey || "" };
     </script>
     <!-- El contenedor del slot crece (flex-1) para que el Footer quede
-         pegado abajo incluso en páginas con poco contenido. -->
-    <div class="w-full flex-1 max-w-6xl px-6 mx-auto relative">
+         pegado abajo incluso en páginas con poco contenido. Es el ÚNICO
+         contenedor de contenido: su padding horizontal replica el del nav
+         superior (px-4 sm:px-6 lg:px-8) y los wrappers de cada página solo
+         centran (max-w-* mx-auto) sin añadir padding propio. -->
+    <div class="w-full flex-1 max-w-6xl px-4 sm:px-6 lg:px-8 mx-auto relative">
       <slot />
     </div>
     <div

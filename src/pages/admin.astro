@@ -2,33 +2,34 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import { ui } from '@/lib/ui/design';
 ---
 
 <Layout title="Administración - RaidDominion" description="Panel de administración de usuarios del portal RaidDominion.">
   <Navigation currentPath="/admin" />
   <main class="relative py-16">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto">
       <Breadcrumb />
 
       <!-- Cargando -->
       <div id="loading" class="text-center py-20">
-        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400 italic mt-4">Verificando permisos…</p>
+        <div class={`${ui.loading.spinner} w-8 h-8`}></div>
+        <p class={`${ui.loading.liveText} italic mt-4`}>Verificando permisos…</p>
       </div>
 
       <!-- Sin autorización -->
-      <div id="denied" class="hidden bg-gray-900/60 border border-red-900/40 rounded-md p-8 sm:p-10 text-center">
+      <div id="denied" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <h1 class="text-xl font-bold text-white mb-2">Acceso restringido</h1>
-        <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">Esta área es exclusiva para administradores.</p>
-        <a href="/" class="inline-block px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105">Volver al inicio</a>
+        <h1 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h1>
+        <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es exclusiva para administradores.</p>
+        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
       </div>
 
       <!-- Panel -->
       <div id="panel" class="hidden space-y-8">
         <header class="animate-fade-in-1">
-          <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase">Administración</h1>
-          <p class="text-sm text-gray-400 italic mt-2">Gestión de usuarios y roles. El primer admin se siembra manualmente en la base de datos.</p>
+          <h1 class={`${ui.text.hero} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase`}>Administración</h1>
+          <p class={`${ui.text.bodyMuted} italic mt-2`}>Gestión de usuarios y roles. El primer admin se siembra manualmente en la base de datos.</p>
         </header>
 
         <!-- Vista: listado -->
@@ -40,12 +41,12 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
           <div class="relative animate-fade-in-1" style="animation-delay: 0.1s">
             <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input type="search" id="search" placeholder="Buscar por correo, nombre o personaje…"
-              class="w-full pl-9 pr-4 py-2.5 rounded-md bg-gray-900/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
           </div>
 
           <!-- Usuarios -->
           <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
-            <p id="users-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando usuarios…</p>
+            <p id="users-status" class={`${ui.loading.liveText} italic mb-3`} aria-live="polite">Cargando usuarios…</p>
             <ul id="users-list" class="space-y-3"></ul>
           </section>
         </div>
@@ -53,7 +54,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
         <!-- Vista: detalle de usuario -->
         <div id="view-detail" class="hidden space-y-6">
           <button type="button" id="detail-back"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
+            class={`${ui.btnBase} ${ui.btnSecondary} px-4 py-2 text-xs font-black uppercase tracking-widest`}>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Volver al listado
           </button>
@@ -63,8 +64,8 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
             <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
               <div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Detalle de usuario</p>
-                <h2 id="detail-name" class="text-2xl font-bold text-amber-200"></h2>
-                <p id="detail-email" class="text-sm text-gray-400 mt-1"></p>
+                <h2 id="detail-name" class={`${ui.text.h1} text-amber-200`}></h2>
+                <p id="detail-email" class={`${ui.text.bodyMuted} mt-1`}></p>
               </div>
               <span id="detail-role-badge" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border"></span>
             </div>
@@ -74,13 +75,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
           <!-- Gestión de rol (solo admin) -->
           <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
               <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Gestión de rol
             </h2>
             <div class="flex flex-wrap items-center gap-3">
-              <select id="detail-role-select" class="px-3 py-2 rounded-md bg-gray-900/80 border border-gray-700 focus:border-amber-500 outline-none text-gray-100 text-sm"></select>
+              <select id="detail-role-select" class={`${ui.form.input} ${ui.focusRing} !w-auto`}></select>
               <button id="detail-role-save" type="button"
-                class="px-5 py-2 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:pointer-events-none">
+                class={`${ui.btnBase} ${ui.btnPrimary} px-5 py-2 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}>
                 Guardar rol
               </button>
             </div>
@@ -89,10 +90,10 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
           <!-- Historial de auditoría del usuario -->
           <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
+            <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
               <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Historial de auditoría
             </h2>
-            <p id="detail-audit-status" class="text-sm text-gray-400 italic" aria-live="polite">Cargando…</p>
+            <p id="detail-audit-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
             <ul id="detail-audit-list" class="mt-3 space-y-2"></ul>
           </section>
         </div>
@@ -105,6 +106,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
   import { getMyProfile, adminListUsers, adminSetRole, listAuditLog, type AdminUserRow, type AuditRow } from '@/lib/api';
   import { ROLES } from '@/lib/roles';
   import { ADMIN_PANELS, resolveAdminHash } from '@/lib/ui/tabs';
+  import { ui } from '@/lib/ui/design';
   import type { RaiddominionRole } from '@/types/database';
 
   const ROLE_LABELS: Record<RaiddominionRole, string> = {
@@ -257,7 +259,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 
     const detailBtn = document.createElement('button');
     detailBtn.type = 'button';
-    detailBtn.className = 'px-4 py-2 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest';
+    detailBtn.className = `${ui.btnBase} ${ui.btnSecondary} px-4 py-2 text-[11px] font-black uppercase tracking-widest`;
     detailBtn.textContent = 'Detalle';
     detailBtn.addEventListener('click', () => openDetail(u.id));
     right.appendChild(detailBtn);
@@ -356,7 +358,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (saveBtn.dataset.confirm !== 'yes') {
       saveBtn.dataset.confirm = 'yes';
       saveBtn.textContent = '¿Confirmar cambio?';
-      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-amber-950/40 border border-amber-600/40 text-amber-200';
+      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.warning}`;
       msg.textContent = `Se cambiará el rol de ${u.email ?? u.id} a «${ROLE_LABELS[newRole]}».`;
       window.setTimeout(() => {
         if (saveBtn.dataset.confirm === 'yes') {
@@ -375,7 +377,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     saveBtn.disabled = false;
     if (r.ok) {
       u.role = newRole;
-      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-emerald-950/30 border border-emerald-600/40 text-emerald-300';
+      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.success}`;
       msg.textContent = 'Rol actualizado.';
       saveBtn.textContent = 'Guardar rol';
       renderStats();
@@ -385,7 +387,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       badge.textContent = ROLE_LABELS[newRole];
       badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
     } else {
-      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-red-950/40 border border-red-600/40 text-red-300';
+      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
       msg.textContent = r.error || 'No se pudo cambiar el rol.';
       saveBtn.textContent = 'Guardar rol';
     }

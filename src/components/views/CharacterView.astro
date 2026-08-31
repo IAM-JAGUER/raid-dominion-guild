@@ -119,7 +119,7 @@
     const body = document.getElementById('pv-body') as HTMLElement;
     const eq = equipmentCard(c);
     if (eq) body.appendChild(eq);
-    const bands = await getPublicBandsForCharacter(c.name, c.sv_guild_name);
+    const bands = await getPublicBandsForCharacter(c.name);
     if (bands.ok && bands.bands && bands.bands.length > 0) body.appendChild(bandsCard(bands.bands));
 
     showView('view-personaje');

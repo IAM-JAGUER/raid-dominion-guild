@@ -7,7 +7,6 @@
   "verify": "scripts/verifica.sh",
   "contract": {
     "parser_path": "src/lib/parser/savedVariables.ts",
-    "addon_path": "/mnt/d/WowClient esMX/Interface/AddOns/RaidDominion",
     "keys": ["registry", "characters", "bands", "Guild"]
   },
   "supabase": {

@@ -15,9 +15,9 @@
 
 ## 2. Propósito del portal
 
-1. **Descarga del addon**: versión oficial v3.0.0 (`D:\_DEV\RaidDominion - main`).
-   El dev del WoW client (`D:\WowClient esMX\Interface\AddOns\RaidDominion`) es
-   la versión MÁS RECIENTE; el portal sirve la versión ANTERIOR (oficial).
+1. **Descarga del addon**: el portal sirve la versión oficial anterior a la
+   del addon dev (más reciente). Rutas locales de ambos repos: SOLO en
+   `AGENTS.sections/addon.md` — no las dupliques en otro archivo.
 2. **Upload de SavedVariables**: el usuario sube `RaidDominionDB` (`.lua`) y el
    portal lo parsea para mostrar el roster/bandas/roles de su hermandad.
 3. **Verificación de maestro de hermandad**: si se confirma maestro, se le
@@ -133,6 +133,7 @@ src/
 │   ├── roles.ts     # roles y helpers
 │   ├── api.ts       # wrappers RPC/queries tipadas
 │   ├── routes.ts    # resolver de rutas públicas
+│   ├── ui/design.ts # tokens visuales — ver AGENTS.sections/design.md
 │   └── parser/      # savedVariables.ts (parser SV)
 ├── types/           # interfaces TS
 └── utils/           # utilidades
@@ -154,10 +155,13 @@ src/
   dashboard viven SOLO en `src/lib/ui/tabs.ts` (`DASHBOARD_TABS`, `PANELS`,
   `panelFromHash`). `dashboard.astro` y `Navigation.astro` los importan; jamás
   escribir ids/labels/hashes sueltos en esas páginas.
+- **Contrato único visual**: cualquier clase Tailwind que se repita 2+ veces
+  se convierte en token de `src/lib/ui/design.ts` antes de seguir usándose
+  suelta. Reglas y razones completas en `AGENTS.sections/design.md`.
 - `build` real: `astro build`. Para verificación usar SIEMPRE
   `scripts/verifica.sh` (ver §8).
 
-## 8. Build & Deploy
+## 8. Build, Deploy y Migraciones
 
 ```bash
 npm install
@@ -168,7 +172,9 @@ npm run preview     # previsualizar build
 
 - Deploy Netlify (Node 20). Redirects SPA en `netlify.toml` si se añaden rutas.
 - Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-- ⚠️ El proyecto reside en `/mnt/d/` (DrvFs/WSL2): `astro check` puede tardar.
+- ⚠️ El proyecto reside en `/mnt/d/` (DrvFs/WSL2): `astro check` puede tardar;
+  se acepta como costo conocido, no se persigue optimizar más allá del
+  sandbox ext4 de `verifica.sh`.
 
 ### Build (sandbox ext4)
 
@@ -182,42 +188,101 @@ scripts/verifica.sh --async    # background; resultado en ~/rd-build/.build-stat
 scripts/verifica.sh --ci       # gate de build (uso interno)
 ```
 
+### Migraciones Supabase — política vigente: aplicación manual, sin CLI
+
+Decisión deliberada (2026-08-30): el proyecto NO usa el CLI de Supabase.
+Las migraciones se redactan en `supabase/migrations/` siguiendo P003 de
+`patrones.md`, pero **se aplican a mano vía el SQL Editor del dashboard de
+Supabase, exclusivamente por el usuario** — ningún agente ejecuta SQL contra
+la base de datos remota, aunque tenga `bash: allow`.
+
+Checklist al aplicar una migración manualmente:
+1. Verificar en el header del dashboard que el proyecto activo es el de
+   RaidDominion (se comparte instancia con `lexigo`/`encuentrosvip`/
+   `agendaya`/`guild_portal` — aplicar en el proyecto equivocado es el
+   riesgo real de este flujo, no el SQL en sí).
+2. Ejecutar el `.sql`.
+3. Registrar la aplicación en `.opencode/improve/ciclos.json` →
+   `migraciones_aplicadas` (archivo, fecha, `project_ref_verificado: true`)
+   inmediatamente — no dejarlo para después (ver `frallas.md` F012).
+
+Sin CLI no hay tabla de tracking automática; `ciclos.json` es la única
+fuente de verdad de qué se aplicó y cuándo. Si en algún momento se decide
+adoptar el CLI (uso recomendado: solo diagnóstico de solo-lectura,
+`migration list`/`db diff`, sin pasar a `db push` salvo decisión explícita
+posterior), instalar como dev dependency (`npm install -D supabase`) desde
+la misma terminal WSL que se use siempre para el proyecto — el binario
+descargado es específico de plataforma y no es intercambiable entre WSL y
+Windows nativo sobre la misma carpeta.
+
 ## 9. Trabajar con un agente (opencode)
 
-- **Commits con permiso**: antes de commit, presentar resumen de cambios +
-  checklist + preguntar explícitamente. No commitear sin autorización.
-- **Checklist de cambios:**
-  1. `scripts/verifica.sh` — sin errores nuevos.
-  2. `git diff --stat` — solo archivos previstos.
-  3. Sin secretos/claves en el diff.
-  4. Comportamiento esperado verificado (navegación, parseo, roles).
-  5. Mensaje descriptivo en español, un cambio lógico por commit.
+### Modelo de sesión (vigente 2026-08-30)
+
+Una sola sesión de edición (**Zeus**, WSL bash) + servidor local
+(`npm run dev`), ambos auto-arrancados en el editor. No hay sesión
+secundaria editando en paralelo. Esto reemplaza el modelo anterior de
+varias sesiones simultáneas — ver `priorities.md` → "Histórico" para el
+conflicto de merge que motivó el cambio, y no repetir ese patrón si se
+reactiva un modelo multi-sesión en el futuro.
+
+### Permisos que requieren confirmación explícita antes de ejecutar
+
+- **Commits**: antes de commit, presentar resumen de cambios + checklist +
+  preguntar explícitamente. No commitear sin autorización.
+- **Migraciones**: el agente redacta el `.sql`; la aplicación es SIEMPRE
+  manual y exclusiva del usuario (§8). El agente nunca ejecuta SQL contra
+  Supabase, con o sin `bash: allow`.
+
+### Checklist de cambios
+
+1. `scripts/verifica.sh` — sin errores nuevos.
+2. `git diff --stat` — solo archivos previstos.
+3. Sin secretos/claves en el diff.
+4. Comportamiento esperado verificado (navegación, parseo, roles).
+5. Mensaje descriptivo en español, un cambio lógico por commit.
+
 - Leer archivos antes de editar. Entender convenciones antes de escribir.
 - Recordar: tablas `raiddominion_` NO `profiles`/`guilds` genéricos.
 
 ## 10. Sistema de agentes de mejora
 
 Agentes en `.opencode/agents/`, registro en `.opencode/opencode.json`,
-prioridades en `.opencode/improve/priorities.md`. Cualquier agente DEBE:
+prioridades en `.opencode/improve/priorities.md`, convenciones visuales en
+`AGENTS.sections/design.md`, fallas conocidas en `.opencode/improve/frallas.md`,
+patrones validados en `.opencode/improve/patrones.md`. Cualquier agente DEBE:
 
-1. Leer `.opencode/improve/priorities.md` antes de cambios estructurales.
+1. Leer `.opencode/improve/priorities.md` y `.opencode/improve/frallas.md`
+   antes de cambios estructurales.
 2. Ejecutar `scripts/verifica.sh` después de cada cambio (o
    `scripts/verifica.sh --check` si el cambio es de tipos).
 3. NO modificar archivos de otras apps del ecosistema.
 4. NO modificar `../supabase-shared/` (salvo el bloque raiddominion coordinado).
+5. NO aplicar migraciones SQL — solo redactarlas (§8).
 
 | Agente | Rol | Secciones extra |
 |---|---|---|
-| `ui-ux` | Accesibilidad, responsive, tema WoW, i18n | — |
-| `product` | Features de comunidad, flujo member→guild_master, conversión | `supabase-tables.md` |
-| `development` | Supabase, parser SV, dashboards, rutas | `supabase-tables.md`, `parser.md`, `addon.md` |
+| `ui-ux` | Accesibilidad, responsive, tema WoW, i18n, personalidad visual, motion | `design.md` |
+| `product` | Features de comunidad, flujo member→guild_master, conversión, métricas | `supabase-tables.md`, `frallas.md`, `patrones.md` |
+| `development` | Supabase, parser SV, dashboards, rutas | `supabase-tables.md`, `parser.md`, `addon.md`, `design.md` |
 | `refactorer` | Refactor seguro que preserva comportamiento | — |
-| `qa` | Types, build, RLS, reglas multi-app, parser | `supabase-tables.md`, `parser.md` |
+| `qa` | Types, build, RLS, reglas multi-app, parser, gate mínimo de accesibilidad | `supabase-tables.md`, `parser.md`, `design.md`, `frallas.md` |
 
-Flujo: `product` define → `development`/`ui-ux` implementan → `refactorer`
-mantiene → `qa` aprueba antes de commit.
+Flujo: `product` define (con métrica) → `development`/`ui-ux` implementan →
+`refactorer` mantiene → `qa` aprueba antes de commit.
 
 ## 11. Addon RaidDominion (contrato entre repos)
 
-Addon dev en `D:\WowClient esMX\Interface\AddOns\RaidDominion` (v3.0.0).
+Rutas locales del addon dev y del repo del portal: SOLO en
+`AGENTS.sections/addon.md` — no las repitas en `development.md`, `product.md`
+ni ningún otro archivo; si cambian, se actualizan en un solo lugar.
 Contrato completo: `AGENTS.sections/addon.md`.
+
+## 12. Changelog de este archivo
+
+- **2026-08-30**: separadas las convenciones visuales a
+  `AGENTS.sections/design.md` (antes mezcladas en `priorities.md`);
+  documentado el modelo de sesión única (Zeus + servidor); formalizada la
+  política de migraciones manuales sin CLI con checklist y ledger en
+  `ciclos.json`; unificadas las rutas locales del addon en un solo archivo
+  de referencia; agregado gate mínimo de accesibilidad a `qa.md`.

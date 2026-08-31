@@ -17,14 +17,23 @@ export interface TabDef {
 }
 
 // Pestañas del dashboard de usuario (orden de la barra superior).
-// CONTRATO APROBADO: exactamente 4 pestañas — Registro · Bandas · Hermandad ·
-// Perfil. NO añadir pestañas nuevas sin aprobación explícita del usuario.
+// CONTRATO APROBADO: Personajes · Bandas · Hermandad · Registro. La
+// configuración NO es una pestaña: se abre desde su ícono de engranaje.
 export const DASHBOARD_TABS: TabDef[] = [
-  { id: 'addon', label: 'Registro', href: '/dashboard#addon' },
+  { id: 'personajes', label: 'Personajes', href: '/dashboard#personajes' },
   { id: 'bandas', label: 'Bandas', href: '/dashboard#bandas' },
   { id: 'hermandad', label: 'Hermandad', href: '/dashboard#hermandad' },
-  { id: 'perfil', label: 'Perfil', href: '/dashboard#perfil' },
+  { id: 'addon', label: 'Registro', href: '/dashboard#addon' },
 ];
+
+// Panel oculto de configuración del dashboard (perfil, seguridad y zona de
+// peligro): se abre con el ícono de engranaje del encabezado; NO es una
+// pestaña de la barra. Conserva el hash histórico #perfil para deep-links.
+export const DASHBOARD_CONFIG = {
+  id: 'perfil',
+  label: 'Configuración',
+  hash: '#perfil',
+} as const;
 
 // Pestañas del portal público de hermandad (/:slug): Miembros · Bandas ·
 // Reglas. Se navegan por hash (#miembros/#bandas/#reglas). Los paneles vacíos

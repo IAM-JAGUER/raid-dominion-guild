@@ -1216,8 +1216,7 @@ export async function getPublicCharacterSlugsByNames(
 // Ya no depende del snapshot: las bandas viven en su propia tabla con su
 // visibilidad espejo.
 export async function getPublicBandsForCharacter(
-  charName: string,
-  guildName: string | null
+  charName: string
 ): Promise<{ ok: boolean; bands?: PublicBandSummary[]; error?: string }> {
   const name = (charName ?? '').trim().toLowerCase();
   if (!name) return { ok: true, bands: [] };

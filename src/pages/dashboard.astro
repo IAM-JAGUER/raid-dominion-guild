@@ -4,14 +4,13 @@ import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import { ui } from '@/lib/ui/design';
 
-const ctaPrincipal = `${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest`;
 const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 ---
 
 <Layout title="Mi Dashboard - RaidDominion" description="Tu addon en la comunidad RaidDominion: registro, bandas, hermandad y perfil.">
   <Navigation currentPath="/dashboard" />
   <main class="relative py-16">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto">
       <Breadcrumb />
 
       <!-- Encabezado del espacio personal -->
@@ -19,12 +18,21 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <div class="flex items-center gap-4">
           <div id="avatar" class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black text-xl font-black shadow-lg shadow-amber-900/30 select-none">–</div>
           <div>
-            <h1 id="account-title" class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider">Cuenta</h1>
-            <p id="user-email" class="text-gray-400 text-sm italic"></p>
+            <h1 id="account-title" class={`${ui.text.h1} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider`}>Cuenta</h1>
+            <p id="user-email" class={`${ui.text.bodyMuted} italic`}></p>
           </div>
         </div>
-        <span id="role-badge" class="px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300">…</span>
-        <a href="/upload" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300 hover:bg-amber-800/50 transition-colors" title="Sube tu SavedVariables">
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <span id="role-badge" class="px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300">…</span>
+          <span id="validated-badge" class="px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-400">…</span>
+          <span id="public-badge" class="px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-400">…</span>
+          <button type="button" id="config-btn"
+            class={`inline-flex items-center justify-center px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300 hover:text-amber-200 hover:border-amber-500/50 ${ui.transition} ${ui.focusRing}`}
+            aria-label="Configuración de perfil, seguridad y zona de peligro" title="Configuración de perfil, seguridad y zona de peligro">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </button>
+        </div>
+        <a href="/upload" class={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300 hover:bg-amber-800/50 ${ui.transition}`} title="Sube tu SavedVariables">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
           Subir SV
         </a>
@@ -54,7 +62,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                esquina inferior cuadrada) -->
           <div>
             <div class={`${ui.sectionHead} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-              <div class="md:flex md:items-start md:justify-between gap-6">
+              <div class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0">
               <div class="min-w-0">
                 <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Registro del addon</p>
                 <h2 id="hdr-addon-title" class="text-lg font-bold text-amber-200 flex items-center">
@@ -175,10 +183,50 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
       </section>
 
+      <!-- ── Mis Personajes ──────────────────────────────────────────────── -->
+      <section id="panel-personajes" role="tabpanel" aria-labelledby="tab-personajes" class="hidden">
+        <div class={`${ui.sectionHead} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+          <div class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0">
+            <div class="min-w-0">
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Personajes</p>
+              <h2 id="hdr-chars-title" class="text-lg font-bold text-amber-200 flex items-center">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                <span id="hdr-chars-title-text">Mi roster de personajes</span>
+              </h2>
+              <div class="flex flex-wrap gap-2 mt-3" aria-label="Indicadores de personajes">
+                <span class="inline-flex items-baseline gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-950/50 border border-amber-700/30 rounded-md px-2.5 py-1">
+                  Personajes <strong id="hdr-chars-total" class="text-sm font-black text-amber-300">0</strong>
+                </span>
+                <span class="inline-flex items-baseline gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-950/50 border border-amber-700/30 rounded-md px-2.5 py-1">
+                  Públicos <strong id="hdr-chars-public" class="text-sm font-black text-amber-300">0</strong>
+                </span>
+              </div>
+            </div>
+
+            <!-- Ayuda al stat: detecta más personajes subiendo el SV -->
+            <div class="md:w-80 shrink-0">
+              <div class="bg-gray-950/50 border border-amber-700/30 rounded-md p-3 space-y-2">
+                <p class="block text-[11px] font-black uppercase tracking-widest text-gray-500">¿Falta algún personaje?</p>
+                <a href="/upload" class="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-amber-300 hover:text-amber-200 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                  Subir SavedVariables
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class={`${ui.sectionBody} space-y-5`}>
+          <div id="characters-list" class="space-y-4"></div>
+          <p id="characters-onboarding" class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></p>
+          <p id="characters-status" class="text-sm text-gray-400"></p>
+        </div>
+      </section>
+
       <!-- ── Mis Bandas ──────────────────────────────────────────────────── -->
       <section id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden">
         <div class={`${ui.sectionHead} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-          <div class="md:flex md:items-start md:justify-between gap-6">
+          <div class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0">
             <div class="min-w-0">
               <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Gestión de bandas</p>
               <h2 id="hdr-band-name" class="text-lg font-bold text-amber-200 flex items-center">
@@ -217,20 +265,20 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </div>
         </div>
 
-        <div class={`${ui.sectionBody} space-y-6`}>
-          <!-- Onboarding: visitante sin validar no puede publicar bandas -->
-          <div id="bands-onboarding" class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></div>
-
+        <div class={`${ui.sectionBody} space-y-5`}>
+          
           <!-- Detalle de la banda seleccionada -->
           <div id="band-detail" class="hidden"></div>
-          <div id="bands-empty" class={`${ui.panel} p-6 sm:p-8 max-w-2xl mx-auto text-center`}>
-            <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <p class="font-bold text-white mb-1">Aún no detectamos bandas</p>
-            <p class="text-sm text-gray-400 mb-5">Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí.</p>
-            <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
-          </div>
-          <p id="bands-status" class="text-sm text-gray-400" aria-live="polite"></p>
+          <!-- Onboarding: visitante sin validar no puede publicar bandas -->
+          <div id="bands-onboarding" class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></div>
         </div>
+        <div id="bands-empty" class={`${ui.panel} p-6 sm:p-8 max-w-2xl mx-auto text-center`}>
+          <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p class="font-bold text-white mb-1">Aún no detectamos bandas</p>
+          <p class="text-sm text-gray-400 mb-5">Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí.</p>
+          <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
+        </div>
+        <p id="bands-status" class="text-sm text-gray-400" aria-live="polite"></p>
       </section>
 
       <!-- ── Mi Hermandad ────────────────────────────────────────────────── -->
@@ -254,7 +302,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <!-- Gestión multi-hermandad -->
         <div id="guild-manage" class="hidden">
           <div class={`${ui.sectionHead} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-            <div class="md:flex md:items-start md:justify-between gap-6">
+            <div class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0">
               <div class="min-w-0">
                 <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Gestión de hermandad</p>
                   <h2 id="hdr-guild-name" class="text-lg font-bold text-amber-200 flex items-center">
@@ -302,8 +350,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
       </section>
 
-      <!-- ── Mi Perfil (datos + personajes + seguridad) ──────────────────── -->
-      <section id="panel-perfil" role="tabpanel" aria-labelledby="tab-perfil" class="hidden space-y-6">
+      <!-- ── Panel oculto de configuración (perfil + seguridad + peligro) ───
+           No es una pestaña de la barra: se abre con el ícono de engranaje del
+           encabezado (DASHBOARD_CONFIG en tabs.ts, hash #perfil). -->
+      <section id="panel-perfil" role="region" aria-label="Configuración de perfil, seguridad y zona de peligro" class="hidden space-y-6">
         <!-- Sección 1: Datos del perfil (ventana numerada y colapsable) -->
         <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 1: Datos del perfil">
           <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-amber-900/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
@@ -322,68 +372,46 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="display-name" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Nombre visible</label>
+              <label for="display-name" class={ui.form.label}>Nombre visible</label>
               <input type="text" id="display-name" maxlength="40" placeholder="Tu nombre en el portal"
-                class="w-full px-3 py-2.5 rounded-md bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-600" />
+                class={`${ui.form.input} ${ui.focusRing}`} />
             </div>
             <div>
-              <label for="character-main" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Personaje principal</label>
+              <label for="character-main" class={ui.form.label}>Personaje principal</label>
               <div class="relative">
                 <select id="character-main" disabled
-                  class="w-full appearance-none cursor-pointer pl-3 pr-10 py-2.5 rounded-md bg-gray-800/70 border border-gray-700 hover:border-gray-600 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 focus-visible:outline-none outline-none text-gray-100 text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                  class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}>
                   <option value="">Ninguno</option>
                 </select>
                 <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </div>
-              <p id="character-main-hint" class="text-[11px] text-gray-500 mt-1.5 italic">Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
+              <p id="character-main-hint" class={ui.form.helperText}>Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
             </div>
           </div>
 
-          <label for="profile-public" class="mt-6 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 transition-colors">
+          <label for="profile-public" class={`mt-6 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 ${ui.transition}`}>
             <input type="checkbox" id="profile-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
-            <span class="text-sm text-gray-300 font-medium">Perfil y datos públicos
-              <span class="block text-xs text-gray-500 italic mt-0.5">Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
+            <span class={`${ui.text.body} font-medium`}>Perfil y datos públicos
+              <span class={`block ${ui.text.caption} italic mt-0.5`}>Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
             </span>
           </label>
 
           <div class="mt-5 flex flex-wrap items-center gap-3">
             <button id="save-profile"
-              class="px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
+              class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}>
               Guardar cambios
             </button>
-            <a id="public-profile-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-md border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all text-xs font-black uppercase tracking-widest">Ver perfil público →</a>
+            <a id="public-profile-link" href="#" target="_blank" rel="noopener" class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}>Ver perfil público →</a>
           </div>
           <p id="profile-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
           </div>
         </details>
 
-        <!-- Sección 2: Mis personajes (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 2: Mis personajes">
-          <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-amber-900/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
-            <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-sm font-black flex items-center justify-center">2</span>
-              <span class="min-w-0">
-                <span class="block text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Personajes</span>
-                <span class="block text-lg font-bold text-amber-200 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Mis personajes</span>
-              </span>
-            </span>
-            <span class="flex items-center gap-3">
-              <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400/80">Visibilidad al instante</span>
-              <svg aria-hidden="true" class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </summary>
-          <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
-          <p id="characters-onboarding" class="hidden mb-4 text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></p>
-          <div id="characters-list" class="space-y-4"></div>
-          <p id="characters-status" class="text-sm text-gray-400"></p>
-          </div>
-        </details>
-
-        <!-- Sección 3: Seguridad (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 3: Seguridad">
+        <!-- Sección 2: Seguridad (ventana numerada y colapsable) -->
+        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 2: Seguridad">
           <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
             <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">3</span>
+              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">2</span>
               <span class="min-w-0">
                 <span class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Seguridad</span>
                 <span class="block text-lg font-bold text-amber-200 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>Cuenta y contraseña</span>
@@ -397,18 +425,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
           <div class="space-y-4">
             <div>
-              <label for="new-password" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Nueva contraseña</label>
+              <label for="new-password" class={ui.form.label}>Nueva contraseña</label>
               <input type="password" id="new-password" autocomplete="new-password" minlength="8"
-                class="w-full px-3 py-2.5 rounded-md bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm" />
-              <p class="text-[11px] text-gray-500 mt-1.5 italic">Mínimo 8 caracteres, con al menos una letra y un número.</p>
+                class={`${ui.form.input} ${ui.focusRing}`} />
+              <p class={ui.form.helperText}>Mínimo 8 caracteres, con al menos una letra y un número.</p>
             </div>
             <div>
-              <label for="new-password-confirm" class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Confirmar nueva contraseña</label>
+              <label for="new-password-confirm" class={ui.form.label}>Confirmar nueva contraseña</label>
               <input type="password" id="new-password-confirm" autocomplete="new-password"
-                class="w-full px-3 py-2.5 rounded-md bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm" />
+                class={`${ui.form.input} ${ui.focusRing}`} />
             </div>
             <button id="save-password"
-              class="px-6 py-2.5 rounded-md bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none">
+              class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}>
               Actualizar contraseña
             </button>
             <p id="password-msg" class="hidden text-sm rounded-md px-4 py-2.5" role="status"></p>
@@ -416,22 +444,22 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
           <div class="border-t border-gray-700/50 mt-6 pt-5 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="text-base font-bold text-red-300">Sesión</h3>
-              <p class="text-xs text-gray-500">Cierra sesión en este dispositivo.</p>
+              <h3 class={`${ui.text.h3} text-red-300`}>Sesión</h3>
+              <p class={ui.text.caption}>Cierra sesión en este dispositivo.</p>
             </div>
             <button id="logout-btn"
-              class="px-6 py-2.5 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+              class={`${ui.btnBase} px-6 py-2.5 border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest`}>
               Cerrar sesión
             </button>
           </div>
           </div>
         </details>
 
-        <!-- Sección 4: Zona de peligro (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 4: Zona de peligro">
+        <!-- Sección 3: Zona de peligro (ventana numerada y colapsable) -->
+        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 3: Zona de peligro">
           <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
             <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">4</span>
+              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">3</span>
               <span class="min-w-0">
                 <span class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Zona de peligro</span>
                 <span class="block text-lg font-bold text-red-300 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>Acciones destructivas</span>
@@ -448,26 +476,26 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <div class="border border-amber-800/40 bg-amber-950/10 rounded-md p-5">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div class="max-w-md">
-                <h3 class="text-base font-bold text-amber-300">Resetear datos del SV</h3>
-                <p class="text-xs text-gray-500 mt-1">Borra tu historial de uploads, los personajes detectados y, si la tienes, tu hermandad con su portal. Tu rol vuelve a <strong class="text-amber-300">visitante</strong> (salvo staff) y podrás re-subir tu SavedVariables para empezar desde cero. Tu cuenta, nombre visible y datos en otras apps del ecosistema se conservan.</p>
+                <h3 class={`${ui.text.h3} text-amber-300`}>Resetear datos del SV</h3>
+                <p class={`${ui.text.caption} mt-1`}>Borra tu historial de uploads, los personajes detectados y, si la tienes, tu hermandad con su portal. Tu rol vuelve a <strong class="text-amber-300">visitante</strong> (salvo staff) y podrás re-subir tu SavedVariables para empezar desde cero. Tu cuenta, nombre visible y datos en otras apps del ecosistema se conservan.</p>
               </div>
               <button id="reset-data-btn"
-                class="px-6 py-2.5 rounded-md border border-amber-700/50 text-amber-300 hover:bg-amber-950/40 hover:text-amber-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                class={`${ui.btnBase} px-6 py-2.5 border border-amber-700/50 text-amber-300 hover:bg-amber-950/40 hover:text-amber-200 text-xs font-black uppercase tracking-widest`}>
                 Resetear mis datos
               </button>
             </div>
 
             <div id="reset-data-confirm" class="hidden mt-4 border border-amber-800/50 bg-amber-950/20 rounded-md p-5">
-              <p class="text-sm text-amber-100 mb-3">Esto borrará permanentemente tu historial de SV, personajes y hermandad. Escribe <span class="font-black uppercase">RESETEAR</span> para confirmar.</p>
+              <p class={`${ui.text.body} text-amber-100 mb-3`}>Esto borrará permanentemente tu historial de SV, personajes y hermandad. Escribe <span class="font-black uppercase">RESETEAR</span> para confirmar.</p>
               <div class="flex flex-wrap items-center gap-3">
                 <input type="text" id="reset-data-input" autocomplete="off" placeholder="RESETEAR"
-                  class="w-full sm:w-56 px-3 py-2.5 rounded-md bg-gray-900/70 border border-amber-900/60 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm uppercase placeholder:normal-case" />
+                  class={`${ui.form.input} ${ui.focusRing} sm:w-56 uppercase placeholder:normal-case`} />
                 <button id="reset-data-confirm-btn" disabled
-                  class="px-6 py-2.5 rounded-md bg-amber-800/60 hover:bg-amber-700/70 text-amber-100 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none">
+                  class={`${ui.btnBase} px-6 py-2.5 bg-amber-800/60 hover:bg-amber-700/70 text-amber-100 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}>
                   Confirmar reseteo
                 </button>
                 <button id="reset-data-cancel"
-                  class="px-4 py-2.5 rounded-md border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                  class={`${ui.btnBase} px-4 py-2.5 border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest`}>
                   Cancelar
                 </button>
               </div>
@@ -479,26 +507,26 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <div class="border border-red-800/40 bg-red-950/10 rounded-md p-5 mt-4">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div class="max-w-md">
-                <h3 class="text-base font-bold text-red-400">Eliminar cuenta</h3>
-                <p class="text-xs text-gray-500 mt-1">Borra permanentemente tu perfil, personajes, uploads y hermandades de RaidDominion. Tu cuenta de usuario y tus datos en otras apps del ecosistema se conservan.</p>
+                <h3 class={`${ui.text.h3} text-red-400`}>Eliminar cuenta</h3>
+                <p class={`${ui.text.caption} mt-1`}>Borra permanentemente tu perfil, personajes, uploads y hermandades de RaidDominion. Tu cuenta de usuario y tus datos en otras apps del ecosistema se conservan.</p>
               </div>
               <button id="delete-account-btn"
-                class="px-6 py-2.5 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                class={`${ui.btnBase} px-6 py-2.5 border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 text-xs font-black uppercase tracking-widest`}>
                 Eliminar mi cuenta
               </button>
             </div>
 
             <div id="delete-account-confirm" class="hidden mt-4 border border-red-800/50 bg-red-950/20 rounded-md p-5">
-              <p class="text-sm text-red-200 mb-3">Esto borrará permanentemente todos tus datos de RaidDominion. Escribe <span class="font-black uppercase">ELIMINAR</span> para confirmar.</p>
+              <p class={`${ui.text.body} text-red-200 mb-3`}>Esto borrará permanentemente todos tus datos de RaidDominion. Escribe <span class="font-black uppercase">ELIMINAR</span> para confirmar.</p>
               <div class="flex flex-wrap items-center gap-3">
                 <input type="text" id="delete-account-input" autocomplete="off" placeholder="ELIMINAR"
-                  class="w-full sm:w-56 px-3 py-2.5 rounded-md bg-gray-900/70 border border-red-900/60 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 outline-none text-gray-100 text-sm uppercase placeholder:normal-case" />
+                  class={`${ui.form.input} ${ui.focusRing} sm:w-56 uppercase placeholder:normal-case`} />
                 <button id="delete-account-confirm-btn" disabled
-                  class="px-6 py-2.5 rounded-md bg-red-900/60 hover:bg-red-700/70 text-red-100 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none">
+                  class={`${ui.btnBase} px-6 py-2.5 bg-red-900/60 hover:bg-red-700/70 text-red-100 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}>
                   Confirmar eliminación
                 </button>
                 <button id="delete-account-cancel"
-                  class="px-4 py-2.5 rounded-md border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest transition-all duration-300">
+                  class={`${ui.btnBase} px-4 py-2.5 border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest`}>
                   Cancelar
                 </button>
               </div>
@@ -520,24 +548,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     getMyProfile,
     updateMyProfile,
     getMyGuilds,
-    getGuildSnapshot,
-    getGuildRules,
-    setGuildRules,
     ensureMyProfileSlug,
     getMyCharacters,
-    setCharacterVisibility,
     getMyBands,
-    setBandVisibility,
-    setBandHidePlayers,
-    setBandGuild,
     getMyMembershipGuilds,
-    setBandRules,
     getMyRulesCatalog,
-    proposeBandIntegration,
-    setBandIntegration,
-    getGuildBandProposals,
-    getGuildBandIntegrationRules,
-    setGuildBandIntegrationRules,
     listGuildPortalBands,
     claimGuildFromSV,
     tryPromoteMember,
@@ -546,13 +561,27 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   } from '@/lib/api';
   import type { UploadSummary, CharacterRow } from '@/lib/api';
   import type { BandRow } from '@/types/database';
-  import { el } from '@/lib/ui/preview';
-  import { resolveRankName } from '@/lib/ui/ranks';
   import { handleFromSlug } from '@/lib/ui/playerNames';
-  import { DASHBOARD_TABS, tabFromHash, tabHash } from '@/lib/ui/tabs';
-  import { isStaff } from '@/lib/roles';
+  import { DASHBOARD_TABS, DASHBOARD_CONFIG, tabFromHash, tabHash } from '@/lib/ui/tabs';
+  import { isVisitor } from '@/lib/roles';
+  import { ui } from '@/lib/ui/design';
+  import { characterCard } from '@/lib/ui/dashboard/characters';
+  import { configChip } from '@/lib/ui/dashboard/chips';
+  import { fmtDateTime, svLabel } from '@/lib/ui/dashboard/format';
+  import {
+    fillList,
+    renderContentList,
+    renderPlayerSnapshot,
+    collectRegistryGuilds,
+    renderRegistryGuildCards,
+    renderAccountCharacters,
+    renderRegistries,
+    renderAssignments,
+  } from '@/lib/ui/dashboard/visitor';
+  import { bandPlayerCount, bandRuleCount, renderBandDetail } from '@/lib/ui/dashboard/bands';
+  import { renderGuildCard } from '@/lib/ui/dashboard/guilds';
   import { bandMergeKey, mergeBandPlayers } from '@/lib/bandMerge';
-  import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, RegistryGuild } from '@/types/parser';
+  import type { ParsedSavedVariables, ContentItem } from '@/types/parser';
   import type { RaiddominionRole, GuildRow } from '@/types/database';
 
   const PANELS = DASHBOARD_TABS.map((t) => t.id) as string[];
@@ -577,8 +606,25 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     admin: 'bg-red-900/30 border-red-600/50 text-red-200',
   };
 
+  // Badges del encabezado: cuenta validada (rol >= member) y estado público
+  // del perfil. Se refrescan en loadProfile, en la promoción a Miembro y en
+  // vivo al cambiar el toggle de perfil público de Configuración.
+  const validatedBadgeEl = document.getElementById('validated-badge') as HTMLElement;
+  const publicBadgeEl = document.getElementById('public-badge') as HTMLElement;
+  const BADGE_BASE = 'px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border';
+
+  function refreshHeaderBadges(): void {
+    const validated = !isVisitor(currentRole);
+    validatedBadgeEl.textContent = validated ? '✓ Cuenta validada' : 'Cuenta sin validar';
+    validatedBadgeEl.className = `${BADGE_BASE} ${validated ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-300' : 'bg-gray-800/70 border-gray-600 text-gray-400'}`;
+    publicBadgeEl.textContent = profilePublic ? 'Público' : 'Privado';
+    publicBadgeEl.className = `${BADGE_BASE} ${profilePublic ? 'bg-amber-900/40 border-amber-500/60 text-amber-200' : 'bg-gray-800/70 border-gray-600 text-gray-400'}`;
+  }
+
   // ── Estado reactivo (declarado antes de las llamadas void load*) ─────────
   let currentRole: RaiddominionRole = 'member';
+  let profilePublic = false;
+  let accountEmail = '';
   let myCharacters: CharacterRow[] = [];
   let profileCharacterName: string | null = null;
   let uploadsCache: UploadSummary[] = [];
@@ -780,7 +826,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   function msgBox(id: string, ok: boolean, text: string): void {
     const box = document.getElementById(id) as HTMLElement;
     box.textContent = text;
-    box.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
+    box.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ok ? ui.status.success : ui.status.error}`;
   }
 
   // Muestra u oculta el enlace al perfil público con un slug conocido o generándolo
@@ -807,6 +853,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     window.location.replace('/login?next=%2Fdashboard');
   } else {
     const email = sessionData.session.user.email ?? '';
+    accountEmail = email;
     emailEl.textContent = email;
     avatarEl.textContent = (email[0] ?? '?').toUpperCase();
 
@@ -838,6 +885,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   });
 
   function activateTab(name: PanelName, updateHash = true): void {
+    // El panel oculto de configuración no es una pestaña: al activar cualquier
+    // pestaña se cierra (se reabre SOLO con su ícono de engranaje).
+    document.getElementById(`panel-${DASHBOARD_CONFIG.id}`)?.classList.add('hidden');
     tabs.forEach((b) => {
       const active = b.dataset.tab === name;
       b.setAttribute('aria-selected', String(active));
@@ -859,14 +909,41 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     }
   }
 
-  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? 'addon') as PanelName)));
+  tabs.forEach((btn) => btn.addEventListener('click', () => activateTab((btn.dataset.tab ?? PANELS[0]) as PanelName)));
   document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
-    b.addEventListener('click', () => activateTab((b.dataset.goto ?? 'addon') as PanelName)));
+    b.addEventListener('click', () => activateTab((b.dataset.goto ?? PANELS[0]) as PanelName)));
 
-  // Deep-link / hash: al cargar o al cambiar el hash se activa la pestaña.
+  // "Pestaña oculta" de configuración (perfil, seguridad y zona de peligro):
+  // desactiva la barra y muestra SOLO su panel. Se abre desde el ícono de
+  // engranaje del encabezado (DASHBOARD_CONFIG en tabs.ts) y conserva #perfil.
+  function openConfigPanel(updateHash = true): void {
+    tabs.forEach((b) => {
+      b.setAttribute('aria-selected', 'false');
+      b.tabIndex = -1;
+      b.classList.remove('border-amber-400', 'text-amber-200');
+      b.classList.add('border-transparent', 'text-gray-500');
+    });
+    PANELS.forEach((p) => document.getElementById(`panel-${p}`)?.classList.add('hidden'));
+    document.getElementById(`panel-${DASHBOARD_CONFIG.id}`)?.classList.remove('hidden');
+    if (updateHash) {
+      const target = DASHBOARD_CONFIG.hash;
+      if (window.location.hash !== target) {
+        window.history.replaceState(null, '', target);
+      }
+    }
+  }
+  const configBtn = document.getElementById('config-btn') as HTMLButtonElement | null;
+  configBtn?.addEventListener('click', () => openConfigPanel());
+
+  // Deep-link: #perfil abre la configuración; cualquier otro hash cae a la
+  // pestaña correspondiente de la barra (o la primera si no existe).
   function syncTabFromHash(): void {
     const id = tabFromHash(window.location.hash);
-    activateTab((PANELS.includes(id) ? id : 'addon') as PanelName, false);
+    if (id === DASHBOARD_CONFIG.id) {
+      openConfigPanel(false);
+      return;
+    }
+    activateTab((PANELS.includes(id) ? id : PANELS[0]) as PanelName, false);
   }
   window.addEventListener('hashchange', syncTabFromHash);
   syncTabFromHash();
@@ -885,7 +962,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     ev.preventDefault();
     const target = tabs[next];
     target.focus();
-    activateTab((target.dataset.tab ?? 'addon') as PanelName);
+    activateTab((target.dataset.tab ?? PANELS[0]) as PanelName);
   });
 
   // ── Perfil ───────────────────────────────────────────────────────────────
@@ -945,6 +1022,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     const res = await getMyProfile();
     if (!res.ok || !res.profile) {
       badgeEl.textContent = 'Visitante';
+      currentRole = 'visitante';
+      profilePublic = false;
+      refreshHeaderBadges();
       resolveProfileReady();
       return;
     }
@@ -952,6 +1032,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     currentRole = p.role;
     badgeEl.textContent = ROLE_LABELS[p.role] ?? p.role;
     badgeEl.className = `px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border ${ROLE_STYLES[p.role] ?? ROLE_STYLES.member}`;
+    profilePublic = p.is_public === true;
+    refreshHeaderBadges();
 
     if (p.display_name) {
       nameInput.value = p.display_name;
@@ -984,6 +1066,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       msgBox('profile-msg', false, 'No se pudo cambiar la visibilidad: ' + (res.error || ''));
       return;
     }
+    profilePublic = box.checked;
+    refreshHeaderBadges();
     await syncPublicLink(box.checked);
     msgBox('profile-msg', true, box.checked ? 'Perfil público activado.' : 'Perfil privado.');
   });
@@ -1005,9 +1089,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
     if (res.ok) {
       profileCharacterName = selectedChar?.name ?? null;
+      profilePublic = publicToggle.checked;
+      refreshHeaderBadges();
       // Al retirar el nombre visible, el avatar cae al personaje principal o,
       // en su defecto, a la inicial del correo (nunca queda desactualizado).
-      const nameSource = nameInput.value.trim() || selectedChar?.name || email || '';
+      const nameSource = nameInput.value.trim() || selectedChar?.name || accountEmail || '';
       avatarEl.textContent = nameSource[0]?.toUpperCase() || '?';
       await syncPublicLink(publicToggle.checked);
       msgBox('profile-msg', true, publicToggle.checked
@@ -1019,6 +1105,14 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   });
 
   // ── Mis Personajes ───────────────────────────────────────────────────────
+  // Indicadores del encabezado de Personajes: total y públicos.
+  function refreshHdrCharacters(): void {
+    const total = myCharacters.length;
+    const publics = myCharacters.filter((c) => c.is_public).length;
+    setHdrChip('hdr-chars-total', total);
+    setHdrChip('hdr-chars-public', publics);
+  }
+
   async function loadCharacters(): Promise<void> {
     await profileReady;
     const listEl = document.getElementById('characters-list') as HTMLElement;
@@ -1032,6 +1126,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     }
     const items = res.items ?? [];
     myCharacters = items;
+    refreshHdrCharacters();
     populateMainCharacterSelect();
     listEl.innerHTML = '';
     statusEl.classList.toggle('hidden', items.length > 0);
@@ -1049,99 +1144,13 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       onboardingEl.classList.add('hidden');
     }
 
-    items.forEach((c) => listEl.appendChild(characterCard(c)));
-  }
-
-  function characterCard(c: CharacterRow): HTMLElement {
-    const card = document.createElement('div');
-    card.className = 'bg-gray-800/50 border border-amber-700/40 rounded-md p-4';
-
-    const header = document.createElement('div');
-    header.className = 'flex flex-wrap items-center justify-between gap-3';
-    const info = document.createElement('div');
-    const title = document.createElement('p');
-    title.className = 'text-sm font-bold text-white';
-    title.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    const chips = document.createElement('div');
-    chips.className = 'flex flex-wrap gap-2 mt-1.5';
-    const chipCls = 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/30 rounded-md px-2.5 py-1';
-    if (c.class) chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: c.class }));
-    if (c.race) chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: c.race }));
-    if (typeof c.level === 'number') chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls, textContent: `Nivel ${c.level}` }));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
-      chips.appendChild(Object.assign(document.createElement('span'), { className: chipCls + ' !text-amber-300 !border-amber-500/40', textContent: `ilvl ${c.avg_ilvl}` }));
-    }
-    if (c.member_verified) {
-      chips.appendChild(Object.assign(document.createElement('span'), { className: 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded-md px-2.5 py-1', textContent: '✓ Validado' }));
-    }
-    if (c.sv_guild_name) {
-      chips.appendChild(Object.assign(document.createElement('span'), { className: 'text-[10px] font-black uppercase tracking-widest ' + (c.sv_is_gm ? 'text-amber-300 bg-amber-950/30 border border-amber-500/40' : 'text-sky-200 bg-gray-900/60 border border-sky-600/30') + ' rounded-md px-2.5 py-1', textContent: c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}` }));
-    }
-    info.append(title, chips);
-    header.appendChild(info);
-
-    const visLabel = document.createElement('label');
-    visLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
-    const visCheck = document.createElement('input');
-    visCheck.type = 'checkbox';
-    visCheck.checked = c.is_public;
-    visCheck.className = 'w-4 h-4 accent-amber-500';
-    const visStatus = document.createElement('span');
-    visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest';
-    if (!canPublishContent()) {
-      visCheck.disabled = true;
-      visCheck.checked = false;
-      visCheck.className += ' opacity-40';
-      visLabel.className += ' opacity-70 cursor-not-allowed';
-      visLabel.title = 'Requiere cuenta Miembro validada (2+ personajes).';
-      visStatus.textContent = 'bloqueado';
-      visStatus.className += ' text-gray-500';
-    } else {
-      visCheck.addEventListener('change', async () => {
-        visCheck.disabled = true;
-        visStatus.textContent = '· guardando…';
-        visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-amber-300';
-        const res = await setCharacterVisibility(c.id, visCheck.checked);
-        visCheck.disabled = false;
-        if (res.ok) {
-          c.is_public = visCheck.checked;
-          visStatus.textContent = '✓ guardado';
-          visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-          populateMainCharacterSelect();
-        } else {
-          visCheck.checked = !visCheck.checked;
-          visStatus.textContent = '✗ error';
-          visStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
-        }
-        window.setTimeout(() => { visStatus.textContent = ''; }, 2500);
-      });
-    }
-    visLabel.append(visCheck, document.createTextNode('Público'), visStatus);
-    header.appendChild(visLabel);
-    card.appendChild(header);
-
-    // El equipamiento vive solo en la ficha dedicada /personaje/:slug: la
-    // card del dashboard es un enlace compacto, sin lista de piezas.
-    if (c.slug) {
-      const ficha = document.createElement('a');
-      ficha.href = `/personaje/${c.slug}`;
-      ficha.className = 'inline-block mt-3 text-xs text-amber-300 hover:text-amber-200 underline';
-      ficha.textContent = 'Ver ficha del personaje →';
-      card.appendChild(ficha);
-    }
-    return card;
+    items.forEach((c) => listEl.appendChild(characterCard(c, {
+      canPublish: canPublishContent(),
+      onSaved: () => { populateMainCharacterSelect(); refreshHdrCharacters(); },
+    })));
   }
 
   // ── Mi Registro: historial + visor del snapshot seleccionado ────────────
-
-  function fmtDateTime(iso: string): string {
-    return new Date(iso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
-  }
-
-  function svLabel(item: UploadSummary): string {
-    const who = item.generatedBy ? ` · ${item.generatedBy}` : '';
-    return `${fmtDateTime(item.parsedAt)}${who}`;
-  }
 
   // Contador "Análisis N/total" del selector de análisis (patrón de bandas).
   function updateSvCounter(): void {
@@ -1290,232 +1299,15 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     updateClaimBanner(leadsAnywhere);
   }
 
-function configChip(text: string, highlight = false): HTMLElement {
-    return el(
-      'span',
-      'inline-flex items-center gap-1.5 text-[11px] text-gray-300 bg-gray-900/60 border border-amber-600/30 rounded-md px-2.5 py-1' + (highlight ? ' !border-amber-500/40' : ''),
-      text,
-    );
-  }
-
-  function fillList(listId: string, cntId: string, items: ConfigListItem[]): void {
-    const wrap = document.getElementById(listId) as HTMLElement;
-    const cnt = document.getElementById(cntId) as HTMLElement;
-    wrap.innerHTML = '';
-    cnt.textContent = `(${items.length})`;
-    if (items.length === 0) {
-      wrap.innerHTML = '<span class="text-[11px] text-gray-600 italic">Sin elementos aún</span>';
-      return;
-    }
-    items.forEach((it) => wrap.appendChild(configChip(it.name)));
-  }
-
-  function renderContentList(listId: string, cntId: string, items: ContentItem[]): void {
-    const wrap = document.getElementById(listId) as HTMLElement;
-    const cnt = document.getElementById(cntId) as HTMLElement;
-    wrap.innerHTML = '';
-    cnt.textContent = `(${items.length})`;
-    if (items.length === 0) {
-      wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin elementos aún</p>';
-      return;
-    }
-    const list = document.createElement('ul');
-    list.className = 'space-y-2';
-    items.forEach((it) => {
-      const li = el('li', 'flex items-start text-sm text-gray-300');
-      li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
-      const inner = el('div', '');
-      inner.appendChild(el('p', 'font-bold text-white', it.title || 'Elemento'));
-      if (it.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-0.5', it.content));
-      li.appendChild(inner);
-      list.appendChild(li);
-    });
-    wrap.appendChild(list);
-  }
-
-  // Mi personaje registrado (registry.player): datos + equipamiento
-  function renderPlayerSnapshot(d: ParsedSavedVariables): void {
-    const wrap = document.getElementById('viewer-player') as HTMLElement;
-    wrap.innerHTML = '';
-    const p = d.player;
-    if (!p) {
-      wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin registro de personaje propio (registry.player).'));
-      return;
-    }
-    wrap.appendChild(el('p', 'text-sm font-bold text-white', `${p.name}${p.realm ? '-' + p.realm : ''}`));
-    const chips = el('div', 'flex flex-wrap gap-2 mt-1.5');
-    if (p.race) chips.appendChild(configChip(p.race));
-    if (p.class) chips.appendChild(configChip(p.class));
-    if (typeof p.level === 'number') chips.appendChild(configChip(`Nivel ${p.level}`));
-    if (p.talentSpec) chips.appendChild(configChip(`Spec: ${p.talentSpec}`));
-    if (typeof p.avgIlvl === 'number') chips.appendChild(configChip(`ilvl ${p.avgIlvl}`, true));
-    wrap.appendChild(chips);
-  }
-
-  // Hermandades del registro (registry.*.guild): CIFRAS + jerarquía de rangos,
-  // sin roster completo. Un jugador puede tener personajes en varias hermandades
-  // y ser GM de varias.
+// Hermandades del registro (registry.*.guild): capa fina que conecta el
+  // estado del closure (snapshotGmGuilds/updateClaimBanner) con los renderers
+  // puros de visitor.ts (collectRegistryGuilds + renderRegistryGuildCards).
   function renderGuilds(d: ParsedSavedVariables): void {
     const wrap = document.getElementById('viewer-guilds') as HTMLElement;
-    wrap.innerHTML = '';
-    const guilds = new Map<string, {
-      name: string;
-      isGM: boolean;
-      ranks: NonNullable<RegistryGuild['ranks']>;
-      ownRankIndex: number | undefined;
-      ownRank: string | undefined;
-      numMembers: number | undefined;
-      characters: string[];
-    }>();
-    const addGuild = (rg: RegistryGuild | null | undefined, charName?: string): void => {
-      if (!rg?.name) return;
-      const key = rg.name.trim().toLowerCase();
-      const cur = guilds.get(key) ?? {
-        name: rg.name, isGM: false, ranks: [], ownRankIndex: undefined, ownRank: undefined,
-        numMembers: undefined, characters: [],
-      };
-      if (rg.isGM) cur.isGM = true;
-      if (typeof rg.rankIndex === 'number') cur.ownRankIndex = rg.rankIndex;
-      if (rg.rank) cur.ownRank = rg.rank;
-      if (rg.ranks && rg.ranks.length > 0 && cur.ranks.length === 0) {
-        cur.ranks = [...rg.ranks].sort((a, b) => a.index - b.index);
-      }
-      if (typeof rg.numMembers === 'number') cur.numMembers = rg.numMembers;
-      if (charName) cur.characters.push(charName);
-      guilds.set(key, cur);
-    };
-    addGuild(d.registryGuild, d.player?.name);
-    d.registries.forEach((r) => addGuild(r.guild, r.player?.name));
-
-    snapshotGmGuilds = Array.from(guilds.values()).filter((g) => g.isGM).map((g) => g.name);
+    const guilds = collectRegistryGuilds(d);
+    snapshotGmGuilds = guilds.filter((g) => g.isGM).map((g) => g.name);
     updateClaimBanner();
-
-    if (guilds.size === 0) {
-      wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin hermandad en el registro.'));
-      return;
-    }
-    Array.from(guilds.values()).forEach((g) => {
-      const card = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
-      const head = el('div', 'flex flex-wrap items-center gap-2');
-      head.appendChild(el('p', 'text-sm font-bold text-amber-200', g.name));
-      if (g.isGM) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-500/40 rounded-md px-2.5 py-1', '★ Maestro'));
-      card.appendChild(head);
-
-      // El rango propio se detecta por rankIndex contra la jerarquía; el
-      // índice 0 (o isGM) es SIEMPRE el líder.
-      const ownIndex = g.isGM ? 0 : g.ownRankIndex;
-      const ownRankName = resolveRankName({
-        rankIndex: ownIndex,
-        rank: g.ownRank,
-        ranks: g.ranks,
-        isGM: g.isGM,
-      });
-
-      const meta = el('div', 'flex flex-wrap gap-2 mt-1.5');
-      if (typeof g.numMembers === 'number') meta.appendChild(configChip(`${g.numMembers} miembros`));
-      if (g.characters.length > 0) meta.appendChild(configChip(`${g.characters.length} personaje(s)`));
-      meta.appendChild(configChip(`Tu rango: ${ownRankName}`, g.isGM));
-      card.appendChild(meta);
-
-      // Jerarquía completa de rangos (registry.guild.ranks), ordenada por index
-      // (0 = líder). El rango del propio usuario se marca si está disponible.
-      if (g.ranks.length > 0) {
-        const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
-        hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Rangos:'));
-        g.ranks.forEach((r) => {
-          const isMine = ownIndex !== undefined
-            ? r.index === ownIndex
-            : (!!g.ownRank && r.name.trim().toLowerCase() === g.ownRank.trim().toLowerCase());
-          const label = r.name.trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
-          const cls = isMine
-            ? 'text-amber-300 border-amber-500/50 bg-amber-900/30'
-            : r.index === 0
-              ? 'text-amber-200/90 border-amber-600/30 bg-gray-900/60'
-              : 'text-gray-400 border-gray-700/40 bg-gray-900/60';
-          hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border ${cls}`,
-            `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
-        });
-        card.appendChild(hier);
-      }
-      if (g.characters.length > 0) {
-        card.appendChild(el('p', 'text-[11px] text-gray-500 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
-      }
-      wrap.appendChild(card);
-    });
-  }
-
-  // Personajes de la cuenta (characters: config compartida del SV)
-  function renderAccountCharacters(d: ParsedSavedVariables): void {
-    const wrap = document.getElementById('viewer-account-chars') as HTMLElement;
-    const cnt = document.getElementById('cnt-account-chars') as HTMLElement;
-    wrap.innerHTML = '';
-    cnt.textContent = `(${d.characters.length})`;
-    if (d.characters.length === 0) {
-      wrap.innerHTML = '<span class="text-[11px] text-gray-600 italic">Sin personajes de cuenta aún.</span>';
-      return;
-    }
-    d.characters.forEach((c) => {
-      const label = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-      wrap.appendChild(configChip(label));
-    });
-  }
-
-  // Snapshots de registro por personaje (registry["Nombre-Reino"])
-  function renderRegistries(d: ParsedSavedVariables): void {
-    const wrap = document.getElementById('viewer-registries') as HTMLElement;
-    const cnt = document.getElementById('cnt-registries') as HTMLElement;
-    wrap.innerHTML = '';
-    cnt.textContent = String(d.registries.length);
-    if (d.registries.length === 0) {
-      wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin registros por personaje.</p>';
-      return;
-    }
-    d.registries.forEach((reg) => {
-      const card = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
-      const head = el('div', 'flex flex-wrap items-center gap-2');
-      head.appendChild(el('p', 'text-sm font-bold text-white', reg.player?.name || reg.key || 'Personaje'));
-      if (reg.player) {
-        if (reg.player.class) head.appendChild(configChip(reg.player.class));
-        if (typeof reg.player.level === 'number') head.appendChild(configChip(`Nivel ${reg.player.level}`));
-        if (typeof reg.player.avgIlvl === 'number') head.appendChild(configChip(`ilvl ${reg.player.avgIlvl}`, true));
-      }
-      if (reg.guild) head.appendChild(configChip(`${reg.guild.name}${reg.guild.isGM ? ' · GM' : ''}`));
-      if (reg.savedAt) head.appendChild(el('span', 'text-[11px] text-gray-500 italic', reg.savedAt));
-      card.appendChild(head);
-      wrap.appendChild(card);
-    });
-  }
-
-  // Asignaciones detalladas por categoría (nombre → jugador)
-  function renderAssignments(d: ParsedSavedVariables): void {
-    const wrap = document.getElementById('viewer-assignments') as HTMLElement;
-    wrap.innerHTML = '';
-    const labels: Record<keyof Assignments, string> = {
-      roles: 'Roles',
-      buffs: 'Bendiciones',
-      abilities: 'Habilidades',
-      auras: 'Auras',
-    };
-    let any = false;
-    (Object.keys(labels) as (keyof Assignments)[]).forEach((cat) => {
-      const entries = Object.entries(d.assignments[cat]);
-      if (entries.length === 0) return;
-      any = true;
-      const box = el('div', '');
-      box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1', labels[cat]));
-      const rows = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1');
-      entries.forEach(([name, player]) => {
-        const row = el('div', 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1');
-        row.appendChild(el('span', 'font-bold text-amber-200', name));
-        row.appendChild(el('span', 'text-gray-400', player));
-        rows.appendChild(row);
-      });
-      box.appendChild(rows);
-      wrap.appendChild(box);
-    });
-    if (!any) {
-      wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin asignaciones aún.</p>';
-    }
+    renderRegistryGuildCards(wrap, guilds);
   }
 
   // Banner de reclamo: si el snapshot acredita liderazgo de alguna hermandad
@@ -1540,6 +1332,7 @@ function configChip(text: string, highlight = false): HTMLElement {
       currentRole = 'member';
       badgeEl.textContent = ROLE_LABELS.member ?? 'member';
       badgeEl.className = `px-3 py-1.5 rounded-md text-[11px] font-black uppercase tracking-widest border ${ROLE_STYLES.member}`;
+      refreshHeaderBadges();
     }
 
     const res = await claimGuildFromSV(currentSvId);
@@ -1569,374 +1362,6 @@ function configChip(text: string, highlight = false): HTMLElement {
   // ── Mis Bandas ───────────────────────────────────────────────────────────
   // Las bandas y reglas nacen del SV (el addon es la única fuente; sin
   // formularios). Aquí solo se controla la visibilidad pública de cada una.
-  function bandPlayerCount(b: BandRow): number {
-    if (!Array.isArray(b.players)) return 0;
-    return b.players.length;
-  }
-
-  function bandRuleCount(b: BandRow): number {
-    if (!Array.isArray(b.rules)) return 0;
-    return b.rules.length;
-  }
-
-  function bandAssignedRules(b: BandRow): ContentItem[] {
-    if (!Array.isArray(b.rules)) return [];
-    return b.rules as ContentItem[];
-  }
-
-  // Clave de identidad de una regla (para marcar/desmarcar en el catálogo).
-  function ruleKey(r: ContentItem): string {
-    return `${(r.title ?? '').trim()}|${(r.content ?? '').trim()}`;
-  }
-
-  // Identidad ESTABLE de una regla para el toggle del GM: el TÍTULO (o el
-  // contenido si no hay título). Al cambiar el CONTENIDO de una regla del
-  // proponente, la selección del GM sigue coincidiendo y la página de banda
-  // permanece sincronizada (el toggle no se congela con title|content).
-  function ruleId(r: { title?: string | null; content?: string | null }): string {
-    return (r.title ?? '').trim() || (r.content ?? '').trim();
-  }
-
-function renderBandDetail(b: BandRow): HTMLElement {
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-md p-5');
-    const blocked = !canPublishContent();
-
-    // ── Visibilidad: switches tipo pill ────────────────────────────────────
-    // Interruptor on/off con knob deslizante (Tailwind peer). El label lleva
-    // el checkbox sr-only; el track usa after: para el knob animado.
-    const makeSwitch = (
-      checked: boolean,
-      text: string,
-      on: (input: HTMLInputElement, status: HTMLElement) => Promise<void>,
-    ): HTMLElement => {
-      const label = document.createElement('label');
-      label.className = 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-400';
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.className = 'peer sr-only';
-      input.checked = checked;
-      const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-amber-600/70 peer-checked:border-amber-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
-      const textEl = el('span', '', text);
-      const status = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-      label.append(input, track, textEl, status);
-      if (blocked) {
-        input.disabled = true;
-        track.classList.add('opacity-40');
-        label.classList.add('opacity-70', 'cursor-not-allowed');
-        label.title = 'Requiere cuenta Miembro validada (2+ personajes).';
-        status.textContent = 'bloqueado';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-500';
-      } else {
-        input.addEventListener('change', () => void on(input, status));
-      }
-      return label;
-    };
-
-    const visBox = el('div', 'space-y-3');
-    visBox.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Visibilidad pública'));
-    const toggles = el('div', 'flex flex-wrap gap-5');
-    toggles.appendChild(makeSwitch(b.is_public, 'Pública', async (input, status) => {
-      input.disabled = true;
-      status.textContent = 'guardando…';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-      const res = await setBandVisibility(b.id, input.checked);
-      input.disabled = false;
-      if (res.ok) {
-        b.is_public = input.checked;
-        refreshHdrBands();
-        status.textContent = input.checked ? '✓ pública' : '✓ privada';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-      } else {
-        input.checked = !input.checked;
-        status.textContent = '✗ error';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      }
-      window.setTimeout(() => { status.textContent = ''; }, 2500);
-    }));
-    toggles.appendChild(makeSwitch(b.hide_players, 'Ocultar jugadores', async (input, status) => {
-      input.disabled = true;
-      status.textContent = 'guardando…';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-      const res = await setBandHidePlayers(b.id, input.checked);
-      input.disabled = false;
-      if (res.ok) {
-        b.hide_players = input.checked;
-        status.textContent = input.checked ? '✓ ocultos' : '✓ visibles';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-      } else {
-        input.checked = !input.checked;
-        status.textContent = '✗ error';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      }
-      window.setTimeout(() => { status.textContent = ''; }, 2500);
-    }));
-    visBox.appendChild(toggles);
-    card.appendChild(visBox);
-
-    // ── Hermandad: asignación (1:N) + propuesta de integración ─────────────
-    const assign = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-3');
-    assign.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Hermandad'));
-
-    // El texto de la propuesta muestra el maestro destino (la hermandad del
-    // select): la solicitud va al GM de esa guild, no a otra. El select fija
-    // el DESTINO (integration_target_guild_id); la atribución real (guild_id)
-    // ocurre solo cuando el GM la aprueba.
-    const effGuild = b.integration_target_guild_id ?? b.guild_id;
-    let propTarget: Text | null = null;
-    const refreshPropTarget = (): void => {
-      if (!propTarget) return;
-      const g = membershipGuilds.find((x) => x.id === (b.integration_target_guild_id ?? b.guild_id));
-      propTarget.textContent = g
-        ? `Enviar solicitud de integración al maestro de ${g.name}`
-        : 'Proponer integración al maestro';
-    };
-
-    const gRow = el('div', 'flex flex-wrap items-center gap-2');
-    const select = document.createElement('select');
-    select.className = 'flex-1 min-w-[200px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
-    const personalOpt = document.createElement('option');
-    personalOpt.value = '';
-    personalOpt.textContent = 'Sin hermandad (personal)';
-    select.appendChild(personalOpt);
-    membershipGuilds.forEach((g) => {
-      const opt = document.createElement('option');
-      opt.value = g.id;
-      opt.textContent = g.name;
-      if (effGuild === g.id) opt.selected = true;
-      select.appendChild(opt);
-    });
-    if (!effGuild) personalOpt.selected = true;
-    const gStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-    const gErr = el('span', 'text-[10px] font-bold uppercase tracking-widest text-red-400', '');
-    if (blocked) {
-      select.disabled = true;
-      select.className += ' opacity-40';
-      gStatus.textContent = 'bloqueado';
-      gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-500';
-    } else {
-      select.addEventListener('change', async () => {
-        select.disabled = true;
-        gStatus.textContent = 'guardando…';
-        gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-        gErr.textContent = '';
-        const gid = select.value === '' ? null : select.value;
-        const res = await setBandGuild(b.id, gid);
-        select.disabled = false;
-        if (res.ok) {
-          // El select fija el DESTINO de la propuesta; la atribución (guild_id)
-          // solo la concede el GM al aprobar. Al cambiar de hermandad (o a
-          // personal) la banda sale del portal y vuelve a 'none' en espera.
-          const prevEff = b.integration_target_guild_id ?? b.guild_id;
-          b.integration_target_guild_id = gid;
-          if (gid !== prevEff) {
-            b.guild_id = null;
-            b.integration_status = 'none';
-            b.is_rank_integrated = false;
-            b.integration_proposed_by = null;
-            b.integration_proposed_at = null;
-            b.integration_decided_at = null;
-          }
-          refreshHdrBands();
-          prop.checked = false;
-          refreshPropose();
-          refreshPropTarget();
-          gStatus.textContent = '✓';
-          gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-        } else {
-          select.value = b.integration_target_guild_id ?? b.guild_id ?? '';
-          gStatus.textContent = '';
-          gErr.textContent = res.error || 'error';
-        }
-        window.setTimeout(() => { gStatus.textContent = ''; }, 2500);
-      });
-    }
-    gRow.append(select, gStatus, gErr);
-    assign.appendChild(gRow);
-
-    // Checkbox "proponer integración" — solo si la banda está asignada a una
-    // hermandad y aún no está integrada/aprobada. El maestro la valida.
-    const propLabel = document.createElement('label');
-    propLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
-    const prop = document.createElement('input');
-    prop.type = 'checkbox';
-    prop.className = 'w-4 h-4 accent-amber-500';
-    prop.checked = b.integration_status === 'pending';
-    const propStatus = el('span', 'ml-1 text-[10px] font-bold uppercase tracking-widest', '');
-    // Estado del control de propuesta: reactivo al DESTINO (target) y al estado
-    // de integración. Se evalúa al renderizar y se re-evalúa al cambiar la
-    // hermandad (elegir una guild habilita el check, "Sin hermandad" lo deshabilita).
-    const refreshPropose = (): void => {
-      const effG = b.integration_target_guild_id ?? b.guild_id;
-      const canPropose = !blocked && !!effG && b.integration_status !== 'approved';
-      const baseLabelCls = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
-      if (!canPropose) {
-        prop.disabled = true;
-        prop.className = 'w-4 h-4 accent-amber-500 opacity-40';
-        propLabel.className = baseLabelCls + ' opacity-60 cursor-not-allowed';
-        propLabel.title = !effG
-          ? 'Asigna la banda a una hermandad para proponer su integración.'
-          : (b.integration_status === 'approved' ? 'Esta banda ya está integrada al portal.' : 'Requiere cuenta Miembro validada.');
-      } else {
-        prop.disabled = false;
-        prop.className = 'w-4 h-4 accent-amber-500';
-        propLabel.className = baseLabelCls;
-        propLabel.title = '';
-      }
-    };
-    refreshPropose();
-    prop.addEventListener('change', async () => {
-      if (!prop.checked) return; // retirar propuesta = el GM decide; aquí no se despropone
-      prop.disabled = true;
-      propStatus.textContent = 'proponiendo…';
-      propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-sky-300';
-      const res = await proposeBandIntegration(b.id);
-      prop.disabled = false;
-      if (res.ok) {
-        b.integration_status = 'pending';
-        prop.checked = true;
-        propStatus.textContent = '✓ propuesta enviada al maestro';
-        propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-sky-300';
-        refreshHdrBands();
-      } else {
-        prop.checked = false;
-        propStatus.textContent = '✗ ' + (res.error || 'error');
-        propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
-      }
-      window.setTimeout(() => { propStatus.textContent = ''; }, 3500);
-    });
-    propTarget = document.createTextNode('');
-    refreshPropTarget();
-    propLabel.append(prop, document.createTextNode(' '), propTarget, propStatus);
-    assign.appendChild(propLabel);
-    card.appendChild(assign);
-
-    // ── Reglas: tags removibles + select de agregar ────────────────────────
-    const rulesBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
-    const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-    rulesHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Reglas de esta banda'));
-    const rulesStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-    rulesHead.appendChild(rulesStatus);
-    rulesBox.appendChild(rulesHead);
-    // Jerarquía: si la banda está destinada (target) o integrada (guild_id) a
-    // una hermandad, la publicación final la decide el maestro en su visor:
-    // estas reglas son el CONTENIDO que el GM activa/desactiva.
-    const genderJ = b.integration_target_guild_id || b.guild_id;
-    if (genderJ) {
-      rulesBox.appendChild(el('p', 'text-[10px] text-gray-500 italic', 'Integrada a una hermandad: el maestro decide cuáles de estas reglas se publican en el portal (visor "Bandas propuestas"). Aquí solo editas el contenido del catálogo.'));
-    }
-
-    const tagsWrap = el('div', 'flex flex-wrap gap-2');
-    rulesBox.appendChild(tagsWrap);
-
-    const renderTags = (): void => {
-      tagsWrap.innerHTML = '';
-      const assigned = bandAssignedRules(b);
-      if (assigned.length === 0) {
-        tagsWrap.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Sin reglas asignadas a esta banda.'));
-        return;
-      }
-      assigned.forEach((r) => {
-        const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-amber-100 bg-amber-950/40 border border-amber-600/40 rounded-md pl-2.5 pr-1 py-1');
-        const full = r.content && r.content !== r.title ? r.content : undefined;
-        tag.title = full ?? '';
-        tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
-        if (!blocked) {
-          const rm = document.createElement('button');
-          rm.type = 'button';
-          rm.className = 'w-4 h-4 shrink-0 rounded-md text-amber-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
-          rm.textContent = '×';
-          rm.title = 'Quitar regla';
-          rm.addEventListener('click', () => {
-            const prev = bandAssignedRules(b).slice();
-            const next = prev.filter((a) => ruleKey(a) !== ruleKey(r));
-            if (next.length === prev.length) return;
-            b.rules = next as unknown as BandRow['rules'];
-            renderTags();
-            rebuildAddSelect();
-            void saveRules(next, prev);
-          });
-          tag.appendChild(rm);
-        }
-        tagsWrap.appendChild(tag);
-      });
-    };
-    renderTags();
-
-    // Select "agregar regla": lista SOLO las reglas del catálogo aún no
-    // asignadas a esta banda; elegir una la añade como tag y persiste.
-    const addRow = el('div', 'flex flex-wrap items-center gap-2');
-    const addSelect = document.createElement('select');
-    addSelect.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
-    const rebuildAddSelect = (): void => {
-      addSelect.innerHTML = '';
-      const assigned = bandAssignedRules(b);
-      const assignedKeys = new Set(assigned.map(ruleKey));
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      placeholder.textContent = assignedKeys.size === rulesCatalog.length
-        ? 'No quedan reglas del catálogo por agregar'
-        : '+ Agregar regla del catálogo…';
-      addSelect.appendChild(placeholder);
-      rulesCatalog.forEach((r) => {
-        if (assignedKeys.has(ruleKey(r))) return;
-        const opt = document.createElement('option');
-        opt.value = ruleKey(r);
-        opt.textContent = r.title ?? r.content ?? 'Regla sin texto';
-        addSelect.appendChild(opt);
-      });
-      addSelect.disabled = blocked || rulesCatalog.length === 0;
-      if (addSelect.disabled) addSelect.classList.add('opacity-40');
-      else addSelect.classList.remove('opacity-40');
-    };
-    rebuildAddSelect();
-    addSelect.addEventListener('change', async () => {
-      const key = addSelect.value;
-      if (!key) return;
-      const r = rulesCatalog.find((x) => ruleKey(x) === key);
-      if (!r) return;
-      const prev = bandAssignedRules(b).slice();
-      const next = bandAssignedRules(b);
-      if (!next.some((a) => ruleKey(a) === key)) next.push(r);
-      b.rules = next as unknown as BandRow['rules'];
-      renderTags();
-      rebuildAddSelect();
-      addSelect.value = '';
-      void saveRules(next, prev);
-    });
-
-    const saveRules = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
-      rulesStatus.textContent = 'guardando…';
-      rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-      const res = await setBandRules(b.id, next);
-      if (res.ok) {
-        b.rules = next as unknown as BandRow['rules'];
-        rulesStatus.textContent = '✓';
-        rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-      } else {
-        b.rules = prev as unknown as BandRow['rules'];
-        rulesStatus.textContent = '✗ ' + (res.error || 'error');
-        rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      }
-      renderTags();
-      rebuildAddSelect();
-      window.setTimeout(() => { rulesStatus.textContent = ''; }, 2500);
-    };
-
-    rulesBox.appendChild(addRow);
-    addRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 shrink-0', 'Agregar'));
-    addRow.appendChild(addSelect);
-    if (rulesCatalog.length === 0) {
-      addSelect.classList.add('hidden');
-      addRow.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a esta banda.'));
-    }
-    card.appendChild(rulesBox);
-
-    card.appendChild(el('p', 'mt-3 text-[11px] text-gray-500 italic', 'Jugadores y horario se actualizan re-subiendo tu SavedVariables; las reglas de esta banda las eliges tú aquí.'));
-
-    return card;
-  }
 
   function populateBandSelect(): void {
     const wrap = document.getElementById('band-select-wrap') as HTMLElement;
@@ -1986,7 +1411,12 @@ function renderBandDetail(b: BandRow): HTMLElement {
     refreshHdrBandSelected();
     detailEl.innerHTML = '';
     detailEl.classList.remove('hidden');
-    detailEl.appendChild(renderBandDetail(band));
+    detailEl.appendChild(renderBandDetail(band, {
+      blocked: !canPublishContent(),
+      membershipGuilds,
+      rulesCatalog,
+      onHdrRefresh: refreshHdrBands,
+    }));
   }
 
   // ── Navegador de hermandades (patrón del selector de bandas) ─────────────
@@ -2037,7 +1467,13 @@ function renderBandDetail(b: BandRow): HTMLElement {
     updateGuildCounter();
     refreshHdrGuild();
     cardsEl.innerHTML = '';
-    cardsEl.appendChild(renderGuildCard(guild));
+    cardsEl.appendChild(renderGuildCard(guild, {
+      rulesCatalog,
+      refreshHdrGuild,
+      guildMembersCount,
+      guildBandsCount,
+      guildRulesCount,
+    }));
   }
 
   async function loadBands(): Promise<void> {
@@ -2081,490 +1517,6 @@ function renderBandDetail(b: BandRow): HTMLElement {
 
   // ── Mi Hermandad ─────────────────────────────────────────────────────────
   // ── Mi Hermandad (multi-hermandad) ───────────────────────────────────────
-
-  function escapeHtml(s: string): string {
-    return s.replace(/[&<>"']/g, (c) =>
-      c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;');
-  }
-
-  function setMsg(el: HTMLElement, ok: boolean, text: string): void {
-    el.textContent = text;
-    el.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ok ? 'bg-emerald-950/30 border border-emerald-600/40 text-emerald-300' : 'bg-red-950/40 border border-red-600/40 text-red-300'}`;
-  }
-
-  // Cifras relevantes de la hermandad para el tab /dashboard#hermandad: número
-  // de miembros del roster del snapshot, bandas integradas al portal (leídas en
-  // tiempo real) y reglas del último análisis. Sin roster paginado aquí.
-  async function loadGuildStats(g: GuildRow): Promise<void> {
-    const [res, bandsRes, rulesRes] = await Promise.all([
-      getGuildSnapshot(g.id),
-      listGuildPortalBands(g.id),
-      getGuildRules(g.id),
-    ]);
-    const members = res.ok && res.snapshot ? res.snapshot.members.length : 0;
-    const integrated = bandsRes.ok ? bandsRes.bands?.length ?? 0 : 0;
-    // Reglas publicadas = SOLO las que eligió el maestro (el snapshot ya no
-    // aporta catálogo desde 2026-09-06; subir un SV no llena reglas).
-    const rules = rulesRes.ok && Array.isArray(rulesRes.items)
-      ? rulesRes.items.length
-      : 0;
-    guildMembersCount.set(g.id, members);
-    guildBandsCount.set(g.id, integrated);
-    guildRulesCount.set(g.id, rules);
-    refreshHdrGuild();
-  }
-
-  // Propuestas de integración de bandas de los miembros: el GM (owner) ve las
-  // bandas de su hermandad propuestas por miembros con rango autorizado. Las
-  // reglas provienen SIEMPRE de la banda del proponente: el GM las TOGGLEA
-  // (cuáles se publican) sin borrarlas ni grabarlas en su propia data; la
-  // selección se guarda en guild_config('band_integration_rules'). Las
-  // RE-APROBADAS permanecen en la lista (se pueden re-chazar después); las
-  // RECHAZADAS salen de la lista.
-  async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise<void> {
-    const sec = body.closest<HTMLElement>('[data-prop-sec]');
-    const countEl = sec?.querySelector<HTMLElement>('[data-prop-count]') ?? null;
-
-    const [res, rulesRes] = await Promise.all([
-      getGuildBandProposals(g.id),
-      getGuildBandIntegrationRules(g.id),
-    ]);
-    if (!res.ok) {
-      body.innerHTML = '<p class="text-sm text-gray-400 italic">No se pudieron cargar las propuestas: ' + (res.error || '') + '</p>';
-      if (countEl) countEl.textContent = '0 pendientes';
-      return;
-    }
-    // Las bandas rechazadas salen de la lista (solo pendientes y aprobadas).
-    const items = (res.items ?? []).filter((bp) => bp.integration_status !== 'rejected');
-    // Selección vigente del GM por banda (claves de regla activas). Ninguna
-    // regla nace activa: la autoridad ES la selección explícita del visor —
-    // el GM activa/desactiva las que quiere PUBLICAR de la banda integrada
-    // (las del proponente nunca salen solas por defecto).
-    const selection: Record<string, Set<string>> = {};
-    if (rulesRes.ok && rulesRes.selection) {
-      Object.entries(rulesRes.selection).forEach(([bid, keys]) => {
-        selection[bid] = new Set(keys ?? []);
-      });
-    }
-    let pending = items.filter((bp) => bp.integration_status === 'pending').length;
-    const renderCount = (): void => {
-      if (countEl) countEl.textContent = `${pending} pendiente${pending === 1 ? '' : 's'}`;
-    };
-    renderCount();
-
-    if (items.length === 0) {
-      body.innerHTML = '<p class="text-sm text-gray-400 italic">Aún no hay bandas propuestas por tus miembros.</p>';
-      return;
-    }
-
-    body.innerHTML = '';
-    items.forEach((bp, i) => {
-      const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2.5');
-      const head = el('div', 'flex flex-wrap items-center gap-2');
-      const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center', String(i + 1));
-      head.appendChild(num);
-      const info = el('div', 'min-w-0 flex-1');
-      info.appendChild(el('p', 'font-bold text-white text-sm truncate', bp.name));
-      // Personaje que propone: se muestra con las reglas para atribuir cada
-      // regla al proponente (nunca al aprobante).
-      const who = (bp.proposer?.character_name || bp.proposer?.display_name || (bp.proposer?.slug ? `@${bp.proposer.slug.replace(/^perfil-/, '').slice(0, 8)}` : null)) ?? 'cuenta';
-      const sub = el('p', 'text-[11px] text-gray-500');
-      const stateChip = el('span', 'hidden mt-1 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest border rounded-md px-2 py-0.5');
-      const refreshState = (): void => {
-        if (bp.integration_status === 'pending') {
-          sub.textContent = `Propuesta por ${who}${bp.integration_proposed_at ? ' · ' + new Date(bp.integration_proposed_at).toLocaleDateString('es') : ''}`;
-          stateChip.classList.add('hidden');
-          return;
-        }
-        const approved = bp.integration_status === 'approved';
-        sub.textContent = '';
-        stateChip.textContent = approved ? '✓ Aprobada' : '✗ Rechazada';
-        stateChip.className = 'mt-1 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest border rounded-md px-2 py-0.5 ' +
-          (approved ? 'bg-emerald-950/30 border-emerald-600/40 text-emerald-300' : 'bg-red-950/30 border-red-600/40 text-red-300');
-        stateChip.appendChild(document.createTextNode(bp.integration_decided_at ? ' · ' + new Date(bp.integration_decided_at).toLocaleDateString('es') : ''));
-        stateChip.classList.remove('hidden');
-      };
-      info.appendChild(sub);
-      info.appendChild(stateChip);
-      head.appendChild(info);
-
-      const act = el('div', 'flex gap-2 shrink-0');
-      const approve = document.createElement('button');
-      approve.type = 'button';
-      approve.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all';
-      approve.textContent = 'Aprobar';
-      const reject = document.createElement('button');
-      reject.type = 'button';
-      reject.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-red-600/40 bg-red-950/30 text-red-300 hover:bg-red-900/40 transition-all';
-      reject.textContent = 'Rechazar';
-      const saving = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-      act.append(approve, reject, saving);
-      // El GM puede re-decidir en cualquier momento: los botones NUNCA se
-      // ocultan; solo se desactiva el de la decisión ya aplicada (p. ej. una
-      // banda aprobada sigue pudiendo rechazarse).
-      const renderActions = (): void => {
-        approve.disabled = bp.integration_status === 'approved';
-        reject.disabled = bp.integration_status === 'rejected';
-        approve.title = approve.disabled ? 'Ya está aprobada' : 'Aprobar esta banda';
-        reject.title = reject.disabled ? 'Ya está rechazada' : 'Rechazar esta banda';
-      };
-      renderActions();
-      head.appendChild(act);
-      row.appendChild(head);
-
-      // Reglas de la banda propuesta (SIEMPRE desde el proponente): el GM las
-      // TOGGLEA como tags — las activas son las que se publican. Nunca se
-      // elimina una regla de la data del proponente (se guarda la selección).
-      const proposed = Array.isArray(bp.rules) ? (bp.rules as ContentItem[]) : [];
-      // La selección guardada es la AUTORIDAD y nace vacía: el GM ACTIVA cada
-      // regla que quiere publicar. Ninguna regla del proponente se publica
-      // sola por defecto (ni en pendientes ni en integradas).
-      const keyFor = (r: ContentItem): string => ruleId(r);
-      const ruleSelected = (keys: Set<string>, r: ContentItem): boolean =>
-        keys.has(ruleId(r)) || keys.has(`${(r.title ?? '').trim()}|${(r.content ?? '').trim()}`);
-      const baseSelection = (): Set<string> => selection[bp.id] ?? new Set();
-      const isOn = (r: ContentItem): boolean => ruleSelected(baseSelection(), r);
-      const rulesBox = el('div', 'mt-3 border-t border-amber-600/20 pt-2.5 space-y-2');
-      const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-      rulesHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Reglas propuestas por ' + (escapeHtml(who) || 'el jugador')));
-      rulesHead.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'ACTÍVALAS para publicarlas; las que dejes apagadas no salen del proponente al portal. Si apruebas sin activar, la banda se integra sin reglas.'));
-      rulesBox.appendChild(rulesHead);
-      const tagsWrap = el('div', 'flex flex-wrap gap-2');
-      rulesBox.appendChild(tagsWrap);
-      let savingRules = false;
-      const persistSelection = async (): Promise<void> => {
-        if (savingRules) return;
-        savingRules = true;
-        const map: Record<string, string[]> = {};
-        Object.entries(selection).forEach(([bid, keys]) => { map[bid] = Array.from(keys); });
-        const saved = await setGuildBandIntegrationRules(g.id, map);
-        savingRules = false;
-        saving.textContent = saved.ok ? '✓' : '✗ ' + (saved.error || 'error');
-        saving.className = 'text-[10px] font-bold uppercase tracking-widest ' + (saved.ok ? 'text-emerald-400' : 'text-red-400');
-        window.setTimeout(() => { saving.textContent = ''; }, 1800);
-      };
-      const renderTags = (): void => {
-        tagsWrap.innerHTML = '';
-        if (proposed.length === 0) {
-          tagsWrap.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Esta banda no trae reglas propuestas: se integrará sin reglas publicadas.'));
-          return;
-        }
-        proposed.forEach((r) => {
-          const on = isOn(r);
-          const tag = document.createElement('button');
-          tag.type = 'button';
-          const label = `${r.title ?? r.content ?? 'Regla'} · ${who}`;
-          tag.className = 'inline-flex items-center gap-1.5 text-[11px] rounded-md pl-2.5 pr-2 py-1 border transition-all ' +
-            (on
-              ? 'text-amber-100 bg-amber-950/40 border-amber-600/40 hover:bg-amber-900/50'
-              : 'text-gray-400 bg-gray-900/60 border-gray-700/60 hover:border-gray-500/60');
-          tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
-          tag.appendChild(el('span', '', label));
-          const dot = el('span', 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-amber-400' : 'bg-gray-600'), '');
-          tag.appendChild(dot);
-          tag.setAttribute('aria-pressed', String(on));
-          if (tag.title) tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
-          tag.addEventListener('click', () => {
-            const keys = baseSelection();
-            const k = keyFor(r);
-            const legacyK = `${(r.title ?? '').trim()}|${(r.content ?? '').trim()}`;
-            if (ruleSelected(keys, r)) {
-              keys.delete(k);
-              keys.delete(legacyK);
-            } else {
-              keys.delete(legacyK);
-              keys.add(k);
-            }
-            selection[bp.id] = keys;
-            renderTags();
-            void persistSelection();
-          });
-          tagsWrap.appendChild(tag);
-        });
-      };
-      renderTags();
-      row.appendChild(rulesBox);
-
-      const decide = async (status: 'approved' | 'rejected'): Promise<void> => {
-        approve.disabled = true; reject.disabled = true;
-        saving.textContent = 'guardando…';
-        saving.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-        // Persistir la selección de esta banda SIEMPRE al aprobar (aunque quede
-        // vacía): la selección guardada es la autoridad de lo que se publica
-        // en la página de banda. Las reglas del proponente NO se tocan.
-        if (status === 'approved') {
-          const keys = baseSelection();
-          selection[bp.id] = keys;
-          const map: Record<string, string[]> = {};
-          Object.entries(selection).forEach(([bid, ks]) => { map[bid] = Array.from(ks); });
-          await setGuildBandIntegrationRules(g.id, map);
-        }
-        const r = await setBandIntegration(bp.id, status);
-        approve.disabled = false; reject.disabled = false;
-        if (r.ok) {
-          const prevStatus = bp.integration_status;
-          bp.integration_status = status;
-          bp.integration_decided_at = new Date().toISOString();
-          if (prevStatus === 'pending') pending -= 1;
-          if (status === 'rejected') {
-            // Las rechazadas SALEN de la lista; las aprobadas permanecen
-            // (re-decidibles en cualquier momento).
-            row.remove();
-            renderCount();
-            if (body.querySelectorAll('div[data-prop-row]').length === 0) {
-              body.innerHTML = '<p class="text-sm text-gray-400 italic">Aún no hay bandas propuestas por tus miembros.</p>';
-            }
-          } else {
-            refreshState();
-            renderActions();
-            renderCount();
-            row.classList.add('border-amber-700/40');
-          }
-        } else {
-          saving.textContent = '✗ error';
-          saving.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-          window.setTimeout(() => { saving.textContent = ''; }, 2500);
-        }
-      };
-      approve.addEventListener('click', () => void decide('approved'));
-      reject.addEventListener('click', () => void decide('rejected'));
-      refreshState();
-      row.setAttribute('data-prop-row', '');
-      body.appendChild(row);
-    });
-  }
-
-  function renderGuildCard(g: GuildRow): HTMLElement {
-    const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-md p-4 sm:p-6');
-
-    // Cifras de la hermandad en el encabezado (integrantes, bandas integradas,
-    // reglas): miembros, bandas y reglas del último análisis del portal.
-    void loadGuildStats(g);
-
-    // Portal (abre la ficha; el resto de secciones llevan separador propio)
-    const url = `${window.location.origin}/${g.slug}`;
-    const portal = el('div', '');
-    portal.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5', 'Dirección de tu portal'));
-    const urlRow = el('div', 'flex flex-wrap items-center gap-2');
-    const code = el('code', 'flex-1 min-w-[240px] px-3 py-2.5 rounded-md bg-gray-950/70 border border-gray-700 text-amber-300 text-sm truncate', url);
-    const copyBtn = document.createElement('button');
-    copyBtn.type = 'button';
-    copyBtn.className = 'px-4 py-2.5 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest';
-    copyBtn.textContent = 'Copiar';
-    const openLink = document.createElement('a');
-    openLink.href = url; openLink.target = '_blank'; openLink.rel = 'noopener';
-    openLink.className = 'hidden px-4 py-2.5 rounded-md border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all text-xs font-black uppercase tracking-widest';
-    openLink.textContent = 'Ver portal →';
-    urlRow.append(code, copyBtn, openLink);
-    portal.appendChild(urlRow);
-
-    const label = document.createElement('label');
-    label.className = 'mt-5 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 transition-colors';
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.className = 'mt-0.5 w-4 h-4 accent-amber-500';
-    input.checked = g.is_public;
-    const span = document.createElement('span');
-    span.className = 'text-sm text-gray-300 font-medium';
-    span.innerHTML = 'Publicar portal de la hermandad <span class="block text-xs text-gray-500 italic mt-0.5">Visible para toda la comunidad con roster, bandas y reglas de tu último análisis verificado.</span>';
-    label.append(input, span);
-    portal.appendChild(label);
-    const msg = document.createElement('p');
-    msg.className = 'hidden mt-3 text-sm rounded-md px-4 py-2.5';
-    msg.setAttribute('role', 'status');
-    portal.appendChild(msg);
-    card.appendChild(portal);
-
-    // ── Reglas del portal: el catálogo proviene del SV pero la selección la
-    // hace el maestro aquí (mismo patrón que el panel de bandas). Se guarda
-    // en su propia fila guild_rules: un re-upload NO pisa esta elección.
-    const reglasBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
-    const reglasHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-    reglasHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-500', 'Reglas que aplican a tu portal'));
-    const reglasStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-    reglasHead.appendChild(reglasStatus);
-    reglasBox.appendChild(reglasHead);
-
-    const reglasTags = el('div', 'flex flex-wrap gap-2');
-    reglasBox.appendChild(reglasTags);
-
-    // Selección vigente: la manual del maestro; si aún no eligió (sin fila
-    // guild_rules), se parte del catálogo publicado en el último análisis.
-    let guildRules: ContentItem[] = [];
-    let guildRulesReady = false;
-    let noCatalogHint: HTMLElement | null = null;
-    const renderReglasTags = (): void => {
-      reglasTags.innerHTML = '';
-      if (!guildRulesReady) {
-        reglasTags.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Cargando reglas…'));
-        return;
-      }
-      if (guildRules.length === 0) {
-        reglasTags.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Sin reglas asignadas: tu portal no mostrará sección de reglas.'));
-        return;
-      }
-      guildRules.forEach((r) => {
-        const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-amber-100 bg-amber-950/40 border border-amber-600/40 rounded-md pl-2.5 pr-1 py-1');
-        const full = r.content && r.content !== r.title ? r.content : undefined;
-        tag.title = full ?? '';
-        tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
-        const rm = document.createElement('button');
-        rm.type = 'button';
-        rm.className = 'w-4 h-4 shrink-0 rounded-md text-amber-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
-        rm.textContent = '×';
-        rm.title = 'Quitar regla';
-        rm.addEventListener('click', () => {
-          const prev = guildRules.slice();
-          const next = prev.filter((a) => ruleKey(a) !== ruleKey(r));
-          if (next.length === prev.length) return;
-          guildRules = next;
-          renderReglasTags();
-          rebuildReglasSelect();
-          void saveGuildReglas(next, prev);
-        });
-        tag.appendChild(rm);
-        reglasTags.appendChild(tag);
-      });
-    };
-    renderReglasTags();
-
-    const reglasAddRow = el('div', 'flex flex-wrap items-center gap-2');
-    const reglasAdd = document.createElement('select');
-    reglasAdd.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
-    const rebuildReglasSelect = (): void => {
-      reglasAdd.innerHTML = '';
-      const assigned = new Set(guildRules.map(ruleKey));
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      placeholder.textContent = assigned.size === rulesCatalog.length
-        ? 'No quedan reglas del catálogo por agregar'
-        : '+ Agregar regla del catálogo…';
-      reglasAdd.appendChild(placeholder);
-      rulesCatalog.forEach((r) => {
-        if (assigned.has(ruleKey(r))) return;
-        const opt = document.createElement('option');
-        opt.value = ruleKey(r);
-        opt.textContent = r.title ?? r.content ?? 'Regla sin texto';
-        reglasAdd.appendChild(opt);
-      });
-      reglasAdd.disabled = !guildRulesReady || rulesCatalog.length === 0;
-      if (reglasAdd.disabled) reglasAdd.classList.add('opacity-40');
-      else reglasAdd.classList.remove('opacity-40');
-      // Aviso cuando el SV aún no aporta catálogo (se reconcilia al cargar).
-      reglasAdd.classList.toggle('hidden', rulesCatalog.length === 0);
-      if (rulesCatalog.length === 0) {
-        if (!noCatalogHint) {
-          noCatalogHint = el('span', 'text-[11px] text-gray-500 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a tu portal.');
-          reglasAddRow.appendChild(noCatalogHint);
-        }
-      } else if (noCatalogHint) {
-        noCatalogHint.remove();
-        noCatalogHint = null;
-      }
-    };
-    rebuildReglasSelect();
-    reglasAdd.addEventListener('change', async () => {
-      const key = reglasAdd.value;
-      if (!key) return;
-      const r = rulesCatalog.find((x) => ruleKey(x) === key);
-      if (!r) return;
-      const prev = guildRules.slice();
-      const next = guildRules;
-      if (!next.some((a) => ruleKey(a) === key)) next.push(r);
-      guildRules = next;
-      renderReglasTags();
-      rebuildReglasSelect();
-      reglasAdd.value = '';
-      void saveGuildReglas(next, prev);
-    });
-
-    const saveGuildReglas = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
-      reglasStatus.textContent = 'guardando…';
-      reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
-      const res = await setGuildRules(g.id, next);
-      if (res.ok) {
-        guildRules = next;
-        reglasStatus.textContent = '✓';
-        reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
-      } else {
-        guildRules = prev;
-        reglasStatus.textContent = '✗ ' + (res.error || 'error');
-        reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      }
-      renderReglasTags();
-      rebuildReglasSelect();
-      window.setTimeout(() => { reglasStatus.textContent = ''; }, 2500);
-    };
-
-    reglasBox.appendChild(reglasAddRow);
-    reglasAddRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 shrink-0', 'Agregar'));
-    reglasAddRow.appendChild(reglasAdd);
-    reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-500 italic', 'El catálogo proviene de tu SavedVariables (re-subir el SV lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
-    card.appendChild(reglasBox);
-
-    // Carga inicial: la selección manual del maestro. Sin selección → el
-    // portal no muestra reglas (el SV no llena reglas al subir).
-    void (async () => {
-      const rulesRes = await getGuildRules(g.id);
-      if (rulesRes.ok && Array.isArray(rulesRes.items)) guildRules = rulesRes.items;
-      guildRulesReady = true;
-      renderReglasTags();
-      rebuildReglasSelect();
-    })();
-
-    // Propuestas de integración de bandas de los miembros (solo el GM owner).
-    // El GM aprueba o rechaza; las aprobadas salen en el portal si son públicas.
-    const propSec = el('div', 'mt-4 border-t border-gray-700/50 pt-4');
-    propSec.setAttribute('data-prop-sec', '');
-    propSec.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1', 'Integración de miembros'));
-    const propHead = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-2');
-    propHead.appendChild(el('h4', 'text-sm font-bold text-amber-200', 'Bandas propuestas por tus miembros'));
-    const propCount = document.createElement('span');
-    propCount.className = 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-600/40 rounded-md px-2 py-0.5';
-    propCount.setAttribute('data-prop-count', '');
-    propCount.textContent = '0 pendientes';
-    propHead.appendChild(propCount);
-    propSec.appendChild(propHead);
-    const propShell = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
-    const propBody = el('div', 'space-y-2');
-    propBody.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando propuestas…</p>';
-    propShell.appendChild(propBody);
-    propSec.appendChild(propShell);
-    card.appendChild(propSec);
-    void loadBandProposals(g, propBody);
-
-    // Eventos
-    input.addEventListener('change', async () => {
-      input.disabled = true;
-      const { error } = await supabase
-        .from('raiddominion_guilds')
-        .update({ is_public: input.checked })
-        .eq('id', g.id);
-      input.disabled = false;
-      if (error) {
-        input.checked = !input.checked;
-        setMsg(msg, false, 'No se pudo cambiar la publicación del portal.');
-        return;
-      }
-      openLink.classList.toggle('hidden', !input.checked);
-      g.is_public = input.checked;
-      refreshHdrGuild();
-      setMsg(msg, true, input.checked ? 'Portal publicado: ya es visible en /' + g.slug : 'Portal oculto: solo tú puedes verlo.');
-    });
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(url);
-        setMsg(msg, true, 'Enlace copiado al portapapeles.');
-      } catch {
-        setMsg(msg, false, 'No se pudo copiar automáticamente.');
-      }
-    });
-    if (g.is_public) openLink.classList.remove('hidden');
-
-    return card;
-  }
 
   async function loadGuilds(): Promise<void> {
     const empty = document.getElementById('guild-empty') as HTMLElement;

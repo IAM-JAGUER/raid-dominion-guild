@@ -1,6 +1,6 @@
 // Parser estructural de SavedVariables de RaidDominion (RaidDominionDB v3.0.0).
-// Alineado al formato REAL del addon v3 (ver el dev en
-// D:\WowClient esMX\Interface\AddOns\RaidDominion y perfiles como JUNGJX):
+// Alineado al formato REAL del addon v3 (la ruta local del addon dev y los
+// perfiles de ejemplo viven SOLO en AGENTS.sections/addon.md):
 //
 //   RaidDominionDB = {
 //     registry.player = { name, realm, race, raceFile, class, classFile, level,
@@ -316,12 +316,6 @@ function asArray(v: unknown): unknown[] {
   return Array.isArray(v) ? v : [];
 }
 
-function asStringArray(v: unknown): string[] {
-  return asArray(v)
-    .map((x) => toStr(x).trim())
-    .filter(Boolean);
-}
-
 function asEquipmentPieces(raw: unknown): EquipmentPiece[] {
   return asArray(raw)
     .map((entry) => {
@@ -388,7 +382,7 @@ function asAccountCharacters(raw: unknown): AccountCharacter[] {
         lastSeen: toNum(e['lastSeen']),
       };
     })
-    .filter((c): c is AccountCharacter => c !== null);
+    .filter((c) => c !== null) as AccountCharacter[];
 }
 
 function asRegistryGuild(raw: unknown): RegistryGuild | null {
@@ -445,7 +439,7 @@ function asGuildMemberSummaries(raw: unknown): GuildMemberSummary[] {
         online: onlineRaw === undefined ? undefined : toBool(onlineRaw),
       };
     })
-    .filter((m): m is GuildMemberSummary => m !== null);
+    .filter((m) => m !== null) as GuildMemberSummary[];
 }
 
 function asGuildMembers(raw: unknown): GuildMember[] {
@@ -464,7 +458,7 @@ function asGuildMembers(raw: unknown): GuildMember[] {
         officerNote: toStr(e['officerNote']),
       };
     })
-    .filter((m): m is GuildMember => m !== null);
+    .filter((m) => m !== null) as GuildMember[];
 }
 
 function asConfigList(raw: unknown): ConfigListItem[] {
@@ -476,7 +470,7 @@ function asConfigList(raw: unknown): ConfigListItem[] {
       if (!name) return null;
       return { name, icon: toStr(e['icon']) || undefined };
     })
-    .filter((m): m is ConfigListItem => m !== null);
+    .filter((m) => m !== null) as ConfigListItem[];
 }
 
 function asContentItems(raw: unknown): ContentItem[] {
@@ -490,7 +484,7 @@ function asContentItems(raw: unknown): ContentItem[] {
         icon: toStr(e['icon']) || undefined,
       };
     })
-    .filter((m): m is ContentItem => m !== null);
+    .filter((m) => m !== null) as ContentItem[];
 }
 
 function asBandPlayers(raw: unknown): BandPlayer[] {
@@ -512,7 +506,7 @@ function asBandPlayers(raw: unknown): BandPlayer[] {
         points: toNum(e['points']),
       };
     })
-    .filter((p): p is BandPlayer => p !== null);
+    .filter((p) => p !== null) as BandPlayer[];
 }
 
 
@@ -540,7 +534,7 @@ function asBands(raw: unknown): Band[] {
           : undefined,
       };
     })
-    .filter((b): b is Band => b !== null);
+    .filter((b) => b !== null) as Band[];
 }
 
 

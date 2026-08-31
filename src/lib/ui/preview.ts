@@ -1,4 +1,4 @@
-import type { ParsedSavedVariables, GuildMember, GuildRank, BandPlayer } from '@/types/parser';
+import type { ParsedSavedVariables, GuildRank, BandPlayer } from '@/types/parser';
 import type { MergePlayer } from '@/lib/bandMerge';
 import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';

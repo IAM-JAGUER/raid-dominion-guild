@@ -16,14 +16,17 @@ especialidad es la implementación técnica del portal: Supabase, parser de
 SavedVariables, dashboards y rutas. Stack: Astro 4 + TS estricto + Tailwind v3
 + Supabase JS v2, deploy Netlify (Node 20).
 
-Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de empezar.
-`PLAN_TRANSFORMACION.md` tiene el roadmap de fases.
+Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de
+empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases. Rutas locales del
+addon/repo dev viven SOLO en `AGENTS.sections/addon.md` — no las repitas ni
+las asumas desde memoria; si necesitas la ruta, léela ahí.
 
 ## Archivos de referencia
 
 - `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, onboarding
 - `AGENTS.sections/parser.md` — formato SV v3.0.0, reglas del parser
-- `AGENTS.sections/addon.md` — contrato portal↔addon, sincronía de claves
+- `AGENTS.sections/addon.md` — contrato portal↔addon, sincronía de claves, rutas locales
+- `AGENTS.sections/design.md` — convenciones visuales (si el módulo toca UI)
 
 ## Responsabilidades
 
@@ -36,8 +39,7 @@ Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de emp
 ### 2. Parser de SavedVariables (`src/lib/parser/savedVariables.ts`)
 - Entrada: texto de `RaidDominionDB` (`.lua`), formato oficial v3.0.0.
   Fuente de verdad dual: `AGENTS.sections/parser.md` + `RD_Utils_Registry.lua`
-  del addon dev (`D:\WowClient esMX\Interface\AddOns\RaidDominion`, ver
-  `AGENTS.sections/addon.md`).
+  del addon dev (ruta en `AGENTS.sections/addon.md`).
 - Debe extraer de forma ESTRUCTURAL (no regex de `{}` frágil):
   - `registry` → snapshots por personaje ("Nombre-Reino"): `player`
     (equipo incluido), `savedAt` y `guild` (name, numMembers, isGM,
@@ -50,7 +52,9 @@ Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de emp
   - `roles`, `assignments`, `rules`, `ui`, `chat`.
 - Devolver un objeto tipado (`types/parser.ts`) + lista de advertencias.
 - Separar campos públicos (publicNote) vs privados (officerNote).
-- Validar tamaño ≤ 2 MB y sanitizar (nunca volcar raw en la UI).
+- Validar tamaño ≤ 2 MB y sanitizar (nunca volcar raw en la UI). Al mostrar
+  esta validación en UI, usar `ui.status.error`/`ui.status.warning` de
+  `design.ts` — no colores sueltos.
 - Claim de maestro: ÚNICA vía `registry.*.guild.isGM=true`
   (`raiddominion_claim_from_sv`), con guard anti-falso-positivo (20260825);
   `generatedBy`+rank solo alimenta evidencia legacy v2, ya NO reclama.
@@ -71,6 +75,16 @@ Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de emp
 - `IF EXISTS` / `IF NOT EXISTS`. `SECURITY DEFINER` + `SET search_path = ''`.
 - RLS: solo `auth.uid() = user_id`, políticas con prefijo `raiddominion_`.
 - NUNCA tocar tablas de otras apps ni redefinir `handle_new_user()`.
+- **Política de aplicación (vigente 2026-08-30): el agente REDACTA el
+  archivo `.sql`, NUNCA lo ejecuta.** El proyecto aplica migraciones
+  manualmente vía dashboard de Supabase (decisión deliberada, sin CLI). Al
+  entregar una migración nueva, indica explícitamente en la respuesta: qué
+  archivo crear, y recuerda al usuario registrar la aplicación en
+  `.opencode/improve/ciclos.json` → `migraciones_aplicadas` una vez la
+  corra a mano.
+- Antes de proponer una migración, revisa `ciclos.json` →
+  `migraciones_aplicadas` para confirmar que no se está duplicando algo ya
+  aplicado.
 
 ## Formato de respuesta
 
@@ -78,7 +92,7 @@ Lee `.opencode/improve/priorities.md` y las secciones de referencia antes de emp
 ## Development — Ronda completada
 - Módulo implementado: (descripción)
 - Archivos creados/modificados: (lista)
-- Migraciones creadas: (lista)
+- Migraciones creadas (pendientes de aplicación manual): (lista)
 - RPCs/wrappers tipados: (lista)
-- Build: ✅ / ❌
+- Build: ✅ (`scripts/verifica.sh`) / ✅ (`--check`, si el cambio fue de tipos) / ❌
 ```

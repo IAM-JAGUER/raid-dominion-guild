@@ -3,7 +3,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 ---
 
 <main class="relative py-16">
-  <div class="max-w-6xl mx-auto px-4">
+  <div class="max-w-6xl mx-auto">
     <Breadcrumb />
 
     <!-- Cargando -->
@@ -195,7 +195,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       }
     }
 
-    const bands = await getPublicBandsForCharacter(c.name, c.sv_guild_name);
+    const bands = await getPublicBandsForCharacter(c.name);
     (document.getElementById('main-card') as HTMLElement).appendChild(
       richCharacterCard(c, bands.ok ? (bands.bands ?? []) : [], true)
     );
@@ -271,7 +271,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     const mainCard = document.getElementById('main-card') as HTMLElement;
     const mainTitle = document.querySelector('#main-section h2');
     if (main) {
-      const bands = await getPublicBandsForCharacter(main.name, main.sv_guild_name);
+      const bands = await getPublicBandsForCharacter(main.name);
       mainCard.appendChild(
         richCharacterCard(main, bands.ok ? (bands.bands ?? []) : [], true)
       );
@@ -282,7 +282,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
       // muestran en igualdad, sin destacar a ninguno como "el principal".
       const grid = makeEl('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
       const bandResults = await Promise.all(
-        chars.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
+        chars.map((c) => getPublicBandsForCharacter(c.name))
       );
       chars.forEach((c, i) => {
         const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
@@ -447,7 +447,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
     if (others.length === 0) return;
 
     const bandResults = await Promise.all(
-      others.map((c) => getPublicBandsForCharacter(c.name, c.sv_guild_name))
+      others.map((c) => getPublicBandsForCharacter(c.name))
     );
 
     const grid = document.getElementById('characters-grid') as HTMLElement;
