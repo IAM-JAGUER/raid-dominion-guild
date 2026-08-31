@@ -57,7 +57,7 @@ const PUBLIC_LINKS = [
           {NAV_ITEMS.map((item) => (
             <a
               href={item.href}
-              class="nav-link px-4 py-2.5 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-amber-500/10 relative group"
+              class="nav-link px-4 py-2.5 rounded-md text-sm font-medium text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-200 hover:scale-105 relative group"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               <span class="relative z-10">{item.name}</span>
@@ -135,12 +135,12 @@ const PUBLIC_LINKS = [
       <div class="md:hidden">
         <button 
           id="mobile-menu-button" 
-          class="text-amber-200 hover:text-white focus:outline-none"
+          class="inline-flex items-center justify-center w-10 h-10 rounded-md text-amber-300 border border-amber-600/30 bg-amber-950/20 hover:text-amber-200 hover:border-amber-500/50 hover:bg-amber-900/30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
           aria-label="Menú de navegación"
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
           </svg>
         </button>
@@ -148,13 +148,14 @@ const PUBLIC_LINKS = [
     </div>
   </div>
 
-  <!-- Menú móvil -->
+  <!-- Menú móvil: panel limpio del tema (sin material pesado por fila), filas
+           con medallón de ícono + acento lateral ámbar en la ruta activa -->
   <div 
     id="mobile-menu" 
-    class="md:hidden hidden bg-gray-900/95 backdrop-blur-lg"
+    class="md:hidden hidden bg-gray-950/90 backdrop-blur-xl border-t border-amber-600/25 shadow-2xl shadow-black/50"
     aria-hidden="true"
   >
-    <div class="px-4 py-3 space-y-1">
+    <div class="px-3 py-3">
       {NAV_ITEMS.map((item) => {
         let icon;
         
@@ -188,51 +189,52 @@ const PUBLIC_LINKS = [
         return (
           <a 
             href={item.href}
-            class="mobile-nav-link block w-full px-4 py-3 rounded-md text-base font-medium text-amber-100 hover:bg-amber-800/40 hover:text-white transition-all duration-200 hover:translate-x-1"
+            class="mobile-nav-link group relative flex items-center gap-3 w-full px-3 py-3 rounded-md text-[15px] font-medium text-gray-200 hover:text-white hover:bg-amber-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-amber-500 aria-[current=page]:bg-amber-950/40 aria-[current=page]:text-amber-200"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
-            <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 shrink-0 rounded-md flex items-center justify-center bg-amber-500/10 border border-amber-600/25 text-amber-300 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-colors">
               {icon}
-              <span>{item.name}</span>
-            </div>
+            </span>
+            <span class="flex-1">{item.name}</span>
+            <svg class="w-4 h-4 shrink-0 text-gray-600 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </a>
         );
       })}
       <!-- Comunidad (directorios públicos) -->
-      <div class="pt-2 mt-2 border-t border-amber-600/30 space-y-1">
-        <p class="px-4 py-1 text-[10px] font-black uppercase tracking-widest text-gray-500">Comunidad</p>
+      <div class="mt-3 pt-3 border-t border-amber-600/15 space-y-0.5">
+        <p class="rd-eyebrow px-3 pb-1 pt-0.5 text-[10px] font-black uppercase tracking-widest text-gray-500">Comunidad</p>
         {PUBLIC_LINKS.map((item) => (
           <a
             href={item.href}
             data-directory={item.href}
-            class="mobile-nav-link block w-full px-4 py-3 rounded-md text-base font-medium text-gray-200 hover:bg-amber-800/40 hover:text-white transition-all duration-200 hover:translate-x-1"
+            class="mobile-nav-link group flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-amber-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-amber-500 aria-[current=page]:text-amber-200"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
+            <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-amber-600/40 group-hover:bg-amber-400 transition-colors"></span>
             <span>{item.name}</span>
           </a>
         ))}
       </div>
-      <!-- Entrada de cuenta móvil (visible según sesión): mismo lenguaje visual
-           del dropdown de escritorio — panel del tema, filas a la izquierda con
-           punto de color y hover ámbar — pero con filas táctiles (py-3). -->
-      <div class="pt-2 mt-2 border-t border-amber-600/30 space-y-2">
+      <!-- Entrada de cuenta móvil (visible según sesión): CTA limpio, dropdown
+           con filas a la izquierda y punto de color, mismas reglas que el desktop -->
+      <div class="mt-3 pt-3 border-t border-amber-600/15 space-y-2">
         <a
           href="/login"
           data-auth-link="guest"
-          class="block w-full px-4 py-3 rounded-lg text-base font-bold text-center text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 transition-all duration-200"
+          class="block w-full px-4 py-3 rounded-md text-[15px] font-bold text-center text-gray-900 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 hover:brightness-105 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
         >Iniciar Sesión</a>
         <div class="hidden" data-auth-dropdown="user">
-          <div class="rounded-lg border border-amber-600/30 bg-gray-950/60 backdrop-blur-sm overflow-hidden">
+          <div class="rounded-md border border-amber-600/20 bg-gray-950/70 backdrop-blur-sm overflow-hidden">
             {DASHBOARD_TABS.map((t) => (
               <a
                 href={t.href}
-                class="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150"
+                class="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white hover:translate-x-1 transition-all duration-150"
               >
                 <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-amber-500/70"></span>
                 {t.label}
               </a>
             ))}
-            <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
+            <div class="my-1 border-t border-amber-600/15 hidden" data-staff-sep></div>
             <a
               href="/moderate"
               data-staff-link="moderate"
@@ -252,7 +254,7 @@ const PUBLIC_LINKS = [
         <button
           type="button"
           data-auth-action="logout"
-          class="hidden w-full px-4 py-3 rounded-lg text-sm font-black uppercase tracking-widest text-center text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
+          class="hidden w-full px-4 py-3 rounded-md text-sm font-black uppercase tracking-widest text-center text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
         >Cerrar Sesión</button>
       </div>
     </div>
@@ -275,8 +277,6 @@ const PUBLIC_LINKS = [
 
 <!-- Script para la funcionalidad de navegación -->
 <script>
-  import { RESERVED } from '@/lib/routes';
-
   // Esperar a que el DOM esté completamente cargado
   document.addEventListener('DOMContentLoaded', () => {
     // Obtener referencias a los elementos del DOM
@@ -287,7 +287,7 @@ const PUBLIC_LINKS = [
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]:not(.guide-panel)'));
 
     // Solo las secciones REALMENTE visibles cuentan: las vistas auto-gate
-    // (detalle/portal/dashboard/upload) arrancan ocultas y muestran una tras
+    // (fichas/portal/dashboard/upload) arrancan ocultas y muestran una tras
     // resolver datos en cliente; las ocultas tienen offsetHeight 0 y NO deben
     // interferir con la detección ni con la navegación ↑/↓.
     function visibleSections(): HTMLElement[] {
@@ -303,19 +303,18 @@ const PUBLIC_LINKS = [
 
     // Domino activo de los directorios públicos: los enlaces con
     // data-directory se iluminan según la ruta actual (páginas índice Y
-    // dinámicas como /servidor/:server, /banda/:slug, /:slug, /p/:slug…),
-    // que no pasan currentPath a la Navigation. Mapea el primer segmento al
-    // directorio correspondiente; cualquier slug raíz no reservado es portal.
+    // dinámicas como /servidor/:server, /banda/:slug, /hermandad/:slug,
+    // /jugador/:slug…), que no pasan currentPath a la Navigation. Mapea el
+    // primer segmento al directorio correspondiente.
     function directoryKeyFromPath(pathname: string): string | null {
       const segs = pathname.split('/').filter(Boolean).map((s) => s.toLowerCase());
       const first = segs[0] ?? '';
       if (!first) return null;
       if (first === 'servidores' || first === 'servidor' || first === 'reino') return '/servidores';
       if (first === 'bandas' || first === 'banda') return '/bandas';
-      if (first === 'jugadores' || first === 'jugador' || first === 'p') return '/jugadores';
+      if (first === 'jugadores' || first === 'jugador') return '/jugadores';
       if (first === 'personajes' || first === 'personaje') return '/personajes';
       if (first === 'hermandades' || first === 'hermandad' || first === 'guilds') return '/hermandades';
-      if (segs.length === 1 && !RESERVED.has(first)) return '/hermandades';
       return null;
     }
 

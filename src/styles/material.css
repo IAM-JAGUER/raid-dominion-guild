@@ -1,0 +1,390 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MATERIAL SYSTEM — RaidDominion Portal
+   Dirección de arte: interfaz de aventurero / grimorio de MMORPG clásico.
+   Todo el material se construye SOLO con CSS (gradients, box-shadow,
+   clip-path, pseudo-elementos). Sin imágenes.
+
+   Filosofía por capa:
+     LAYER 01  atmósfera (fondo procedural + viñeta)
+     LAYER 02  estructura (marcos forjados, piedra, cortes)
+     LAYER 03  información (títulos ceremoniales, metadata)
+     LAYER 04  interacción (presión, brillo, pulso, foco)
+
+   REGLA DE CASCADA: ninguna clase material define `background-image` sobre
+   el propio elemento — los gradientes de superficie van en `::before` con
+   `z-index:-1` y `isolation:isolate`. Así las utilities de Tailwind
+   (bg-gradient-to-r en botones/cabeceras) conservan sus gradientes de marca.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── FASE 2 · Design tokens ──────────────────────────────────────────── */
+  --bg-void: #0a0a0c;
+  --bg-surface: #111114;
+  --surface-primary: #17171c;
+  --surface-secondary: #1e1e26;
+
+  --metal-dark: #0c0c10;
+  --metal-mid: #26262e;
+  --metal-light: #3a3a46;
+
+  --stone-dark: #121215;
+  --stone-light: #23232b;
+
+  --parchment-dark: #1a1610;
+  --parchment-light: #2a2217;
+
+  --text-primary: #f2ede4;
+  --text-secondary: #cbbfae;
+  --text-muted: #8a8072;
+
+  --accent-primary: #f5b942;
+  --accent-secondary: #e08a1e;
+  --accent-danger: #b4472f;
+
+  --shadow-deep: 0 18px 50px rgba(0, 0, 0, 0.55), 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  --radius-none: 0;
+  --radius-cut: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+
+  --space-xs: 0.375rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 01 · ATMÓSFERA
+   Fondo de vacío profundo + resplandor ámbar ambiental + viñeta + trama
+   procedural (repeating gradients, sin texturas externas).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-bg {
+  background:
+    /* trama de pergamino/canvas muy sutil */
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 4px),
+    /* resplandor ámbar ambiental superior */
+    radial-gradient(120% 55% at 50% -10%, rgba(245, 185, 66, 0.07), transparent 60%),
+    /* vacío */
+    radial-gradient(140% 100% at 50% 0%, #14141a 0%, #0b0b0e 55%, #070708 100%);
+  background-attachment: fixed;
+  background-color: var(--bg-void);
+}
+
+/* La trama del fondo se amplía en pantallas chicas (celda 4px → 8px) para
+   que la malla respire en correspondencia con el viewport reducido. */
+@media (max-width: 639px) {
+  .rd-bg {
+    background-image:
+repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 12px),
+      radial-gradient(120% 55% at 50% -10%, rgba(245, 185, 66, 0.07), transparent 60%),
+      radial-gradient(140% 100% at 50% 0%, #14141a 0%, #0b0b0e 55%, #070708 100%);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 02 · MATERIALES ESTRUCTURALES
+   Borde por capas: sombra exterior → borde oscuro → línea de iluminación →
+   sombra interior. Profundidad sin depender de border simple. El gradiente
+   de superficie va en ::before (z-index:-1) para no pisar utilities.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-metal,
+.rd-card,
+.rd-stone,
+.rd-parchment {
+  position: relative;
+  isolation: isolate;
+}
+
+.rd-metal::before,
+.rd-card::before,
+.rd-stone::before,
+.rd-parchment::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* METAL FORJADO (paneles) */
+.rd-metal {
+  box-shadow:
+    var(--shadow-inner),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    0 14px 34px rgba(0, 0, 0, 0.45);
+}
+.rd-metal::before {
+  /* superficie forjada + remache esquinero */
+  background-image:
+    radial-gradient(circle at 4px 4px, rgba(245, 185, 66, 0.4), transparent 11px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
+}
+.rd-metal::after {
+  /* costura de forja superior: línea de luz ámbar */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.45) 20%, rgba(245, 185, 66, 0.45) 80%, transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Cuerpos contiguos (sectionBody): sin costura propia (no duplica el head) */
+.rd-metal.rd-no-seam::after {
+  display: none;
+}
+
+/* Cuerpos de panel sin el remache esquinero superior izquierdo (el destello
+   radial del ::before); conserva la superficie forjada. Se usa en los
+   sectionBody para dejar el remache SOLO en los encabezados (sectionHead). */
+.rd-metal.rd-no-rivet::before {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+/* PIEDRA (cards secundarias) */
+.rd-stone {
+  box-shadow:
+    var(--shadow-inner),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 6px 18px rgba(0, 0, 0, 0.3);
+}
+.rd-stone::before {
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.15));
+}
+
+/* ENERGÍA (cards de marca, con lift al hover) */
+.rd-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.rd-card::before {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 30%),
+    radial-gradient(120% 70% at 50% 0%, rgba(245, 185, 66, 0.05), transparent 55%);
+}
+.rd-card.rd-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.rd-card.rd-lift:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(245, 185, 66, 0.5),
+    0 16px 34px rgba(0, 0, 0, 0.5),
+    0 0 26px rgba(245, 185, 66, 0.14);
+}
+
+/* PERGAMINO (misiones, citas, marcos de artefacto) */
+.rd-parchment {
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 0 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.rd-parchment::before {
+  background-image:
+    radial-gradient(90% 120% at 50% 0%, rgba(245, 185, 66, 0.05), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 5px);
+}
+
+/* ── ESQUINAS · corte diagonal único en la esquina superior izquierda ─────
+   Los contenedores grandes llevan solo la esquina sup-izq biselada; el resto
+   de bordes quedan rectos (rounded-md base). */
+.rd-cut {
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+}
+/* Cabecera de panel contiguo (modelo dashboard): mismo corte sup-izq */
+.rd-cut-t {
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 03 · INFORMACIÓN · TÍTULOS CEREMONIALES
+   TIER 1 títulos de zona · TIER 2 capítulos · ornamentos ::after
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-title {
+  position: relative;
+  letter-spacing: 0.04em;
+}
+
+.rd-title.rd-ornament::after {
+  content: "";
+  display: block;
+  width: min(220px, 60%);
+  height: 9px;
+  margin: 0.65em auto 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.9) 18%, rgba(245, 185, 66, 0.9) 82%, transparent) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.35) 30%, rgba(245, 185, 66, 0.35) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
+}
+.rd-title.rd-ornament::before {
+  content: "◆";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  color: var(--accent-primary);
+  font-size: 9px;
+  text-shadow: 0 0 8px rgba(245, 185, 66, 0.7);
+}
+
+.rd-eyebrow {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Divisor forjado ornamental */
+.rd-divider {
+  position: relative;
+  height: 1px;
+  margin: var(--space-md) 0;
+  background: linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.55) 30%, rgba(245, 185, 66, 0.55) 70%, transparent);
+}
+.rd-divider::before {
+  content: "❖";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent-secondary);
+  font-size: 11px;
+  text-shadow: 0 0 6px rgba(245, 185, 66, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 04 · INTERACCIÓN · ESTADOS
+   Los botones se "hunden" al presionar; el hover responde con peso; la
+   selección activa un borde energético. Sin background-image propio para
+   no pisar los gradientes de marca. Respeta prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 120ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+.rd-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+.rd-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 2px 6px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Selección activa: borde energético ámbar + brillo inferior */
+.rd-active {
+  box-shadow:
+    inset 0 0 0 1px rgba(245, 185, 66, 0.7),
+    inset 0 -2px 0 rgba(245, 185, 66, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Pulso mágico lento para elementos importantes (energía) */
+@keyframes rd-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.rd-glow {
+  animation: rd-pulse 3.4s ease-in-out infinite;
+}
+
+/* Barra de progreso viva */
+.rd-progress {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.rd-progress > * {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 45%), linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 10px rgba(245, 185, 66, 0.5);
+}
+
+/* Foco ceremonial */
+.rd-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(245, 185, 66, 0.9),
+    0 0 0 2px rgba(245, 185, 66, 0.25),
+    0 0 18px rgba(245, 185, 66, 0.25);
+}
+
+/* Navegación tipo barra de habilidades: material + estados */
+.rd-nav-item {
+  position: relative;
+  isolation: isolate;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 120ms ease, filter 180ms ease, box-shadow 180ms ease;
+}
+.rd-nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+}
+.rd-nav-item:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.rd-nav-item[aria-current="page"] {
+  box-shadow:
+    inset 0 0 0 1px rgba(245, 185, 66, 0.65),
+    inset 0 -2px 0 rgba(245, 185, 66, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.rd-nav-item[aria-current="page"]::before {
+  background-image: linear-gradient(180deg, rgba(245, 185, 66, 0.12), rgba(245, 185, 66, 0) 55%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESIBILIDAD · MOVIMIENTO REDUCIDO
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-glow {
+    animation: none;
+  }
+  .rd-btn,
+  .rd-nav-item,
+  .rd-card.rd-lift {
+    transition: none;
+  }
+  .rd-btn:hover,
+  .rd-nav-item:hover,
+  .rd-card.rd-lift:hover {
+    transform: none;
+  }
+}

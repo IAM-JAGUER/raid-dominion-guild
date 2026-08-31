@@ -20,7 +20,7 @@ import { ui } from '@/lib/ui/design';
       <!-- Sin autorización -->
       <div id="denied" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <h1 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h1>
+        <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
         <p id="denied-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es solo para moderadores y administradores.</p>
         <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
       </div>
@@ -132,11 +132,11 @@ import { ui } from '@/lib/ui/design';
     name.textContent = g.name;
     const meta = document.createElement('p');
     meta.className = 'text-xs text-gray-400 mt-0.5';
-    meta.textContent = `/${g.slug} · ${g.realm || 'sin reino'} · ${g.owner_email ?? 'sin correo'}`;
+    meta.textContent = `/hermandad/${g.slug} · ${g.realm || 'sin reino'} · ${g.owner_email ?? 'sin correo'}`;
     title.append(name, meta);
 
     const badge = document.createElement('span');
-    badge.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-amber-950/30 border-amber-600/40 text-amber-300 shrink-0';
+    badge.className = `${ui.badge} ${ui.badgeMd} ${ui.status.warning} shrink-0`;
     badge.textContent = 'Pendiente';
     head.append(title, badge);
     li.appendChild(head);
@@ -194,7 +194,7 @@ import { ui } from '@/lib/ui/design';
     name.textContent = g.name;
     const meta = document.createElement('p');
     meta.className = 'text-xs text-gray-500 mt-0.5';
-    meta.textContent = `/${g.slug} · ${g.is_public ? 'Pública' : 'Retirada'}`;
+    meta.textContent = `/hermandad/${g.slug} · ${g.is_public ? 'Pública' : 'Retirada'}`;
     info.append(name, meta);
     li.appendChild(info);
 
@@ -209,7 +209,7 @@ import { ui } from '@/lib/ui/design';
       btn.disabled = true;
       const r = await staffSetGuildPublic(g.id, !g.is_public);
       if (r.ok) {
-        meta.textContent = `/${g.slug} · ${!g.is_public ? 'Pública' : 'Retirada'}`;
+        meta.textContent = `/hermandad/${g.slug} · ${!g.is_public ? 'Pública' : 'Retirada'}`;
         btn.textContent = !g.is_public ? 'Retirar del directorio' : 'Republicar';
         btn.className = !g.is_public
           ? 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'

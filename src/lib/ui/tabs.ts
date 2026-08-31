@@ -35,7 +35,7 @@ export const DASHBOARD_CONFIG = {
   hash: '#perfil',
 } as const;
 
-// Pestañas del portal público de hermandad (/:slug): Miembros · Bandas ·
+// Pestañas del portal público de hermandad (/hermandad/:slug): Miembros · Bandas ·
 // Reglas. Se navegan por hash (#miembros/#bandas/#reglas). Los paneles vacíos
 // se mantienen visibles con placeholder (contrato: barra fija de 3 pestañas).
 export const PORTAL_TABS: TabDef[] = [
@@ -48,6 +48,30 @@ export const PORTAL_TABS: TabDef[] = [
 export const BAND_TABS: TabDef[] = [
   { id: 'core', label: 'Core', href: '#core' },
   { id: 'reglas', label: 'Reglas', href: '#reglas' },
+];
+
+// Pestañas del perfil público de jugador (/jugador/:slug): Personajes · Bandas ·
+// Hermandades. Los paneles sin datos no generan pestaña (initAvailableTabs).
+export const JUGADOR_TABS: TabDef[] = [
+  { id: 'personajes', label: 'Personajes', href: '#personajes' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas' },
+  { id: 'hermandades', label: 'Hermandades', href: '#hermandades' },
+];
+
+// Pestañas de la ficha pública de personaje (/personaje/:slug): Equipamiento ·
+// Bandas · Hermandad. Los paneles sin datos no generan pestaña.
+export const PERSONAJE_TABS: TabDef[] = [
+  { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas' },
+  { id: 'hermandad', label: 'Hermandad', href: '#hermandad' },
+];
+
+// Pestañas del reino anidado (/servidor/:server/reino/:realm): Hermandades ·
+// Personajes · Bandas. Bandas solo si hay bandas públicas del reino.
+export const REINO_TABS: TabDef[] = [
+  { id: 'hermandades', label: 'Hermandades', href: '#hermandades' },
+  { id: 'personajes', label: 'Personajes', href: '#personajes' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas' },
 ];
 
 // Pestañas/paneles del admin. El listado es la raíz (#lista); cada usuario
@@ -82,14 +106,13 @@ export function resolveAdminHash(hash: string): { kind: 'list' } | { kind: 'user
 
 // ── Barra de pestañas reutilizable (portal, banda, …) ───────────────────────
 // Construye la barra y los paneles `panel-<id>` desde un contrato TabDef, con
-// deep-link por hash, navegación ARIA (flechas/Home/End) y badges de conteo.
-// Es el mismo patrón visual que la barra del dashboard (tab-btn + rounded-t-lg).
+// deep-link por hash y navegación ARIA (flechas/Home/End). Es el mismo patrón
+// visual que la barra del dashboard (tab-btn + rounded-t-lg).
 
 export interface TabBarConfig {
   tabs: TabDef[];
   barId: string;
   defaultId: string;
-  badgeCounts?: Record<string, number>;
 }
 
 export function createTabBar(config: TabBarConfig): { activate: (id: string, updateHash?: boolean) => void } {
@@ -107,13 +130,6 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     btn.setAttribute('aria-controls', `panel-${t.id}`);
     btn.className = tabBtnCls;
     btn.textContent = t.label;
-    const count = config.badgeCounts?.[t.id];
-    if (typeof count === 'number') {
-      const badge = document.createElement('span');
-      badge.className = 'ml-1.5 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500/20 text-amber-300';
-      badge.textContent = String(count);
-      btn.appendChild(badge);
-    }
     bar.appendChild(btn);
     return btn;
   });
@@ -125,6 +141,7 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
       const active = b.dataset.tab === target;
       b.setAttribute('aria-selected', String(active));
       b.tabIndex = active ? 0 : -1;
+      // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
       b.classList.toggle('border-amber-400', active);
       b.classList.toggle('text-amber-200', active);
       b.classList.toggle('border-transparent', !active);
@@ -167,4 +184,25 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
   syncFromHash();
 
   return { activate };
+}
+
+// Barra de pestañas para vistas públicas (jugador/personaje/reino): construye
+// la barra SOLO con los paneles disponibles (los que tienen contenido). Si
+// queda un único panel, se muestra directamente sin barra; si hay 2+, se
+// delega en createTabBar (deep-link por hash + ARIA). Los paneles arrancan
+// `hidden` y `available` decide cuáles entran al contrato.
+export function initAvailableTabs(config: {
+  barId: string;
+  tabs: TabDef[];
+  available: string[];
+}): void {
+  const shown = config.tabs.filter((t) => config.available.includes(t.id));
+  if (shown.length === 0) return;
+  if (shown.length === 1) {
+    document.getElementById(`panel-${shown[0].id}`)?.classList.remove('hidden');
+    return;
+  }
+  const bar = document.getElementById(config.barId) as HTMLElement | null;
+  bar?.classList.remove('hidden');
+  createTabBar({ barId: config.barId, tabs: shown, defaultId: shown[0].id });
 }

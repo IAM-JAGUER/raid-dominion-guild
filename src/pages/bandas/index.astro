@@ -22,7 +22,8 @@ import { ui } from '@/lib/ui/design';
       <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando bandas…</p>
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de bandas"></section>
 
-      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-8 sm:p-10 text-center">
+      <div id="empty" class={`hidden ${ui.card} ${ui.cut} relative overflow-hidden p-8 sm:p-10 text-center`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
         <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <p class="font-bold text-white mb-1">Aún no hay bandas públicas</p>
         <p class={`${ui.text.bodyMuted} max-w-md mx-auto`}>Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.</p>
@@ -33,104 +34,14 @@ import { ui } from '@/lib/ui/design';
 </Layout>
 
 <script>
-  import { listPublicBands, getPublicAccountNames, type BandRow } from '@/lib/api';
-import { supabase } from '@/lib/supabase';
-  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-  import { bandMergeKey, mergeBandPlayers } from '@/lib/bandMerge';
+  import { listPublicBands, type BandRow } from '@/lib/api';
+  import { ui } from '@/lib/ui/design';
+  import { resolveBandOwners, mergeDirectoryBands, type OwnerRef } from '@/lib/bandListing';
+  import { cardLink, iconTile } from '@/lib/ui/card';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
   const emptyEl = document.getElementById('empty') as HTMLElement;
-
-  // Dueño visible de cada banda: la guild pública (si guild_id) o el perfil
-  // público del jugador (si es una banda personal). Se resuelve en batch.
-  interface OwnerRef { href?: string; label?: string; kind?: 'guild' | 'player'; ownerId?: string }
-
-  async function resolveOwners(bands: BandRow[]): Promise<Map<string, OwnerRef>> {
-    const map = new Map<string, OwnerRef>();
-    const guildIds = Array.from(new Set(bands.filter((b) => b.guild_id).map((b) => b.guild_id as string)));
-    const ownerIds = Array.from(new Set(bands.filter((b) => !b.guild_id).map((b) => b.owner_id)));
-
-    const [gRes, pRes, namesMap] = await Promise.all([
-      guildIds.length > 0
-        ? supabase.from('raiddominion_guilds').select('id, name, slug, is_public, owner_id').in('id', guildIds)
-        : Promise.resolve({ error: null, data: [] }),
-      ownerIds.length > 0
-        ? supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name, is_public').in('id', ownerIds)
-        : Promise.resolve({ error: null, data: [] }),
-      getPublicAccountNames(ownerIds),
-    ]);
-
-    if (!gRes.error) {
-      (gRes.data as Array<{ id: string; name: string; slug: string; is_public: boolean; owner_id: string | null }>).forEach((g) => {
-        if (g.is_public) map.set(g.id, { href: `/${g.slug}`, label: g.name, kind: 'guild', ownerId: g.owner_id ?? undefined });
-      });
-    }
-    if (!pRes.error) {
-      (pRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean }>).forEach((p) => {
-        if (p.is_public && p.slug) {
-          const info = namesMap.get(p.id);
-          // La banda se atribuye al JUGADOR (cuenta): si el perfil no declara
-          // nombre visible, cae al handle estable @hex, nunca a otro personaje.
-          const label = isNamelessSafe(p, { publicNames: info?.publicNames })
-            ? handleFromSlug(p.slug)
-            : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
-          map.set(p.id, { href: `/jugador/${p.slug}`, label, kind: 'player' });
-        }
-      });
-    }
-    return map;
-  }
-
-  // Fusión de bandas del directorio: agrupa por hermandad (guild_id) y dentro
-  // de cada hermandad por clave. La base es la banda del GM (owner de la
-  // hermandad) si existe; la fuente destacada es el character_name del
-  // personaje que integró la banda de un miembro. Bandas personales (sin
-  // guild_id) pasan individuales, sin fusión.
-  function mergeDirectoryBands(
-    bands: BandRow[],
-    ownerMap: Map<string, OwnerRef>,
-  ): Array<{ b: BandRow; source: string | null; playerCount: number }> {
-    const out: Array<{ b: BandRow; source: string | null; playerCount: number }> = [];
-    const guildBands = bands.filter((b) => b.guild_id);
-    const personalBands = bands.filter((b) => !b.guild_id);
-
-    // Personales: nunca se fusionan con nada.
-    personalBands.forEach((b) => out.push({ b, source: null, playerCount: Array.isArray(b.players) ? b.players.length : 0 }));
-
-    // Por hermandad: agrupar por guild_id, luego dentro por clave.
-    const byGuild = new Map<string, BandRow[]>();
-    guildBands.forEach((b) => {
-      const gid = b.guild_id as string;
-      if (!byGuild.has(gid)) byGuild.set(gid, []);
-      byGuild.get(gid)!.push(b);
-    });
-    byGuild.forEach((guildGroup) => {
-      const ownerRef = ownerMap.get(guildGroup[0].guild_id as string);
-      const guildOwnerId = ownerRef?.ownerId;
-      const groups = new Map<string, BandRow[]>();
-      guildGroup.forEach((b) => {
-        const key = bandMergeKey(b);
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key)!.push(b);
-      });
-      groups.forEach((group) => {
-        if (group.length === 1) {
-          const only = group[0];
-          out.push({ b: only, source: null, playerCount: Array.isArray(only.players) ? only.players.length : 0 });
-          return;
-        }
-        const gmBand = guildOwnerId ? group.find((b) => b.owner_id === guildOwnerId) : undefined;
-        const memberBand = group.find((b) => !gmBand || b.owner_id !== guildOwnerId);
-        const base = gmBand ?? memberBand ?? group[0];
-        const source = (memberBand && memberBand !== base) ? memberBand.character_name : null;
-        // Conteo combinado: unión de jugadores de todas las bandas del grupo.
-        const playerCount = mergeBandPlayers(group).length;
-        out.push({ b: base, source, playerCount });
-      });
-    });
-    return out;
-  }
 
   // Las bandas viven en raiddominion_bands (personales o de hermandad) y se
   // publican con su visibilidad espejo (perfil del dueño o portal de la guild).
@@ -141,7 +52,7 @@ import { supabase } from '@/lib/supabase';
     statusEl.classList.add('hidden');
     emptyEl.classList.remove('hidden');
   } else {
-    const owners = await resolveOwners(res.bands);
+    const owners = await resolveBandOwners(res.bands);
     const merged = mergeDirectoryBands(res.bands, owners);
     document.title = `${merged.length} banda${merged.length === 1 ? '' : 's'} — RaidDominion`;
     merged.forEach((item) => gridEl.appendChild(card(item.b, owners.get(item.b.guild_id || item.b.owner_id), item.source, item.playerCount)));
@@ -150,18 +61,13 @@ import { supabase } from '@/lib/supabase';
 
   function card(b: BandRow, owner?: OwnerRef, source?: string | null, playerCount?: number): HTMLElement {
     const players = playerCount ?? (Array.isArray(b.players) ? b.players.length : 0);
-    const link = document.createElement('a');
-    link.href = `/banda/${encodeURIComponent(b.slug)}`;
-    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+    const link = cardLink(`/banda/${encodeURIComponent(b.slug)}`, 'p-5');
 
     const head = document.createElement('div');
     head.className = 'flex items-center gap-3 mb-3';
-    const icon = document.createElement('div');
-    icon.className = 'w-10 h-10 rounded-md bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0';
-    icon.textContent = (b.name[0] || '?').toUpperCase();
-    head.appendChild(icon);
+    head.appendChild(iconTile((b.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
     const name = document.createElement('h2');
-    name.className = 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug';
+    name.className = 'font-black italic text-white group-hover:text-amber-200 transition-colors text-base leading-[1.3]';
     name.textContent = b.name;
     head.appendChild(name);
     link.appendChild(head);
@@ -186,16 +92,17 @@ import { supabase } from '@/lib/supabase';
     link.appendChild(meta);
 
     const foot = document.createElement('p');
-    foot.className = 'text-xs text-gray-500 mt-3';
+    foot.className = 'text-xs text-gray-500 mt-4 flex items-center justify-between';
     // La banda se atribuye SOLO al jugador (cuenta) o a la hermandad; jamás
     // a un personaje (character_name) que la subió.
     if (owner?.href && owner.label) {
       const ownerLink = document.createElement('span');
       ownerLink.className = 'text-sky-300 hover:text-sky-200 transition-colors';
-      ownerLink.textContent = (owner.kind === 'guild' ? `${owner.label}` : `Por ${owner.label}`) + ` · ver banda →`;
+      ownerLink.textContent = owner.kind === 'guild' ? `${owner.label}` : `Por ${owner.label}`;
       foot.appendChild(ownerLink);
+      foot.appendChild(document.createTextNode('Ver banda →'));
     } else {
-      foot.textContent = `Ver banda →`;
+      foot.textContent = 'Ver banda →';
     }
     link.appendChild(foot);
     return link;
@@ -203,7 +110,7 @@ import { supabase } from '@/lib/supabase';
 
   function chip(text: string, extra = ''): HTMLElement {
     const c = document.createElement('span');
-    c.className = 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : '');
+    c.className = `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20` + (extra ? ` ${extra}` : '');
     c.textContent = text;
     return c;
   }

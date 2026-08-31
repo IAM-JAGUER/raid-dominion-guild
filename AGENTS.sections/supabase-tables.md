@@ -65,12 +65,12 @@ Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
 
 ## URLs públicas (detalles)
 
-- Portal de hermandad: **raíz `/:slug`** vía shell estática `src/pages/portal.astro`
-  + rewrite Netlify `/:slug → /portal` (los archivos reales tienen prioridad).
+- Portal de hermandad: **`/hermandad/:slug`** vía shell `src/pages/hermandad/index.astro`
+  + rewrite Netlify `/hermandad/* → /hermandad` (la raíz legacy `/:slug` redirige 301).
   Resuelve client-side contra `raiddominion_guilds` (RLS: públicas o propias del
   owner, con banner de vista previa); mensaje "no encontrado" si no existe.
-- Perfil de jugador: **`/p/:slug`** vía shell `src/pages/jugador.astro` +
-  rewrite Netlify `/p/* → /jugador`. Requiere migración `20260103_public_pages.sql`
+- Perfil de jugador: **`/jugador/:slug`** vía shell `src/pages/jugador.astro` +
+  rewrite Netlify `/jugador/* → /jugador`. Requiere migración `20260103_public_pages.sql`
   ejecutada (columna `raiddominion_profiles.slug`, RPC `raiddominion_ensure_profile_slug`,
   lectura pública si `is_public`).
 - Snapshot público del portal (roster/bandas/reglas) vive en

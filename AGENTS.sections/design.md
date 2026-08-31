@@ -33,17 +33,63 @@ pero la diferenciación real viene de tres cosas:
 
 Ver el archivo directamente para las clases exactas. Categorías disponibles:
 `container`/`containerNav`, `panel`/`panelHover`/`sectionHead`/`sectionBody`,
-`btnBase`/`btnPrimary`/`btnSecondary`/`btnGhost`/`btnSizes`, `badge`/`chip`,
-`kbd`, `text.*` (hero/h1-h3/body/bodyMuted/caption), `status.*`
-(success/warning/error/info), `form.*` (label/input/inputError/helperText/
-errorText), `loading.*` (skeleton/spinner/liveText), `focusRing`,
-`transition`.
+`card`/`cardTop`/`cardHover`/`cardRow`/`divider`, `btnBase`/`btnPrimary`/
+`btnSecondary`/`btnGhost`/`btnSizes`, `badge`/`chip`, `kbd`, `text.*`
+(hero/h1-h3/body/bodyMuted/caption), `status.*` (success/warning/error/info),
+`eyebrow`/`gradientTitle`/`statValue`/`iconTile`, `form.*`
+(label/input/inputError/helperText/errorText), `loading.*`
+(skeleton/spinner/liveText), `focusRing`, `transition`.
 
 **Regla de oro:** si vas a escribir un literal de Tailwind que ya existe como
 token, usa el token. Si necesitas un literal nuevo que se repetirá más de
 una vez, primero agrégalo como token — no lo dupliques en 2+ componentes.
 
-## 3. Reglas geométricas y de superficie (R1-R8)
+## 3. Lenguaje de cards (2026-08-30)
+
+Toda card de la plataforma usa la misma superficie (`ui.card`, que comparte
+`SURFACE`) y, según su rol:
+
+- **Interactiva** (enlace): `ui.cardHover` (lift `-translate-y-1` + halo ámbar).
+- **Destacada**: línea de acento superior `ui.cardTop` (gradiente ámbar;
+  requiere `relative overflow-hidden` en la card).
+- **Fila** (roster/núcleos/listas): `ui.cardRow` (superficie tenue, hover de
+  borde ámbar).
+- **Medallón de icono/inicial**: `ui.iconTile` (un glifo, gradiente interior).
+- **Etiqueta superior**: `ui.eyebrow`. **Título destacado**: `ui.gradientTitle`
+  (bg-clip-text; no combinarlo con `group-hover:text-*`, pelea con el gradiente).
+- **Cifra**: `ui.statValue` (gradiente vertical + tabular-nums).
+
+En render JS usa los helpers de `src/lib/ui/card.ts` (`cardLink`, `card`,
+`cardTop`, `iconTile`, `eyebrow`, `stat`, `cardTitle`, `cardRow`, `divider`)
+como fuente única del literal (R5). No escribir `bg-gray-900/60` + borde ámbar
+sueltos fuera de ese helper.
+
+## 3b. Materiales y dirección de arte (2026-08-30)
+
+La plataforma no es un dashboard genérico: es una **interfaz de aventurero /
+grimorio de MMORPG clásico**. Todo el material se construye SOLO con CSS
+(gradients, box-shadow, clip-path, pseudo-elementos) en
+`src/styles/material.css` — sin imágenes, sin texturas descargadas, sin
+copiar assets de WoW. Referencia emocional: "personalidad y densidad de una
+UI MMORPG clásica", no una copia.
+
+- **Atmósfera**: `.rd-bg` en `<body>` (vacío profundo + resplandor ámbar
+  ambiental + trama procedural + viñeta). Reemplazó a `background.png`.
+- **Materiales**: `.rd-metal` (paneles forjados, `ui.panel`/`ui.sectionHead`),
+  `.rd-card` (cards con energía sutil, `ui.card`), `.rd-stone`,
+  `.rd-parchment` (misiones/citas), `.rd-btn` (botones que se hunden),
+  `.rd-progress` (barras vivas), `.rd-glow` (pulso mágico), `.rd-active`
+  (borde energético de selección), `.rd-nav-item` (barra de habilidades).
+- **Esquinas**: cortes geométricos con `clip-path` (`.rd-cut`, `.rd-cut-sm`,
+  `.rd-cut-both` vía `ui.cut`/`ui.cutSm`) para contenedores ceremoniales —
+  NO es border-radius.
+- **Títulos ceremoniales**: `ui.ornament` (`rd-title rd-ornament`) añade
+  doble línea + diamante bajo títulos TIER 1/2.
+- **Reglas**: el material va vía tokens (`design.ts`), nunca literales sueltos.
+  Las cards de enlace siguen usando `rd-card rd-lift` para el hover con peso.
+  Respetar `prefers-reduced-motion` (ya incluido).
+
+## 4. Reglas geométricas y de superficie (R1-R8)
 
 - **R1 — Monogramas**: `rounded-full` admite texto SOLO si es un único glifo
   (inicial de avatar, dígito de paso) en contenedor cuadrado `w-N h-N`.
@@ -72,14 +118,14 @@ una vez, primero agrégalo como token — no lo dupliques en 2+ componentes.
   upload) usa `ui.form.*`. Todo error de campo va asociado por
   `aria-describedby` al input correspondiente — ver §5.
 
-## 4. Tipografía
+## 5. Tipografía
 
 Escala en `ui.text`: `hero` (landing hero), `h1`/`h2`/`h3` (jerarquía de
 sección), `body`/`bodyMuted` (contenido y metadatos), `caption` (timestamps,
 notas pequeñas). No usar tamaños Tailwind sueltos (`text-2xl`, `text-sm`)
 fuera de este set salvo caso puntual documentado en el componente.
 
-## 5. Formularios y accesibilidad
+## 6. Formularios y accesibilidad
 
 - Todo `<input>`/`<select>`/`<textarea>` usa `ui.form.input`; en estado de
   error, sumar `ui.form.inputError` y asociar el mensaje con
@@ -92,20 +138,20 @@ fuera de este set salvo caso puntual documentado en el componente.
 - Mensajes de estado dinámico (subida en progreso, error de parseo) van en
   un contenedor `aria-live="polite"` usando `ui.loading.liveText`.
 
-## 6. Loading y feedback async
+## 7. Loading y feedback async
 
 Usar `ui.loading.skeleton` para placeholders de roster/bandas mientras carga,
 `ui.loading.spinner` para acciones puntuales (submit, upload). Nunca dejar
 una operación async sin feedback visual — ver `frallas.md` F010.
 
-## 7. Responsive
+## 8. Responsive
 
 Rango verificado: 320px–1440px sin overflow horizontal. Breakpoints:
 los de Tailwind por defecto (`sm`/`md`/`lg`), sin breakpoints custom.
 Tablas de dashboard → cards en `< sm`. Ver `patrones.md` P001 para el patrón
 de dashboard con pestañas que ya resuelve esto en desktop.
 
-## 8. Reglas fijas (no negociables sin discusión explícita)
+## 9. Reglas fijas (no negociables sin discusión explícita)
 
 - NO cambiar colores de marca (ámbar-400/600/900, fondo `#111`).
 - NO eliminar clases `hidden sm:*` que controlan responsive.
@@ -115,6 +161,28 @@ de dashboard con pestañas que ya resuelve esto en desktop.
 
 ## Historial de enmiendas
 
+- **2026-08-30**: dirección de arte "interfaz de aventurero / grimorio MMORPG" —
+  nuevo `src/styles/material.css` (tokens CSS, atmósfera `.rd-bg`, materiales
+  `.rd-metal`/`.rd-card`/`.rd-stone`/`.rd-parchment`, esquinas `clip-path`
+  `.rd-cut*`, títulos ceremoniales `.rd-ornament`, botones `.rd-btn`,
+  barra de habilidades `.rd-nav-item`, `.rd-active`, `.rd-glow`,
+  `.rd-progress`; con `prefers-reduced-motion`). Cableado en `design.ts`
+  (`ui.panel`/`ui.sectionHead` → metal, `ui.card` → card+lift,
+  `ui.btnBase` → `rd-btn`, nuevos `ui.cut`/`cutSm`/`active`/`glow`/
+  `ornament`/`navItem`). El fondo por imagen (`background.png`) se reemplazó
+  por atmósfera CSS pura.
+- **2026-08-30**: rediseño UI/UX de cards y secciones — nuevo bloque de tokens
+  de card en `design.ts` (`ui.card`, `ui.cardTop`, `ui.cardHover`,
+  `ui.cardRow`, `ui.eyebrow`, `ui.gradientTitle`, `ui.statValue`,
+  `ui.iconTile`, `ui.divider`) y helpers de render `src/lib/ui/card.ts`.
+  Aplicado a directorios, portal de hermandad, fichas, roster/core de
+  `preview.ts`, dashboard (chips `hdr-*` con `statValue`, eyebrows, tab bar
+  activa, empty states con medallón) y landing (hero con stats, Discord a
+  ámbar, cards de guías/donaciones, fix de clases rotas en Footer).
+  Contenidos de los tabs del dashboard (`src/lib/ui/dashboard/*`):
+  `characterCard`, `renderBandDetail`, `renderGuildCard`, `renderRegistryGuildCards`,
+  `renderRegistries`, `renderContentList` y `renderAssignments` migrados a
+  `ui.card` + `ui.cardTop` + `ui.eyebrow` + `ui.gradientTitle` + `ui.cardRow`.
 - **2026-08-25**: R1 (monogramas) agregada tras detectar caso de avatar con
   iniciales que violaba el criterio geométrico original.
 - **2026-08-30**: R5-R8 agregadas tras auditoría que detectó ausencia total

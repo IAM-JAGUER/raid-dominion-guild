@@ -242,7 +242,7 @@ export async function ensureMyProfileSlug(): Promise<{ ok: boolean; slug?: strin
   return { ok: true, slug: rpc.data as string };
 }
 
-// Perfil público por slug (/p/:slug) — RLS permite si is_public o es propio
+// Perfil público por slug (/jugador/:slug) — RLS permite si is_public o es propio
 export async function getPublicProfileBySlug(slug: string): Promise<{ ok: boolean; profile?: ProfileRow; error?: string }> {
   const res = await supabase
     .from('raiddominion_profiles')
@@ -390,6 +390,27 @@ export async function getRealmOverview(
     guilds: (guildsRes.data as GuildRow[]) ?? [],
     characters: (charsRes.data as CharacterRow[]) ?? [],
   };
+}
+
+// Bandas públicas de un reino (anidado en un servidor). Las bandas no tienen
+// campo de server fiable (solo character_realm/character_name), así que se
+// filtran SOLO por reino — mismo criterio de capa que las guilds del reino
+// (ver nota en getRealmOverview). Excluye bandas con hide_players porque su
+// roster es privado.
+export async function getRealmBands(
+  realm: string
+): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_bands')
+    .select('*')
+    .eq('is_public', true)
+    .eq('hide_players', false)
+    .ilike('character_realm', realm)
+    .order('name', { ascending: true })
+    .limit(200);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, bands: (res.data as BandRow[]) ?? [] };
 }
 
 // ─── Bandas públicas (tabla raiddominion_bands) ─────────────────────────
@@ -679,6 +700,24 @@ export async function getPublicGuildByOwner(ownerId: string): Promise<{ ok: bool
 
   if (res.error) return { ok: false, error: res.error.message };
   return { ok: true, guild: (res.data as GuildRow | null) ?? undefined };
+}
+
+// Hermandades públicas donde un jugador es maestro (owner_id). Soporta varias
+// (un jugador puede ser GM de más de una cuenta/claim); alimenta la sección
+// "Hermandades" del perfil público de jugador.
+export async function getPublicGuildsForPlayer(
+  ownerId: string
+): Promise<{ ok: boolean; guilds?: GuildRow[]; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_guilds')
+    .select('*')
+    .eq('owner_id', ownerId)
+    .eq('is_public', true)
+    .order('name', { ascending: true })
+    .limit(20);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, guilds: (res.data as GuildRow[]) ?? [] };
 }
 
 // Snapshot público del portal (roster/rangos) desde guild_config. Las reglas
@@ -1059,7 +1098,7 @@ export async function setCharacterVisibility(id: string, isPublic: boolean): Pro
   return { ok: true };
 }
 
-// Personajes públicos de un usuario (perfil público /p/:slug)
+// Personajes públicos de un usuario (perfil público /jugador/:slug)
 export async function getPublicCharactersByUser(userId: string): Promise<{ ok: boolean; items?: CharacterRow[]; error?: string }> {
   const res = await supabase
     .from('raiddominion_characters')
@@ -1176,6 +1215,7 @@ export async function getPublicCharacterBySlug(slug: string): Promise<{ ok: bool
 
 export interface PublicBandSummary {
   name: string;
+  slug?: string;
   schedule?: string;
   minGS?: number;
   role?: string;
@@ -1240,6 +1280,7 @@ export async function getPublicBandsForCharacter(
     if (!me) continue;
     bands.push({
       name: b.name,
+      slug: b.slug ?? undefined,
       schedule: b.schedule ?? undefined,
       minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,
       role: me.role,

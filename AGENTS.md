@@ -79,7 +79,7 @@ Definidos en `src/lib/roles.ts`. Comparar por índice (`ROLES.indexOf`).
 |---|---|---|---|
 | `visitante` | 0 | ✅ (toda cuenta nueva) | Landing, directorio público, `/upload`, dashboard básico |
 | `member` | 1 | ✅ (≥2 personajes registrados, sin importar hermandad) | Todo lo anterior + personaje validado, visibilidad pública |
-| `guild_master` | 2 | ✅ (vía RPC: SV con isGM + ≥3 personajes validados) | Dashboard de su hermandad, portal público en `/:slug` |
+| `guild_master` | 2 | ✅ (vía RPC: SV con isGM + ≥3 personajes validados) | Dashboard de su hermandad, portal público en `/hermandad/:slug` |
 | `moderator` | 3 | ❌ (solo admin) | Revisar claims/verificaciones, moderar públicos |
 | `admin` | 4 | ❌ (solo admin, seed manual por email) | Gestión de usuarios, moderación total |
 
@@ -88,12 +88,12 @@ Definidos en `src/lib/roles.ts`. Comparar por índice (`ROLES.indexOf`).
 ```
 visitante / member
   ├─ /upload → sube SV (producido con "Registrar" en el addon) → parser → preview
-  ├─ /dashboard → toggle perfil público → página viva en /p/:slug
+  ├─ /dashboard → toggle perfil público → página viva en /jugador/:slug
   ├─ "Mi Hermandad": SIN formularios. El SV es la única vía:
   │    a) Formato nuevo: registry.guild.isGM=true + Miembro validado
   │       (≥3 personajes validados) → raiddominion_claim_from_sv al subir (auto GM)
   │    └─ slug autogenerado + dashboard /dashboard/guild
-  │         └─ toggle is_public → portal vivo en /:slug
+  │         └─ toggle is_public → portal vivo en /hermandad/:slug
   └─ Re-subir SV actualiza roster/bandas del portal
 ```
 
@@ -103,10 +103,17 @@ visitante / member
 
 ### URLs públicas
 
-- Portal de hermandad: **`/:slug`** vía `src/pages/portal.astro` + rewrite Netlify.
-- Perfil de jugador: **`/p/:slug`** vía `src/pages/jugador.astro` + rewrite Netlify.
+- Portal de hermandad: **`/hermandad/:slug`** vía shell `src/pages/hermandad/index.astro`
+  + rewrite Netlify `/hermandad/* → /hermandad` (la raíz legacy `/:slug` redirige 301).
+- Directorio de hermandades: **`/hermandades`** (`src/pages/hermandades/index.astro`);
+  `guilds` (legacy) redirige 301 a `/hermandades`.
+- Perfil de jugador: **`/jugador/:slug`** vía `src/pages/jugador.astro` + rewrite Netlify.
+- Fichas: **`/personaje/:slug`**, **`/servidor/:server`**, **`/servidor/:server/reino/:realm`**,
+  **`/banda/:slug`** vía shells `personaje.astro`/`servidor.astro`/`banda.astro` + rewrites.
 - Slugs reservados: `upload`, `login`, `dashboard`, `admin`, `moderate`,
-  `guilds`, `p`, `api`, `assets`, `_astro`, `portal`, `jugador`.
+  `guilds`, `api`, `assets`, `_astro`, `portal`, `jugador`, `personajes`,
+  `personaje`, `servidor`, `servidores`, `reino`, `hermandad`, `hermandades`,
+  `jugadores`, `banda`, `bandas`.
 
 ### Detalles de onboarding y evidencia
 
@@ -125,7 +132,7 @@ Especificación completa: `AGENTS.sections/parser.md`.
 src/
 ├── components/      # UI reutilizable (Navigation, Footer, cards, AddonGuidesGrid, ...)
 ├── layouts/         # Layout.astro (tema global)
-├── pages/           # Rutas Astro (/ index, /upload, /login, /dashboard, /portal → /:slug, /jugador → /p/:slug, /guilds)
+├── pages/           # Rutas Astro (/ index, /upload, /login, /dashboard, /hermandad/:slug, /jugador/:slug, /hermandades, fichas)
 ├── sections/        # Secciones de la landing (GrandLogo, AddonSection, Donaciones, ...)
 ├── data/            # datos estáticos (features, raids.json, addonGuides.ts)
 ├── lib/
@@ -280,6 +287,14 @@ Contrato completo: `AGENTS.sections/addon.md`.
 
 ## 12. Changelog de este archivo
 
+- **2026-08-30 (rutas)**: canonicalización del mapa de rutas en español —
+  portal de hermandad de raíz `/:slug` → **`/hermandad/:slug`** (shell
+  `src/pages/hermandad/index.astro` + rewrite `/hermandad/*`; raíz legacy 301);
+  directorio `guilds` → **`/hermandades`** (canónico, `guilds` legacy 301);
+  fichas fuera del shell `/detalle` → páginas dedicadas
+  `personaje.astro`/`servidor.astro`/`banda.astro` (+`DetailShell.astro`);
+  perfil de jugador única ruta `/jugador/:slug` (se eliminó `/p/:slug` y el
+  modo 'character' muerto de JugadorProfile). Eliminados `/detalle` y `/p`.
 - **2026-08-30**: separadas las convenciones visuales a
   `AGENTS.sections/design.md` (antes mezcladas en `priorities.md`);
   documentado el modelo de sesión única (Zeus + servidor); formalizada la

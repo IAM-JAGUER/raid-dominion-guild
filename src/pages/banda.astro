@@ -1,0 +1,11 @@
+---
+// Ficha pública DE BANDA (/banda/:slug). Shell estático servido por el
+// rewrite netlify /banda/* → /banda (dev: middleware de astro.config.mjs).
+// El navegador conserva la URL real y BandView se auto-activa y resuelve el
+// slug 100% en cliente.
+import DetailShell from '@/components/DetailShell.astro';
+import BandView from '@/components/views/BandView.astro';
+---
+<DetailShell title="Banda - RaidDominion" description="Ficha pública de banda de la comunidad RaidDominion.">
+  <BandView />
+</DetailShell>

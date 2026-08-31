@@ -4,12 +4,13 @@ import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
 import Donations from '@/sections/Donations.astro';
 import AddonSection from '@/sections/AddonSection.astro';
+import { ui } from '@/lib/ui/design';
 ---
 
 <Layout title="RaidDominion - Addon World of Warcraft 3.3.5a">
 	<Navigation />
 	<main class="relative">
-		<div class="max-w-6xl mx-auto">
+		<div class={ui.container}>
 			<!-- Contenido principal -->
 			<div class="relative">
 				<!-- Sección Inicio -->
@@ -17,8 +18,12 @@ import AddonSection from '@/sections/AddonSection.astro';
 					<GrandLogo></GrandLogo>
 				</section>
 
+				<div class={ui.divider} aria-hidden="true"></div>
+
 				<!-- Sección Addon -->
 				<AddonSection />
+
+				<div class={ui.divider} aria-hidden="true"></div>
 
 				<!-- Sección Donaciones -->
 				<section id="donaciones" class="scroll-mt-16">

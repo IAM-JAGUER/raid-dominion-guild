@@ -23,13 +23,12 @@ const textAlign = {
 ---
 
 <div class={`${textAlign} mb-8`}>
-  <h2 class={`${ui.sectionTitle} mb-2`}>
+  <h2 class={`${ui.sectionTitle} ${ui.gradientTitle} ${ui.ornament} mb-2`}>
     {title}
   </h2>
   {subtitle && (
-    <p class="text-gray-300 max-w-2xl mx-auto">
+    <p class={`${ui.text.bodyMuted} max-w-2xl mx-auto`}>
       {subtitle}
     </p>
   )}
-  <div class="w-24 h-1 bg-amber-500 mt-4 mx-auto"></div>
 </div>

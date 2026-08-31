@@ -6,6 +6,8 @@
 
 import { el } from '@/lib/ui/preview';
 import { ruleKey } from '@/lib/ui/dashboard/format';
+import { ui } from '@/lib/ui/design';
+import { card, cardTop } from '@/lib/ui/card';
 import {
   setBandVisibility,
   setBandHidePlayers,
@@ -44,7 +46,8 @@ export interface BandDetailOptions {
 }
 
 export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLElement {
-  const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-md p-5');
+  const cardEl = card('p-5');
+  cardEl.appendChild(cardTop());
   const blocked = opts.blocked;
 
   // ── Visibilidad: switches tipo pill ────────────────────────────────────
@@ -79,7 +82,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   };
 
   const visBox = el('div', 'space-y-3');
-  visBox.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Visibilidad pública'));
+  visBox.appendChild(el('p', `${ui.eyebrow}`, 'Visibilidad pública'));
   const toggles = el('div', 'flex flex-wrap gap-5');
   toggles.appendChild(makeSwitch(b.is_public, 'Pública', async (input, status) => {
     input.disabled = true;
@@ -117,11 +120,11 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }));
   visBox.appendChild(toggles);
-  card.appendChild(visBox);
+  cardEl.appendChild(visBox);
 
   // ── Hermandad: asignación (1:N) + propuesta de integración ─────────────
   const assign = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-3');
-  assign.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Hermandad'));
+  assign.appendChild(el('p', `${ui.eyebrow}`, 'Hermandad'));
 
   // El texto de la propuesta muestra el maestro destino (la hermandad del
   // select): la solicitud va al GM de esa guild, no a otra. El select fija
@@ -254,12 +257,12 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   refreshPropTarget();
   propLabel.append(prop, document.createTextNode(' '), propTarget, propStatus);
   assign.appendChild(propLabel);
-  card.appendChild(assign);
+  cardEl.appendChild(assign);
 
   // ── Reglas: tags removibles + select de agregar ────────────────────────
   const rulesBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
   const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-  rulesHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Reglas de esta banda'));
+  rulesHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas de esta banda'));
   const rulesStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
   rulesHead.appendChild(rulesStatus);
   rulesBox.appendChild(rulesHead);
@@ -371,15 +374,15 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   };
 
   rulesBox.appendChild(addRow);
-  addRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 shrink-0', 'Agregar'));
+  addRow.appendChild(el('span', `${ui.eyebrow} shrink-0`, 'Agregar'));
   addRow.appendChild(addSelect);
   if (opts.rulesCatalog.length === 0) {
     addSelect.classList.add('hidden');
     addRow.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a esta banda.'));
   }
-  card.appendChild(rulesBox);
+  cardEl.appendChild(rulesBox);
 
-  card.appendChild(el('p', 'mt-3 text-[11px] text-gray-500 italic', 'Jugadores y horario se actualizan re-subiendo tu SavedVariables; las reglas de esta banda las eliges tú aquí.'));
+  cardEl.appendChild(el('p', 'mt-3 text-[11px] text-gray-500 italic', 'Jugadores y horario se actualizan re-subiendo tu SavedVariables; las reglas de esta banda las eliges tú aquí.'));
 
-  return card;
+  return cardEl;
 }

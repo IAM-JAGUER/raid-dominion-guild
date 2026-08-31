@@ -4,10 +4,10 @@ import tailwind from "@astrojs/tailwind";
 // Slugs reservados: no se interpretan como portal de hermandad en dev.
 // Deben coincidir con RESERVED de src/lib/routes.ts.
 const RESERVED_PORTAL_SLUGS = new Set([
-  'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
+  'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
-  'jugadores', 'banda', 'bandas', 'detalle',
+  'jugadores', 'banda', 'bandas', 'guilds',
 ]);
 
 // https://astro.build/config
@@ -29,13 +29,13 @@ export default defineConfig({
   vite: {
     plugins: [
       {
-        // Dev-only: replica el rewrite /p/* y /jugador/* → /jugador de netlify.toml
+        // Dev-only: replica el rewrite /jugador/* → /jugador de netlify.toml
         name: 'dev-p-rewrite',
         apply: 'serve',
         configureServer(server) {
           server.middlewares.use((req, _res, next) => {
-            if (req.url && (req.url.startsWith('/p/') || req.url.startsWith('/jugador/'))) {
-              const raw = req.url.slice(req.url.startsWith('/jugador/') ? 9 : 3).split('?')[0];
+            if (req.url && req.url.startsWith('/jugador/')) {
+              const raw = req.url.slice('/jugador/'.length).split('?')[0];
               const slug = decodeURIComponent(raw.replace(/\/+$/, ''));
               if (slug && slug !== 'index.html') {
                 req.url = '/jugador?slug=' + encodeURIComponent(slug);
@@ -46,11 +46,11 @@ export default defineConfig({
         },
       },
       {
-        // Dev-only: replica los rewrites de las rutas de DETALLE de
-        // netlify.toml → /detalle. El shell (detalle.astro) resuelve la
-        // vista por el PRIMER segmento en el cliente. Cubre /servidor/*
-        // (incluida la ruta anidada /servidor/:server/reino/:realm),
-        // /personaje/* y /banda/*.
+        // Dev-only: replica los rewrites de las fichas públicas de
+        // netlify.toml → shells estáticos (personaje/servidor/banda). El
+        // navegador conserva la URL real y cada vista se auto-activa por el
+        // primer segmento en el cliente. Cubre /personaje/:slug,
+        // /servidor/:server (y /servidor/:server/reino/:realm) y /banda/:slug.
         name: 'dev-detail-rewrite',
         apply: 'serve',
         configureServer(server) {
@@ -65,7 +65,7 @@ export default defineConfig({
                 // contienen puntos, p. ej. logon.ultimowow.com, así que no se
                 // rechazan por el punto). Estas rutas nunca son archivos reales.
                 if (rest && rest !== 'index.html') {
-                  req.url = '/detalle';
+                  req.url = '/' + seg.toLowerCase();
                 }
               }
             }
@@ -74,19 +74,26 @@ export default defineConfig({
         },
       },
       {
-        // Dev-only: replica el rewrite /:slug → /portal (portal de hermandad
-        // en raíz). Las páginas reales y los slugs reservados tienen prioridad.
-        name: 'dev-slug-rewrite',
+        // Dev-only: replica el redirect de raíz /:slug → /hermandad/:slug de
+        // netlify.toml (páginas reales y slugs reservados tienen prioridad) y
+        // el rewrite /hermandad/* → /hermandad (shell estático; el navegador
+        // conserva la URL real y el script resuelve el slug).
+        name: 'dev-slug-redirect',
         apply: 'serve',
         configureServer(server) {
-          server.middlewares.use((req, _res, next) => {
+          server.middlewares.use((req, res, next) => {
             if (req.url) {
               const path = req.url.split('?')[0];
               const segs = path.split('/').filter(Boolean);
-              if (segs.length === 1 && !segs[0].includes('.')) {
+              if (segs[0] === 'hermandad' && segs.length === 2) {
+                req.url = '/hermandad';
+              } else if (segs.length === 1 && !segs[0].includes('.')) {
                 const slug = decodeURIComponent(segs[0]);
                 if (slug && !RESERVED_PORTAL_SLUGS.has(slug.toLowerCase())) {
-                  req.url = '/portal?slug=' + encodeURIComponent(slug);
+                  res.statusCode = 301;
+                  res.setHeader('Location', '/hermandad/' + encodeURIComponent(slug));
+                  res.end();
+                  return;
                 }
               }
             }

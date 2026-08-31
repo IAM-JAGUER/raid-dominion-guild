@@ -1,6 +1,7 @@
 ---
 import Footer from "@/sections/Footer.astro";
 import "@fontsource-variable/jost";
+import "@/styles/material.css";
 
 interface Props {
   title: string;
@@ -20,6 +21,16 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- CSS crítico inline (is:inline = se emite crudo en el head, antes del
+         bundle): pinta el fondo de vacío de inmediato y evita el flash
+         blanco→negro en la 1ª carga y en cada navegación entre rutas. -->
+    <style is:inline>
+      html,
+      body {
+        background-color: #0a0a0c;
+        color-scheme: dark;
+      }
+    </style>
     <meta
       name="description"
       content={description ?? "Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."}
@@ -74,7 +85,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>{title}</title>
   </head>
-  <body class="relative flex flex-col min-h-[100dvh]">
+  <body class="rd-bg relative flex flex-col min-h-[100dvh]">
     <script define:vars={{ rdEnvUrl, rdEnvKey }}>
       window.__RD_ENV__ = { url: rdEnvUrl || "", key: rdEnvKey || "" };
     </script>
@@ -104,19 +115,18 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
 
   html {
     font-family: "Jost Variable", system-ui, sans-serif;
-    background:
-      url("/background.png") no-repeat,
-      #111;
+    background-color: var(--bg-void);
     overflow-x: hidden;
-    background-size: 100vw 100vh;
-    background-attachment: fixed;
-    background-position: center top;
     animation: fadeIn 1.5s ease-in-out;
   }
 
-  @media (max-width: 640px) {  /* xm breakpoint */
-    html {
-      background-size: auto 100vh;
-    }
+  /* Enlaces por defecto heredan el color ámbar de marca y el foco ceremonial */
+  a {
+    color: inherit;
+  }
+
+  ::selection {
+    background: rgba(245, 185, 66, 0.3);
+    color: #fff;
   }
 </style>

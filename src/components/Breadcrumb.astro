@@ -16,7 +16,7 @@ const { className = '' } = Astro.props;
 </nav>
 
 <script>
-  import { currentSegments, currentSlug, RESERVED } from '@/lib/routes';
+  import { currentSegments, currentSlug } from '@/lib/routes';
 
   interface Crumb {
     label: string;
@@ -64,16 +64,13 @@ const { className = '' } = Astro.props;
     } else if (first === 'banda') {
       push('Bandas', '/bandas');
       push(currentSlug() || seg[1] || 'Banda', `/banda/${seg[1] ?? ''}`);
-    } else if (first === 'jugador' || first === 'p') {
+    } else if (first === 'jugador') {
       push('Jugadores', '/jugadores');
       push(currentSlug() || seg[1] || 'Jugador', `/jugador/${seg[1] ?? ''}`);
-    } else if (first === 'detalle') {
-      // Dev directo a /detalle (sin rewrite): sin contexto de ficha.
-      push('Detalle');
-    } else if (first && !RESERVED.has(first)) {
-      // Portal de hermandad en raíz (/:slug).
+    } else if (first === 'hermandad') {
+      // Portal de hermandad (/hermandad/:slug).
       push('Hermandades', '/hermandades');
-      push(currentSlug() || seg[0], `/${seg[0]}`);
+      push(currentSlug() || seg[1] || 'Hermandad', `/hermandad/${seg[1] ?? ''}`);
     }
     return trail;
   }

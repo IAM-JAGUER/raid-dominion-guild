@@ -5,28 +5,25 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Portal de hermandad en raíz /:slug (los archivos reales tienen prioridad)
+# Portal de hermandad: raíz legacy /:slug → portal canónico /hermandad/:slug
+# (los archivos reales tienen prioridad; /guilds y demás específicos también)
 [[redirects]]
   from = "/:slug"
-  to = "/portal"
-  status = 200
-
-# /personaje (sin slug) → directorio de servidores (legacy)
-[[redirects]]
-  from = "/personaje"
-  to = "/servidores"
+  to = "/hermandad/:slug"
   status = 301
 
-# Ficha pública POR PERSONAJE /personaje/:slug → shell genérico de detalle
+# Shell del portal de hermandad: /hermandad/:slug → /hermandad (el navegador
+# conserva la URL real y el script resuelve el slug)
 [[redirects]]
-  from = "/personaje/*"
-  to = "/detalle"
+  from = "/hermandad/*"
+  to = "/hermandad"
   status = 200
 
-# Compat de /p/:slug (legacy) → shell de jugador (mantenido)
+# Ficha pública POR PERSONAJE /personaje/:slug → shell /personaje
+# (el navegador conserva la URL real; CharacterView resuelve el slug)
 [[redirects]]
-  from = "/p/*"
-  to = "/jugador"
+  from = "/personaje/*"
+  to = "/personaje"
   status = 200
 
 # Perfil de jugador canónico /jugador/:slug → shell de jugador
@@ -35,23 +32,23 @@
   to = "/jugador"
   status = 200
 
-# Detalle de servidor y reino anidado → shell genérico de detalle
-# (/servidor/:server y /servidor/:server/reino/:realm)
+# Ficha de servidor y reino anidado → shell /servidor
+# (ServerView/RealmView se auto-activan por segmentos)
 [[redirects]]
   from = "/servidor/*"
-  to = "/detalle"
+  to = "/servidor"
   status = 200
 
-# Ficha pública DE BANDA /banda/:slug → shell genérico de detalle
+# Ficha pública DE BANDA /banda/:slug → shell /banda
 [[redirects]]
   from = "/banda/*"
-  to = "/detalle"
+  to = "/banda"
   status = 200
 
-# Alias de directorios (sin duplicar listas): /hermandades → /guilds
+# Alias de directorios: /guilds (legacy) → /hermandades (canónico)
 [[redirects]]
-  from = "/hermandades"
-  to = "/guilds"
+  from = "/guilds"
+  to = "/hermandades"
   status = 301
 
 # Redirecciones SPA

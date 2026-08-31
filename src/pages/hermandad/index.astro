@@ -1,4 +1,9 @@
 ---
+// Portal público DE HERMANDAD (/hermandad/:slug). Ruta canónica del portal de
+// guild: shell estático servido por el rewrite netlify /hermandad/* → /hermandad
+// (en dev lo replica el middleware de astro.config.mjs). El navegador conserva
+// la URL real /hermandad/:slug y el script resuelve el slug 100% en cliente
+// contra src/lib/api.ts.
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
@@ -18,20 +23,22 @@ import { ui } from '@/lib/ui/design';
       </div>
 
       <!-- No encontrado -->
-      <div id="not-found" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
+      <div id="not-found" class={`hidden ${ui.panel} ${ui.cut} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <h1 class={`${ui.text.h2} text-white mb-2`}>Portal no encontrado</h1>
+        <h2 class={`${ui.text.h2} text-white mb-2`}>Portal no encontrado</h2>
         <p id="not-found-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta hermandad no existe o su portal es privado.</p>
-        <a href="/guilds" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Ver directorio</a>
+        <a href="/hermandades" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Ver directorio</a>
       </div>
 
       <!-- Portal -->
       <div id="portal" class="hidden space-y-8">
 
         <!-- Vista previa privada (owner) -->
-        <div id="preview-banner" class="hidden bg-sky-950/40 border border-sky-700/40 rounded-md p-4 flex items-start gap-3">
-          <svg class="w-5 h-5 text-sky-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-          <p class="text-sm text-sky-200"><span class="font-bold">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
+        <div id="preview-banner" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-4 flex items-start gap-3`}>
+          <div class={`${ui.iconTile} w-10 h-10 shrink-0`} aria-hidden="true">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <p class="text-sm text-gray-300 mt-1.5"><span class="font-bold text-amber-200">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
         </div>
 
         <!-- Hero (sin caja: sin padding, borde ni fondo, tipografía limpia) -->
@@ -42,79 +49,143 @@ import { ui } from '@/lib/ui/design';
                 <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z"/></svg>
                 <span>Portal de hermandad</span>
               </p>
-              <h1 id="guild-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-tight"></h1>
+              <h1 id="guild-name" class={`text-3xl md:text-5xl font-black italic leading-[1.3] ${ui.gradientTitle}`}></h1>
             </div>
             <div class="flex items-center gap-2">
-              <span id="verified-badge" class={`hidden px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ui.status.success}`}>✓ Verificada</span>
+              <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}>✓ Verificada</span>
               <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest">Discord</a>
             </div>
           </div>
           <p id="guild-description" class={`${ui.text.body} max-w-3xl leading-relaxed`}></p>
           <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
           <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
+          <div class={`${ui.divider} mt-6`} aria-hidden="true"></div>
         </header>
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 border-b border-amber-600/30 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 relative border-b border-amber-600/30 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-amber-500/60 after:to-transparent" style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
                  clases conservan su ícono) + buscador por nombre. Todos filtran
                  la lista de jugadores de abajo (renderRoster). -->
-            <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-              <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
-              </h2>
-              <div id="stats-grid" class="grid grid-cols-1 gap-2 md:gap-4 items-start">
-                <div id="stats-ranks" class="hidden grid grid-cols-2 gap-2 content-start min-w-0"></div>
-                <div id="stats-classes" class="hidden grid grid-cols-2 gap-2 content-start min-w-0"></div>
-              </div>
-              <!-- Control de texto: filtra por nombre -->
-              <div id="roster-search-wrap" class="hidden mt-4">
-                <div class="relative">
-                  <svg class="w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-                  <input
-                    id="roster-search"
-                    type="search"
-                    autocomplete="off"
-                    class={`${ui.form.input} ${ui.focusRing} pl-9 pr-3`}
-                    placeholder="Buscar jugador por nombre…"
-                    aria-label="Buscar jugador por nombre"
-                  />
+            <!-- Roster con filtros: mismo modelo de ventana que los paneles del
+                 dashboard — cabecera contigua (título + controles de filtro)
+                 y cuerpo con el contenido del roster. -->
+            <div>
+              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
+                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-start mt-4">
+                  <details id="filtro-jerarquia" class={ui.disclosure}>
+                    <summary class={ui.disclosureSummary}>
+                      <span class="inline-flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Jerarquía
+                      </span>
+                      <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                    </summary>
+                    <div class={ui.disclosureBody}>
+                      <div id="stats-ranks" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
+                    </div>
+                  </details>
+                  <details id="filtro-clases" class={ui.disclosure}>
+                    <summary class={ui.disclosureSummary}>
+                      <span class="inline-flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10v-1a3 3 0 00-3-3h-4a3 3 0 00-3 3v1zm0 0v-3a3 3 0 01-3-3V7a3 3 0 013-3h10a3 3 0 013 3v8a3 3 0 01-3 3v3m-9-7h.01M9 6h.01m.01-1h.01"/></svg>
+                        Clases
+                      </span>
+                      <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+                    </summary>
+                    <div class={ui.disclosureBody}>
+                      <div id="stats-classes" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
+                    </div>
+                  </details>
+                </div>
+                <!-- Control de texto: filtra por nombre -->
+                <div id="roster-search-wrap" class="hidden mt-4">
+                  <div class="relative">
+                    <svg class="w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <input
+                      id="roster-search"
+                      type="search"
+                      autocomplete="off"
+                      class={`${ui.form.input} ${ui.focusRing} pl-9 pr-3`}
+                      placeholder="Buscar jugador por nombre…"
+                      aria-label="Buscar jugador por nombre"
+                    />
+                  </div>
                 </div>
               </div>
-              <p id="roster-empty-filter" class={`hidden mt-4 ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
-                Ningún jugador coincide con estos filtros.
-              </p>
-              <div id="viewer-roster-wrap" class="mt-4"></div>
-            </section>
+              <div class={`${ui.sectionBody} space-y-5`}>
+                <p id="roster-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
+                  Ningún jugador coincide con estos filtros.
+                </p>
+                <div id="viewer-roster-wrap"></div>
+              </div>
+            </div>
           </div>
 
           <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6 pt-6">
-            <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            <div id="bandas-empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-6 text-center">
-              <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica bandas.</p>
+            <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
+                 (sectionBody), mismo modelo que Roster y los paneles del portal. -->
+            <div>
+              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
+                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas
+                </h2>
+              </div>
+              <div class={`${ui.sectionBody}`}>
+                <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
+                  <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <p class="font-bold text-white mb-1">Sin bandas publicadas</p>
+                  <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica bandas.</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6 pt-6">
-            <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-              <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
-              </h2>
-              <div id="viewer-rules" class="space-y-3"></div>
-              <p id="reglas-empty" class={`hidden ${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica reglas.</p>
-            </section>
+            <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
+                 (sectionBody), mismo modelo que Roster y Bandas. -->
+            <div>
+              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
+                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
+                </h2>
+              </div>
+              <div class={`${ui.sectionBody}`}>
+                <div id="viewer-rules" class="space-y-2 [&>li]:flex [&>li]:items-start [&>li]:text-sm [&>li]:text-gray-300 [&>li]:bg-gray-800/30 [&>li]:border [&>li]:border-amber-600/15 [&>li]:rounded-md [&>li]:px-3 [&>li]:py-2.5 [&>li]:transition-colors [&>li:hover]:border-amber-500/30"></div>
+                <div id="reglas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 text-center`}>
+                  <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  </div>
+                  <p class="font-bold text-white mb-1">Sin reglas publicadas</p>
+                  <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica reglas.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Sin snapshot -->
-        <div id="no-snapshot" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-6 sm:p-8 text-center">
-          <svg class="w-9 h-9 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <div id="no-snapshot" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
+          <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
           <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
           <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
         </div>
+
+        <!-- Contexto del portal (servidor/reino): van DESPUÉS del contenido
+             para liberar el encabezado; se rellenan solo con los chips de
+             servidor y reino (la atribución ★ y la facción quedan arriba). -->
+        <div id="guild-context" class="hidden flex flex-wrap gap-2"></div>
       </div>
     </div>
   </main>
@@ -124,24 +195,13 @@ import { ui } from '@/lib/ui/design';
   import { getPublicGuildBySlug, getGuildSnapshot, getGuildRules, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
   import type { ContentItem } from '@/types/parser';
-  import { slugify } from '@/lib/routes';
+  import { slugify, RESERVED, currentSlug } from '@/lib/routes';
   import { renderBandCard, renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { sortRanks } from '@/lib/ui/ranks';
+  import { ui } from '@/lib/ui/design';
   import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
-
-  const RESERVED = new Set([
-    'upload', 'login', 'dashboard', 'admin', 'moderate', 'guilds', 'p', 'api',
-    'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
-  ]);
-
-  function currentSlug(): string {
-    const override = new URLSearchParams(window.location.search).get('slug');
-    if (override) return override;
-    const seg = window.location.pathname.split('/').filter(Boolean);
-    return seg.length === 1 ? seg[0] : '';
-  }
 
   function showNotFound(msg?: string): void {
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
@@ -153,7 +213,7 @@ import { ui } from '@/lib/ui/design';
 
   function metaChip(text: string): HTMLElement {
     const chip = document.createElement('span');
-    chip.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+    chip.className = `${ui.badge} ${ui.badgeMd} text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/30`;
     chip.textContent = text;
     return chip;
   }
@@ -178,25 +238,29 @@ import { ui } from '@/lib/ui/design';
       descEl.classList.toggle('hidden', !g.description);
 
       const metaEl = document.getElementById('guild-meta') as HTMLElement;
+      // Servidor/reino del portal: viven en la tira de contexto al final del
+      // contenido (#guild-context), no en el encabezado.
+      const ctxEl = document.getElementById('guild-context') as HTMLElement;
       if (g.server) {
         const serverChip = document.createElement('a');
         serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-        serverChip.className = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-sky-950/40 border border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all';
+        serverChip.className = `${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-sky-950/60 to-sky-950/30 border-sky-600/40 text-sky-200 hover:from-sky-900/70 hover:to-sky-900/40 hover:border-sky-400/60 hover:text-sky-100 transition-all`;
         serverChip.textContent = g.server;
-        metaEl.appendChild(serverChip);
+        ctxEl.appendChild(serverChip);
       }
       if (g.realm) {
         const realmChip = document.createElement(g.server ? 'a' : 'span');
-        const cls = 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20';
+        const cls = `${ui.badge} ${ui.badgeMd} text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/30`;
         if (g.server) {
           (realmChip as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(g.server)}/reino/${encodeURIComponent(slugify(g.realm))}`;
-          realmChip.className = `${cls} hover:bg-gray-800/80 transition-all`;
+          realmChip.className = `${cls} hover:from-gray-700/80 hover:to-gray-800/60 hover:border-amber-400/50 hover:text-gray-100 transition-all`;
         } else {
           realmChip.className = cls;
         }
         realmChip.textContent = g.realm;
-        metaEl.appendChild(realmChip);
+        ctxEl.appendChild(realmChip);
       }
+      if (ctxEl.children.length > 0) ctxEl.classList.remove('hidden');
       if (g.faction) metaEl.appendChild(metaChip(g.faction === 'Horde' ? 'Horda' : 'Alianza'));
 
       // Atribución de la hermandad: el chip ★ se muestra SOLO cuando el
@@ -211,7 +275,7 @@ import { ui } from '@/lib/ui/design';
       );
       if (gmChar && gmChar.slug) {
         const ownerChip = document.createElement('a');
-        ownerChip.className = 'inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-fuchsia-950/40 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900/40 transition-all';
+        ownerChip.className = `${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300 hover:from-fuchsia-900/70 hover:to-fuchsia-900/40 hover:border-fuchsia-400/60 transition-all`;
         ownerChip.href = `/personaje/${gmChar.slug}`;
         ownerChip.textContent = `★ ${gmChar.name}`;
         metaEl.appendChild(ownerChip);
@@ -296,6 +360,10 @@ import { ui } from '@/lib/ui/design';
           const total = members.length;
           const ranksBox = document.getElementById('stats-ranks') as HTMLElement;
           const classesBox = document.getElementById('stats-classes') as HTMLElement;
+          // Colapsables que agrupan los chips de filtro: se ocultan completos
+          // cuando su grupo queda vacío (sin rangos o sin clases).
+          const ranksFilter = document.getElementById('filtro-jerarquia') as HTMLElement;
+          const classesFilter = document.getElementById('filtro-clases') as HTMLElement;
           const rosterWrap = document.getElementById('viewer-roster-wrap') as HTMLElement;
           const emptyFilter = document.getElementById('roster-empty-filter') as HTMLElement;
           const searchInput = document.getElementById('roster-search') as HTMLInputElement;
@@ -318,11 +386,11 @@ import { ui } from '@/lib/ui/design';
             // Fila 1: solo el nombre (con elipsis). Fila 2: barra + cifra/porcentaje al final.
             btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
               (o.leader
-                ? 'text-amber-300 border-amber-500/40 bg-amber-900/20 hover:bg-amber-900/35'
-                : 'text-gray-300 bg-gray-800/60 border-amber-600/20 hover:bg-gray-700/50');
+                ? 'text-amber-200 border-amber-500/50 bg-gradient-to-b from-amber-900/40 to-amber-950/40 hover:from-amber-900/55'
+                : 'text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/25 hover:border-amber-500/40 hover:from-gray-700/70') +
+              (o.active ? ' ring-2 ring-amber-400/60 border-amber-500/80 shadow-lg shadow-amber-500/10' : '');
             Object.entries(o.dataset).forEach(([k, v]) => btn.setAttribute(`data-${k}`, v));
             btn.setAttribute('aria-pressed', String(o.active));
-            if (o.active) btn.classList.add('ring-2', 'ring-amber-400/70', 'border-amber-500/80');
             const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
             if (o.icon) {
               o.icon.className = 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover';
@@ -332,11 +400,11 @@ import { ui } from '@/lib/ui/design';
             btn.appendChild(nameRow);
             const barRow = el('div', 'flex items-center gap-2 min-w-0');
             const barWrap = el('div', 'flex-1 min-w-0 h-1.5 rounded-full bg-gray-900/60 overflow-hidden');
-            const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-amber-400' : 'bg-amber-600/70'));
+            const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-gradient-to-r from-amber-400 to-amber-300' : 'bg-gradient-to-r from-amber-600 to-amber-400'));
             bar.style.width = `${Math.max(2, o.pct)}%`;
             barWrap.appendChild(bar);
             barRow.appendChild(barWrap);
-            barRow.appendChild(el('span', 'text-[10px] font-bold tabular-nums shrink-0', `${o.count} (${o.pct}%)`));
+            barRow.appendChild(el('span', `${ui.statValue} text-[11px] shrink-0`, `${o.count} (${o.pct}%)`));
             btn.appendChild(barRow);
             return btn;
           };
@@ -352,11 +420,11 @@ import { ui } from '@/lib/ui/design';
               byRank.set(k, (byRank.get(k) ?? 0) + 1);
             });
             const rankChips: HTMLButtonElement[] = [];
-            declared.forEach((r) => {
+            declared.forEach((r, i) => {
               const count = byRank.get(r.index) ?? 0;
               if (count === 0) return;
               rankChips.push(statChip({
-                label: (r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`),
+                label: `${i + 1}. ${(r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`)}`,
                 count, pct: Math.round((count / total) * 100), leader: r.index === 0,
                 active: state.rank === r.index, dataset: { 'rank-key': String(r.index) },
               }));
@@ -369,7 +437,7 @@ import { ui } from '@/lib/ui/design';
               }));
             }
             rankChips.forEach((c) => ranksBox.appendChild(c));
-            ranksBox.classList.toggle('hidden', rankChips.length === 0);
+            ranksFilter.classList.toggle('hidden', rankChips.length === 0);
 
             // Clases con su ícono y la misma barra; sin clase → "Sin dato" con ícono por defecto.
             const byClass = new Map<string, { label: string; cls?: string; count: number }>();
@@ -389,7 +457,7 @@ import { ui } from '@/lib/ui/design';
                 dataset: { 'class-key': c.cls ? c.cls.toLowerCase() : '__none__' },
               }));
             classChips.forEach((c) => classesBox.appendChild(c));
-            classesBox.classList.toggle('hidden', classChips.length === 0);
+            classesFilter.classList.toggle('hidden', classChips.length === 0);
           };
 
           const applyFilters = (): void => {
@@ -468,12 +536,12 @@ import { ui } from '@/lib/ui/design';
         const metaEl = document.getElementById('guild-meta') as HTMLElement;
         const metaChips: Record<string, HTMLAnchorElement> = {};
         const metaGroup = document.createElement('div');
-        metaGroup.className = 'inline-flex flex-wrap gap-px rounded-lg border border-amber-600/30 bg-amber-600/20 overflow-hidden';
+        metaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-amber-500/40 bg-amber-600/20 overflow-hidden';
         PORTAL_TABS.forEach((t) => {
           const n = t.id === 'miembros' ? members.length : t.id === 'bandas' ? merged.length : rules.length;
           const chip = document.createElement('a');
           chip.href = t.href;
-          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gray-900/80 hover:bg-amber-900/40 text-gray-400';
+          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-gray-900/90 to-gray-950/90 hover:from-amber-900/50 hover:to-amber-950/50 hover:text-amber-200 text-gray-400';
           chip.textContent = `${t.label} · ${n}`;
           metaGroup.appendChild(chip);
           metaChips[t.id] = chip;

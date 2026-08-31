@@ -20,7 +20,7 @@ import { ui } from '@/lib/ui/design';
       <!-- Sin autorización -->
       <div id="denied" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <h1 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h1>
+        <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
         <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es exclusiva para administradores.</p>
         <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
       </div>
@@ -67,7 +67,7 @@ import { ui } from '@/lib/ui/design';
                 <h2 id="detail-name" class={`${ui.text.h1} text-amber-200`}></h2>
                 <p id="detail-email" class={`${ui.text.bodyMuted} mt-1`}></p>
               </div>
-              <span id="detail-role-badge" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border"></span>
+              <span id="detail-role-badge" class={`${ui.badge} ${ui.badgeMd}`}></span>
             </div>
 
             <dl id="detail-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></dl>
@@ -116,13 +116,7 @@ import { ui } from '@/lib/ui/design';
     moderator: 'Moderador',
     admin: 'Admin',
   };
-  const ROLE_BADGE: Record<RaiddominionRole, string> = {
-    visitante: 'bg-stone-800/70 border-stone-600 text-stone-300',
-    member: 'bg-gray-800/70 border-gray-600 text-gray-300',
-    guild_master: 'bg-amber-900/40 border-amber-500/60 text-amber-200',
-    moderator: 'bg-sky-900/30 border-sky-600/50 text-sky-200',
-    admin: 'bg-red-900/30 border-red-600/50 text-red-200',
-  };
+  const ROLE_BADGE = ui.badgeRole;
   const AUDIT_LABELS: Record<string, string> = {
     guild_claim_verified: 'Claim aprobado',
     guild_claim_rejected: 'Claim rechazado',
@@ -253,7 +247,7 @@ import { ui } from '@/lib/ui/design';
     right.className = 'flex items-center gap-2 shrink-0';
 
     const badge = document.createElement('span');
-    badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
+    badge.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[u.role]}`;
     badge.textContent = ROLE_LABELS[u.role];
     right.appendChild(badge);
 
@@ -284,7 +278,7 @@ import { ui } from '@/lib/ui/design';
 
     const badge = document.getElementById('detail-role-badge') as HTMLElement;
     badge.textContent = ROLE_LABELS[u.role];
-    badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[u.role]}`;
+    badge.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[u.role]}`;
 
     // Perfil completo (los datos provienen de adminListUsers).
     const fields = document.getElementById('detail-fields') as HTMLElement;
@@ -310,7 +304,7 @@ import { ui } from '@/lib/ui/design';
     // Enlace al perfil público si está publicado
     if (u.is_public && u.slug) {
       const link = document.createElement('a');
-      link.href = `/p/${u.slug}`;
+      link.href = `/jugador/${u.slug}`;
       link.target = '_blank'; link.rel = 'noopener';
       link.className = 'text-sm text-emerald-300 underline hover:text-emerald-200';
       link.textContent = 'Ver perfil público →';
@@ -385,7 +379,7 @@ import { ui } from '@/lib/ui/design';
       // refresca el badge del detalle
       const badge = document.getElementById('detail-role-badge') as HTMLElement;
       badge.textContent = ROLE_LABELS[newRole];
-      badge.className = `px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ROLE_BADGE[newRole]}`;
+      badge.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[newRole]}`;
     } else {
       msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
       msg.textContent = r.error || 'No se pudo cambiar el rol.';

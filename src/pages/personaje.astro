@@ -1,0 +1,11 @@
+---
+// Ficha pública POR PERSONAJE (/personaje/:slug). Shell estático servido por
+// el rewrite netlify /personaje/* → /personaje (dev: middleware de
+// astro.config.mjs). El navegador conserva la URL real y CharacterView se
+// auto-activa y resuelve el slug 100% en cliente.
+import DetailShell from '@/components/DetailShell.astro';
+import CharacterView from '@/components/views/CharacterView.astro';
+---
+<DetailShell title="Personaje - RaidDominion" description="Ficha pública de personaje de la comunidad RaidDominion.">
+  <CharacterView />
+</DetailShell>

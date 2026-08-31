@@ -3,16 +3,18 @@
 // Centraliza:
 //   - RESERVED: slugs que NUNCA se interpretan como portal/hermandad en raíz.
 //   - extracción del slug/segmentos desde window.location (con override por ?slug=).
-//   - showNotFound(): muestra el bloque "no encontrado" del shell detalle.
+//   - showNotFound(): muestra el bloque "no encontrado" de los shells de ficha.
 //
-// Consumido por src/pages/detalle.astro y las vistas en src/components/views/.
-// Mantén RESERVED sincronizado con astro.config.mjs (middleware dev) y netlify.toml.
+// Consumido por los shells (src/pages/hermandad, personaje.astro,
+// servidor.astro, banda.astro, jugador.astro) y las vistas en
+// src/components/views/. Mantén RESERVED sincronizado con astro.config.mjs
+// (middleware dev) y netlify.toml.
 
 export const RESERVED = new Set([
-  'upload', 'login', 'dashboard', 'admin', 'moderate', 'p', 'guilds', 'api',
+  'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
-  'jugadores', 'banda', 'bandas',
+  'jugadores', 'banda', 'bandas', 'guilds',
 ]);
 
 // Segmentos de la ruta actual (sin vacíos ni barra final), p. ej.
@@ -42,7 +44,8 @@ export function segmentSlug(index: number): string {
 }
 
 // Muestra el bloque de "no encontrado" del shell y oculta el cargando.
-// El shell (detalle.astro) define los elementos #loading y #not-found.
+// El shell (DetailShell o los shells de ficha) define los elementos
+// #loading y #not-found.
 export function showNotFound(message?: string): void {
   const loading = document.getElementById('loading');
   if (loading) loading.classList.add('hidden');

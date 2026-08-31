@@ -154,13 +154,13 @@ export const guides: Guide[] = [
           'Paso 2 — El addon exporta tu ficha a la SavedVariables (RaidDominion.lua): equipamiento, iLvl, bandas, asignaciones y hermandad.',
           'Paso 3 — Sube tu RaidDominion.lua en /upload: el portal carga tu ficha al instante.',
           'Paso 4 — Si tu SV acredita maestría de hermandad (registry.guild.isGM) con más de dos personajes registrados, la cuenta se promueve a member automáticamente.',
-          'Paso 5 — Si eres maestro de hermandad, reclama tu hermandad y publica su portal en /:slug.',
+          'Paso 5 — Si eres maestro de hermandad, reclama tu hermandad y publica su portal en /hermandad/:slug.',
         ],
       },
       {
         title: 'Beneficios para tu(s) personaje(s)',
         content: [
-          'Perfil público en /p/:slug con tu personaje validado (equipamiento e iLvl) — actívalo desde /dashboard para aparecer en el [directorio de personajes](/personajes).',
+          'Perfil público en /jugador/:slug con tu personaje validado (equipamiento e iLvl) — actívalo desde /dashboard para aparecer en el [directorio de personajes](/personajes).',
           'Dashboard personal: estado de rol (visitante → member → guild_master) y acceso directo a /upload.',
           'Si eres maestro: dashboard de hermandad en /dashboard/guild con roster, bandas, Discord y reglas.',
         ],
@@ -168,7 +168,7 @@ export const guides: Guide[] = [
       {
         title: 'Beneficios para tu hermandad',
         content: [
-          'Portal web gratuito en /:slug con roster, bandas y reglas sincronizados desde el SV: re-subir tu RaidDominion.lua lo mantiene al día y lo publica en el [directorio de hermandades](/guilds).',
+          'Portal web gratuito en /hermandad/:slug con roster, bandas y reglas sincronizados desde el SV: re-subir tu RaidDominion.lua lo mantiene al día y lo publica en el [directorio de hermandades](/hermandades).',
           'Sin formularios: los datos provienen del addon.',
         ],
       },
@@ -275,7 +275,7 @@ export const guides: Guide[] = [
       {
         title: 'Bandas vivas',
         content: [
-          'Cada banda guarda nombre, horario (schedule), gearscore mínimo (minGS) y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu RaidDominion.lua y tu roster aparece en el [directorio de hermandades](/guilds).',
+          'Cada banda guarda nombre, horario (schedule), gearscore mínimo (minGS) y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu RaidDominion.lua y tu roster aparece en el [directorio de hermandades](/hermandades).',
           'Rol del jugador: T (Tanque), H (Healer), R (Rango), M (Melee).',
           'Dual: marca si el jugador tiene doble rol.',
           'Gearscore: iLvl del jugador; la banda puede exigir un mínimo (minGS).',

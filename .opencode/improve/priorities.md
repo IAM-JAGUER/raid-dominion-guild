@@ -64,9 +64,12 @@ de tokens (`ui.text.*`, `ui.status.*`, `ui.form.*`, `ui.loading.*`,
 ver `AGENTS.sections/design.md` §§2-6). Migración de componentes COMPLETADA
 (2026-08-30): login, upload, admin, moderate, portal, listados y el
 `#panel-perfil` del dashboard usan los tokens; los renderers JS dinámicos
-migrados a módulos (`src/lib/ui/dashboard/*`). Pendiente opcional: tokenizar
-las clases sueltas del render JS (chips/tags) donde `ui.chip` coincide
-exactamente (sin cambiar el aspecto).
+migrados a módulos (`src/lib/ui/dashboard/*`). **Rediseño UI/UX de cards y
+secciones COMPLETADO (2026-08-30)**: nuevo bloque de tokens de card
+(`ui.card`, `ui.cardTop`, `ui.cardHover`, `ui.cardRow`, `ui.eyebrow`,
+`ui.gradientTitle`, `ui.statValue`, `ui.iconTile`, `ui.divider`) + helpers
+`src/lib/ui/card.ts`; aplicado a directorios, portal, fichas, roster/core,
+dashboard y landing (ver `AGENTS.sections/design.md` §3).
 
 ### 🟢 P2 — Ledger de migraciones aplicadas manualmente (COMPLETADO, 2026-08-30)
 `.opencode/improve/ciclos.json` registra las 40 migraciones de

@@ -15,21 +15,26 @@ import { ui } from '@/lib/ui/design';
       <Breadcrumb />
 
       <header class="text-center mb-10 animate-fade-in-1">
-        <h1 class={`${ui.text.hero} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase`}>Jugadores</h1>
+        <p class={`${ui.eyebrow} mb-2`}>Directorio público</p>
+        <h1 class={`${ui.text.hero} ${ui.gradientTitle} ${ui.ornament} tracking-wider uppercase`}>Jugadores</h1>
         <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>
           Cuentas de la comunidad con perfil público. Cada jugador enlaza a su
           página de perfil con sus personajes y bandas visibles.
         </p>
+        <div class={`${ui.sectionRule}`} aria-hidden="true"></div>
       </header>
 
       <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando jugadores…</p>
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de jugadores"></section>
 
-      <div id="empty" class="hidden bg-gray-900/60 border border-amber-600/25 rounded-md p-8 sm:p-10 text-center">
-        <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        <p class="font-bold text-white mb-1">Aún no hay jugadores con perfil público</p>
+      <div id="empty" class={`hidden ${ui.card} ${ui.cut} relative overflow-hidden p-8 sm:p-10 text-center`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`}>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <p class={`font-black italic ${ui.gradientTitle} mb-1`}>Aún no hay jugadores con perfil público</p>
         <p class={`${ui.text.bodyMuted} max-w-md mx-auto`}>Activa la visibilidad de tu perfil desde el dashboard para aparecer en el directorio.</p>
-        <a href="/login" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Inicia sesión</a>
+        <a href="/login" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Inicia sesión</a>
       </div>
     </div>
   </main>
@@ -38,7 +43,9 @@ import { ui } from '@/lib/ui/design';
 <script>
   import { listPublicPlayers, getPublicAccountNames, type PublicAccountNames } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
+  import { ui } from '@/lib/ui/design';
   import { isNamelessSafe, safePlayerName, playerInitial, handleFromSlug } from '@/lib/ui/playerNames';
+  import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -52,7 +59,7 @@ import { ui } from '@/lib/ui/design';
   }
 
   function chip(text: string, extra = ''): HTMLElement {
-    return el('span', 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ' +
+    return el('span', `${ui.badge} ${ui.badgeSm} ` +
       (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20'), text);
   }
 
@@ -71,17 +78,15 @@ import { ui } from '@/lib/ui/design';
     const name = safePlayerName(p, { publicNames, fallbackName: principalPublic ? fallback : undefined });
     const fromHandle = nameless && !principalPublic;
     const charPublic = principalPublic;
-    const link = document.createElement('a');
-    link.href = `/jugador/${p.slug}`;
-    link.className = 'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5';
+    const link = cardLink(`/jugador/${p.slug}`, 'p-5');
 
     const head = el('div', 'flex items-center gap-3 mb-3');
-    const avatar = el('div', 'w-11 h-11 rounded-md flex items-center justify-center font-black italic text-lg shrink-0 shadow-lg border border-gray-700/50 ' +
-      (fromHandle ? 'bg-gray-800/70 text-gray-500' : 'bg-amber-600/15 text-amber-300'));
-    avatar.textContent = playerInitial(name);
+    const avatar = iconTile(playerInitial(name), 'w-11 h-11', 'text-lg');
+    avatar.classList.toggle('!text-gray-500', fromHandle);
+    avatar.classList.toggle('!text-amber-300', !fromHandle);
     head.appendChild(avatar);
     const nameWrap = el('div', 'min-w-0');
-    const nm = el('h2', 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug truncate', name);
+    const nm = cardTitle(name, 'text-base', 'truncate');
     nameWrap.appendChild(nm);
     // Subtítulo: el personaje principal declarado, SOLO si es público y difiere.
     if (charPublic && p.character_name !== name) {
@@ -108,7 +113,8 @@ import { ui } from '@/lib/ui/design';
     if (gmVisible) chips.appendChild(chip('Maestro', 'text-fuchsia-300 bg-fuchsia-950/30 border-fuchsia-600/40'));
     link.appendChild(chips);
 
-    const foot = el('p', 'text-xs text-gray-500 mt-3', 'Ver perfil →');
+    const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
+    foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver perfil →'));
     link.appendChild(foot);
     return link;
   }

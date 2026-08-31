@@ -4,22 +4,21 @@ import { ui } from '@/lib/ui/design';
 
 <section class="flex flex-col justify-center items-center relative py-16">
   <!-- Lore Text -->
-  <div class="text-center mt-10 mb-8 max-w-2xl px-4">
-    <p class="text-amber-400 text-xl md:text-2xl font-medium mb-6 italic animate-fade-in-1">
+  <div class="text-center mt-10 mb-10 max-w-2xl px-4">
+    <p class={`${ui.eyebrow} mb-3 animate-fade-in-1`}>Addon de World of Warcraft 3.3.5a</p>
+    <h1 class={`${ui.gradientTitle} ${ui.ornament} text-xl md:text-2xl font-black italic animate-fade-in-1`}>
       "Raid Dominion — Macrea tus bandas rapido"
-    </p>
-
-
+    </h1>
   </div>
 
-  <!-- Logo -->
+  <!-- Logo limpio: sin marco ni sombra -->
   <div class="relative mb-8 animate-fade-in-1" style="animation-delay: 0.3s">
     <img
       src="gallery/logo.png"
       alt="Raid Dominion"
       width="280"
       height="auto"
-      class="drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+      class="relative"
     />
   </div>
 
@@ -48,6 +47,26 @@ import { ui } from '@/lib/ui/design';
       </svg>
       Descargar Ahora
     </a>
+  </div>
+
+  <!-- Franja de stats: cifras reales del producto (ui.statValue) -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 w-full max-w-3xl mx-auto px-4 mb-10 animate-fade-in-1" style="animation-delay: 0.7s">
+    <div class="text-center">
+      <p class={`${ui.statValue} text-2xl`}>3.3.5a</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">cliente WoW</p>
+    </div>
+    <div class="text-center">
+      <p class={`${ui.statValue} text-2xl`}>100%</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">gratis</p>
+    </div>
+    <div class="text-center">
+      <p class={`${ui.statValue} text-2xl`}>∞</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">multiservidor</p>
+    </div>
+    <div class="text-center">
+      <p class={`${ui.statValue} text-2xl`}>3</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">pasos: registrar · subir · compartir</p>
+    </div>
   </div>
 
   <!-- Inicio de sesión -->

@@ -180,11 +180,12 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
       return (
         <button
           type="button"
-          class={`addon-guide-card relative group ${ui.panel} p-5 transition-all duration-300 hover:border-amber-500/50 hover:shadow-amber-500/10 hover:-translate-y-1 overflow-hidden text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
+          class={`addon-guide-card relative group ${ui.card} ${ui.cardHover} p-5 overflow-hidden text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`}
           data-guide-index={index}
           aria-expanded="false"
           aria-controls={`guide-panel-${guide.id}`}
         >
+          <span class={ui.cardTop} aria-hidden="true"></span>
           <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
           <div class="relative z-10 flex flex-col h-full">
             <div class="flex items-center justify-between mb-3">
@@ -195,7 +196,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 {guide.category}
               </span>
             </div>
-            <h4 class="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition-colors leading-tight">
+            <h4 class={`text-base font-black italic mb-2 leading-[1.35] ${ui.gradientTitle}`}>
               <span class="text-amber-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
             </h4>
             <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic">

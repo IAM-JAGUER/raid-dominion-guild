@@ -6,6 +6,7 @@
 
 import { el } from '@/lib/ui/preview';
 import { ui } from '@/lib/ui/design';
+import { card, cardTop } from '@/lib/ui/card';
 import { ruleKey, ruleId, escapeHtml } from '@/lib/ui/dashboard/format';
 import { supabase } from '@/lib/supabase';
 import {
@@ -106,16 +107,16 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
   body.innerHTML = '';
   items.forEach((bp, i) => {
     const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2.5');
-    const head = el('div', 'flex flex-wrap items-center gap-2');
+    const head = el('div', 'flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-2');
     const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center', String(i + 1));
     head.appendChild(num);
     const info = el('div', 'min-w-0 flex-1');
-    info.appendChild(el('p', 'font-bold text-white text-sm truncate', bp.name));
+    info.appendChild(el('p', 'font-bold text-white text-sm break-words', bp.name));
     // Personaje que propone: se muestra con las reglas para atribuir cada
     // regla al proponente (nunca al aprobante).
     const who = (bp.proposer?.character_name || bp.proposer?.display_name || (bp.proposer?.slug ? `@${bp.proposer.slug.replace(/^perfil-/, '').slice(0, 8)}` : null)) ?? 'cuenta';
     const sub = el('p', 'text-[11px] text-gray-500');
-    const stateChip = el('span', 'hidden mt-1 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest border rounded-md px-2 py-0.5');
+    const stateChip = el('span', `${ui.badge} ${ui.badgeSm} mt-1 hidden`);
     const refreshState = (): void => {
       if (bp.integration_status === 'pending') {
         sub.textContent = `Propuesta por ${who}${bp.integration_proposed_at ? ' · ' + new Date(bp.integration_proposed_at).toLocaleDateString('es') : ''}`;
@@ -125,7 +126,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       const approved = bp.integration_status === 'approved';
       sub.textContent = '';
       stateChip.textContent = approved ? '✓ Aprobada' : '✗ Rechazada';
-      stateChip.className = 'mt-1 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest border rounded-md px-2 py-0.5 ' +
+      stateChip.className = `${ui.badge} ${ui.badgeSm} mt-1 ` +
         (approved ? 'bg-emerald-950/30 border-emerald-600/40 text-emerald-300' : 'bg-red-950/30 border-red-600/40 text-red-300');
       stateChip.appendChild(document.createTextNode(bp.integration_decided_at ? ' · ' + new Date(bp.integration_decided_at).toLocaleDateString('es') : ''));
       stateChip.classList.remove('hidden');
@@ -134,14 +135,14 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     info.appendChild(stateChip);
     head.appendChild(info);
 
-    const act = el('div', 'flex gap-2 shrink-0');
+    const act = el('div', 'flex flex-col gap-2 sm:flex-row shrink-0 w-full sm:w-auto');
     const approve = document.createElement('button');
     approve.type = 'button';
-    approve.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all';
+    approve.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all w-full sm:w-auto';
     approve.textContent = 'Aprobar';
     const reject = document.createElement('button');
     reject.type = 'button';
-    reject.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-red-600/40 bg-red-950/30 text-red-300 hover:bg-red-900/40 transition-all';
+    reject.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-red-600/40 bg-red-950/30 text-red-300 hover:bg-red-900/40 transition-all w-full sm:w-auto';
     reject.textContent = 'Rechazar';
     const saving = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
     act.append(approve, reject, saving);
@@ -172,7 +173,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const isOn = (r: ContentItem): boolean => ruleSelected(baseSelection(), r);
     const rulesBox = el('div', 'mt-3 border-t border-amber-600/20 pt-2.5 space-y-2');
     const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-    rulesHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Reglas propuestas por ' + (escapeHtml(who) || 'el jugador')));
+    rulesHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas propuestas por ' + (escapeHtml(who) || 'el jugador')));
     rulesHead.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'ACTÍVALAS para publicarlas; las que dejes apagadas no salen del proponente al portal. Si apruebas sin activar, la banda se integra sin reglas.'));
     rulesBox.appendChild(rulesHead);
     const tagsWrap = el('div', 'flex flex-wrap gap-2');
@@ -281,16 +282,17 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
 }
 
 export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElement {
-  const card = el('div', 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30 rounded-md p-4 sm:p-6');
+  const cardEl = card('p-4 sm:p-6');
+  cardEl.appendChild(cardTop());
 
   // Cifras de la hermandad en el encabezado (integrantes, bandas integradas,
   // reglas): miembros, bandas y reglas del último análisis del portal.
   void loadGuildStats(g, opts);
 
   // Portal (abre la ficha; el resto de secciones llevan separador propio)
-  const url = `${window.location.origin}/${g.slug}`;
+  const url = `${window.location.origin}/hermandad/${g.slug}`;
   const portal = el('div', '');
-  portal.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5', 'Dirección de tu portal'));
+  portal.appendChild(el('p', `${ui.eyebrow} mb-1.5`, 'Dirección de tu portal'));
   const urlRow = el('div', 'flex flex-wrap items-center gap-2');
   const code = el('code', 'flex-1 min-w-[240px] px-3 py-2.5 rounded-md bg-gray-950/70 border border-gray-700 text-amber-300 text-sm truncate', url);
   const copyBtn = document.createElement('button');
@@ -319,14 +321,14 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   msg.className = 'hidden mt-3 text-sm rounded-md px-4 py-2.5';
   msg.setAttribute('role', 'status');
   portal.appendChild(msg);
-  card.appendChild(portal);
+  cardEl.appendChild(portal);
 
   // ── Reglas del portal: el catálogo proviene del SV pero la selección la
   // hace el maestro aquí (mismo patrón que el panel de bandas). Se guarda
   // en su propia fila guild_rules: un re-upload NO pisa esta elección.
   const reglasBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
   const reglasHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
-  reglasHead.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-500', 'Reglas que aplican a tu portal'));
+  reglasHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas que aplican a tu portal'));
   const reglasStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
   reglasHead.appendChild(reglasStatus);
   reglasBox.appendChild(reglasHead);
@@ -445,10 +447,10 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   };
 
   reglasBox.appendChild(reglasAddRow);
-  reglasAddRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 shrink-0', 'Agregar'));
+  reglasAddRow.appendChild(el('span', `${ui.eyebrow} shrink-0`, 'Agregar'));
   reglasAddRow.appendChild(reglasAdd);
   reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-500 italic', 'El catálogo proviene de tu SavedVariables (re-subir el SV lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
-  card.appendChild(reglasBox);
+  cardEl.appendChild(reglasBox);
 
   // Carga inicial: la selección manual del maestro. Sin selección → el
   // portal no muestra reglas (el SV no llena reglas al subir).
@@ -464,21 +466,22 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   // El GM aprueba o rechaza; las aprobadas salen en el portal si son públicas.
   const propSec = el('div', 'mt-4 border-t border-gray-700/50 pt-4');
   propSec.setAttribute('data-prop-sec', '');
-  propSec.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1', 'Integración de miembros'));
+  propSec.appendChild(el('p', `${ui.eyebrow} mb-1`, 'Integración de miembros'));
   const propHead = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-2');
   propHead.appendChild(el('h4', 'text-sm font-bold text-amber-200', 'Bandas propuestas por tus miembros'));
   const propCount = document.createElement('span');
-  propCount.className = 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-600/40 rounded-md px-2 py-0.5';
+  propCount.className = `${ui.badge} ${ui.badgeSm} text-amber-300 bg-amber-950/30 border-amber-600/40`;
   propCount.setAttribute('data-prop-count', '');
   propCount.textContent = '0 pendientes';
   propHead.appendChild(propCount);
   propSec.appendChild(propHead);
-  const propShell = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
+  const propShell = card('p-4');
+  propShell.appendChild(cardTop());
   const propBody = el('div', 'space-y-2');
   propBody.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando propuestas…</p>';
   propShell.appendChild(propBody);
   propSec.appendChild(propShell);
-  card.appendChild(propSec);
+  cardEl.appendChild(propSec);
   void loadBandProposals(g, propBody);
 
   // Eventos
@@ -497,7 +500,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
     openLink.classList.toggle('hidden', !input.checked);
     g.is_public = input.checked;
     opts.refreshHdrGuild();
-    setMsg(msg, true, input.checked ? 'Portal publicado: ya es visible en /' + g.slug : 'Portal oculto: solo tú puedes verlo.');
+    setMsg(msg, true, input.checked ? 'Portal publicado: ya es visible en /hermandad/' + g.slug : 'Portal oculto: solo tú puedes verlo.');
   });
   copyBtn.addEventListener('click', async () => {
     try {
@@ -509,5 +512,5 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   });
   if (g.is_public) openLink.classList.remove('hidden');
 
-  return card;
+  return cardEl;
 }

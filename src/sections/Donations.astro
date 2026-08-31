@@ -29,9 +29,10 @@ const accounts = [
   <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {accounts.map((account) => (
       <div
-        class={`group relative overflow-hidden ${ui.panel} ${ui.panelHover} p-5 hover:scale-[1.02] flex flex-col`}
+        class={`group relative overflow-hidden ${ui.card} ${ui.cardHover} p-5 flex flex-col`}
       >
-        <h3 class="text-lg sm:text-xl font-bold text-white mb-4 text-center">{account.name}</h3>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <h3 class={`text-lg sm:text-xl font-black italic mb-4 text-center ${ui.gradientTitle}`}>{account.name}</h3>
 
         <div class="flex-grow flex flex-col items-center">
           {account.qr ? (
@@ -61,7 +62,7 @@ const accounts = [
                 href={account.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="block w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md transition-colors duration-300 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                class={`${ui.btnBase} ${ui.btnPrimary} w-full px-4 py-3 text-center`}
               >
                 Donar con {account.service}
                 <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

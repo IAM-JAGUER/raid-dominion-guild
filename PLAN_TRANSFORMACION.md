@@ -4,6 +4,13 @@
 > hermandad Colmillo de Acero) en el **portal comunitario oficial del addon
 > RaidDominion** (WoW 3.3.5a, esMX).
 
+> **Actualización 2026-08-30 (rutas)**: este documento describe el diseño
+> original. El mapa de rutas vigente es más simple y en español: portal de
+> hermandad **`/hermandad/:slug`**, directorio **`/hermandades`** (antes
+> `/guilds`), perfil **`/jugador/:slug`** (se eliminó `/p/:slug`), fichas en
+> `personaje.astro`/`servidor.astro`/`banda.astro` (se eliminó el shell
+> `/detalle`). Ver `AGENTS.md` §4 "URLs públicas".
+
 ## 1. Contexto y estado actual
 
 | Ítem | Estado actual |

@@ -4,6 +4,8 @@ import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
+import { cardLink, card, cardTop, cardRow, iconTile, cardTitle } from '@/lib/ui/card';
+import { ui } from '@/lib/ui/design';
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
 // `rankIndex` (opcional) permite ordenar/agrupar por jerarquía de rangos.
@@ -27,7 +29,7 @@ export function el(tag: string, cls: string, text?: string): HTMLElement {
 function chip(text: string, extra = ''): HTMLElement {
   return el(
     'span',
-    'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-2.5 py-1' + (extra ? ` ${extra}` : ''),
+    `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20` + (extra ? ` ${extra}` : ''),
     text,
   );
 }
@@ -37,20 +39,21 @@ export function renderBand(
   opts?: { hidePlayers?: boolean },
 ): HTMLElement {
   const hidePlayers = opts?.hidePlayers ?? false;
-  const card = el('div', 'bg-gray-800/50 border border-amber-700/40 rounded-md p-4');
+  const cardEl = card('p-4');
+  cardEl.appendChild(cardTop());
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
-  header.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
+  header.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
 
   const meta = el('div', 'flex flex-wrap gap-2');
-  if (band.schedule) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', band.schedule));
-  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `GS ${band.minGS}`));
+  if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, band.schedule));
+  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, `GS ${band.minGS}`));
   if (hidePlayers) {
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', 'jugadores ocultos'));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, 'jugadores ocultos'));
   } else {
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900/60 border border-amber-600/20 rounded-md px-3 py-1', `${band.players.length} jugadores`));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, `${band.players.length} jugadores`));
   }
   header.appendChild(meta);
-  card.appendChild(header);
+  cardEl.appendChild(header);
 
   if (!hidePlayers && band.players.length > 0) {
     const roles = new Map<string, number>();
@@ -62,7 +65,7 @@ export function renderBand(
     Array.from(roles.entries()).forEach(([role, count]) => {
       chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
-    card.appendChild(chips);
+    cardEl.appendChild(chips);
 
     const players = document.createElement('details');
     players.className = 'mt-3 group';
@@ -89,7 +92,7 @@ export function renderBand(
       grid.appendChild(row);
     });
     players.append(summary, grid);
-    card.appendChild(players);
+    cardEl.appendChild(players);
   }
 
   if (band.spammer) {
@@ -102,10 +105,10 @@ export function renderBand(
     if (channels) txt += ` · canales: ${channels}`;
     spam.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80', txt));
     if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-500 italic', band.spammer.message));
-    card.appendChild(spam);
+    cardEl.appendChild(spam);
   }
 
-  return card;
+  return cardEl;
 }
 
 // ── Card compacta de banda (portal de hermandad y directorios) ──────────────
@@ -131,20 +134,11 @@ export interface BandCardOpts {
 }
 
 export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLElement {
-  const link = el(
-    'a',
-    'group block bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/50 rounded-md p-5 transition-all duration-300 transform hover:-translate-y-0.5',
-  ) as HTMLAnchorElement;
-  link.href = `/banda/${encodeURIComponent(band.slug)}`;
+  const link = cardLink(`/banda/${encodeURIComponent(band.slug)}`, 'p-5');
 
   const head = el('div', 'flex items-center gap-3 mb-3');
-  const icon = el(
-    'div',
-    'w-10 h-10 rounded-md bg-amber-600/15 border border-amber-600/30 flex items-center justify-center text-amber-300 font-black text-lg shrink-0',
-    (band.name[0] || '?').toUpperCase(),
-  );
-  head.appendChild(icon);
-  head.appendChild(el('h3', 'font-bold text-white group-hover:text-amber-200 transition-colors text-base leading-snug', band.name));
+  head.appendChild(iconTile((band.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
+  head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-amber-200 transition-colors', band.name));
   link.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5');
@@ -160,7 +154,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   }
   link.appendChild(meta);
 
-  const foot = el('p', 'text-xs text-gray-500 mt-3');
+  const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
   foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver banda →'));
   link.appendChild(foot);
 
@@ -172,14 +166,14 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
 
 function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   const color = classColor(p.class);
-  const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2');
+  const row = cardRow('px-3 py-2 text-xs text-gray-300');
   const head = el('div', 'flex flex-wrap items-center gap-2');
   head.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
   const name = el('span', 'font-bold italic', p.name);
   name.style.color = color;
   head.appendChild(name);
-  if (p.leader) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded px-1.5 py-0.5', 'Líder'));
-  if (p.banned) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'Baneado'));
+  if (p.leader) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-emerald-300 bg-emerald-950/30 border-emerald-600/40`, 'Líder'));
+  if (p.banned) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-red-300 bg-red-950/40 border-red-600/40`, 'Baneado'));
   row.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5 mt-1');
@@ -211,11 +205,12 @@ function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number
 // Banda expandida: nombre, horario, GS, distribución de roles, jugadores
 // completos (siempre visibles) y spammer con su configuración.
 export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]): HTMLElement {
-  const card = el('div', 'bg-gray-900/60 border border-amber-700/40 rounded-md p-5');
+  const cardEl = card('p-5');
+  cardEl.appendChild(cardTop());
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
-  titleWrap.appendChild(el('h3', 'text-base font-bold text-amber-200', band.name || 'Sin nombre'));
-  if (band.icon) titleWrap.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-900/60 border border-amber-600/20 rounded-md px-2.5 py-1', `icon ${band.icon}`));
+  titleWrap.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
+  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-500 bg-gray-900/60 border-amber-600/20`, `icon ${band.icon}`));
   header.appendChild(titleWrap);
 
   const meta = el('div', 'flex flex-wrap gap-2');
@@ -223,7 +218,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(chip(`GS mínimo ${band.minGS}`));
   meta.appendChild(chip(`${band.players.length} jugadores`));
   header.appendChild(meta);
-  card.appendChild(header);
+  cardEl.appendChild(header);
 
   const roles = new Map<string, number>();
   band.players.forEach((p) => {
@@ -235,20 +230,20 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
     Array.from(roles.entries()).forEach(([role, count]) => {
       chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
-    card.appendChild(chips);
+    cardEl.appendChild(chips);
   }
 
   if (band.players.length > 0) {
     const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4');
     band.players.forEach((p) => grid.appendChild(renderBandPlayerRow(p)));
-    card.appendChild(grid);
+    cardEl.appendChild(grid);
   } else {
-    card.appendChild(el('p', 'text-[11px] text-gray-600 italic mt-3', 'Sin jugadores en esta banda.'));
+    cardEl.appendChild(el('p', 'text-[11px] text-gray-600 italic mt-3', 'Sin jugadores en esta banda.'));
   }
 
-  if (band.spammer) card.appendChild(renderSpammer(band.spammer));
+  if (band.spammer) cardEl.appendChild(renderSpammer(band.spammer));
 
-  return card;
+  return cardEl;
 }
 
 // ── Core de banda (estilo lista de asistencia de raids de guild-portal) ─────
@@ -273,7 +268,7 @@ function coreRoleGroup(p: MergePlayer): 'tank' | 'healer' | 'dps' | 'other' {
 }
 
 function coreBadge(text: string, extra: string): HTMLElement {
-  return el('span', `text-[9px] font-black uppercase tracking-widest rounded px-1.5 py-0.5 border ${extra}`, text);
+  return el('span', `${ui.badge} ${ui.badgeSm} ${extra}`, text);
 }
 
 // Indicador de ficha pública: enlace a /personaje/:slug con icono de enlace
@@ -329,7 +324,7 @@ function renderCoreSection(title: string, count: number, color: string, iconSvg:
 
 function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTMLElement {
   const color = classColor(p.class);
-  const row = el('div', 'flex items-center justify-between gap-2 rounded-md border border-gray-700/40 bg-gray-800/40 px-3 py-2 hover:border-amber-500/30 transition-colors');
+  const row = cardRow('px-3 py-2 flex items-center justify-between gap-2');
   const left = el('div', 'flex items-center gap-2 min-w-0');
   left.appendChild(classIconEl(p.class, undefined, 'w-6 h-6 rounded-md border border-gray-700/50 shrink-0 object-cover'));
   const name = el(slug ? 'a' : 'span', 'font-bold italic truncate text-sm');
@@ -434,14 +429,14 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
   const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
   Array.from(unique.values()).forEach((u) => {
     const color = classColor(u.classes.size ? Array.from(u.classes).join(',') : undefined);
-    const row = el('div', 'text-xs text-gray-300 bg-gray-800/50 border border-gray-700/40 rounded-md px-3 py-2 flex flex-wrap items-center justify-between gap-2');
+    const row = cardRow('px-3 py-2 text-xs text-gray-300 flex flex-wrap items-center justify-between gap-2');
     const left = el('div', 'flex flex-wrap items-center gap-2');
     left.appendChild(classIconEl(Array.from(u.classes)[0], undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
     const name = el('span', 'font-bold italic', u.name);
     name.style.color = color;
     left.appendChild(name);
-    if (u.leader) left.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-emerald-950/30 border border-emerald-600/40 rounded px-1.5 py-0.5', 'Líder'));
-    if (u.banned) left.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-red-300 bg-red-950/40 border border-red-600/40 rounded px-1.5 py-0.5', 'Baneado'));
+    if (u.leader) left.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-emerald-300 bg-emerald-950/30 border-emerald-600/40`, 'Líder'));
+    if (u.banned) left.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-red-300 bg-red-950/40 border-red-600/40`, 'Baneado'));
     row.appendChild(left);
 
     const meta = el('div', 'flex flex-wrap gap-1.5');
@@ -484,6 +479,10 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   let entries: Entry[] = [];
   if (hasRankData) {
     const sorted = sortRanks(ranks);
+    // Número de orden jerárquico de cada rango (1 = líder, 2 = siguiente…):
+    // posición en la jerarquía ordenada, usada para numerar las cabeceras.
+    const rankNo = new Map<number, number>();
+    sorted.forEach((r, i) => rankNo.set(r.index, i + 1));
     const groups = new Map<number, RosterMember[]>();
     members.forEach((m) => {
       const key = typeof m.rankIndex === 'number' ? m.rankIndex : Number.MAX_SAFE_INTEGER;
@@ -500,7 +499,11 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
           rank: group[0]?.rank,
           ranks: sorted,
         });
-        group.forEach((m, i) => entries.push({ m, groupStart: i === 0, groupLabel: label }));
+        // Numera la jerarquía: antepone el ordinal al nombre del rango
+        // (p.ej. "1. Líder"). Los huérfanos sin rankIndex no llevan número.
+        const no = typeof key === 'number' && rankNo.has(key) ? rankNo.get(key) : undefined;
+        const labeled = no !== undefined ? `${no}. ${label}` : label;
+        group.forEach((m, i) => entries.push({ m, groupStart: i === 0, groupLabel: labeled }));
       });
   } else {
     entries = members.map((m) => ({ m, groupStart: false, groupLabel: '' }));
@@ -523,15 +526,16 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
         grid.appendChild(hdr);
       }
       const color = classColor(m.class);
-      const card = el('div', 'relative bg-gray-900/60 border border-amber-600/25 hover:border-amber-500/40 rounded-md p-4 pl-5 overflow-hidden transition-colors duration-200');
+      const cardEl = card('p-4 pl-5');
+      cardEl.appendChild(cardTop());
       const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
       accent.style.backgroundColor = color;
-      card.appendChild(accent);
+      cardEl.appendChild(accent);
 
       const row = el('div', 'flex items-center justify-between gap-2 mb-2');
       const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
       nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
-      const name = el(m.slug ? 'a' : 'div', 'font-black italic truncate text-sm');
+      const name = el(m.slug ? 'a' : 'div', 'font-black italic leading-[1.3] text-sm');
       name.style.color = color;
       name.textContent = m.name;
       if (m.slug) {
@@ -542,16 +546,16 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
       if (m.slug) nameWrap.appendChild(publicProfileLink(m.slug));
       row.appendChild(nameWrap);
       if (m.rank) {
-        row.appendChild(el('span', `shrink-0 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${rankBadgeClass(m.rank)}`, m.rank));
+        row.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${rankBadgeClass(m.rank)}`, m.rank));
       }
-      card.appendChild(row);
+      cardEl.appendChild(row);
 
       const meta = el('div', 'flex flex-wrap gap-1.5');
-      if (m.class) meta.appendChild(el('span', 'px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border text-gray-300 bg-gray-800/60 border-amber-600/20', m.class));
+      if (m.class) meta.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-gray-300 bg-gray-800/60 border-amber-600/20`, m.class));
       if (m.publicNote) meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
-      card.appendChild(meta);
+      cardEl.appendChild(meta);
 
-      grid.appendChild(card);
+      grid.appendChild(cardEl);
     });
   };
 

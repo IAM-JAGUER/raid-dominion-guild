@@ -7,6 +7,8 @@
 import { el } from '@/lib/ui/preview';
 import { configChip } from '@/lib/ui/dashboard/chips';
 import { resolveRankName } from '@/lib/ui/ranks';
+import { ui } from '@/lib/ui/design';
+import { card, cardTop, cardRow } from '@/lib/ui/card';
 import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, RegistryGuild } from '@/types/parser';
 
 // Lista de ítems de configuración (roles, buffs, auras, abilities)
@@ -35,7 +37,7 @@ export function renderContentList(listId: string, cntId: string, items: ContentI
   const list = document.createElement('ul');
   list.className = 'space-y-2';
   items.forEach((it) => {
-    const li = el('li', 'flex items-start text-sm text-gray-300');
+    const li = el('li', 'flex items-start text-sm text-gray-300 bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2');
     li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
     const inner = el('div', '');
     inner.appendChild(el('p', 'font-bold text-white', it.title || 'Elemento'));
@@ -55,7 +57,7 @@ export function renderPlayerSnapshot(d: ParsedSavedVariables): void {
     wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin registro de personaje propio (registry.player).'));
     return;
   }
-  wrap.appendChild(el('p', 'text-sm font-bold text-white', `${p.name}${p.realm ? '-' + p.realm : ''}`));
+  wrap.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, `${p.name}${p.realm ? '-' + p.realm : ''}`));
   const chips = el('div', 'flex flex-wrap gap-2 mt-1.5');
   if (p.race) chips.appendChild(configChip(p.race));
   if (p.class) chips.appendChild(configChip(p.class));
@@ -111,11 +113,12 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     return;
   }
   guilds.forEach((g) => {
-    const card = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
+    const cardEl = card('p-4');
+    cardEl.appendChild(cardTop());
     const head = el('div', 'flex flex-wrap items-center gap-2');
-    head.appendChild(el('p', 'text-sm font-bold text-amber-200', g.name));
-    if (g.isGM) head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300 bg-amber-950/30 border border-amber-500/40 rounded-md px-2.5 py-1', '★ Maestro'));
-    card.appendChild(head);
+    head.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, g.name));
+    if (g.isGM) head.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-amber-300 bg-amber-950/30 border-amber-500/40`, '★ Maestro'));
+    cardEl.appendChild(head);
 
     // El rango propio se detecta por rankIndex contra la jerarquía; el
     // índice 0 (o isGM) es SIEMPRE el líder.
@@ -131,7 +134,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     if (typeof g.numMembers === 'number') meta.appendChild(configChip(`${g.numMembers} miembros`));
     if (g.characters.length > 0) meta.appendChild(configChip(`${g.characters.length} personaje(s)`));
     meta.appendChild(configChip(`Tu rango: ${ownRankName}`, g.isGM));
-    card.appendChild(meta);
+    cardEl.appendChild(meta);
 
     // Jerarquía completa de rangos (registry.guild.ranks), ordenada por index
     // (0 = líder). El rango del propio usuario se marca si está disponible.
@@ -151,12 +154,12 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
         hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border ${cls}`,
           `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
       });
-      card.appendChild(hier);
+      cardEl.appendChild(hier);
     }
     if (g.characters.length > 0) {
-      card.appendChild(el('p', 'text-[11px] text-gray-500 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
+      cardEl.appendChild(el('p', 'text-[11px] text-gray-500 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
     }
-    wrap.appendChild(card);
+    wrap.appendChild(cardEl);
   });
 }
 
@@ -187,9 +190,10 @@ export function renderRegistries(d: ParsedSavedVariables): void {
     return;
   }
   d.registries.forEach((reg) => {
-    const card = el('div', 'bg-gray-800/50 border border-amber-700/30 rounded-md p-4');
+    const cardEl = card('p-4');
+    cardEl.appendChild(cardTop());
     const head = el('div', 'flex flex-wrap items-center gap-2');
-    head.appendChild(el('p', 'text-sm font-bold text-white', reg.player?.name || reg.key || 'Personaje'));
+    head.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, reg.player?.name || reg.key || 'Personaje'));
     if (reg.player) {
       if (reg.player.class) head.appendChild(configChip(reg.player.class));
       if (typeof reg.player.level === 'number') head.appendChild(configChip(`Nivel ${reg.player.level}`));
@@ -197,8 +201,8 @@ export function renderRegistries(d: ParsedSavedVariables): void {
     }
     if (reg.guild) head.appendChild(configChip(`${reg.guild.name}${reg.guild.isGM ? ' · GM' : ''}`));
     if (reg.savedAt) head.appendChild(el('span', 'text-[11px] text-gray-500 italic', reg.savedAt));
-    card.appendChild(head);
-    wrap.appendChild(card);
+    cardEl.appendChild(head);
+    wrap.appendChild(cardEl);
   });
 }
 
@@ -218,10 +222,10 @@ export function renderAssignments(d: ParsedSavedVariables): void {
     if (entries.length === 0) return;
     any = true;
     const box = el('div', '');
-    box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1', labels[cat]));
+    box.appendChild(el('p', `${ui.eyebrow} mb-1`, labels[cat]));
     const rows = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1');
     entries.forEach(([name, player]) => {
-      const row = el('div', 'text-xs text-gray-300 flex justify-between gap-3 bg-gray-900/40 rounded px-2 py-1');
+      const row = cardRow('text-xs text-gray-300 flex justify-between gap-3 px-2 py-1');
       row.appendChild(el('span', 'font-bold text-amber-200', name));
       row.appendChild(el('span', 'text-gray-400', player));
       rows.appendChild(row);

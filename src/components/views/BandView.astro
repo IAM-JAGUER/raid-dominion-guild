@@ -5,37 +5,78 @@
 // horario, GS mínimo, roster (players[] con role/dual/leader/banned/sanction/
 // points) y reglas, con enlace a la hermandad (/:guildSlug) o al perfil del
 // dueño (/jugador/:slug) según corresponda.
+import { ui } from '@/lib/ui/design';
 ---
 <section id="view-banda" class="hidden">
   <header class="animate-fade-in-1 mb-6">
-    <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1 flex items-center">
+    <p class={`${ui.eyebrow} mb-1 flex items-center`}>
       <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.36-1.86M17 20H7m10 0v-2c-.17-1.24-1.03-2.29-2.2-2.72M7 20H2v-2a3 3 0 015.2-2.11M9 9a3 3 0 100-6 3 3 0 000 6z"/></svg>
       <span>Banda de raid</span>
     </p>
     <div class="flex flex-wrap items-end gap-3">
-      <h1 id="bv-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-tight break-all"></h1>
-      <a id="bv-owner-link" href="#" class="hidden inline-flex items-center px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all"></a>
+      <h1 id="bv-name" class="text-3xl md:text-5xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 leading-[1.3] break-all"></h1>
+      <a id="bv-owner-link" href="#" class={`hidden ${ui.badge} ${ui.badgeMd} bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all`}></a>
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
+    <div class={`${ui.divider} mt-6`} aria-hidden="true"></div>
   </header>
 
   <nav id="band-tab-bar" role="tablist" aria-label="Secciones de la banda" class="flex flex-nowrap items-center gap-1 mb-6 border-b border-amber-600/30 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
 
   <div id="panel-core" role="tabpanel" aria-labelledby="tab-core" class="space-y-6">
-    <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-      <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-        <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Core
-      </h2>
-      <div id="bv-core"></div>
+    <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
+         cabecera contigua (título + controles de filtro) + cuerpo con el
+         roster del core. -->
+    <div>
+      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+        <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Core
+        </h2>
+        <details id="bv-filtro-clases" class={`${ui.disclosure} mt-4 hidden`}>
+          <summary class={ui.disclosureSummary}>
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10v-1a3 3 0 00-3-3h-4a3 3 0 00-3 3v1zm0 0v-3a3 3 0 01-3-3V7a3 3 0 013-3h10a3 3 0 013 3v8a3 3 0 01-3 3v3m-9-7h.01M9 6h.01m.01-1h.01"/></svg>
+              Clases
+            </span>
+            <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+          </summary>
+          <div class={ui.disclosureBody}>
+            <div id="bv-stats-classes" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
+          </div>
+        </details>
+        <div id="bv-search-wrap" class="hidden mt-4">
+          <div class="relative">
+            <svg class="w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            <input
+              id="bv-search"
+              type="search"
+              autocomplete="off"
+              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-3`}
+              placeholder="Buscar jugador por nombre…"
+              aria-label="Buscar jugador por nombre"
+            />
+          </div>
+        </div>
+      </div>
+      <div class={`${ui.sectionBody} space-y-5`}>
+        <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
+          Ningún jugador coincide con estos filtros.
+        </p>
+        <div id="bv-core"></div>
+      </div>
     </div>
   </div>
 
   <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
-    <div class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-      <h2 class="text-lg font-bold text-amber-200 mb-4 flex items-center">
-        <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
-      </h2>
-      <div id="bv-rules"></div>
+    <div>
+      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+        <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
+        </h2>
+      </div>
+      <div class={`${ui.sectionBody} space-y-5`}>
+        <div id="bv-rules"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -45,7 +86,9 @@
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { renderBandCore } from '@/lib/ui/preview';
-  import { createTabBar, BAND_TABS } from '@/lib/ui/tabs';
+  import { classIconEl } from '@/lib/ui/classIcon';
+  import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
+  import { ui } from '@/lib/ui/design';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
 
@@ -75,7 +118,13 @@
   }
 
   function metaChip(text: string, extra = ''): HTMLElement {
-    return el('span', 'px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-300 bg-gray-800/60 border border-amber-600/20' + (extra ? ` ${extra}` : ''), text);
+    return el('span', `${ui.badge} ${ui.badgeMd} bg-gray-800/60 border-amber-600/20` + (extra ? ` ${extra}` : ''), text);
+  }
+
+  function emptyState(text: string): HTMLElement {
+    const box = el('div', 'rounded-md border border-amber-600/20 bg-gray-900/40 p-6 text-center');
+    box.appendChild(el('p', `${ui.text.bodyMuted} italic`, text));
+    return box;
   }
 
   interface BandRule {
@@ -110,8 +159,6 @@
     const players = merged.players;
     if (band.hide_players) {
       meta.appendChild(metaChip('jugadores ocultos', '!text-gray-500'));
-    } else {
-      meta.appendChild(metaChip(`${players.length} jugador${players.length === 1 ? '' : 'es'}`));
     }
 
     const coreBox = document.getElementById('bv-core') as HTMLElement;
@@ -119,9 +166,9 @@
     // Core (antes "Roster"): lista de asistencia estilo raids de guild-portal,
     // agrupada por rol con cabeceras colapsables.
     if (band.hide_players) {
-      coreBox.appendChild(el('p', 'text-sm text-gray-400 italic', 'Esta banda mantiene oculta su lista de jugadores al público.'));
+      coreBox.appendChild(emptyState('Esta banda mantiene oculta su lista de jugadores al público.'));
     } else if (players.length === 0) {
-      coreBox.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.'));
+      coreBox.appendChild(emptyState('Esta banda aún no tiene jugadores asignados.'));
     } else {
       // Slugs públicos de los jugadores del core → enlaces a /personaje/:slug.
       let slugMap: Record<string, string> = {};
@@ -131,7 +178,92 @@
       } catch {
         // Silencioso: el core se renderiza sin enlaces si la consulta falla.
       }
-      coreBox.appendChild(renderBandCore(players, { sourceNames: merged.sourceNames, slugMap }));
+      const mergedOpts = { sourceNames: merged.sourceNames, slugMap };
+
+      // Filtros del core (mismo patrón que el roster de hermandad): chips de
+      // clase + buscador por nombre. Ambos filtran players y re-renderizan el
+      // core con renderBandCore, conservando los badges de integración de cada
+      // jugador (puede haber varios) y los enlaces a ficha pública.
+      const state: { cls?: string; query: string } = { query: '' };
+      const classesBox = document.getElementById('bv-stats-classes') as HTMLElement;
+      const classesFilter = document.getElementById('bv-filtro-clases') as HTMLElement;
+      const searchWrap = document.getElementById('bv-search-wrap') as HTMLElement;
+      const searchInput = document.getElementById('bv-search') as HTMLInputElement;
+      const emptyFilter = document.getElementById('bv-empty-filter') as HTMLElement;
+
+      const classChip = (o: { label: string; count: number; cls?: string; active: boolean }): HTMLButtonElement => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const key = o.cls ? o.cls.toLowerCase() : '__none__';
+        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
+          (o.active
+            ? 'text-amber-200 border-amber-500/60 bg-gradient-to-b from-amber-900/40 to-amber-950/40 ring-2 ring-amber-400/60'
+            : 'text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/25 hover:border-amber-500/40 hover:from-gray-700/70');
+        btn.setAttribute('aria-pressed', String(o.active));
+        btn.setAttribute('data-class-key', key);
+        const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
+        nameRow.appendChild(classIconEl(o.cls, undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'));
+        nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
+        btn.appendChild(nameRow);
+        btn.appendChild(el('span', `${ui.statValue} text-[11px]`, String(o.count)));
+        return btn;
+      };
+
+      const renderChips = (): void => {
+        classesBox.innerHTML = '';
+        const byClass = new Map<string, { label: string; cls?: string; count: number }>();
+        players.forEach((p) => {
+          const cls = (p.class || '').trim();
+          const key = cls ? cls.toLowerCase() : '__none__';
+          const cur = byClass.get(key) ?? { label: cls || 'Sin dato', cls: cls || undefined, count: 0 };
+          cur.count += 1;
+          byClass.set(key, cur);
+        });
+        const chips = Array.from(byClass.values())
+          .sort((a, b) => b.count - a.count)
+          .map((c) => classChip({
+            label: c.label, count: c.count, cls: c.cls,
+            active: state.cls === (c.cls ? c.cls.toLowerCase() : '__none__'),
+          }));
+        chips.forEach((c) => classesBox.appendChild(c));
+        classesFilter.classList.toggle('hidden', chips.length === 0);
+      };
+
+      const applyFilters = (): void => {
+        const q = state.query.trim().toLowerCase();
+        const filtered = players.filter((p) => {
+          if (state.cls !== undefined) {
+            const cls = (p.class || '').trim();
+            if (cls.toLowerCase() !== state.cls) return false;
+          }
+          if (q && !(p.name || '').toLowerCase().includes(q)) return false;
+          return true;
+        });
+        coreBox.innerHTML = '';
+        if (filtered.length === 0) {
+          emptyFilter.classList.remove('hidden');
+        } else {
+          emptyFilter.classList.add('hidden');
+          coreBox.appendChild(renderBandCore(filtered, mergedOpts));
+        }
+      };
+
+      classesBox.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-class-key]');
+        if (!btn) return;
+        const k = btn.dataset.classKey ?? '';
+        state.cls = state.cls === k ? undefined : k;
+        renderChips();
+        applyFilters();
+      });
+      searchInput.addEventListener('input', () => {
+        state.query = searchInput.value;
+        applyFilters();
+      });
+
+      searchWrap.classList.remove('hidden');
+      renderChips();
+      applyFilters();
     }
 
     // Reglas. SIEMPRE que la banda está INTEGRADA (guild_id + is_rank_integrated)
@@ -180,11 +312,11 @@
     }
     const rulesBox = document.getElementById('bv-rules') as HTMLElement;
     if (rules.length === 0) {
-      rulesBox.appendChild(el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no publica reglas.'));
+      rulesBox.appendChild(emptyState('Esta banda aún no publica reglas.'));
     } else {
       const list = el('ul', 'space-y-3');
       rules.forEach((rule) => {
-        const li = el('li', 'text-sm text-gray-300 leading-relaxed');
+        const li = el('li', 'text-sm text-gray-300 leading-relaxed border-l-2 border-amber-600/20 pl-3');
         if (rule.title) {
           li.appendChild(el('span', 'font-bold text-amber-200', `${rule.title}: `));
         }
@@ -194,15 +326,49 @@
       rulesBox.appendChild(list);
     }
 
-    // Barra de pestañas Core/Reglas con conteos (deep-link #core/#reglas).
-    const badgeCounts: Record<string, number> = { reglas: rules.length };
-    if (!band.hide_players) badgeCounts.core = players.length;
+    // Conteos del encabezado (chips de Core/Reglas): grupo segmentado unificado
+    // que enlaza a cada tab por hash (#core/#reglas), igual que la vista de
+    // hermandad (#guild-meta). Los jugadores ocultos no exponen su cifra.
+    const tabMetaChips: Record<string, HTMLAnchorElement> = {};
+    const tabMetaGroup = document.createElement('div');
+    tabMetaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-amber-500/40 bg-amber-600/20 overflow-hidden';
+    BAND_TABS.forEach((t) => {
+      const n = t.id === 'core' ? (band.hide_players ? null : players.length) : rules.length;
+      if (n === null) return;
+      const chip = document.createElement('a');
+      chip.href = t.href;
+      chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-gray-900/90 to-gray-950/90 hover:from-amber-900/50 hover:to-amber-950/50 hover:text-amber-200 text-gray-400';
+      chip.textContent = `${t.label} · ${n}`;
+      tabMetaGroup.appendChild(chip);
+      tabMetaChips[t.id] = chip;
+    });
+    meta.appendChild(tabMetaGroup);
+
+    // Barra de pestañas Core/Reglas (deep-link #core/#reglas). Los conteos
+    // viven en los chips del encabezado, no en los tabs.
     createTabBar({
       tabs: BAND_TABS,
       barId: 'band-tab-bar',
       defaultId: 'core',
-      badgeCounts,
     });
+
+    // Ilumina el chip del tab activo (hash); se re-sincroniza al navegar por
+    // hash o al pulsar un botón de la barra (activate usa replaceState).
+    const syncTabMetaChips = (): void => {
+      let active = tabFromHash(window.location.hash);
+      if (!tabMetaChips[active]) active = 'core';
+      Object.entries(tabMetaChips).forEach(([id, chip]) => {
+        const on = id === active;
+        chip.classList.toggle('bg-amber-500/20', on);
+        chip.classList.toggle('text-amber-200', on);
+        chip.classList.toggle('text-gray-400', !on);
+        if (on) chip.setAttribute('aria-current', 'page');
+        else chip.removeAttribute('aria-current');
+      });
+    };
+    syncTabMetaChips();
+    window.addEventListener('hashchange', syncTabMetaChips);
+    document.getElementById('band-tab-bar')?.addEventListener('click', syncTabMetaChips);
 
     showView('view-banda');
   }
@@ -248,7 +414,7 @@
       if (res.error) return null;
       const g = res.data as { slug: string; name: string; is_public: boolean } | null;
       if (!g || !g.is_public) return null;
-      return { href: `/${g.slug}`, label: `Hermandad: ${g.name}` };
+      return { href: `/hermandad/${g.slug}`, label: `Hermandad: ${g.name}` };
     }
     const res = await supabase
       .from('raiddominion_profiles')

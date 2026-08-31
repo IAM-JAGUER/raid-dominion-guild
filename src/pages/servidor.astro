@@ -1,0 +1,14 @@
+---
+// Ficha pública DE SERVIDOR y de REINO anidado (/servidor/:server y
+// /servidor/:server/reino/:realm). Shell estático servido por el rewrite
+// netlify /servidor/* → /servidor (dev: middleware de astro.config.mjs). El
+// navegador conserva la URL real; ServerView (2 segmentos) y RealmView
+// (4 segmentos con "reino") se auto-activan y resuelven 100% en cliente.
+import DetailShell from '@/components/DetailShell.astro';
+import ServerView from '@/components/views/ServerView.astro';
+import RealmView from '@/components/views/RealmView.astro';
+---
+<DetailShell title="Servidor - RaidDominion" description="Ficha de servidor y reinos de la comunidad RaidDominion.">
+  <ServerView />
+  <RealmView />
+</DetailShell>
