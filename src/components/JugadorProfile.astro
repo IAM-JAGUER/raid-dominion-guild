@@ -1,5 +1,6 @@
 ---
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import PanelWindow from '@/components/ui/PanelWindow.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -34,7 +35,7 @@ import { ui } from '@/lib/ui/design';
         <div class="flex flex-col sm:flex-row items-start gap-5">
           <div id="avatar" class={`${ui.iconTile} w-24 h-24 overflow-hidden shadow-lg`}></div>
           <div class="flex-1 min-w-0 text-left">
-            <h1 id="display-name" class={`text-3xl md:text-5xl font-black italic leading-[1.3] break-words ${ui.gradientTitle}`}></h1>
+            <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
             <div id="chips" class="flex flex-wrap justify-start gap-2 mt-3"></div>
             <div class="flex flex-wrap justify-start gap-2 mt-3">
               <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}>★ Maestro de hermandad</span>
@@ -51,49 +52,28 @@ import { ui } from '@/lib/ui/design';
 
       <!-- Paneles ventana (modelo dashboard): Personajes, Bandas, Hermandades -->
       <div id="profile-panels" class="space-y-6">
-        <div id="panel-personajes" role="tabpanel" aria-labelledby="tab-personajes" class="hidden">
-          <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-            <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personajes
-            </h2>
+        <PanelWindow id="panel-personajes" title="Personajes" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
+          <h3 id="main-title" class={ui.subTitle}></h3>
+          <div id="main-card"></div>
+          <div id="characters-section" class="hidden">
+            <h3 class={`${ui.subTitle} mb-2`}>Otros personajes de la cuenta</h3>
+            <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
           </div>
-          <div class={`${ui.sectionBody} space-y-5`}>
-            <h3 id="main-title" class={ui.subTitle}></h3>
-            <div id="main-card"></div>
-            <div id="characters-section" class="hidden">
-              <h3 class={`${ui.subTitle} mb-2`}>Otros personajes de la cuenta</h3>
-              <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-          </div>
-        </div>
+        </PanelWindow>
 
-        <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden">
-          <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-            <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas
-            </h2>
-          </div>
-          <div class={`${ui.sectionBody}`}>
-            <div id="bandas-list" class="space-y-3"></div>
-          </div>
-        </div>
+        <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+          <div id="bandas-list" class="space-y-3"></div>
+        </PanelWindow>
 
-        <div id="panel-hermandades" role="tabpanel" aria-labelledby="tab-hermandades" class="hidden">
-          <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-            <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades
-            </h2>
-          </div>
-          <div class={`${ui.sectionBody}`}>
-            <div id="hermandades-list" class="space-y-3"></div>
-          </div>
-        </div>
+        <PanelWindow id="panel-hermandades" title="Hermandades" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+          <div id="hermandades-list" class="space-y-3"></div>
+        </PanelWindow>
       </div>
 
-      <!-- Contexto del jugador (servidor/reino): van DESPUÉS del contenido
-           para liberar el encabezado; se rellenan con serverRealmLinks. -->
-      <div id="jugador-context" class="hidden flex flex-wrap gap-2"></div>
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      <!-- Contexto del jugador (servidor/reino): van DESPUÉS del separador
+           final para liberar el encabezado; se rellenan con serverRealmLinks. -->
+      <div id="jugador-context" class="hidden flex flex-wrap gap-2"></div>
     </div>
 
   </div>
@@ -111,6 +91,7 @@ import { ui } from '@/lib/ui/design';
   import type { ProfileRow, GuildRow } from '@/types/database';
   import { ui } from '@/lib/ui/design';
   import { card, cardTop, cardLink, cardTitle, iconTile, stat } from '@/lib/ui/card';
+  import { el, chip, statChip, setBreadcrumb } from '@/lib/ui/dom';
   import { renderBandCard } from '@/lib/ui/preview';
   import { JUGADOR_TABS, initAvailableTabs } from '@/lib/ui/tabs';
 
@@ -138,28 +119,6 @@ import { ui } from '@/lib/ui/design';
     cta.href = '/jugadores';
     cta.textContent = 'Ver jugadores';
     document.title = 'Perfil no encontrado - RaidDominion';
-  }
-
-  function makeEl(tag: string, cls: string, text?: string): HTMLElement {
-    const node = document.createElement(tag);
-    node.className = cls;
-    if (text !== undefined) node.textContent = text;
-    return node;
-  }
-
-  function chip(text: string): HTMLElement {
-    const c = document.createElement('span');
-    c.className = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-gray-800/60 border-amber-600/20`;
-    c.textContent = text;
-    return c;
-  }
-
-  function statChip(label: string, value: string): HTMLElement {
-    const c = document.createElement('span');
-    c.className = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-gray-800/60 border-amber-600/20 flex items-baseline gap-1.5`;
-    c.appendChild(makeEl('span', 'text-gray-400', label));
-    c.appendChild(stat(value, 'text-sm'));
-    return c;
   }
 
   const isProfile = isProfileRoute() || !!new URLSearchParams(window.location.search).get('slug');
@@ -204,7 +163,7 @@ import { ui } from '@/lib/ui/design';
     const publicNames = new Set(chars.map((c) => c.name.toLowerCase()));
     const displayName = safePlayerName(p, { publicNames, fallbackName: main?.name });
     document.title = `${displayName} - RaidDominion`;
-    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(displayName);
+    setBreadcrumb(displayName);
 
     (document.getElementById('avatar') as HTMLElement).replaceChildren(classIconEl(main?.class ?? chars[0]?.class, main?.class_file ?? chars[0]?.class_file, 'w-full h-full object-cover'));
     (document.getElementById('display-name') as HTMLElement).textContent = displayName;
@@ -218,7 +177,7 @@ import { ui } from '@/lib/ui/design';
       ctxEl.appendChild(serverRealmLinks(main));
       chipsEl.appendChild(characterChips(main));
     }
-    if (p.realm && !main?.realm) ctxEl.appendChild(chip(p.realm));
+    if (p.realm && !main?.realm) ctxEl.appendChild(chip(p.realm, '', 'md'));
     if (ctxEl.children.length > 0) ctxEl.classList.remove('hidden');
 
     // La insignia de maestro solo aplica si hay un personaje maestro PÚBLICO
@@ -240,7 +199,7 @@ import { ui } from '@/lib/ui/design';
     } else if (chars.length > 0) {
       // Sin principal fijado ("Ninguno"): todos los personajes públicos se
       // muestran en igualdad, sin destacar a ninguno como "el principal".
-      const grid = makeEl('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
+      const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
       const bandResults = await Promise.all(
         chars.map((c) => getPublicBandsForCharacter(c.name))
       );
@@ -263,7 +222,7 @@ import { ui } from '@/lib/ui/design';
       // Perfil público sin personajes publicados: ficha vacía informativa.
       const emptyCard = card('p-6 sm:p-8 text-center');
       emptyCard.appendChild(cardTop());
-      emptyCard.appendChild(makeEl('p', 'text-sm text-gray-400 italic', 'Este jugador aún no publica personajes.'));
+      emptyCard.appendChild(el('p', 'text-sm text-gray-400 italic', 'Este jugador aún no publica personajes.'));
       mainCard.appendChild(emptyCard);
       mainTitle.textContent = 'Personajes';
     }
@@ -312,19 +271,19 @@ import { ui } from '@/lib/ui/design';
     // Sin slug: card no enlazable con el mismo modelo visual.
     const cardEl = card('p-5');
     cardEl.appendChild(cardTop());
-    const head = makeEl('div', 'flex items-center gap-3 mb-3');
+    const head = el('div', 'flex items-center gap-3 mb-3');
     head.appendChild(iconTile((b.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    head.appendChild(makeEl('h3', 'font-black italic text-base leading-[1.3] text-white', b.name));
+    head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white', b.name));
     cardEl.appendChild(head);
     const parts: string[] = [];
     if (b.schedule) parts.push(b.schedule);
     if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
     if (parts.length > 0) {
-      const chips = makeEl('div', 'flex flex-wrap gap-1.5');
-      parts.forEach((p) => chips.appendChild(makeEl('span', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-gray-300`, p)));
+      const chips = el('div', 'flex flex-wrap gap-1.5');
+      parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-gray-300`, p)));
       cardEl.appendChild(chips);
     }
-    cardEl.appendChild(makeEl('p', 'text-xs text-gray-500 mt-4', 'Ver banda →'));
+    cardEl.appendChild(el('p', 'text-xs text-gray-500 mt-4', 'Ver banda →'));
     return cardEl;
   }
 
@@ -332,29 +291,29 @@ import { ui } from '@/lib/ui/design';
   function guildRow(g: GuildRow): HTMLElement {
     const a = cardLink(`/hermandad/${g.slug}`, 'p-5');
 
-    const head = makeEl('div', 'flex items-center gap-3 mb-3');
+    const head = el('div', 'flex items-center gap-3 mb-3');
     head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
     head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
     a.appendChild(head);
 
     if (g.description) {
-      a.appendChild(makeEl('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description));
+      a.appendChild(el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description));
     }
 
-    const chips = makeEl('div', 'flex flex-wrap gap-1.5 mb-3');
+    const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
     if (g.faction) {
-      chips.appendChild(makeEl('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza'));
+      chips.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza'));
     }
     if (g.server) {
-      const serverChip = makeEl('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
+      const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
       serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
       chips.appendChild(serverChip);
     }
     if (g.claim_status === 'verified') {
-      chips.appendChild(makeEl('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada'));
+      chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada'));
     }
     if (g.discord_link) {
-      const discord = makeEl('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
+      const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
       discord.href = g.discord_link;
       discord.target = '_blank';
       discord.rel = 'noopener noreferrer';
@@ -363,9 +322,9 @@ import { ui } from '@/lib/ui/design';
     }
     if (chips.children.length > 0) a.appendChild(chips);
 
-    const meta = makeEl('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
-    meta.appendChild(makeEl('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
-    meta.appendChild(makeEl('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
+    const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
     a.appendChild(meta);
 
     return a;
@@ -373,16 +332,16 @@ import { ui } from '@/lib/ui/design';
 
   function bandsRow(bands: PublicBandSummary[]): HTMLElement | null {
     if (!bands || bands.length === 0) return null;
-    const wrap = makeEl('div', 'mt-4');
-    wrap.appendChild(makeEl('h4', `${ui.eyebrow} mb-2`, 'Bandas de raid'));
-    const list = makeEl('div', 'flex flex-wrap gap-2');
+    const wrap = el('div', 'mt-4');
+    wrap.appendChild(el('h4', `${ui.eyebrow} mb-2`, 'Bandas de raid'));
+    const list = el('div', 'flex flex-wrap gap-2');
     bands.forEach((b) => {
       const parts = [b.name];
       const rol = roleLabel(b.role);
       if (rol) parts.push(rol);
       if (b.schedule) parts.push(b.schedule);
       if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-      list.appendChild(makeEl('span', 'px-2 py-1 rounded-md text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
+      list.appendChild(el('span', 'px-2 py-1 rounded-md text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
     });
     wrap.appendChild(list);
     return wrap;
@@ -390,7 +349,7 @@ import { ui } from '@/lib/ui/design';
 
   // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
   function serverRealmLinks(c: CharacterRow): HTMLElement {
-    const row = makeEl('div', 'flex flex-wrap gap-1.5');
+    const row = el('div', 'flex flex-wrap gap-1.5');
     if (c.server) {
       const s = document.createElement('a');
       s.href = `/servidor/${encodeURIComponent(c.server)}`;
@@ -414,8 +373,8 @@ import { ui } from '@/lib/ui/design';
   }
 
   function characterChips(c: CharacterRow): HTMLElement {
-    const row = makeEl('div', 'flex flex-wrap gap-1.5');
-    if (c.class) row.appendChild(chip(c.class));
+    const row = el('div', 'flex flex-wrap gap-1.5');
+    if (c.class) row.appendChild(chip(c.class, '', 'md'));
     if (typeof c.level === 'number') row.appendChild(statChip('Nivel', String(c.level)));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
       const il = statChip('ilvl', String(c.avg_ilvl));
@@ -423,12 +382,12 @@ import { ui } from '@/lib/ui/design';
       row.appendChild(il);
     }
     if (c.member_verified) {
-      const v = chip('✓ Validado');
+      const v = chip('✓ Validado', '', 'md');
       v.classList.add('!text-emerald-300', '!border-emerald-600/40');
       row.appendChild(v);
     }
     if (c.sv_guild_name) {
-      const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`);
+      const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, '', 'md');
       gchip.classList.add(
         c.sv_is_gm ? '!text-fuchsia-300' : '!text-sky-200',
         c.sv_is_gm ? '!border-fuchsia-500/40' : '!border-sky-600/30'
@@ -443,17 +402,17 @@ import { ui } from '@/lib/ui/design';
     const cardEl = card((featured ? 'p-5 pl-6' : 'p-4 pl-5'));
     cardEl.appendChild(cardTop());
 
-    const accent = makeEl('div', 'absolute top-0 left-0 w-1 h-full');
+    const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
     accent.style.backgroundColor = color;
     cardEl.appendChild(accent);
 
     // Cabecera: avatar + nombre en color de clase
-    const head = makeEl('div', 'flex items-center gap-3 mb-3');
+    const head = el('div', 'flex items-center gap-3 mb-3');
     const avatar = classIconEl(c.class, c.class_file, (featured ? 'w-12 h-12 ' : 'w-10 h-10 ') + 'rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
     head.appendChild(avatar);
 
-    const nameWrap = makeEl('div', 'min-w-0');
-    const name = makeEl('h3', 'font-black italic leading-[1.3] ' + (featured ? 'text-lg' : 'text-sm'));
+    const nameWrap = el('div', 'min-w-0');
+    const name = el('h3', 'font-black italic leading-[1.3] ' + (featured ? 'text-lg' : 'text-sm'));
     name.style.color = color;
     name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
     nameWrap.appendChild(name);
@@ -462,11 +421,11 @@ import { ui } from '@/lib/ui/design';
     cardEl.appendChild(head);
 
     // Stats principales
-    const stats = makeEl('div', 'grid grid-cols-3 gap-2 mb-4');
+    const stats = el('div', 'grid grid-cols-3 gap-2 mb-4');
     const statBox = (label: string, value: string | number): HTMLElement => {
-      const box = makeEl('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-2');
+      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-2');
       box.appendChild(stat(value, 'text-lg'));
-      box.appendChild(makeEl('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
+      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
       return box;
     };
     stats.appendChild(statBox('Nivel', c.level ?? '—'));

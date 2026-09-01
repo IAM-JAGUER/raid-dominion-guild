@@ -4,6 +4,7 @@
 // Muestra guilds y personajes públicos de ese reino en ese servidor, con chip
 // del servidor (realmlist) que enlaza a /servidor/:server.
 import { ui } from '@/lib/ui/design';
+import PanelWindow from '@/components/ui/PanelWindow.astro';
 ---
 <section id="view-reino" class="hidden">
   <header class="animate-fade-in-1 mb-6">
@@ -12,7 +13,7 @@ import { ui } from '@/lib/ui/design';
       <span>Reino</span>
     </p>
     <div class="flex flex-wrap items-end gap-3">
-      <h1 id="rv-realm" class={`text-3xl md:text-5xl font-black italic leading-[1.3] break-all ${ui.gradientTitle}`}></h1>
+      <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
       <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-sky-950/60 to-sky-950/30 border-sky-600/40 text-sky-200 hover:from-sky-900/70 hover:to-sky-900/40 hover:border-sky-400/60 hover:text-sky-100 transition-all`}></a>
     </div>
     <div class="flex flex-wrap gap-2 mt-4" aria-label="Indicadores del reino">
@@ -34,40 +35,19 @@ import { ui } from '@/lib/ui/design';
   <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
 
   <div id="rv-panels" class="space-y-6">
-    <div id="panel-hermandades" role="tabpanel" aria-labelledby="tab-hermandades" class="hidden">
-      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-        <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades
-        </h2>
-      </div>
-      <div class={`${ui.sectionBody}`}>
-        <p id="rv-guilds-empty" class="hidden text-sm text-gray-500 italic">Sin hermandades públicas en este reino.</p>
-        <div id="rv-guilds" class="space-y-3"></div>
-      </div>
-    </div>
+    <PanelWindow id="panel-hermandades" title="Hermandades" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+      <p id="rv-guilds-empty" class="hidden text-sm text-gray-500 italic">Sin hermandades públicas en este reino.</p>
+      <div id="rv-guilds" class="space-y-3"></div>
+    </PanelWindow>
 
-    <div id="panel-personajes" role="tabpanel" aria-labelledby="tab-personajes" class="hidden">
-      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-        <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Personajes
-        </h2>
-      </div>
-      <div class={`${ui.sectionBody}`}>
-        <p id="rv-chars-empty" class="hidden text-sm text-gray-500 italic">Sin personajes públicos en este reino.</p>
-        <div id="rv-chars" class="space-y-3"></div>
-      </div>
-    </div>
+    <PanelWindow id="panel-personajes" title="Personajes" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
+      <p id="rv-chars-empty" class="hidden text-sm text-gray-500 italic">Sin personajes públicos en este reino.</p>
+      <div id="rv-chars" class="space-y-3"></div>
+    </PanelWindow>
 
-    <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden">
-      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-        <h2 class={`text-lg font-bold flex items-center ${ui.gradientTitle}`}>
-          <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas
-        </h2>
-      </div>
-      <div class={`${ui.sectionBody}`}>
-        <div id="rv-bandas" class="space-y-3"></div>
-      </div>
-    </div>
+    <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+      <div id="rv-bandas" class="space-y-3"></div>
+    </PanelWindow>
   </div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
 </section>
@@ -83,9 +63,11 @@ import { ui } from '@/lib/ui/design';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { cardLink, card as cardBox, cardTitle, iconTile } from '@/lib/ui/card';
   import { ui } from '@/lib/ui/design';
+  import { chip, el, setBreadcrumb } from '@/lib/ui/dom';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { resolveBandOwners, mergeDirectoryBands, type OwnerRef, type MergedBand } from '@/lib/bandListing';
   import { REINO_TABS, initAvailableTabs } from '@/lib/ui/tabs';
+  import { renderGuildCard, renderCharacterCard, renderBandCard } from '@/lib/ui/cards';
   import type { GuildRow } from '@/types/database';
 
   interface ProfileLight { id: string; slug: string | null; display_name: string | null; character_name: string | null }
@@ -103,157 +85,6 @@ import { ui } from '@/lib/ui/design';
     } else {
       await render(server, realmSlug);
     }
-  }
-
-  function el(tag: string, cls: string, text?: string): HTMLElement {
-    const n = document.createElement(tag);
-    n.className = cls;
-    if (text !== undefined) n.textContent = text;
-    return n;
-  }
-
-  function chip(text: string, extra = ''): HTMLElement {
-    return el('span', `${ui.badge} ${ui.badgeSm} ` + (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20'), text);
-  }
-
-  // ── Card de hermandad (modelo del directorio /hermandades) ──────────────
-  function guildCard(g: GuildRow): HTMLElement {
-    const link = cardLink(`/hermandad/${g.slug}`, 'p-5');
-
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
-    link.appendChild(head);
-
-    if (g.description) {
-      link.appendChild(el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description));
-    }
-
-    const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
-    if (g.faction) {
-      chips.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza'));
-    }
-    if (g.server) {
-      const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
-      serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-      chips.appendChild(serverChip);
-    }
-    if (g.claim_status === 'verified') {
-      chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada'));
-    }
-    if (g.discord_link) {
-      const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
-      discord.href = g.discord_link;
-      discord.target = '_blank';
-      discord.rel = 'noopener noreferrer';
-      discord.title = 'Discord de la hermandad';
-      chips.appendChild(discord);
-    }
-    if (chips.children.length > 0) link.appendChild(chips);
-
-    const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
-    link.appendChild(meta);
-
-    return link;
-  }
-
-  // ── Card de personaje (modelo del directorio /personajes, sin chip de
-  //    reino: la página ya está acotada a este reino) ──────────────────────
-  function charCard(c: CharacterRow, profiles: Map<string, ProfileLight>, names: Map<string, PublicAccountNames>): HTMLElement {
-    const profile = profiles.get(c.user_id);
-    const charHref = c.slug ? `/personaje/${c.slug}` : null;
-    const profHref = profile?.slug ? `/jugador/${profile.slug}` : null;
-    const href = charHref ?? profHref;
-    const color = classColor(c.class, c.class_file);
-    const link: HTMLElement = href
-      ? cardLink(href, 'p-4 pl-5')
-      : cardBox('p-4 pl-5 opacity-80');
-    if (!href) link.title = 'El jugador mantiene su perfil privado';
-
-    // Acento lateral por clase (estilo ficha de roster).
-    const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
-    accent.style.backgroundColor = color;
-    link.appendChild(accent);
-
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(classIconEl(c.class, c.class_file, 'w-9 h-9 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover'));
-    const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
-    const name = el('h2', 'font-black italic leading-[1.3] text-base transition-colors duration-200', c.name);
-    name.style.color = color;
-    nameWrap.appendChild(name);
-    if (c.sv_is_gm) {
-      const star = el('span', 'shrink-0 text-fuchsia-400 text-sm', '★');
-      star.title = 'Maestro de hermandad';
-      nameWrap.appendChild(star);
-    }
-    head.appendChild(nameWrap);
-    link.appendChild(head);
-
-    const chips = el('div', 'flex flex-wrap gap-1.5');
-    if (c.class) chips.appendChild(chip(c.class));
-    if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, 'text-amber-300 bg-gray-800/60 border-amber-500/30'));
-    if (c.member_verified) chips.appendChild(chip('✓ Validado', 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40'));
-    if (c.sv_guild_name) chips.appendChild(chip(`${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-    link.appendChild(chips);
-
-    const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-    const info = names.get(c.user_id);
-    // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
-    // el perfil dueño no declara nombre visible, cae al handle estable @hex.
-    const ownerName = profile
-      ? isNamelessSafe(profile, { publicNames: info?.publicNames })
-        ? handleFromSlug(profile.slug)
-        : safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
-      : '';
-    foot.textContent = charHref
-      ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')
-      : href
-        ? (ownerName ? `Por ${ownerName} · Ver perfil →` : 'Ver perfil →')
-        : 'Perfil privado';
-    link.appendChild(foot);
-
-    return link;
-  }
-
-  // ── Card de banda (modelo del directorio /bandas) ────────────────────────
-  function bandCard(item: MergedBand, owner?: OwnerRef): HTMLElement {
-    const b = item.b;
-    const players = item.playerCount ?? (Array.isArray(b.players) ? b.players.length : 0);
-    const link = cardLink(`/banda/${encodeURIComponent(b.slug)}`, 'p-5');
-
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTile((b.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    head.appendChild(el('h2', 'font-black italic text-white group-hover:text-amber-200 transition-colors text-base leading-[1.3]', b.name));
-    link.appendChild(head);
-
-    const meta = el('div', 'flex flex-wrap gap-1.5');
-    if (b.schedule) meta.appendChild(chip(b.schedule));
-    if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(chip(`GS ${b.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-    meta.appendChild(chip(`${players} jugadores`));
-    if (owner?.href && owner.label) {
-      meta.appendChild(chip(owner.label, '!text-sky-200 !border-sky-600/30'));
-    } else if (!b.guild_id) {
-      meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
-    }
-    if (item.source) {
-      meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
-    }
-    link.appendChild(meta);
-
-    const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-    if (owner?.href && owner.label) {
-      const ownerLink = el('span', 'text-sky-300 hover:text-sky-200 transition-colors', owner.kind === 'guild' ? owner.label : `Por ${owner.label}`);
-      foot.appendChild(ownerLink);
-      foot.appendChild(document.createTextNode('Ver banda →'));
-    } else {
-      foot.textContent = 'Ver banda →';
-    }
-    link.appendChild(foot);
-
-    return link;
   }
 
   async function render(server: string, realmSlug: string): Promise<void> {
@@ -286,7 +117,7 @@ import { ui } from '@/lib/ui/design';
 
     document.title = `${realm} - RaidDominion`;
     (document.getElementById('rv-realm') as HTMLElement).textContent = realm;
-    (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(realm);
+    setBreadcrumb(realm);
 
     const chip = document.getElementById('rv-server-chip') as HTMLAnchorElement;
     chip.href = `/servidor/${encodeURIComponent(server)}`;
@@ -301,7 +132,7 @@ import { ui } from '@/lib/ui/design';
     if (realmGuilds.length === 0) {
       document.getElementById('rv-guilds-empty')?.classList.remove('hidden');
     }
-    realmGuilds.forEach((g) => guildsEl.appendChild(guildCard(g)));
+    realmGuilds.forEach((g) => guildsEl.appendChild(renderGuildCard(g)));
 
     // Personajes (modelo del directorio; resolución de dueños en batch).
     const charsEl = document.getElementById('rv-chars') as HTMLElement;
@@ -319,7 +150,8 @@ import { ui } from '@/lib/ui/design';
     }
     const accountNames = new Map<string, PublicAccountNames>();
     namesRes.forEach((v, k) => accountNames.set(k, v));
-    realmChars.slice(0, 200).forEach((c: CharacterRow) => charsEl.appendChild(charCard(c, profiles, accountNames)));
+    // Vista acotada a este reino: sin chip de reino (hideRealm), conserva servidor.
+    realmChars.slice(0, 200).forEach((c: CharacterRow) => charsEl.appendChild(renderCharacterCard(c, { profiles, names: accountNames, hideRealm: true })));
 
     // Bandas públicas del reino (capa solo por reino, como las guilds) con
     // fusión de bandas integradas (mismo criterio que el directorio /bandas).
@@ -331,7 +163,7 @@ import { ui } from '@/lib/ui/design';
       const owners = await resolveBandOwners(realmBands);
       const merged = mergeDirectoryBands(realmBands, owners);
       const bandsEl = document.getElementById('rv-bandas') as HTMLElement;
-      merged.forEach((item) => bandsEl.appendChild(bandCard(item, owners.get(item.b.guild_id || item.b.owner_id))));
+      merged.forEach((item) => bandsEl.appendChild(renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id) })));
       if (merged.length > 0) available.push('bandas');
     }
 

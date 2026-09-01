@@ -106,6 +106,15 @@ export const ui = {
     bodyMuted: 'text-sm text-gray-400',
     caption: 'text-xs text-gray-500',
   },
+  // H1 de PÁGINA con gradiente de marca: título hero con degradado ámbar y
+  // tracking amplio (directorios, upload, login, admin, moderate). ÚNICA
+  // fuente del literal del gradiente de h1 (antes duplicado en 8 páginas).
+  titleHero:
+    'text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase',
+  // H1 de FICHA/VISTA (personaje, servidor, reino, banda, jugador, portal de
+  // hermandad): tamaño grande en itálico, SIN color (lo aporta ui.gradientTitle
+  // o un literal de gradiente propio de la vista). Solo base tipográfica.
+  titleFicha: 'text-3xl md:text-5xl font-black italic leading-[1.3]',
 
   // ── Estado semántico (design.md R6, F006) ───────────────────────────────
   // SUPERFICIE DE COLOR de mensajes error/éxito/advertencia/info. El layout

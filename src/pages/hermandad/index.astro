@@ -7,6 +7,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import PanelWindow from '@/components/ui/PanelWindow.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -49,7 +50,7 @@ import { ui } from '@/lib/ui/design';
                 <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z"/></svg>
                 <span>Portal de hermandad</span>
               </p>
-              <h1 id="guild-name" class={`text-3xl md:text-5xl font-black italic leading-[1.3] ${ui.gradientTitle}`}></h1>
+              <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle}`}></h1>
             </div>
             <div class="flex items-center gap-2">
               <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}>✓ Verificada</span>
@@ -69,15 +70,11 @@ import { ui } from '@/lib/ui/design';
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
                  clases conservan su ícono) + buscador por nombre. Todos filtran
-                 la lista de jugadores de abajo (renderRoster). -->
-            <!-- Roster con filtros: mismo modelo de ventana que los paneles del
-                 dashboard — cabecera contigua (título + controles de filtro)
-                 y cuerpo con el contenido del roster. -->
-            <div>
-              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
-                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Roster
-                </h2>
+                 la lista de jugadores de abajo (renderRoster). Mismo modelo de
+                 ventana que los paneles del dashboard — cabecera contigua
+                 (título + controles de filtro) + cuerpo con el roster. -->
+            <PanelWindow title="Roster" gradient={false} titleCls="text-lg font-bold flex items-center text-amber-200">
+              <div slot="head">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-start mt-4">
                   <details id="filtro-jerarquia" class={ui.disclosure}>
                     <summary class={ui.disclosureSummary}>
@@ -119,57 +116,41 @@ import { ui } from '@/lib/ui/design';
                   </div>
                 </div>
               </div>
-              <div class={`${ui.sectionBody} space-y-5`}>
-                <p id="roster-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
-                  Ningún jugador coincide con estos filtros.
-                </p>
-                <div id="viewer-roster-wrap"></div>
-              </div>
-            </div>
+              <p id="roster-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
+                Ningún jugador coincide con estos filtros.
+              </p>
+              <div id="viewer-roster-wrap"></div>
+            </PanelWindow>
           </div>
 
           <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6 pt-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y los paneles del portal. -->
-            <div>
-              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
-                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bandas
-                </h2>
-              </div>
-              <div class={`${ui.sectionBody}`}>
-                <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
-                  <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  </div>
-                  <p class="font-bold text-white mb-1">Sin bandas publicadas</p>
-                  <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica bandas.</p>
+            <PanelWindow title="Bandas" gradient={false} titleCls="text-lg font-bold flex items-center text-amber-200">
+              <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+              <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
+                <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
+                <p class="font-bold text-white mb-1">Sin bandas publicadas</p>
+                <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica bandas.</p>
               </div>
-            </div>
+            </PanelWindow>
           </div>
 
           <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6 pt-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y Bandas. -->
-            <div>
-              <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-                <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
-                  <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Reglas
-                </h2>
-              </div>
-              <div class={`${ui.sectionBody}`}>
-                <div id="viewer-rules" class="space-y-2 [&>li]:flex [&>li]:items-start [&>li]:text-sm [&>li]:text-gray-300 [&>li]:bg-gray-800/30 [&>li]:border [&>li]:border-amber-600/15 [&>li]:rounded-md [&>li]:px-3 [&>li]:py-2.5 [&>li]:transition-colors [&>li:hover]:border-amber-500/30"></div>
-                <div id="reglas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 text-center`}>
-                  <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                  </div>
-                  <p class="font-bold text-white mb-1">Sin reglas publicadas</p>
-                  <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica reglas.</p>
+            <PanelWindow title="Reglas" gradient={false} titleCls="text-lg font-bold flex items-center text-amber-200">
+              <div id="viewer-rules" class="space-y-2 [&>li]:flex [&>li]:items-start [&>li]:text-sm [&>li]:text-gray-300 [&>li]:bg-gray-800/30 [&>li]:border [&>li]:border-amber-600/15 [&>li]:rounded-md [&>li]:px-3 [&>li]:py-2.5 [&>li]:transition-colors [&>li:hover]:border-amber-500/30"></div>
+              <div id="reglas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 text-center`}>
+                <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
+                <p class="font-bold text-white mb-1">Sin reglas publicadas</p>
+                <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica reglas.</p>
               </div>
-            </div>
+            </PanelWindow>
           </div>
         </div>
 
@@ -182,11 +163,11 @@ import { ui } from '@/lib/ui/design';
           <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
         </div>
 
-        <!-- Contexto del portal (servidor/reino): van DESPUÉS del contenido
-             para liberar el encabezado; se rellenan solo con los chips de
-             servidor y reino (la atribución ★ y la facción quedan arriba). -->
-        <div id="guild-context" class="hidden flex flex-wrap gap-2"></div>
         <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+        <!-- Contexto del portal (servidor/reino): van DESPUÉS del separador
+             final para liberar el encabezado; se rellenan solo con los chips
+             de servidor y reino (la atribución ★ y la facción quedan arriba). -->
+        <div id="guild-context" class="hidden flex flex-wrap gap-2"></div>
       </div>
     </div>
   </main>
@@ -201,6 +182,7 @@ import { ui } from '@/lib/ui/design';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { sortRanks } from '@/lib/ui/ranks';
   import { ui } from '@/lib/ui/design';
+  import { setBreadcrumb } from '@/lib/ui/dom';
   import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
 
@@ -231,7 +213,7 @@ import { ui } from '@/lib/ui/design';
     } else {
       const g = res.guild;
       document.title = `${g.name} - RaidDominion`;
-      (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(g.name);
+      setBreadcrumb(g.name);
 
       (document.getElementById('guild-name') as HTMLElement).textContent = g.name;
       const descEl = document.getElementById('guild-description') as HTMLElement;

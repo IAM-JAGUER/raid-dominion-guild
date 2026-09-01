@@ -1,7 +1,7 @@
 // Chips de etiqueta del visor de Registro. Extraído de
 // src/pages/dashboard.astro — comportamiento idéntico.
 
-import { el } from '@/lib/ui/preview';
+import { el } from '@/lib/ui/dom';
 import { ui } from '@/lib/ui/design';
 
 // Chip de configuración: etiqueta + highlight opcional. Tokenizado con el

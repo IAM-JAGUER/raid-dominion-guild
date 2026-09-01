@@ -1,0 +1,73 @@
+---
+// Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
+// hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeRight +
+// (filtros opcionales) + #status + #grid + EmptyState + dividerFadeLeft.
+// Cada página conserva solo su <script> (card()/fetch/filtros) y el slot de
+// filtros; los ids #status/#grid/#empty son CONTRATO de este componente
+// (ver AGENTS.sections/pagina-map.md §2).
+import Breadcrumb from '@/components/Breadcrumb.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import EmptyState from '@/components/ui/EmptyState.astro';
+import { ui } from '@/lib/ui/design';
+
+interface EmptyConfig {
+  icon?: 'server' | 'user' | 'group' | 'building' | 'upload' | 'code';
+  eyebrow: string;
+  title: string;
+  titleCls?: string;
+  gradient?: boolean;
+  message: string;
+  cta?: { label: string; href: string } | null;
+  ctaCls?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  hero: string;
+  intro?: string;
+  // Texto del estado de carga (aria-live).
+  loadingText: string;
+  gridLabel: string;
+  // Config del estado vacío (toggle #empty).
+  empty: EmptyConfig;
+  // Clases del divisor tras el header (por defecto `mt-6 mb-10`).
+  dividerCls?: string;
+  // Clases extra del h1 (p. ej. `rd-title rd-ornament`).
+  heroTitleCls?: string;
+}
+
+const {
+  eyebrow = 'Directorio público',
+  hero,
+  intro,
+  loadingText,
+  gridLabel,
+  empty,
+  dividerCls = 'mt-6 mb-10',
+  heroTitleCls = '',
+} = Astro.props;
+---
+<Breadcrumb />
+
+<PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} />
+<div class={`${ui.dividerFadeRight} ${dividerCls}`} aria-hidden="true"></div>
+
+<slot name="filters" />
+
+<p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">{loadingText}</p>
+<section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label={gridLabel}></section>
+
+<EmptyState
+  id="empty"
+  hidden
+  icon={empty.icon}
+  eyebrow={empty.eyebrow}
+  title={empty.title}
+  titleCls={empty.titleCls}
+  gradient={empty.gradient}
+  message={empty.message}
+  cta={empty.cta}
+  ctaCls={empty.ctaCls}
+  align="center"
+/>
+<div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>

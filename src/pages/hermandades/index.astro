@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
-import Breadcrumb from '@/components/Breadcrumb.astro';
+import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -9,56 +9,36 @@ import { ui } from '@/lib/ui/design';
   <Navigation currentPath="/hermandades" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
-      <Breadcrumb />
-
-      <header class="text-center mb-10 animate-fade-in-1">
-        <p class={`${ui.eyebrow} mb-2`}>Directorio público</p>
-        <h1 class={`${ui.text.hero} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase`}>Hermandades</h1>
-        <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>
-          Portales públicos de las hermandades que usan RaidDominion: roster, bandas,
-          horarios y reglas, actualizados por sus propios maestros.
-        </p>
-      </header>
-      <div class={`${ui.dividerFadeRight} mt-6 mb-8`} aria-hidden="true"></div>
-
-      <!-- Filtros -->
-      <div class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
-        <div class="relative flex-1">
-          <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="search" id="search" placeholder="Buscar por nombre o reino…"
-            class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
-        </div>
-        <select id="faction-filter"
-          class={`${ui.form.input} ${ui.focusRing} sm:w-48`}>
-          <option value="">Toda facción</option>
-          <option value="Horde">Horde</option>
-          <option value="Alliance">Alliance</option>
-        </select>
-      </div>
-
-      <!-- Resultados -->
-      <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando hermandades…</p>
-      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de hermandades"></section>
-
-      <!-- Vacío -->
-      <div id="empty" class="hidden max-w-2xl mx-auto">
-        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-          <div class="flex items-center justify-center gap-3">
-            <div class={`${ui.iconTile} w-12 h-12 shrink-0`} aria-hidden="true">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
-              <p class={`${ui.gradientTitle} font-black italic text-base`}>Aún no hay hermandades públicas</p>
-            </div>
+      <DirectoryPage
+        hero="Hermandades"
+        intro="Portales públicos de las hermandades que usan RaidDominion: roster, bandas, horarios y reglas, actualizados por sus propios maestros."
+        loadingText="Cargando hermandades…"
+        gridLabel="Listado de hermandades"
+        dividerCls="mt-6 mb-8"
+        empty={{
+          icon: 'building',
+          eyebrow: 'Directorio público',
+          title: 'Aún no hay hermandades públicas',
+          titleCls: 'font-black italic',
+          message: 'Los maestros de hermandad publican su portal desde el dashboard al reclamar su guild.',
+          cta: { label: 'Sube tu SavedVariables', href: '/upload' },
+        }}
+      >
+        <!-- Filtros -->
+        <div slot="filters" class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
+          <div class="relative flex-1">
+            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="search" id="search" placeholder="Buscar por nombre o reino…"
+              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
           </div>
+          <select id="faction-filter"
+            class={`${ui.form.input} ${ui.focusRing} sm:w-48`}>
+            <option value="">Toda facción</option>
+            <option value="Horde">Horde</option>
+            <option value="Alliance">Alliance</option>
+          </select>
         </div>
-        <div class={`${ui.sectionBody} text-center`}>
-          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Los maestros de hermandad publican su portal desde el dashboard al reclamar su guild.</p>
-          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
-        </div>
-      </div>
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      </DirectoryPage>
     </div>
   </main>
 </Layout>
@@ -68,6 +48,7 @@ import { ui } from '@/lib/ui/design';
   import type { GuildRow } from '@/types/database';
   import { ui } from '@/lib/ui/design';
   import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
+  import { el } from '@/lib/ui/dom';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -80,62 +61,44 @@ import { ui } from '@/lib/ui/design';
   function card(g: GuildRow): HTMLElement {
     const link = cardLink(`/hermandad/${g.slug}`, 'p-5');
 
-    const head = document.createElement('div');
-    head.className = 'flex items-center gap-3 mb-3';
+    const head = el('div', 'flex items-center gap-3 mb-3');
     head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
     head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
     link.appendChild(head);
 
     if (g.description) {
-      const desc = document.createElement('p');
-      desc.className = `${ui.text.bodyMuted} italic line-clamp-2 mb-3`;
-      desc.textContent = g.description;
+      const desc = el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description);
       link.appendChild(desc);
     }
 
     // Chips: facción, servidor (enlaza al directorio de servidores), verificación y Discord
-    const chips = document.createElement('div');
-    chips.className = 'flex flex-wrap gap-1.5 mb-3';
+    const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
     if (g.faction) {
-      const faction = document.createElement('span');
-      faction.className = `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`;
-      faction.textContent = g.faction === 'Horde' ? 'Horda' : 'Alianza';
+      const faction = el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza');
       chips.appendChild(faction);
     }
     if (g.server) {
-      const serverChip = document.createElement('a');
+      const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
       serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-      serverChip.className = `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`;
-      serverChip.textContent = g.server;
       chips.appendChild(serverChip);
     }
     if (g.claim_status === 'verified') {
-      const verified = document.createElement('span');
-      verified.className = `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`;
-      verified.textContent = '✓ Verificada';
+      const verified = el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada');
       chips.appendChild(verified);
     }
     if (g.discord_link) {
-      const discord = document.createElement('a');
+      const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
       discord.href = g.discord_link;
       discord.target = '_blank';
       discord.rel = 'noopener noreferrer';
       discord.title = 'Discord de la hermandad';
-      discord.className = `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`;
-      discord.textContent = 'Discord';
       chips.appendChild(discord);
     }
     if (chips.children.length > 0) link.appendChild(chips);
 
-    const meta = document.createElement('div');
-    meta.className = 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15';
-    const realm = document.createElement('span');
-    realm.className = 'text-[10px] font-black uppercase tracking-widest text-gray-500';
-    realm.textContent = g.realm || 'Reino no especificado';
-    const cta = document.createElement('span');
-    cta.className = 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors';
-    cta.textContent = 'Ver portal →';
-    meta.append(realm, cta);
+    const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
+    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
     link.appendChild(meta);
 
     return link;

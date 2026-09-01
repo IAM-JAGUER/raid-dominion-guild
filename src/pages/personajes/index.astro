@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
-import Breadcrumb from '@/components/Breadcrumb.astro';
+import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -9,54 +9,35 @@ import { ui } from '@/lib/ui/design';
   <Navigation currentPath="/personajes" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
-      <Breadcrumb />
-
-      <header class="text-center mb-10 animate-fade-in-1">
-        <p class={`${ui.eyebrow} mb-2`}>Directorio público</p>
-        <h1 class={`${ui.text.hero} ${ui.gradientTitle} ${ui.ornament} tracking-wider uppercase`}>Personajes</h1>
-        <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>
-          Personajes validados y hechos públicos
-          por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables.
-        </p>
-      </header>
-      <div class={`${ui.dividerFadeRight} mt-6 mb-8`} aria-hidden="true"></div>
-
-      <!-- Filtros -->
-      <div class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
-        <div class="relative flex-1">
-          <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="search" id="search" placeholder="Buscar por personaje, reino o hermandad…"
-            class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
-        </div>
-        <select id="class-filter"
-          class={`${ui.form.input} ${ui.focusRing} sm:w-56`}>
-          <option value="">Toda clase</option>
-        </select>
-      </div>
-
-      <!-- Resultados -->
-      <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando personajes…</p>
-      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de personajes"></section>
-
-      <!-- Vacío -->
-      <div id="empty" class="hidden max-w-2xl mx-auto">
-        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-          <div class="flex items-center justify-center gap-3">
-            <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
-              <p class={`font-black italic ${ui.gradientTitle} text-base`}>Aún no hay personajes públicos</p>
-            </div>
+      <DirectoryPage
+        hero="Personajes"
+        heroTitleCls="rd-title rd-ornament"
+        intro="Personajes validados y hechos públicos por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables."
+        loadingText="Cargando personajes…"
+        gridLabel="Listado de personajes"
+        dividerCls="mt-6 mb-8"
+        empty={{
+          icon: 'user',
+          eyebrow: 'Directorio público',
+          title: 'Aún no hay personajes públicos',
+          titleCls: 'font-black italic',
+          message: 'Sube tu SavedVariables, valida tus personajes y activa su visibilidad desde el dashboard.',
+          cta: { label: 'Sube tu SavedVariables', href: '/upload' },
+        }}
+      >
+        <!-- Filtros -->
+        <div slot="filters" class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
+          <div class="relative flex-1">
+            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="search" id="search" placeholder="Buscar por personaje, reino o hermandad…"
+              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
           </div>
+          <select id="class-filter"
+            class={`${ui.form.input} ${ui.focusRing} sm:w-56`}>
+            <option value="">Toda clase</option>
+          </select>
         </div>
-        <div class={`${ui.sectionBody} text-center`}>
-          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Sube tu SavedVariables, valida tus personajes y activa su visibilidad desde el dashboard.</p>
-          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
-        </div>
-      </div>
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      </DirectoryPage>
     </div>
   </main>
 </Layout>
@@ -64,11 +45,11 @@ import { ui } from '@/lib/ui/design';
 <script>
   import { supabase } from '@/lib/supabase';
   import { classColor } from '@/lib/ui/classColors';
-  import { ui } from '@/lib/ui/design';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { ensureMyCharacterSlugs, getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
   import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
   import { cardLink, card as cardBox } from '@/lib/ui/card';
+  import { chip } from '@/lib/ui/dom';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -81,14 +62,6 @@ import { ui } from '@/lib/ui/design';
   // Nombres públicos por cuenta: evita exponer un principal declarado que no
   // es público (p. ej. "Por Stormgrim" cuando Stormgrim no es público).
   const accountNames = new Map<string, PublicAccountNames>();
-
-  function chip(text: string, extra = ''): HTMLElement {
-    const c = document.createElement('span');
-    c.className = `${ui.badge} ${ui.badgeSm} ` +
-      (extra || 'text-gray-300 bg-gray-800/60 border-amber-600/20');
-    c.textContent = text;
-    return c;
-  }
 
   function card(c: CharacterRow): HTMLElement {
     const profile = profiles.get(c.user_id);

@@ -1,55 +1,38 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
-import Breadcrumb from '@/components/Breadcrumb.astro';
-import { ui } from '@/lib/ui/design';
+import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 ---
 
 <Layout title="Bandas - RaidDominion" description="Bandas de raid públicas de las hermandades que usan RaidDominion: horario, GS mínimo y roster.">
   <Navigation currentPath="/bandas" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
-      <Breadcrumb />
-
-      <header class="text-center mb-10 animate-fade-in-1">
-        <h1 class={`${ui.text.hero} text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase`}>Bandas</h1>
-        <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>
-          Bandas de raid públicas de la comunidad: horarios, requisitos de GS
-          y rosters, extraídos de los SavedVariables de cada hermandad.
-        </p>
-      </header>
-      <div class={`${ui.dividerFadeRight} mt-6 mb-10`} aria-hidden="true"></div>
-
-      <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando bandas…</p>
-      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de bandas"></section>
-
-      <div id="empty" class="hidden max-w-2xl mx-auto">
-        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-          <div class="flex items-center justify-center gap-3">
-            <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
-              <p class="font-black italic text-white text-base">Aún no hay bandas públicas</p>
-            </div>
-          </div>
-        </div>
-        <div class={`${ui.sectionBody} text-center`}>
-          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.</p>
-          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Sube tu SavedVariables</a>
-        </div>
-      </div>
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      <DirectoryPage
+        hero="Bandas"
+        intro="Bandas de raid públicas de la comunidad: horarios, requisitos de GS y rosters, extraídos de los SavedVariables de cada hermandad."
+        loadingText="Cargando bandas…"
+        gridLabel="Listado de bandas"
+        empty={{
+          icon: 'group',
+          eyebrow: 'Directorio público',
+          title: 'Aún no hay bandas públicas',
+          titleCls: 'font-black italic text-white',
+          gradient: false,
+          message: 'Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.',
+          cta: { label: 'Sube tu SavedVariables', href: '/upload' },
+          ctaCls: 'transform hover:scale-105',
+        }}
+      />
     </div>
   </main>
 </Layout>
 
 <script>
   import { listPublicBands, type BandRow } from '@/lib/api';
-  import { ui } from '@/lib/ui/design';
   import { resolveBandOwners, mergeDirectoryBands, type OwnerRef } from '@/lib/bandListing';
-  import { cardLink, iconTile } from '@/lib/ui/card';
+  import { renderBandCard } from '@/lib/ui/cards';
+  import { el } from '@/lib/ui/dom';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -67,63 +50,10 @@ import { ui } from '@/lib/ui/design';
     const owners = await resolveBandOwners(res.bands);
     const merged = mergeDirectoryBands(res.bands, owners);
     document.title = `${merged.length} banda${merged.length === 1 ? '' : 's'} — RaidDominion`;
-    merged.forEach((item) => gridEl.appendChild(card(item.b, owners.get(item.b.guild_id || item.b.owner_id), item.source, item.playerCount)));
+    merged.forEach((item) => {
+      const owner = owners.get(item.b.guild_id || item.b.owner_id);
+      gridEl.appendChild(renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner }));
+    });
     statusEl.classList.add('hidden');
-  }
-
-  function card(b: BandRow, owner?: OwnerRef, source?: string | null, playerCount?: number): HTMLElement {
-    const players = playerCount ?? (Array.isArray(b.players) ? b.players.length : 0);
-    const link = cardLink(`/banda/${encodeURIComponent(b.slug)}`, 'p-5');
-
-    const head = document.createElement('div');
-    head.className = 'flex items-center gap-3 mb-3';
-    head.appendChild(iconTile((b.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    const name = document.createElement('h2');
-    name.className = 'font-black italic text-white group-hover:text-amber-200 transition-colors text-base leading-[1.3]';
-    name.textContent = b.name;
-    head.appendChild(name);
-    link.appendChild(head);
-
-    const meta = document.createElement('div');
-    meta.className = 'flex flex-wrap gap-1.5';
-    if (b.schedule) meta.appendChild(chip(b.schedule));
-    if (typeof b.min_gs === 'number' && b.min_gs > 0) meta.appendChild(chip(`GS ${b.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-    if (b.hide_players) {
-      meta.appendChild(chip('jugadores ocultos', '!text-gray-500'));
-    } else {
-      meta.appendChild(chip(`${players} jugadores`));
-    }
-    if (owner?.href && owner.label) {
-      meta.appendChild(chip(owner.label, owner.kind === 'guild' ? '!text-sky-200 !border-sky-600/30' : '!text-sky-200 !border-sky-600/30'));
-    } else if (!b.guild_id) {
-      meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
-    }
-    if (source) {
-      meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
-    }
-    link.appendChild(meta);
-
-    const foot = document.createElement('p');
-    foot.className = 'text-xs text-gray-500 mt-4 flex items-center justify-between';
-    // La banda se atribuye SOLO al jugador (cuenta) o a la hermandad; jamás
-    // a un personaje (character_name) que la subió.
-    if (owner?.href && owner.label) {
-      const ownerLink = document.createElement('span');
-      ownerLink.className = 'text-sky-300 hover:text-sky-200 transition-colors';
-      ownerLink.textContent = owner.kind === 'guild' ? `${owner.label}` : `Por ${owner.label}`;
-      foot.appendChild(ownerLink);
-      foot.appendChild(document.createTextNode('Ver banda →'));
-    } else {
-      foot.textContent = 'Ver banda →';
-    }
-    link.appendChild(foot);
-    return link;
-  }
-
-  function chip(text: string, extra = ''): HTMLElement {
-    const c = document.createElement('span');
-    c.className = `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20` + (extra ? ` ${extra}` : '');
-    c.textContent = text;
-    return c;
   }
 </script>

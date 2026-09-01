@@ -1,0 +1,21 @@
+---
+// Cabecera de página tipo directorio: eyebrow + h1 hero con gradiente de
+// marca (ui.titleHero) + descripción. ÚNICA fuente del patrón de cabecera de
+// los 5 directorios (ver AGENTS.sections/pagina-map.md §2).
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  // Clases extra del h1 (p. ej. `tracking-wider` heredado de titleHero).
+  titleCls?: string;
+}
+
+const { eyebrow, title, intro, titleCls = '' } = Astro.props;
+
+import { ui } from '@/lib/ui/design';
+---
+<header class="text-center mb-10 animate-fade-in-1">
+  {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
+  <h1 class={`${ui.text.hero} ${ui.titleHero} ${titleCls}`}>{title}</h1>
+  {intro && <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>{intro}</p>}
+</header>

@@ -1,47 +1,28 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
-import Breadcrumb from '@/components/Breadcrumb.astro';
-import { ui } from '@/lib/ui/design';
+import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 ---
 
 <Layout title="Servidores - RaidDominion" description="Servidores y reinos con hermandades y personajes públicos de la comunidad RaidDominion.">
   <Navigation currentPath="/servidores" />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
-      <Breadcrumb />
-
-      <header class="text-center mb-10 animate-fade-in-1">
-        <p class={`${ui.eyebrow} mb-2`}>Directorio público</p>
-        <h1 class={`${ui.text.hero} ${ui.gradientTitle} ${ui.ornament} tracking-wider uppercase`}>Servidores</h1>
-        <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>
-          Reinos con hermandades y personajes públicos, derivados de los
-          SavedVariables subidos por la comunidad.
-        </p>
-      </header>
-      <div class={`${ui.dividerFadeRight} mt-6 mb-10`} aria-hidden="true"></div>
-
-      <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando servidores…</p>
-      <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de servidores"></section>
-
-      <div id="empty" class="hidden max-w-2xl mx-auto">
-        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-          <div class="flex items-center justify-center gap-3">
-            <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
-            </div>
-            <div class="min-w-0">
-              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
-              <p class={`font-black italic ${ui.gradientTitle} text-base`}>Aún no hay servidores con datos públicos</p>
-            </div>
-          </div>
-        </div>
-        <div class={`${ui.sectionBody} text-center`}>
-          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Sube tu SavedVariables para que tu reino y hermandad aparezcan en el directorio.</p>
-          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
-        </div>
-      </div>
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      <DirectoryPage
+        hero="Servidores"
+        heroTitleCls="rd-title rd-ornament"
+        intro="Reinos con hermandades y personajes públicos, derivados de los SavedVariables subidos por la comunidad."
+        loadingText="Cargando servidores…"
+        gridLabel="Listado de servidores"
+        empty={{
+          icon: 'server',
+          eyebrow: 'Directorio público',
+          title: 'Aún no hay servidores con datos públicos',
+          titleCls: 'font-black italic',
+          message: 'Sube tu SavedVariables para que tu reino y hermandad aparezcan en el directorio.',
+          cta: { label: 'Sube tu SavedVariables', href: '/upload' },
+        }}
+      />
     </div>
   </main>
 </Layout>
@@ -49,7 +30,7 @@ import { ui } from '@/lib/ui/design';
 <script>
   import { listPublicServers } from '@/lib/api';
   import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
-  import { ui } from '@/lib/ui/design';
+  import { chip } from '@/lib/ui/dom';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -91,12 +72,5 @@ import { ui } from '@/lib/ui/design';
     foot.appendChild(document.createTextNode('Ver servidor →'));
     link.appendChild(foot);
     return link;
-  }
-
-  function chip(text: string): HTMLElement {
-    const c = document.createElement('span');
-    c.className = `${ui.badge} ${ui.badgeSm} text-gray-300 bg-gray-800/60 border-amber-600/20`;
-    c.textContent = text;
-    return c;
   }
 </script>

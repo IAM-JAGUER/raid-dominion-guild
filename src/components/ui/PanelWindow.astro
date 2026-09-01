@@ -1,0 +1,57 @@
+---
+// Ventana de panel (modelo dashboard): cabecera contigua (sectionHead + cutTop)
+// + cuerpo (sectionBody). ÚNICA fuente del patrón de cabecera de panel — antes
+// duplicado como literal en 27 lugares (ver AGENTS.sections/pagina-map.md §2).
+//
+// La cabecera lleva el medallón de punto ámbar + título; los controles de la
+// cabecera (disclosure de filtros, buscador, selector) van en el slot `head`.
+// El contenido principal va en el slot por defecto.
+interface Props {
+  id?: string;
+  title: string;
+  // Clases del h2. Default: patrón de dashboard/vistas (gradiente de marca).
+  titleCls?: string;
+  // Clases extra del contenedor del body (p. ej. `space-y-5`).
+  bodyCls?: string;
+  // Clases extra del contenedor de la cabecera (p. ej. ids de toggle).
+  headCls?: string;
+  // Oculto inicialmente (id de toggle JS).
+  hidden?: boolean;
+  // Añade ui.gradientTitle al título (default true; hermandad usa solid).
+  gradient?: boolean;
+  // Contenedor exterior: clases extra (p. ej. `space-y-6`, `pt-6`) y ARIA.
+  wrapCls?: string;
+  role?: 'tabpanel';
+  ariaLabelledby?: string;
+}
+
+const {
+  id,
+  title,
+  titleCls = 'text-lg font-bold flex items-center',
+  bodyCls = '',
+  headCls = '',
+  hidden = false,
+  gradient = true,
+  wrapCls = '',
+  role,
+  ariaLabelledby,
+} = Astro.props;
+
+import { ui } from '@/lib/ui/design';
+
+const h2Cls = gradient ? `${titleCls} ${ui.gradientTitle} pb-[0.1em]` : `${titleCls} pb-[0.1em]`;
+const wrapClsFull = `${hidden ? 'hidden ' : ''}${wrapCls}`.trim();
+---
+<div id={id} class={wrapClsFull} role={role} aria-labelledby={ariaLabelledby}>
+  <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent ${headCls}`}>
+    <h2 class={h2Cls}>
+      <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+      {title}
+    </h2>
+    <slot name="head" />
+  </div>
+  <div class={`${ui.sectionBody} ${bodyCls}`}>
+    <slot />
+  </div>
+</div>

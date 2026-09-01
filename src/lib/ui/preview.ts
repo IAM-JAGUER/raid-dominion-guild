@@ -6,6 +6,9 @@ import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
 import { cardLink, card, cardTop, cardRow, iconTile, cardTitle } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
+import { el } from '@/lib/ui/dom';
+
+export { el };
 
 // Campos que el roster necesita para mostrarse (públicos; sin officerNote).
 // `rankIndex` (opcional) permite ordenar/agrupar por jerarquía de rangos.
@@ -17,13 +20,6 @@ export interface RosterMember {
   rankIndex?: number;
   publicNote?: string;
   slug?: string;
-}
-
-export function el(tag: string, cls: string, text?: string): HTMLElement {
-  const node = document.createElement(tag);
-  node.className = cls;
-  if (text !== undefined) node.textContent = text;
-  return node;
 }
 
 function chip(text: string, extra = ''): HTMLElement {
