@@ -18,17 +18,29 @@ import { ui } from '@/lib/ui/design';
           y rosters, extraídos de los SavedVariables de cada hermandad.
         </p>
       </header>
+      <div class={`${ui.dividerFadeRight} mt-6 mb-10`} aria-hidden="true"></div>
 
       <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando bandas…</p>
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de bandas"></section>
 
-      <div id="empty" class={`hidden ${ui.card} ${ui.cut} relative overflow-hidden p-8 sm:p-10 text-center`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <svg class="w-10 h-10 text-amber-500/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <p class="font-bold text-white mb-1">Aún no hay bandas públicas</p>
-        <p class={`${ui.text.bodyMuted} max-w-md mx-auto`}>Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.</p>
-        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Sube tu SavedVariables</a>
+      <div id="empty" class="hidden max-w-2xl mx-auto">
+        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+          <div class="flex items-center justify-center gap-3">
+            <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div class="min-w-0">
+              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
+              <p class="font-black italic text-white text-base">Aún no hay bandas públicas</p>
+            </div>
+          </div>
+        </div>
+        <div class={`${ui.sectionBody} text-center`}>
+          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad.</p>
+          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Sube tu SavedVariables</a>
+        </div>
       </div>
+      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

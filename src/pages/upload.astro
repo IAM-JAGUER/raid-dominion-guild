@@ -23,8 +23,8 @@ import { ui } from '@/lib/ui/design';
         <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
           Carga tu <code class="text-amber-300">RaidDominion.lua</code> para ver el roster, las bandas y los roles de tu hermandad.
         </p>
-        <div class="w-48 h-0.5 bg-gradient-to-r from-amber-900/0 via-amber-500/80 to-amber-900/0 mx-auto my-6"></div>
       </header>
+      <div class={`${ui.dividerFadeRight} mt-6 mb-10`} aria-hidden="true"></div>
 
       <!-- Dropzone -->
       <section class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-md p-4 sm:p-6 md:p-8 mb-8">
@@ -97,6 +97,7 @@ import { ui } from '@/lib/ui/design';
         <h2 class={`${ui.text.h2} text-red-300 mb-2`}>No se pudo procesar el archivo</h2>
         <p id="error-msg" class="text-sm text-red-200/80"></p>
       </section>
+      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>
@@ -346,7 +347,9 @@ import { ui } from '@/lib/ui/design';
       const promo = await tryPromoteMember(saved.id);
       if (promo.ok && promo.data?.promoted) {
         const wasVisitante = role === 'visitante';
-        renderOnboardingBanner('success', '¡Bienvenido, Miembro! Tu cuenta quedó validada con dos o más personajes registrados. Con al menos tres podrás reclamar tu hermandad.');
+        renderOnboardingBanner('success', wasVisitante
+          ? '¡Bienvenido, Miembro! Tu cuenta quedó validada con dos o más personajes registrados. Con al menos tres podrás reclamar tu hermandad.'
+          : 'Registro actualizado. Tu cuenta ya estaba validada como Miembro.');
         if (wasVisitante) role = 'member';
       } else if (promo.ok) {
         // Sin auto-validación: se queda Visitante, sin pedir validación externa

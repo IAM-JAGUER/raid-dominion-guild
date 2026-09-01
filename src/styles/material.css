@@ -369,6 +369,36 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   background-image: linear-gradient(180deg, rgba(245, 185, 66, 0.12), rgba(245, 185, 66, 0) 55%);
 }
 
+/* ── Separadores hairline anti-subpixel ────────────────────────────────────
+   Las líneas de 1px con background-image caen en posiciones fraccionarias de
+   píxel y Chrome las descarta en el primer paint (solo se ven al abrir
+   DevTools, que fuerza un repaint). Pintarlas como border-image las rasteriza
+   siempre a 1px exacto, sin flicker ni desaparición intermitente. */
+.rd-divider-right {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, rgba(245, 158, 11, 0.6), rgba(217, 119, 6, 0.3), transparent) 1 / 1 / 0 stretch;
+}
+.rd-divider-both {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), transparent) 1 / 1 / 0 stretch;
+}
+.rd-divider-left {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), rgba(245, 158, 11, 0.6)) 1 / 1 / 0 stretch;
+}
+/* Tab-bar: misma técnica, en el ::after inferior */
+.rd-tabbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.7), transparent) 1 / 1 / 0 stretch;
+  pointer-events: none;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    ACCESIBILIDAD · MOVIMIENTO REDUCIDO
    ═══════════════════════════════════════════════════════════════════════════ */

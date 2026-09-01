@@ -64,7 +64,7 @@ import { ui } from '@/lib/ui/design';
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 relative border-b border-amber-600/30 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-amber-500/60 after:to-transparent" style="animation-delay: 0.15s"></nav>
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 rd-tabbar relative animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
@@ -186,6 +186,7 @@ import { ui } from '@/lib/ui/design';
              para liberar el encabezado; se rellenan solo con los chips de
              servidor y reino (la atribución ★ y la facción quedan arriba). -->
         <div id="guild-context" class="hidden flex flex-wrap gap-2"></div>
+        <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
       </div>
     </div>
   </main>

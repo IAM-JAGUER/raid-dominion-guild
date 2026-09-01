@@ -18,8 +18,8 @@ import { ui } from '@/lib/ui/design';
           Portales públicos de las hermandades que usan RaidDominion: roster, bandas,
           horarios y reglas, actualizados por sus propios maestros.
         </p>
-        <div class={ui.sectionRule} aria-hidden="true"></div>
       </header>
+      <div class={`${ui.dividerFadeRight} mt-6 mb-8`} aria-hidden="true"></div>
 
       <!-- Filtros -->
       <div class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
@@ -41,15 +41,24 @@ import { ui } from '@/lib/ui/design';
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de hermandades"></section>
 
       <!-- Vacío -->
-      <div id="empty" class={`hidden ${ui.card} ${ui.cut} relative overflow-hidden p-8 sm:p-10 text-center`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      <div id="empty" class="hidden max-w-2xl mx-auto">
+        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+          <div class="flex items-center justify-center gap-3">
+            <div class={`${ui.iconTile} w-12 h-12 shrink-0`} aria-hidden="true">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div class="min-w-0">
+              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
+              <p class={`${ui.gradientTitle} font-black italic text-base`}>Aún no hay hermandades públicas</p>
+            </div>
+          </div>
         </div>
-        <p class={`${ui.gradientTitle} font-black italic text-base mb-1`}>Aún no hay hermandades públicas</p>
-        <p class={`${ui.text.bodyMuted} max-w-md mx-auto`}>Los maestros de hermandad publican su portal desde el dashboard al reclamar su guild.</p>
-        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
+        <div class={`${ui.sectionBody} text-center`}>
+          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Los maestros de hermandad publican su portal desde el dashboard al reclamar su guild.</p>
+          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
+        </div>
       </div>
+      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

@@ -174,6 +174,13 @@ export const ui = {
   iconTile: 'flex items-center justify-center rounded-md bg-gradient-to-br from-amber-500/25 via-amber-600/10 to-gray-950/40 border border-amber-500/30 text-amber-300 shadow-[inset_0_1px_0_0_rgba(251,191,36,0.25)] shrink-0',
   // Separador interno sutil (contenido de cards).
   divider: 'h-px w-full bg-gradient-to-r from-amber-500/40 via-amber-600/20 to-transparent',
+  // Versiones del separador desvanecido para la página (excepto index):
+  //   dividerFadeRight  — tras el encabezado, se desvanece hacia la derecha.
+  //   dividerFadeBoth   — bajo la navegación de tabs principal, se desvanece a ambos lados.
+  //   dividerFadeLeft   — tras el contenido principal, se desvanece hacia la izquierda.
+  dividerFadeRight: 'rd-divider-right w-full',
+  dividerFadeBoth: 'rd-divider-both w-full',
+  dividerFadeLeft: 'rd-divider-left w-full',
 
   // ── Materiales y ornamentación (2026-08-30, material.css) ───────────────
   // Corte diagonal único en la esquina superior izquierda (clip-path, no

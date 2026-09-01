@@ -23,7 +23,7 @@ export const DASHBOARD_TABS: TabDef[] = [
   { id: 'personajes', label: 'Personajes', href: '/dashboard#personajes' },
   { id: 'bandas', label: 'Bandas', href: '/dashboard#bandas' },
   { id: 'hermandad', label: 'Hermandad', href: '/dashboard#hermandad' },
-  { id: 'addon', label: 'Registro', href: '/dashboard#addon' },
+  { id: 'registro', label: 'Registro', href: '/dashboard#registro' },
 ];
 
 // Panel oculto de configuración del dashboard (perfil, seguridad y zona de

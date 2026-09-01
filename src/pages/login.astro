@@ -17,8 +17,8 @@ import { ui } from '@/lib/ui/design';
           <span id="form-title">Iniciar Sesión</span>
         </h1>
         <p class={`${ui.text.bodyMuted} mt-2 italic`}>Tu espacio en la comunidad de RaidDominion.</p>
-        <div class="w-48 h-0.5 bg-gradient-to-r from-amber-900/0 via-amber-500/80 to-amber-900/0 mx-auto my-5"></div>
       </header>
+      <div class={`${ui.dividerFadeRight} mt-6 mb-8`} aria-hidden="true"></div>
 
       <section class={`${ui.panel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
         <!-- Alternancia de modo -->
@@ -109,6 +109,7 @@ import { ui } from '@/lib/ui/design';
         Al crear cuenta aceptas ser parte de la comunidad RaidDominion.<br />
         <a href="/" class={`hover:text-amber-300 ${ui.transition}`}>← Volver al portal</a>
       </p>
+      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

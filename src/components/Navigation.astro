@@ -1,7 +1,7 @@
 ---
 // Componente de navegación principal
 import { NAV_ITEMS, SITE_CONFIG } from '../utils/constants';
-import { DASHBOARD_TABS } from '../lib/ui/tabs';
+import { DASHBOARD_TABS, DASHBOARD_CONFIG } from '../lib/ui/tabs';
 
 // Props
 export interface Props {
@@ -19,6 +19,26 @@ const PUBLIC_LINKS = [
   { name: 'Personajes', href: '/personajes' },
   { name: 'Bandas', href: '/bandas' },
 ];
+
+// Iconos del menú de cuenta (dropdown escritorio y bloque móvil), mapeados por
+// id de pestaña / acción. SVG heroicons (24x24, stroke) inline: solo el
+// contenido interior; el <svg> lo aporta el template con la clase de color.
+const ACCOUNT_ICONS: Record<string, string> = {
+  personajes:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />',
+  bandas:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.36-1.86M17 20H7m10 0v-2c-.17-1.24-1.03-2.29-2.2-2.72M7 20H2v-2a3 3 0 015.2-2.11M9 9a3 3 0 100-6 3 3 0 000 6z" />',
+  hermandad:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z" />',
+  registro:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />',
+  moderacion:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 3v5c0 4.97-3.13 8.32-7 9.73-3.87-1.41-7-4.76-7-9.73V6l7-3z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />',
+  administracion:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />',
+  logout:
+    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />',
+};
 ---
 
 <!-- Barra de navegación fija en la parte superior -->
@@ -104,19 +124,25 @@ const PUBLIC_LINKS = [
               {DASHBOARD_TABS.map((t) => (
                 <a href={t.href} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">
                   <span class="inline-flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500/70"></span>{t.label}
+                    <svg class="w-3.5 h-3.5 shrink-0 text-amber-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS[t.id] ?? ''}></svg>
+                    {t.label}
                   </span>
                 </a>
               ))}
+              <a href={`/dashboard${DASHBOARD_CONFIG.hash}`} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white transition-all duration-150" role="menuitem">
+                <span class="inline-flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 shrink-0 text-amber-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{DASHBOARD_CONFIG.label}
+                </span>
+              </a>
               <div class="my-1 border-t border-amber-600/30 hidden" data-staff-sep></div>
               <a href="/moderate" data-staff-link="moderate" class="hidden account-link block px-4 py-2.5 text-sm text-sky-200 hover:bg-sky-900/30 hover:text-white transition-all duration-150" role="menuitem">
                 <span class="inline-flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-sky-500/70"></span>Moderación
+                  <svg class="w-3.5 h-3.5 shrink-0 text-sky-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['moderacion']}></svg>Moderación
                 </span>
               </a>
               <a href="/admin" data-staff-link="admin" class="hidden account-link block px-4 py-2.5 text-sm text-red-300 hover:bg-red-900/30 hover:text-white transition-all duration-150" role="menuitem">
                 <span class="inline-flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-500/70"></span>Administración
+                  <svg class="w-3.5 h-3.5 shrink-0 text-red-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['administracion']}></svg>Administración
                 </span>
               </a>
               <div class="my-1 border-t border-amber-600/30"></div>
@@ -125,7 +151,11 @@ const PUBLIC_LINKS = [
                 data-auth-action="logout"
                 class="w-full text-left px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-red-300 hover:bg-red-900/40 hover:text-red-200 transition-all duration-150"
                 role="menuitem"
-              >Cerrar Sesión</button>
+              >
+                <span class="inline-flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 shrink-0 text-red-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['logout']}></svg>Cerrar Sesión
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -230,24 +260,31 @@ const PUBLIC_LINKS = [
                 href={t.href}
                 class="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white hover:translate-x-1 transition-all duration-150"
               >
-                <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-amber-500/70"></span>
+                <svg class="w-4 h-4 shrink-0 text-amber-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS[t.id] ?? ''}></svg>
                 {t.label}
               </a>
             ))}
+            <a
+              href={`/dashboard${DASHBOARD_CONFIG.hash}`}
+              class="flex items-center gap-2.5 px-4 py-3 text-sm text-amber-200 hover:bg-amber-800/40 hover:text-white hover:translate-x-1 transition-all duration-150"
+            >
+              <svg class="w-4 h-4 shrink-0 text-amber-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              {DASHBOARD_CONFIG.label}
+            </a>
             <div class="my-1 border-t border-amber-600/15 hidden" data-staff-sep></div>
             <a
               href="/moderate"
               data-staff-link="moderate"
               class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-sky-200 hover:bg-sky-900/30 hover:text-white transition-all duration-150"
             >
-              <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-sky-500/70"></span>Moderación
+              <svg class="w-4 h-4 shrink-0 text-sky-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['moderacion']}></svg>Moderación
             </a>
             <a
               href="/admin"
               data-staff-link="admin"
               class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-red-300 hover:bg-red-900/30 hover:text-white transition-all duration-150"
             >
-              <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-red-500/70"></span>Administración
+              <svg class="w-4 h-4 shrink-0 text-red-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['administracion']}></svg>Administración
             </a>
           </div>
         </div>
@@ -255,7 +292,11 @@ const PUBLIC_LINKS = [
           type="button"
           data-auth-action="logout"
           class="hidden w-full px-4 py-3 rounded-md text-sm font-black uppercase tracking-widest text-center text-red-300 border border-red-500/30 bg-red-950/20 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200"
-        >Cerrar Sesión</button>
+        >
+          <span class="inline-flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 shrink-0 text-red-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" set:html={ACCOUNT_ICONS['logout']}></svg>Cerrar Sesión
+          </span>
+        </button>
       </div>
     </div>
   </div>

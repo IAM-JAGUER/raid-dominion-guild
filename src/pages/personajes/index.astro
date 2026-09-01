@@ -18,8 +18,8 @@ import { ui } from '@/lib/ui/design';
           Personajes validados y hechos públicos
           por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables.
         </p>
-        <div class={`${ui.sectionRule}`} aria-hidden="true"></div>
       </header>
+      <div class={`${ui.dividerFadeRight} mt-6 mb-8`} aria-hidden="true"></div>
 
       <!-- Filtros -->
       <div class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
@@ -39,15 +39,24 @@ import { ui } from '@/lib/ui/design';
       <section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Listado de personajes"></section>
 
       <!-- Vacío -->
-      <div id="empty" class={`hidden ${ui.card} ${ui.cut} relative overflow-hidden p-8 sm:p-10 text-center`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`}>
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <div id="empty" class="hidden max-w-2xl mx-auto">
+        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+          <div class="flex items-center justify-center gap-3">
+            <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div class="min-w-0">
+              <p class={`${ui.eyebrow} mb-1`}>Directorio público</p>
+              <p class={`font-black italic ${ui.gradientTitle} text-base`}>Aún no hay personajes públicos</p>
+            </div>
+          </div>
         </div>
-        <p class={`font-black italic ${ui.gradientTitle} mb-1`}>Aún no hay personajes públicos</p>
-        <p class={`${ui.text.bodyMuted} max-w-md mx-auto`}>Sube tu SavedVariables, valida tus personajes y activa su visibilidad desde el dashboard.</p>
-        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
+        <div class={`${ui.sectionBody} text-center`}>
+          <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Sube tu SavedVariables, valida tus personajes y activa su visibilidad desde el dashboard.</p>
+          <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Sube tu SavedVariables</a>
+        </div>
       </div>
+      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

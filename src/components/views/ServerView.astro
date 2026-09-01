@@ -16,12 +16,13 @@ import { ui } from '@/lib/ui/design';
     <div class={`${ui.divider} mt-6`} aria-hidden="true"></div>
   </header>
   <div id="sv-body" class="space-y-6"></div>
+  <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
 </section>
 
 <script>
-  import { getServerRealms, getServerStats } from '@/lib/api';
+  import { getServerRealms } from '@/lib/api';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
-  import { card, cardTop, stat, cardLink, eyebrow, cardTitle } from '@/lib/ui/card';
+  import { cardLink, eyebrow, cardTitle } from '@/lib/ui/card';
   import { ui } from '@/lib/ui/design';
 
   const seg = currentSegments();
@@ -53,29 +54,10 @@ import { ui } from '@/lib/ui/design';
     (document.getElementById('sv-server') as HTMLElement).textContent = server;
     (window as unknown as { __rdBreadcrumb?: { setLabel: (l: string) => void } }).__rdBreadcrumb?.setLabel(server);
 
-    // Estadísticas públicas: reinos, personajes y jugadores distintos.
-    const stats = await getServerStats(server);
-    const realmN = realms.length;
-    const charN = stats.ok ? (stats.characters ?? 0) : 0;
-    const playerN = stats.ok ? (stats.players ?? 0) : 0;
     (document.getElementById('sv-summary') as HTMLElement).textContent =
-      `${realmN} reino${realmN === 1 ? '' : 's'} · ${charN} personaje${charN === 1 ? '' : 's'} · ${playerN} jugador${playerN === 1 ? '' : 'es'} con visibilidad pública`;
+      'Servidor con hermandades y personajes públicos de la comunidad RaidDominion.';
 
     const body = document.getElementById('sv-body') as HTMLElement;
-
-    // Tira de estadísticas
-    const statsStrip = el('div', 'grid grid-cols-3 gap-3 mb-6');
-    const statBox = (label: string, value: number): HTMLElement => {
-      const box = card('px-2 py-4 text-center');
-      box.appendChild(cardTop());
-      box.appendChild(stat(value, 'text-2xl'));
-      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
-      return box;
-    };
-    statsStrip.appendChild(statBox('Reinos', realmN));
-    statsStrip.appendChild(statBox('Personajes', charN));
-    statsStrip.appendChild(statBox('Jugadores', playerN));
-    body.appendChild(statsStrip);
 
     const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
 
