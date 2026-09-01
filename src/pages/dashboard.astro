@@ -40,7 +40,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <span id="validated-badge" class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}>…</span>
           <span id="public-badge" class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}>…</span>
         </div>
-        <div class={`${ui.divider} mt-6`} aria-hidden="true"></div>
+        <div class={`${ui.dividerFadeRight} mt-6`} aria-hidden="true"></div>
       </header>
 
       <!-- Pestañas (generadas desde src/lib/ui/tabs.ts = contrato único;
@@ -256,9 +256,29 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
       </section>
 
-      <!-- ── Mis Bandas ──────────────────────────────────────────────────── -->
+<!-- ── Mis Bandas ──────────────────────────────────────────────────── -->
       <section id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden">
-        <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+        <!-- Estado vacío: sin bandas registradas. Ventana propia, hermano del
+             gestor (mismo modelo que Personajes/Hermandad/Registro). -->
+        <div id="bands-empty" class="hidden mb-6 max-w-2xl mx-auto">
+          <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
+            <div class="flex items-center gap-3">
+              <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <p class={`${ui.eyebrow} mb-1`}>Bandas</p>
+                <p class="font-black italic text-white">Aún no detectamos bandas</p>
+              </div>
+            </div>
+          </div>
+          <div class={`${ui.sectionBody} text-center`}>
+            <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí.</p>
+            <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
+          </div>
+        </div>
+
+        <div id="bands-sectionhead" class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
           <div class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0">
             <div class="min-w-0">
               <p class={`${ui.eyebrow} mb-1`}>Gestión de bandas</p>
@@ -298,29 +318,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </div>
         </div>
 
-        <div class={`${ui.sectionBody} space-y-5`}>
-          
+        <div id="bands-sectionbody" class={`${ui.sectionBody} space-y-5`}>
           <!-- Detalle de la banda seleccionada -->
           <div id="band-detail" class="hidden"></div>
           <!-- Onboarding: visitante sin validar no puede publicar bandas -->
           <div id="bands-onboarding" class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></div>
-          <div id="bands-empty" class="hidden mb-6 max-w-2xl mx-auto">
-            <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}>
-              <div class="flex items-center gap-3">
-                <div class={`${ui.iconTile} w-12 h-12 shrink-0`}>
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <div class="min-w-0">
-                  <p class={`${ui.eyebrow} mb-1`}>Bandas</p>
-                  <p class="font-black italic text-white">Aún no detectamos bandas</p>
-                </div>
-              </div>
-            </div>
-            <div class={`${ui.sectionBody} text-center`}>
-              <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí.</p>
-              <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
-            </div>
-          </div>
         </div>
         <p id="bands-status" class="text-sm text-gray-400" aria-live="polite"></p>
       </section>
@@ -1556,6 +1558,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
     selectWrap.classList.toggle('hidden', items.length === 0);
     emptyEl.classList.toggle('hidden', items.length > 0);
+    // Ventana del gestor y empty state son mutuamente excluyentes (modelo de
+    // las hermanas): el gestor solo tiene sentido con bandas registradas.
+    document.getElementById('bands-sectionhead')?.classList.toggle('hidden', items.length === 0);
+    document.getElementById('bands-sectionbody')?.classList.toggle('hidden', items.length === 0);
     statusEl.textContent = '';
     refreshHdrBands();
     if (items.length > 0) {
