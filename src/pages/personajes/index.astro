@@ -44,12 +44,8 @@ import { ui } from '@/lib/ui/design';
 
 <script>
   import { supabase } from '@/lib/supabase';
-  import { classColor } from '@/lib/ui/classColors';
-  import { classIconEl } from '@/lib/ui/classIcon';
-  import { ensureMyCharacterSlugs, getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
-  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-  import { cardLink, card as cardBox } from '@/lib/ui/card';
-  import { chip } from '@/lib/ui/dom';
+  import { ensureMyCharacterSlugs, type CharacterRow } from '@/lib/api';
+  import { renderCharacterCard } from '@/lib/ui/cards';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const gridEl = document.getElementById('grid') as HTMLElement;
@@ -59,83 +55,6 @@ import { ui } from '@/lib/ui/design';
 
   let chars: CharacterRow[] = [];
   const profiles = new Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>();
-  // Nombres públicos por cuenta: evita exponer un principal declarado que no
-  // es público (p. ej. "Por Stormgrim" cuando Stormgrim no es público).
-  const accountNames = new Map<string, PublicAccountNames>();
-
-  function card(c: CharacterRow): HTMLElement {
-    const profile = profiles.get(c.user_id);
-    const charHref = c.slug ? `/personaje/${c.slug}` : null;
-    const profHref = profile?.slug ? `/jugador/${profile.slug}` : null;
-    const href = charHref ?? profHref;
-    const color = classColor(c.class, c.class_file);
-    const link: HTMLElement = href
-      ? cardLink(href, 'p-4 pl-5')
-      : cardBox('p-4 pl-5 opacity-80');
-    if (!href) link.title = 'El jugador mantiene su perfil privado';
-
-    // Acento lateral por clase (estilo ficha de roster)
-    const accent = document.createElement('div');
-    accent.className = 'absolute top-0 left-0 w-1 h-full';
-    accent.style.backgroundColor = color;
-    link.appendChild(accent);
-
-    // Cabecera: avatar con ícono de clase + nombre en color de clase
-    const head = document.createElement('div');
-    head.className = 'flex items-center gap-3 mb-3';
-    const avatar = classIconEl(c.class, c.class_file, 'w-9 h-9 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
-    head.appendChild(avatar);
-
-    const nameWrap = document.createElement('div');
-    nameWrap.className = 'flex items-center gap-1.5 min-w-0';
-    const name = document.createElement('h2');
-    name.className = 'font-black italic leading-[1.3] text-base transition-colors duration-200';
-    name.style.color = color;
-    name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    nameWrap.appendChild(name);
-    head.appendChild(nameWrap);
-
-    if (c.sv_is_gm) {
-      const star = document.createElement('span');
-      star.className = 'shrink-0 text-fuchsia-400 text-sm';
-      star.textContent = '★';
-      star.title = 'Maestro de hermandad';
-      head.appendChild(star);
-    }
-    link.appendChild(head);
-
-    const chips = document.createElement('div');
-    chips.className = 'flex flex-wrap gap-1.5';
-    if (c.class) chips.appendChild(chip(c.class));
-    if (c.realm) chips.appendChild(chip(c.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-    if (c.server) chips.appendChild(chip(c.server, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-    if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, 'text-amber-300 bg-gray-800/60 border-amber-500/30'));
-    if (c.member_verified) chips.appendChild(chip('✓ Validado', 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40'));
-    if (c.sv_guild_name) chips.appendChild(chip(`${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-    link.appendChild(chips);
-
-    const foot = document.createElement('p');
-    foot.className = 'text-xs text-gray-500 mt-4 flex items-center justify-between';
-    const info = accountNames.get(c.user_id);
-    // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
-    // el perfil dueño no declara nombre visible (display_name/character_name),
-    // la atribución cae al handle estable @hex del perfil, no al personaje
-    // público más relevante de la cuenta.
-    const ownerName = profile
-      ? isNamelessSafe(profile, { publicNames: info?.publicNames })
-        ? handleFromSlug(profile.slug)
-        : safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
-      : '';
-    foot.textContent = charHref
-      ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')
-      : href
-        ? (ownerName ? `Por ${ownerName} · Ver perfil →` : 'Ver perfil →')
-        : 'Perfil privado';
-    link.appendChild(foot);
-
-    return link;
-  }
 
   function render(): void {
     const q = searchEl.value.trim().toLowerCase();
@@ -148,7 +67,7 @@ import { ui } from '@/lib/ui/design';
     statusEl.classList.toggle('hidden', filtered.length > 0);
     emptyEl.classList.toggle('hidden', chars.length > 0);
     if (filtered.length === 0 && chars.length > 0) statusEl.textContent = 'Sin resultados para tu búsqueda.';
-    filtered.forEach((c) => gridEl.appendChild(card(c)));
+    filtered.forEach((c) => gridEl.appendChild(renderCharacterCard(c, { profiles })));
   }
 
   async function load(): Promise<void> {
@@ -167,10 +86,6 @@ import { ui } from '@/lib/ui/design';
     (profRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null }> | null)?.forEach((p) =>
       profiles.set(p.id, { slug: p.slug, display_name: p.display_name, character_name: p.character_name })
     );
-
-    // Nombres públicos por cuenta para sanitizar el "Por <jugador>" de las cards.
-    const namesRes = await getPublicAccountNames(chars.map((c) => c.user_id));
-    namesRes.forEach((v, k) => accountNames.set(k, v));
 
     // Slugs propios: generarlos en el momento si hace falta (RPC idempotente)
     // para que los cards enlacen a /personaje/<slug>.

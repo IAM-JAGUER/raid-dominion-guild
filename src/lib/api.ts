@@ -1219,6 +1219,11 @@ export interface PublicBandSummary {
   schedule?: string;
   minGS?: number;
   role?: string;
+  // ¿Integrada a una hermandad? (guild_id + is_rank_integrated).
+  integrated?: boolean;
+  // Datos de atribución (resolveBandOwners): guild o perfil dueño.
+  guildId?: string | null;
+  ownerId?: string;
 }
 
 // Resuelve slugs públicos de /personaje/:slug por nombre. La clave del mapa
@@ -1284,6 +1289,9 @@ export async function getPublicBandsForCharacter(
       schedule: b.schedule ?? undefined,
       minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,
       role: me.role,
+      integrated: !!(b.is_rank_integrated && b.guild_id),
+      guildId: b.guild_id ?? null,
+      ownerId: b.owner_id,
     });
   }
   return { ok: true, bands };

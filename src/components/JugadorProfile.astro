@@ -57,16 +57,16 @@ import { ui } from '@/lib/ui/design';
           <div id="main-card"></div>
           <div id="characters-section" class="hidden">
             <h3 class={`${ui.subTitle} mb-2`}>Otros personajes de la cuenta</h3>
-            <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
           </div>
         </PanelWindow>
 
         <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-          <div id="bandas-list" class="space-y-3"></div>
+          <div id="bandas-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </PanelWindow>
 
         <PanelWindow id="panel-hermandades" title="Hermandades" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
-          <div id="hermandades-list" class="space-y-3"></div>
+          <div id="hermandades-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </PanelWindow>
       </div>
 
@@ -83,16 +83,15 @@ import { ui } from '@/lib/ui/design';
   import { supabase } from '@/lib/supabase';
   import { getPublicProfileBySlug, getPublicGuildsForPlayer, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, type PublicBandSummary } from '@/lib/api';
   import { slugify, RESERVED } from '@/lib/routes';
-  import { classColor } from '@/lib/ui/classColors';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName } from '@/lib/ui/playerNames';
-  import { roleLabel } from '@/lib/ui/itemQuality';
   import type { CharacterRow } from '@/lib/api';
-  import type { ProfileRow, GuildRow } from '@/types/database';
+  import type { ProfileRow } from '@/types/database';
   import { ui } from '@/lib/ui/design';
-  import { card, cardTop, cardLink, cardTitle, iconTile, stat } from '@/lib/ui/card';
+  import { card, cardTop, iconTile } from '@/lib/ui/card';
   import { el, chip, statChip, setBreadcrumb } from '@/lib/ui/dom';
-  import { renderBandCard } from '@/lib/ui/preview';
+  import { renderCharacterCard, renderGuildCard, renderBandCard } from '@/lib/ui/cards';
+  import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
   import { JUGADOR_TABS, initAvailableTabs } from '@/lib/ui/tabs';
 
   // Perfil público de jugador (/jugador/:slug): única ruta canónica. El shell
@@ -189,33 +188,25 @@ import { ui } from '@/lib/ui/design';
 
     const mainCard = document.getElementById('main-card') as HTMLElement;
     const mainTitle = document.getElementById('main-title') as HTMLElement;
+    // Modelo de card compacta de UNA SOLA LÍNEA (mismo lenguaje que el core
+    // de banda): ícono + nombre (-reino) y, a la derecha, Nivel/ilvl + el
+    // indicador "Ver ficha →". renderCharacterCard ya enlaza a /personaje/:slug
+    // (o /jugador/:slug si el personaje no es público pero el perfil sí).
+    const profiles = new Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>();
+    profiles.set(p.id, { slug: p.slug, display_name: p.display_name, character_name: p.character_name });
     if (main) {
-      const bands = await getPublicBandsForCharacter(main.name);
-      mainCard.appendChild(
-        richCharacterCard(main, bands.ok ? (bands.bands ?? []) : [], true)
-      );
+      // El principal entra al mismo grid 3-col responsive que el resto de
+      // personajes (cards compactas de una sola línea).
+      const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3');
+      grid.appendChild(renderCharacterCard(main, { profiles }));
+      mainCard.appendChild(grid);
       mainTitle.textContent = 'Personaje principal';
-      void renderAccountCharacters(p.id, main.id);
+      void renderAccountCharacters(p.id, main.id, profiles);
     } else if (chars.length > 0) {
       // Sin principal fijado ("Ninguno"): todos los personajes públicos se
       // muestran en igualdad, sin destacar a ninguno como "el principal".
-      const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
-      const bandResults = await Promise.all(
-        chars.map((c) => getPublicBandsForCharacter(c.name))
-      );
-      chars.forEach((c, i) => {
-        const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
-        const card = richCharacterCard(c, bands, false);
-        if (c.slug) {
-          const a = document.createElement('a');
-          a.href = `/personaje/${c.slug}`;
-          a.className = 'block transition-all duration-200 hover:-translate-y-0.5';
-          a.appendChild(card);
-          grid.appendChild(a);
-        } else {
-          grid.appendChild(card);
-        }
-      });
+      const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3');
+      chars.forEach((c) => grid.appendChild(renderCharacterCard(c, { profiles })));
       mainCard.appendChild(grid);
       mainTitle.textContent = 'Personajes';
     } else {
@@ -242,31 +233,39 @@ import { ui } from '@/lib/ui/design';
   async function renderPlayerBands(chars: CharacterRow[], available: string[]): Promise<void> {
     const list = document.getElementById('bandas-list') as HTMLElement;
     const seen = new Set<string>();
+    const unique: PublicBandSummary[] = [];
     for (const c of chars) {
       const res = await getPublicBandsForCharacter(c.name);
       (res.ok ? (res.bands ?? []) : []).forEach((b) => {
         const key = b.name.trim().toLowerCase();
         if (seen.has(key)) return;
         seen.add(key);
-        list.appendChild(bandRow(b));
+        unique.push(b);
       });
     }
-    if (list.children.length > 0) available.push('bandas');
+    if (unique.length > 0) {
+      // Atribución: la card estándar del directorio /bandas identifica a quién
+      // pertenece cada banda (hermandad o jugador).
+      const owners = await resolveBandOwners(unique.map((b) => ({ guild_id: b.guildId ?? null, owner_id: b.ownerId ?? '' })));
+      unique.forEach((b) => list.appendChild(bandRow(b, owners.get((b.guildId || b.ownerId) ?? ''))));
+      available.push('bandas');
+    }
   }
 
   // Panel "Hermandades": hermandades públicas donde el jugador es maestro.
   async function renderPlayerGuilds(ownerId: string, available: string[]): Promise<void> {
     const res = await getPublicGuildsForPlayer(ownerId);
     const list = document.getElementById('hermandades-list') as HTMLElement;
-    (res.ok ? (res.guilds ?? []) : []).forEach((g) => list.appendChild(guildRow(g)));
+    // Card estándar del directorio /hermandades (renderGuildCard).
+    (res.ok ? (res.guilds ?? []) : []).forEach((g) => list.appendChild(renderGuildCard(g)));
     if (list.children.length > 0) available.push('hermandades');
   }
 
-  function bandRow(b: PublicBandSummary): HTMLElement {
-    // Card de banda con el modelo del directorio /bandas (renderBandCard es
-    // la fuente única del card de banda pública en todo el portal).
+  function bandRow(b: PublicBandSummary, owner?: OwnerRef): HTMLElement {
+    // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
+    // identifica a quién se atribuye la banda y si está integrada a una hermandad.
     if (b.slug) {
-      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null });
+      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null }, { integrated: b.integrated, owner });
     }
     // Sin slug: card no enlazable con el mismo modelo visual.
     const cardEl = card('p-5');
@@ -287,64 +286,30 @@ import { ui } from '@/lib/ui/design';
     return cardEl;
   }
 
-  // Card de hermandad con el modelo del directorio /hermandades.
-  function guildRow(g: GuildRow): HTMLElement {
-    const a = cardLink(`/hermandad/${g.slug}`, 'p-5');
-
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
-    a.appendChild(head);
-
-    if (g.description) {
-      a.appendChild(el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description));
+  // Chips del encabezado (junto al nombre visible): clase/cifras/hermandad.
+  function characterChips(c: CharacterRow): HTMLElement {
+    const row = el('div', 'flex flex-wrap gap-1.5');
+    if (c.class) row.appendChild(chip(c.class, '', 'md'));
+    if (typeof c.level === 'number') row.appendChild(statChip('Nivel', String(c.level)));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
+      const il = statChip('ilvl', String(c.avg_ilvl));
+      il.classList.add('!text-amber-300', '!border-amber-500/40');
+      row.appendChild(il);
     }
-
-    const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
-    if (g.faction) {
-      chips.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza'));
+    if (c.member_verified) {
+      const v = chip('✓ Validado', '', 'md');
+      v.classList.add('!text-emerald-300', '!border-emerald-600/40');
+      row.appendChild(v);
     }
-    if (g.server) {
-      const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
-      serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-      chips.appendChild(serverChip);
+    if (c.sv_guild_name) {
+      const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, '', 'md');
+      gchip.classList.add(
+        c.sv_is_gm ? '!text-fuchsia-300' : '!text-sky-200',
+        c.sv_is_gm ? '!border-fuchsia-500/40' : '!border-sky-600/30'
+      );
+      row.appendChild(gchip);
     }
-    if (g.claim_status === 'verified') {
-      chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada'));
-    }
-    if (g.discord_link) {
-      const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
-      discord.href = g.discord_link;
-      discord.target = '_blank';
-      discord.rel = 'noopener noreferrer';
-      discord.title = 'Discord de la hermandad';
-      chips.appendChild(discord);
-    }
-    if (chips.children.length > 0) a.appendChild(chips);
-
-    const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
-    a.appendChild(meta);
-
-    return a;
-  }
-
-  function bandsRow(bands: PublicBandSummary[]): HTMLElement | null {
-    if (!bands || bands.length === 0) return null;
-    const wrap = el('div', 'mt-4');
-    wrap.appendChild(el('h4', `${ui.eyebrow} mb-2`, 'Bandas de raid'));
-    const list = el('div', 'flex flex-wrap gap-2');
-    bands.forEach((b) => {
-      const parts = [b.name];
-      const rol = roleLabel(b.role);
-      if (rol) parts.push(rol);
-      if (b.schedule) parts.push(b.schedule);
-      if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-      list.appendChild(el('span', 'px-2 py-1 rounded-md text-[10px] font-bold text-amber-200 bg-amber-900/20 border border-amber-600/30', parts.join(' · ')));
-    });
-    wrap.appendChild(list);
-    return wrap;
+    return row;
   }
 
   // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
@@ -372,79 +337,7 @@ import { ui } from '@/lib/ui/design';
     return row;
   }
 
-  function characterChips(c: CharacterRow): HTMLElement {
-    const row = el('div', 'flex flex-wrap gap-1.5');
-    if (c.class) row.appendChild(chip(c.class, '', 'md'));
-    if (typeof c.level === 'number') row.appendChild(statChip('Nivel', String(c.level)));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
-      const il = statChip('ilvl', String(c.avg_ilvl));
-      il.classList.add('!text-amber-300', '!border-amber-500/40');
-      row.appendChild(il);
-    }
-    if (c.member_verified) {
-      const v = chip('✓ Validado', '', 'md');
-      v.classList.add('!text-emerald-300', '!border-emerald-600/40');
-      row.appendChild(v);
-    }
-    if (c.sv_guild_name) {
-      const gchip = chip(c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, '', 'md');
-      gchip.classList.add(
-        c.sv_is_gm ? '!text-fuchsia-300' : '!text-sky-200',
-        c.sv_is_gm ? '!border-fuchsia-500/40' : '!border-sky-600/30'
-      );
-      row.appendChild(gchip);
-    }
-    return row;
-  }
-
-  function richCharacterCard(c: CharacterRow, bands: PublicBandSummary[], featured: boolean): HTMLElement {
-    const color = classColor(c.class, c.class_file);
-    const cardEl = card((featured ? 'p-5 pl-6' : 'p-4 pl-5'));
-    cardEl.appendChild(cardTop());
-
-    const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
-    accent.style.backgroundColor = color;
-    cardEl.appendChild(accent);
-
-    // Cabecera: avatar + nombre en color de clase
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    const avatar = classIconEl(c.class, c.class_file, (featured ? 'w-12 h-12 ' : 'w-10 h-10 ') + 'rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover');
-    head.appendChild(avatar);
-
-    const nameWrap = el('div', 'min-w-0');
-    const name = el('h3', 'font-black italic leading-[1.3] ' + (featured ? 'text-lg' : 'text-sm'));
-    name.style.color = color;
-    name.textContent = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    nameWrap.appendChild(name);
-    if (featured) nameWrap.appendChild(characterChips(c));
-    head.appendChild(nameWrap);
-    cardEl.appendChild(head);
-
-    // Stats principales
-    const stats = el('div', 'grid grid-cols-3 gap-2 mb-4');
-    const statBox = (label: string, value: string | number): HTMLElement => {
-      const box = el('div', 'text-center bg-gray-900/50 border border-amber-600/20 rounded-md px-2 py-2');
-      box.appendChild(stat(value, 'text-lg'));
-      box.appendChild(el('p', 'text-[9px] font-black uppercase tracking-widest text-gray-500', label));
-      return box;
-    };
-    stats.appendChild(statBox('Nivel', c.level ?? '—'));
-    stats.appendChild(statBox('ilvl', c.avg_ilvl ?? '—'));
-    stats.appendChild(statBox('Clase', c.class ?? '—'));
-    cardEl.appendChild(stats);
-
-    if (!featured) {
-      const chips = characterChips(c);
-      cardEl.appendChild(chips);
-    }
-
-    const br = bandsRow(bands);
-    if (br) cardEl.appendChild(br);
-
-    return cardEl;
-  }
-
-  async function renderAccountCharacters(userId: string, currentCharId: string): Promise<void> {
+  async function renderAccountCharacters(userId: string, currentCharId: string, profiles: Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>): Promise<void> {
     const res = await getPublicCharactersByUser(userId);
     if (!res.ok || !res.items || res.items.length === 0) return;
 
@@ -465,24 +358,11 @@ import { ui } from '@/lib/ui/design';
     const others = chars.filter((c) => c.id !== currentCharId);
     if (others.length === 0) return;
 
-    const bandResults = await Promise.all(
-      others.map((c) => getPublicBandsForCharacter(c.name))
-    );
-
+    // Cards compactas de una sola línea (renderCharacterCard ya enlaza).
     const grid = document.getElementById('characters-grid') as HTMLElement;
-    others.forEach((c, i) => {
-      const bands = bandResults[i]?.ok ? (bandResults[i].bands ?? []) : [];
-      const card = richCharacterCard(c, bands, false);
-      const slug = slugMap.get(c.id);
-      if (slug) {
-        const a = document.createElement('a');
-        a.href = `/personaje/${slug}`;
-        a.className = 'block transition-all duration-200 hover:-translate-y-0.5';
-        a.appendChild(card);
-        grid.appendChild(a);
-      } else {
-        grid.appendChild(card);
-      }
+    others.forEach((c) => {
+      if (slugMap.has(c.id)) c.slug = slugMap.get(c.id)!;
+      grid.appendChild(renderCharacterCard(c, { profiles }));
     });
     if (grid.children.length > 0) {
       document.getElementById('characters-section')?.classList.remove('hidden');

@@ -19,7 +19,7 @@ export interface OwnerRef {
   ownerId?: string;
 }
 
-export async function resolveBandOwners(bands: BandRow[]): Promise<Map<string, OwnerRef>> {
+export async function resolveBandOwners(bands: Array<{ guild_id: string | null; owner_id: string }>): Promise<Map<string, OwnerRef>> {
   const map = new Map<string, OwnerRef>();
   const guildIds = Array.from(new Set(bands.filter((b) => b.guild_id).map((b) => b.guild_id as string)));
   const ownerIds = Array.from(new Set(bands.filter((b) => !b.guild_id).map((b) => b.owner_id)));

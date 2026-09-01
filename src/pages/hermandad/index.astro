@@ -127,7 +127,7 @@ import { ui } from '@/lib/ui/design';
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y los paneles del portal. -->
             <PanelWindow title="Bandas" gradient={false} titleCls="text-lg font-bold flex items-center text-amber-200">
-              <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+              <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
               <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
                 <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -178,7 +178,9 @@ import { ui } from '@/lib/ui/design';
   import type { BandRow } from '@/types/database';
   import type { ContentItem } from '@/types/parser';
   import { slugify, RESERVED, currentSlug } from '@/lib/routes';
-  import { renderBandCard, renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
+  import { renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
+  import { renderBandCard } from '@/lib/ui/cards';
+  import { resolveBandOwners } from '@/lib/bandListing';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { sortRanks } from '@/lib/ui/ranks';
   import { ui } from '@/lib/ui/design';
@@ -496,15 +498,18 @@ import { ui } from '@/lib/ui/design';
           document.getElementById('reglas-empty')?.classList.remove('hidden');
         }
 
-        // Panel Bandas: cards compactas enlazando a la vista de cada banda.
-        // Una banda del GM y una banda integrada por un miembro que coinciden
-        // en nombre/horario/GS se muestran como UNA, con conteo fusionado y
-        // badge "Integrada" cuando la fuente es un personaje de un miembro.
+        // Panel Bandas: cards compactas enlazando a la vista de cada banda, con
+        // ATRIBUCIÓN al modelo del directorio /bandas: cada banda identifica a
+        // quién pertenece (aquí, ESTA hermandad). Una banda del GM y una banda
+        // integrada por un miembro que coinciden en nombre/horario/GS se
+        // muestran como UNA, con conteo fusionado y badge "Integrada" cuando
+        // la fuente es un personaje de un miembro.
         const merged = mergePortalBands(portalBands, g.owner_id);
         const bandsBox = document.getElementById('viewer-bands') as HTMLElement;
         bandsBox.innerHTML = '';
+        const bandOwners = await resolveBandOwners(portalBands);
         merged.forEach(({ band, source, playerCount }) => {
-          bandsBox.appendChild(renderBandCard(band, { source, playerCount }));
+          bandsBox.appendChild(renderBandCard(band, { source, playerCount, owner: bandOwners.get(band.guild_id || band.owner_id) }));
         });
         if (merged.length === 0) {
           document.getElementById('bandas-empty')?.classList.remove('hidden');

@@ -4,7 +4,7 @@ import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
-import { cardLink, card, cardTop, cardRow, iconTile, cardTitle } from '@/lib/ui/card';
+import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
 
@@ -105,56 +105,6 @@ export function renderBand(
   }
 
   return cardEl;
-}
-
-// ── Card compacta de banda (portal de hermandad y directorios) ──────────────
-// Mismo lenguaje que la card del directorio /bandas: ícono + nombre, chips de
-// horario/GS/jugadores, badge de integración y footer "Ver banda →" hacia la
-// vista de banda (/banda/:slug). NUNCA muestra la lista de jugadores inline.
-
-export interface BandCardInput {
-  slug: string;
-  name: string;
-  schedule?: string | null;
-  min_gs?: number | null;
-  hide_players?: boolean;
-}
-
-export interface BandCardOpts {
-  // Fuente de la integración (character_name de un miembro): activa el badge
-  // "Integrada" cuando la banda del GM fue integrada por un miembro.
-  source?: string | null;
-  // Conteo de jugadores YA fusionado (unión del grupo); si viene undefined se
-  // omite el chip (banda con hide_players).
-  playerCount?: number;
-}
-
-export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLElement {
-  const link = cardLink(`/banda/${encodeURIComponent(band.slug)}`, 'p-5');
-
-  const head = el('div', 'flex items-center gap-3 mb-3');
-  head.appendChild(iconTile((band.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-  head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-amber-200 transition-colors', band.name));
-  link.appendChild(head);
-
-  const meta = el('div', 'flex flex-wrap gap-1.5');
-  if (band.schedule) meta.appendChild(chip(band.schedule));
-  if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(chip(`GS ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
-  if (band.hide_players) {
-    meta.appendChild(chip('jugadores ocultos', '!text-gray-500'));
-  } else if (typeof opts?.playerCount === 'number') {
-    meta.appendChild(chip(`${opts.playerCount} jugador${opts.playerCount === 1 ? '' : 'es'}`));
-  }
-  if (opts?.source) {
-    meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
-  }
-  link.appendChild(meta);
-
-  const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-  foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver banda →'));
-  link.appendChild(foot);
-
-  return link;
 }
 
 // ── Vista expandida para el dashboard (Mis Bandas) ─────────────────────────
@@ -320,7 +270,7 @@ function renderCoreSection(title: string, count: number, color: string, iconSvg:
 
 function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTMLElement {
   const color = classColor(p.class);
-  const row = cardRow('px-3 py-2 flex items-center justify-between gap-2');
+  const row = cardRow('px-3 py-2 flex items-center justify-between gap-2 group');
   const left = el('div', 'flex items-center gap-2 min-w-0');
   left.appendChild(classIconEl(p.class, undefined, 'w-6 h-6 rounded-md border border-gray-700/50 shrink-0 object-cover'));
   const name = el(slug ? 'a' : 'span', 'font-bold italic truncate text-sm');
@@ -343,6 +293,7 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   if (p.sanction) right.appendChild(el('span', 'text-orange-300', `sanción: ${p.sanction}`));
   if (typeof p.points === 'number') right.appendChild(el('span', 'text-amber-200', `${p.points} pts`));
   if (p.class) right.appendChild(el('span', 'text-gray-500', p.class));
+  if (slug) right.appendChild(arrowIcon());
   row.appendChild(right);
   return row;
 }
@@ -522,34 +473,41 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
         grid.appendChild(hdr);
       }
       const color = classColor(m.class);
-      const cardEl = card('p-4 pl-5');
-      cardEl.appendChild(cardTop());
+      // Toda la tarjeta es el enlace a /personaje/:slug (cuando existe): el
+      // nombre queda como texto plano, sin subrayado ni icono de enlace.
+      let cardEl: HTMLElement;
+      if (m.slug) {
+        cardEl = cardLink(`/personaje/${m.slug}`, 'p-4 pl-5 flex flex-col justify-center gap-2 group');
+      } else {
+        cardEl = card('p-4 pl-5 flex flex-col justify-center gap-2');
+        cardEl.appendChild(cardTop());
+      }
       const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
       accent.style.backgroundColor = color;
       cardEl.appendChild(accent);
 
-      const row = el('div', 'flex items-center justify-between gap-2 mb-2');
+      const row = el('div', 'flex items-center justify-between gap-2');
       const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
       nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
-      const name = el(m.slug ? 'a' : 'div', 'font-black italic leading-[1.3] text-sm');
+      const name = el('span', 'font-black italic leading-[1.3] text-sm');
       name.style.color = color;
       name.textContent = m.name;
-      if (m.slug) {
-        (name as HTMLAnchorElement).href = `/personaje/${m.slug}`;
-        name.classList.add('underline', 'decoration-amber-600/50', 'underline-offset-2', 'hover:decoration-amber-400');
-      }
       nameWrap.appendChild(name);
-      if (m.slug) nameWrap.appendChild(publicProfileLink(m.slug));
       row.appendChild(nameWrap);
       if (m.rank) {
         row.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${rankBadgeClass(m.rank)}`, m.rank));
       }
       cardEl.appendChild(row);
 
-      const meta = el('div', 'flex flex-wrap gap-1.5');
-      if (m.class) meta.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-gray-300 bg-gray-800/60 border-amber-600/20`, m.class));
-      if (m.publicNote) meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
-      cardEl.appendChild(meta);
+      // La clase NO se repite como badge de texto: la ficha ya la comunica con
+      // el ícono de clase y el acento/color de clase (decisión 2026-09-01).
+      // La fila de nota solo se monta si hay contenido: un div vacío + gap-2
+      // del contenedor descentra la fila (justify-center centra fila+gap+0).
+      if (m.publicNote) {
+        const meta = el('div', 'flex flex-wrap gap-1.5');
+        meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
+        cardEl.appendChild(meta);
+      }
 
       grid.appendChild(cardEl);
     });

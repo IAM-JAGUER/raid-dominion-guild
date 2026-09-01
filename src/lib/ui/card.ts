@@ -66,3 +66,21 @@ export function cardRow(cls = ''): HTMLElement {
 export function divider(): HTMLElement {
   return node('div', ui.divider);
 }
+
+// Indicador "→" (flecha derecha) para el extremo de cards enlazables. El
+// enlace ya está en la card; el icono lo hace explícito (aria-hidden, el
+// texto del enlace lleva la accesibilidad).
+export function arrowIcon(): HTMLElement {
+  const span = node('span', 'shrink-0 inline-flex items-center justify-center text-amber-400 group-hover:text-amber-300 transition-colors');
+  span.setAttribute('aria-hidden', 'true');
+  const svg = node('svg', 'w-4 h-4');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.innerHTML = '<path d="M17 8l4 4m0 0l-4 4m4-4H3"/>';
+  span.appendChild(svg);
+  return span;
+}

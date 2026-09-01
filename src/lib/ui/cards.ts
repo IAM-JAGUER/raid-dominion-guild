@@ -8,8 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
 import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
-import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-import { cardLink, card as cardBox, cardTitle, iconTile } from '@/lib/ui/card';
+import { cardLink, card as cardBox, cardTitle, iconTile, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { chip, el } from '@/lib/ui/dom';
 import type { GuildRow, BandRow } from '@/types/database';
@@ -59,13 +58,15 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   return link;
 }
 
-// ── Card compacta de personaje (directorio /personajes y reino) ────────────
-// Acento lateral por clase + ícono + nombre en color de clase + chips + pie
-// con atribución al dueño (handle estable @hex si el perfil no declara nombre).
+// ── Card compacta de personaje (directorio /personajes, reino, perfil) ─────
+// Modelo de UNA SOLA LÍNEA (mismo lenguaje que el core de banda): a la
+// izquierda ícono de clase + nombre (-reino) y, a la derecha, Nivel/ilvl y el
+// indicador "Ver ficha →" hacia /personaje/:slug (o "Ver perfil →" /jugador
+// cuando el personaje no es público pero el perfil sí).
 interface CharacterCardCtx {
-  // Perfil dueño de cada personaje (id → slug/display/character_name).
+  // Perfil dueño de cada personaje (id → slug) para enlazar /jugador/:slug.
   profiles?: Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>;
-  // Nombres públicos por cuenta (sanitiza el "Por <jugador>").
+  // Nombres públicos por cuenta (reservado para futuros sub-labels).
   names?: Map<string, PublicAccountNames>;
   // Ocultar el chip de reino (vista acotada a un reino).
   hideRealm?: boolean;
@@ -78,54 +79,43 @@ export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {})
   const href = charHref ?? profHref;
   const color = classColor(c.class, c.class_file);
   const link: HTMLElement = href
-    ? cardLink(href, 'p-4 pl-5')
-    : cardBox('p-4 pl-5 opacity-80');
+    ? cardLink(href, 'px-4 py-3 group')
+    : cardBox('px-4 py-3 opacity-80');
   if (!href) link.title = 'El jugador mantiene su perfil privado';
 
   const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
   accent.style.backgroundColor = color;
   link.appendChild(accent);
 
-  const head = el('div', 'flex items-center gap-3 mb-3');
-  head.appendChild(classIconEl(c.class, c.class_file, 'w-9 h-9 rounded-md shrink-0 shadow-lg border border-gray-700/50 object-cover'));
-  const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
-  const name = el('h2', 'font-black italic leading-[1.3] text-base transition-colors duration-200', `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`);
+  const row = el('div', 'flex items-center justify-between gap-3 min-w-0');
+  const left = el('div', 'flex items-center gap-2.5 min-w-0');
+  left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-md shrink-0 shadow border border-gray-700/50 object-cover'));
+  const name = el('span', 'font-black italic truncate text-sm');
   name.style.color = color;
-  nameWrap.appendChild(name);
+  name.textContent = `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`;
+  left.appendChild(name);
   if (c.sv_is_gm) {
     const star = el('span', 'shrink-0 text-fuchsia-400 text-sm', '★');
     star.title = 'Maestro de hermandad';
-    nameWrap.appendChild(star);
+    left.appendChild(star);
   }
-  head.appendChild(nameWrap);
-  link.appendChild(head);
+  row.appendChild(left);
 
-  const chips = el('div', 'flex flex-wrap gap-1.5');
-  if (c.class) chips.appendChild(chip(c.class));
-  if (!ctx.hideRealm && c.realm) chips.appendChild(chip(c.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-  if (c.server) chips.appendChild(chip(c.server, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-  if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`));
-  if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(chip(`ilvl ${c.avg_ilvl}`, 'text-amber-300 bg-gray-800/60 border-amber-500/30'));
-  if (c.member_verified) chips.appendChild(chip('✓ Validado', 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40'));
-  if (c.sv_guild_name) chips.appendChild(chip(`${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
-  link.appendChild(chips);
+  const right = el('div', 'flex items-center gap-2.5 shrink-0');
+  if (typeof c.level === 'number') right.appendChild(el('span', 'text-[10px] text-gray-400', `Nivel ${c.level}`));
+  if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
+    right.appendChild(el('span', 'text-[10px] text-amber-300', `ilvl ${c.avg_ilvl}`));
+  }
+  if (href) {
+    // Indicador con ICONO (no texto): la card ya enlaza, la flecha lo hace
+    // explícito (mismo lenguaje que el core de banda).
+    right.appendChild(arrowIcon());
+  } else {
+    right.appendChild(el('span', 'text-[10px] text-gray-600', 'Privado'));
+  }
+  row.appendChild(right);
 
-  const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-  const info = ctx.names?.get(c.user_id);
-  // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
-  // el perfil dueño no declara nombre visible, cae al handle estable @hex.
-  const ownerName = profile
-    ? isNamelessSafe(profile, { publicNames: info?.publicNames })
-      ? handleFromSlug(profile.slug)
-      : safePlayerName(profile, { publicNames: info?.publicNames, fallbackName: info?.principal })
-    : '';
-  foot.textContent = charHref
-    ? (ownerName ? `Por ${ownerName} · Ver ficha →` : 'Ver ficha →')
-    : href
-      ? (ownerName ? `Por ${ownerName} · Ver perfil →` : 'Ver perfil →')
-      : 'Perfil privado';
-  link.appendChild(foot);
-
+  link.appendChild(row);
   return link;
 }
 
@@ -145,6 +135,8 @@ export interface BandCardInput {
 export interface BandCardOpts {
   // Fuente de la integración (character_name de un miembro): badge "Integrada".
   source?: string | null;
+  // ¿Banda integrada a una hermandad (guild_id + is_rank_integrated)?
+  integrated?: boolean;
   // Conteo de jugadores YA fusionado; si viene undefined se omite el chip.
   playerCount?: number;
   // Dueño visible (guild pública o perfil público).
@@ -173,7 +165,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
     // Banda personal conocida y sin dueño visible → atribución propia.
     meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
   }
-  if (opts?.source) {
+  if (opts?.source || opts?.integrated) {
     meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
   }
   link.appendChild(meta);
