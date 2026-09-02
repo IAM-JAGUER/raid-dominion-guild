@@ -308,6 +308,13 @@
       "aplicada_por": "usuario (manual, sin CLI)",
       "project_ref_verificado": true,
       "notas": "Confirmada por el usuario (2026-08-30)."
+    },
+    {
+      "archivo": "20260902_band_attribution_handles.sql",
+      "fecha_aplicacion": "2026-09-02",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-09-02). Vista raiddominion_profile_handles (id+slug+realm+principal_name) con re-ejecución tras añadir principal_name."
     }
   ],
   "migraciones_pendientes_confirmacion": [],
