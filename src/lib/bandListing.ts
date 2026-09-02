@@ -29,7 +29,7 @@ export async function resolveBandOwners(bands: Array<{ guild_id: string | null; 
       ? supabase.from('raiddominion_guilds').select('id, name, slug, is_public, owner_id').in('id', guildIds)
       : Promise.resolve({ error: null, data: [] }),
     ownerIds.length > 0
-      ? supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name, is_public').in('id', ownerIds)
+      ? supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name').in('id', ownerIds)
       : Promise.resolve({ error: null, data: [] }),
     getPublicAccountNames(ownerIds),
   ]);
@@ -40,15 +40,70 @@ export async function resolveBandOwners(bands: Array<{ guild_id: string | null; 
     });
   }
   if (!pRes.error) {
-    (pRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null; is_public: boolean }>).forEach((p) => {
-      if (p.is_public && p.slug) {
-        const info = namesMap.get(p.id);
-        // La banda se atribuye al JUGADOR (cuenta): si el perfil no declara
-        // nombre visible, cae al handle estable @hex, nunca a otro personaje.
-        const label = isNamelessSafe(p, { publicNames: info?.publicNames })
-          ? handleFromSlug(p.slug)
-          : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
-        map.set(p.id, { href: `/jugador/${p.slug}`, label, kind: 'player' });
+    // Perfiles: se atribuyen SIEMPRE que haya slug (identificador estable),
+    // no solo si el perfil es público — un perfil privado aún se identifica
+    // por su handle @hex de fallback. La banda se atribuye al JUGADOR (cuenta).
+    // Regla de atribución a personaje: solo si es el PRINCIPAL declarado
+    // (character_name) Y público; si no, el nombre visible cae al handle @hex.
+    (pRes.data as Array<{ id: string; slug: string | null; display_name: string | null; character_name: string | null }>).forEach((p) => {
+      if (!p.slug) return;
+      const info = namesMap.get(p.id);
+      const publicNames = info?.publicNames;
+      // personaje principal solo si coincide con el declarado y es público.
+      const principal = p.character_name && publicNames?.has(p.character_name.toLowerCase()) ? p.character_name : null;
+      const label = isNamelessSafe(p, { publicNames, fallbackName: principal })
+        ? handleFromSlug(p.slug)
+        : safePlayerName(p, { publicNames, fallbackName: principal });
+      map.set(p.id, { href: `/jugador/${p.slug}`, label, kind: 'player' });
+    });
+  }
+
+  // Fallback a la PERSONA o al HANDLE: cuentas cuyo perfil no es legible por
+  // el cliente anon (privado) o que aún no se resolvieron se atribuyen de
+  // forma segura.
+  // Regla: una banda SOLO se atribuye a un PERSONAJE si ese personaje está
+  // asignado como PRINCIPAL del dueño (perfil.character_name) Y es público
+  // (principal_name en la vista). En cualquier otro caso cae al handle @hex
+  // del slug, para no inventar atribuciones a personajes secundarios.
+  const unresolved = ownerIds.filter((id) => !map.has(id));
+  if (unresolved.length > 0) {
+    const [hRes, cRes] = await Promise.all([
+      supabase
+        .from('raiddominion_profile_handles')
+        .select('id, slug, principal_name')
+        .in('id', unresolved),
+      supabase
+        .from('raiddominion_characters')
+        .select('name, slug, user_id')
+        .eq('is_public', true)
+        .in('user_id', unresolved),
+    ]);
+
+    const handles = new Map<string, { slug: string; principalName: string | null }>();
+    (hRes.data as Array<{ id: string; slug: string; principal_name?: string | null }> ?? []).forEach((h) => {
+      if (!handles.has(h.id)) handles.set(h.id, { slug: h.slug, principalName: h.principal_name ?? null });
+    });
+
+    // Personajes públicos que coinciden con el principal declarado del dueño.
+    const principalPublic = new Set<string>();
+    const principalSlug = new Map<string, string>();
+    (cRes.data as Array<{ name: string; slug: string | null; user_id: string }> ?? []).forEach((c) => {
+      const h = handles.get(c.user_id);
+      if (h && h.principalName && h.principalName.toLowerCase() === c.name.toLowerCase()) {
+        principalPublic.add(c.user_id);
+        if (c.slug) principalSlug.set(c.user_id, c.slug);
+      }
+    });
+
+    handles.forEach((h, uid) => {
+      if (map.has(uid)) return;
+      if (principalPublic.has(uid)) {
+        const slug = principalSlug.get(uid);
+        map.set(uid, slug
+          ? { href: `/personaje/${slug}`, label: h.principalName!, kind: 'player', ownerId: uid }
+          : { label: h.principalName!, kind: 'player', ownerId: uid });
+      } else {
+        map.set(uid, { href: `/jugador/${h.slug}`, label: handleFromSlug(h.slug), kind: 'player', ownerId: uid });
       }
     });
   }

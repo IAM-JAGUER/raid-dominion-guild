@@ -394,23 +394,67 @@ export async function getRealmOverview(
 
 // Bandas públicas de un reino (anidado en un servidor). Las bandas no tienen
 // campo de server fiable (solo character_realm/character_name), así que se
-// filtran SOLO por reino — mismo criterio de capa que las guilds del reino
-// (ver nota en getRealmOverview). Excluye bandas con hide_players porque su
-// roster es privado.
+// filtran por reino combinando tres vías complementarias:
+//   1. character_realm del BANDA coincide con el reino (mismo criterio de capa
+//      que las guilds del reino, ver nota en getRealmOverview).
+//   2. Dueño de la banda tiene un personaje PÚBLICO en ese reino: cubre bandas
+//      cuyo character_realm es NULL (p. ej. bandas de prueba/legacy), que sí
+//      aparecen en /bandas y deben listarse también aquí.
+//   3. El reino PRINCIPAL del dueño (vista raiddominion_profile_handles)
+//      coincide: cubre bandas de dueños con perfil privado y sin personaje
+//      público en el reino — su banda pública aparece igualmente en su reino.
+// Excluye bandas con hide_players porque su roster es privado.
 export async function getRealmBands(
   realm: string
 ): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
-  const res = await supabase
-    .from('raiddominion_bands')
-    .select('*')
-    .eq('is_public', true)
-    .eq('hide_players', false)
-    .ilike('character_realm', realm)
-    .order('name', { ascending: true })
-    .limit(200);
+  const [byRealmRes, charsRes, handlesRes] = await Promise.all([
+    supabase
+      .from('raiddominion_bands')
+      .select('*')
+      .eq('is_public', true)
+      .eq('hide_players', false)
+      .ilike('character_realm', realm)
+      .order('name', { ascending: true })
+      .limit(200),
+    supabase
+      .from('raiddominion_characters')
+      .select('user_id')
+      .eq('is_public', true)
+      .ilike('realm', realm),
+    supabase
+      .from('raiddominion_profile_handles')
+      .select('id')
+      .ilike('realm', realm),
+  ]);
+  if (byRealmRes.error) return { ok: false, error: byRealmRes.error.message };
+  if (handlesRes.error) return { ok: false, error: handlesRes.error.message };
 
-  if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, bands: (res.data as BandRow[]) ?? [] };
+  const byRealm = (byRealmRes.data as BandRow[]) ?? [];
+  const seen = new Set(byRealm.map((b) => b.id));
+  let extra: BandRow[] = [];
+
+  const ownerIds = Array.from(new Set([
+    ...((charsRes.data ?? []) as Array<{ user_id: string | null }>)
+      .map((c) => c.user_id)
+      .filter((id): id is string => Boolean(id)),
+    ...((handlesRes.data ?? []) as Array<{ id: string | null }>)
+      .map((h) => h.id)
+      .filter((id): id is string => Boolean(id)),
+  ]));
+  if (ownerIds.length > 0) {
+    const byOwnerRes = await supabase
+      .from('raiddominion_bands')
+      .select('*')
+      .eq('is_public', true)
+      .eq('hide_players', false)
+      .in('owner_id', ownerIds)
+      .order('name', { ascending: true })
+      .limit(200);
+    if (byOwnerRes.error) return { ok: false, error: byOwnerRes.error.message };
+    extra = ((byOwnerRes.data as BandRow[]) ?? []).filter((b) => !seen.has(b.id));
+  }
+
+  return { ok: true, bands: [...byRealm, ...extra] };
 }
 
 // ─── Bandas públicas (tabla raiddominion_bands) ─────────────────────────

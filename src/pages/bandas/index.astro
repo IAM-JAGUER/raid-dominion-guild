@@ -84,10 +84,20 @@ import { ui } from '@/lib/ui/design';
       content: contentEl,
       items: merged,
       getSchedule: (item: MergedBand) => item.b.schedule,
+      // Búsqueda por nombre de banda / jugadores / personaje que subió / hermandad.
+      getSearchText: (item: MergedBand) => [
+        item.b.name,
+        Array.isArray(item.b.players) ? (item.b.players as Array<{ name?: string }>).map((p) => p.name).join(' ') : '',
+        item.b.character_name,
+        owners.get(item.b.guild_id || item.b.owner_id)?.label,
+      ].filter(Boolean).join(' '),
       renderCard: (item: MergedBand) => renderBandCard(item.b, {
         source: item.source,
         playerCount: item.playerCount,
         owner: owners.get(item.b.guild_id || item.b.owner_id),
+        // guildId alimenta la atribución propia: `null` = banda personal
+        // (chip "Personal" si no hay dueño público); undefined no infiere.
+        guildId: item.b.guild_id,
       }),
     });
     statusEl.classList.add('hidden');

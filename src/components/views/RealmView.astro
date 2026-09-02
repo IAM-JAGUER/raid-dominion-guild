@@ -174,7 +174,14 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         content: document.getElementById('rv-bandas') as HTMLElement,
         items: merged,
         getSchedule: (item) => item.b.schedule,
-        renderCard: (item) => renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id) }),
+        // Búsqueda por nombre de banda / jugadores / personaje / hermandad.
+        getSearchText: (item) => [
+          item.b.name,
+          Array.isArray(item.b.players) ? (item.b.players as Array<{ name?: string }>).map((p) => p.name).join(' ') : '',
+          item.b.character_name,
+          owners.get(item.b.guild_id || item.b.owner_id)?.label,
+        ].filter(Boolean).join(' '),
+        renderCard: (item) => renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id), guildId: item.b.guild_id }),
       });
       if (merged.length > 0) available.push('bandas');
     }

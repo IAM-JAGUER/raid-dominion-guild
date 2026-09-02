@@ -23,25 +23,77 @@ export interface BandasPanelOptions<T> {
   renderCard: (item: T) => HTMLElement;
   // Mensaje cuando no hay bandas (solo si se llama sin items).
   emptyText?: string;
+  // Texto searchable de cada banda (nombre de banda, jugador, personaje, hermandad).
+  // Si se provee, se renderiza un campo de búsqueda que filtra los items.
+  getSearchText?: (item: T) => string;
 }
 
 export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
   const { filtro, content, items, getSchedule, renderCard } = options;
   const emptyText = options.emptyText ?? 'Aún no hay bandas publicadas.';
-  const state: { day: number } = { day: -1 };
+  const getSearchText = options.getSearchText;
+  const state: { day: number; query: string } = { day: -1, query: '' };
+
+  // Bandas visibles: filtradas primero por el texto de búsqueda (si existe) y
+  // luego por día. Los chips de día cuentan SOLO sobre el subconjunto que pasa
+  // el filtro de texto, para que el conteo sea coherente con lo que se ve.
+  function filteredByQuery(): T[] {
+    const q = state.query.trim().toLowerCase();
+    if (!q || !getSearchText) return items;
+    return items.filter((item) => getSearchText(item).toLowerCase().includes(q));
+  }
+
+  // Control de búsqueda por texto (nombre de banda/jugador/personaje/hermandad).
+  // Se crea UNA vez y se mantiene persistente en `filtro`: al tipear solo se
+  // re-renderizan los chips de día (renderFilter) sin recrear el input, así el
+  // campo de texto conserva el foco y la posición del cursor.
+  let searchInput: HTMLInputElement | null = null;
+  function ensureSearchInput(): void {
+    if (!getSearchText || searchInput) return;
+    const wrap = el('div', 'mb-3');
+    const box = el('div', 'relative');
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('class', 'w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>';
+    box.appendChild(icon);
+    const input = document.createElement('input');
+    input.type = 'search';
+    input.autocomplete = 'off';
+    input.className = `${ui.form.input} ${ui.focusRing} pl-9 pr-3`;
+    input.placeholder = 'Buscar banda, jugador, personaje o hermandad…';
+    input.setAttribute('aria-label', 'Buscar bandas por nombre de banda, jugador, personaje o hermandad');
+    input.addEventListener('input', () => {
+      state.query = input.value;
+      renderFilter();
+      renderContent();
+    });
+    box.appendChild(input);
+    wrap.appendChild(box);
+    filtro.insertBefore(wrap, filtro.firstChild);
+    searchInput = input;
+  }
 
   // Chips del filtro: "Todas" (conteo total) + cada día de la semana con su
   // conteo. Una banda multi-día cuenta en cada día donde aparece. Matriz sin
   // overflow: 4×2 en móvil con celdas uniformes; desde sm una sola fila.
+  // Re-renderiza solo el grupo de chips de día, preservando el input de
+  // búsqueda ya montado (y su foco).
+  let dayGroup: HTMLElement | null = null;
   function renderFilter(): void {
-    filtro.innerHTML = '';
-    const group = el('div', 'w-full grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap');
-    group.appendChild(dayChip('Todas', items.length, state.day === -1, -1));
+    const searchable = filteredByQuery();
+    if (!dayGroup) {
+      dayGroup = el('div', 'w-full grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap');
+      filtro.appendChild(dayGroup);
+    }
+    dayGroup.innerHTML = '';
+    dayGroup.appendChild(dayChip('Todas', searchable.length, state.day === -1, -1));
 
     const counts = new Array<number>(7).fill(0);
-    items.forEach((item) => parseSchedule(getSchedule(item)).days.forEach((d) => { counts[d] += 1; }));
-    WEEKDAY_LABELS.forEach((label, i) => group.appendChild(dayChip(label, counts[i], state.day === i, i)));
-    filtro.appendChild(group);
+    searchable.forEach((item) => parseSchedule(getSchedule(item)).days.forEach((d) => { counts[d] += 1; }));
+    WEEKDAY_LABELS.forEach((label, i) => dayGroup!.appendChild(dayChip(label, counts[i], state.day === i, i)));
   }
 
   function dayChip(label: string, count: number, active: boolean, day: number): HTMLButtonElement {
@@ -72,12 +124,16 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
   // 3 desde lg). Con un solo día visible ocupa toda la fila (full-width).
   function renderContent(): void {
     content.innerHTML = '';
-    if (items.length === 0) {
-      content.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`, emptyText));
+    const searchable = filteredByQuery();
+    if (searchable.length === 0) {
+      const msg = state.query.trim()
+        ? `Ninguna banda coincide con "${state.query.trim()}".`
+        : emptyText;
+      content.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`, msg));
       return;
     }
 
-    const { groups, undated } = groupBandsByDay(items, getSchedule);
+    const { groups, undated } = groupBandsByDay(searchable, getSchedule);
     const groupsShown = state.day === -1 ? groups : groups.filter((g) => g.day === state.day);
     const undatedShown = state.day === -1 ? undated : [];
 
@@ -119,6 +175,7 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     renderContent();
   });
 
+  ensureSearchInput();
   renderFilter();
   renderContent();
 }

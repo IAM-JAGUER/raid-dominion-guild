@@ -169,6 +169,13 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         content: document.getElementById('pv-bandas') as HTMLElement,
         items: bandList,
         getSchedule: (b) => b.schedule ?? null,
+        // Búsqueda por nombre de banda / personaje (este) / hermandad dueña.
+        getSearchText: (b) => [
+          b.name,
+          c.name,
+          b.role ?? '',
+          owners.get((b.guildId || b.ownerId) ?? '')?.label,
+        ].filter(Boolean).join(' '),
         renderCard: (b) => bandCard(b, owners.get((b.guildId || b.ownerId) ?? '')),
       });
       available.push('bandas');
@@ -221,7 +228,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   // ficha) se muestra una card no enlazable con el mismo modelo visual.
   function bandCard(b: { name: string; slug?: string; schedule?: string; minGS?: number; role?: string; integrated?: boolean; guildId?: string | null; ownerId?: string }, owner?: OwnerRef): HTMLElement {
     if (b.slug) {
-      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null }, { integrated: b.integrated, owner });
+      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null }, { integrated: b.integrated, owner });
     }
     const cardEl = card('p-5');
     cardEl.appendChild(cardTop());

@@ -15,6 +15,18 @@ export type ProfileRow = {
   updated_at?: string;
 };
 
+// Vista SECURITY DEFINER que expone la superficie mínima de atribución
+// (id + slug → handle, realm principal del dueño, y nombre del personaje
+// principal SOLO si es público) de todos los perfiles, públicos o privados.
+// Migración 20260902_band_attribution_handles.
+export type ProfileHandleRow = {
+  id: string;
+  slug: string;
+  realm: string | null;
+  // Nombre del personaje principal solo si es público; NULL si privado.
+  principal_name?: string | null;
+};
+
 export type GuildRow = {
   id: string;
   slug: string;
@@ -114,6 +126,12 @@ export type BandRow = {
 }
 
 type PublicSchema = {
+  raiddominion_profile_handles: {
+    Row: ProfileHandleRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   raiddominion_profiles: {
     Row: ProfileRow;
     Insert: Partial<ProfileRow> & { id: string };

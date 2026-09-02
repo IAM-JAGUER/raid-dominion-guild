@@ -222,8 +222,12 @@ export interface BandCardOpts {
   integrated?: boolean;
   // Conteo de jugadores YA fusionado; si viene undefined se omite el chip.
   playerCount?: number;
-  // Dueño visible (guild pública o perfil público).
+  // Dueño visible (guild pública o perfil/jugador público).
   owner?: { href?: string; label?: string; kind?: 'guild' | 'player' } | null;
+  // ¿La banda pertenece a una hermandad? Duplica el `guildId` de BandCardInput
+  // para callers que pasan una BandRow cruda (cuyo campo es `guild_id`).
+  // `null` = banda personal (chip "Personal" si no hay dueño).
+  guildId?: string | null;
 }
 
 export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLElement {
@@ -244,7 +248,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   }
   if (opts?.owner?.href && opts.owner.label) {
     meta.appendChild(chip(opts.owner.label, '!text-sky-200 !border-sky-600/30'));
-  } else if (band.guildId === null) {
+  } else if ((opts?.guildId ?? band.guildId) === null) {
     // Banda personal conocida y sin dueño visible → atribución propia.
     meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
   }
@@ -254,8 +258,9 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   link.appendChild(meta);
 
   const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-  // La banda se atribuye SOLO al jugador (cuenta) o a la hermandad; jamás
-  // a un personaje (character_name) que la subió.
+  // La banda se atribuye al jugador (cuenta), a su perfil/hermandad, o al
+  // personaje PRINCIPAL del dueño; a falta de principal público, queda el
+  // handle @hex (resolveBandOwners).
   if (opts?.owner?.href && opts.owner.label) {
     foot.appendChild(el('span', 'text-sky-300 hover:text-sky-200 transition-colors', opts.owner.kind === 'guild' ? opts.owner.label : `Por ${opts.owner.label}`));
     foot.appendChild(document.createTextNode('Ver banda →'));

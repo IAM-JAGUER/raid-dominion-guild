@@ -260,6 +260,14 @@ import { ui } from '@/lib/ui/design';
         content: document.getElementById('bandas-content') as HTMLElement,
         items: unique,
         getSchedule: (b: PublicBandSummary) => b.schedule ?? null,
+        // Búsqueda por nombre de banda / jugador (este perfil) / personaje /
+        // hermandad dueña.
+        getSearchText: (b: PublicBandSummary) => [
+          b.name,
+          b.role ?? '',
+          owners.get((b.guildId || b.ownerId) ?? '')?.label,
+          chars.map((c) => c.name).join(' '),
+        ].filter(Boolean).join(' '),
         renderCard: (b: PublicBandSummary) => bandRow(b, owners.get((b.guildId || b.ownerId) ?? '')),
       });
       available.push('bandas');
@@ -279,7 +287,7 @@ import { ui } from '@/lib/ui/design';
     // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
     // identifica a quién se atribuye la banda y si está integrada a una hermandad.
     if (b.slug) {
-      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null }, { integrated: b.integrated, owner });
+      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null }, { integrated: b.integrated, owner });
     }
     // Sin slug: card no enlazable con el mismo modelo visual.
     const cardEl = card('p-5');

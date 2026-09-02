@@ -520,7 +520,16 @@ import { ui } from '@/lib/ui/design';
             content: document.getElementById('viewer-bands') as HTMLElement,
             items: merged,
             getSchedule: (item) => item.band.schedule,
-            renderCard: (item) => renderBandCard(item.band, { source: item.source, playerCount: item.playerCount, owner: bandOwners.get(item.band.guild_id || item.band.owner_id) }),
+            // Búsqueda por nombre de banda / jugadores / personaje que integró
+            // la banda. La hermandad dueña es esta; su nombre se suma implícito.
+            getSearchText: (item) => [
+              g.name,
+              item.band.name,
+              Array.isArray(item.band.players) ? (item.band.players as Array<{ name?: string }>).map((p) => p.name).join(' ') : '',
+              item.band.character_name,
+              item.source,
+            ].filter(Boolean).join(' '),
+            renderCard: (item) => renderBandCard(item.band, { source: item.source, playerCount: item.playerCount, owner: bandOwners.get(item.band.guild_id || item.band.owner_id), guildId: item.band.guild_id }),
           });
         } else {
           // Sin bandas: se oculta también el filtro vacío del encabezado.
