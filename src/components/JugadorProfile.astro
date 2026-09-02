@@ -237,7 +237,10 @@ import { ui } from '@/lib/ui/design';
     for (const c of chars) {
       const res = await getPublicBandsForCharacter(c.name);
       (res.ok ? (res.bands ?? []) : []).forEach((b) => {
-        const key = b.name.trim().toLowerCase();
+        // Dedupe por identidad nombre|horario (no solo por nombre): un jugador
+        // puede pertenecer a DOS bandas con el mismo nombre en horarios
+        // distintos y ambas deben listarse.
+        const key = `${b.name.trim().toLowerCase()}|${(b.schedule ?? '').trim().toLowerCase()}`;
         if (seen.has(key)) return;
         seen.add(key);
         unique.push(b);

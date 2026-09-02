@@ -1256,39 +1256,60 @@ export async function getPublicCharacterSlugsByNames(
   return { ok: true, slugs };
 }
 
-// Bandas públicas donde aparece un personaje: cruza la tabla raiddominion_bands
-// (SELECT público) buscando en players[] el nombre insensible a mayúsculas.
-// Ya no depende del snapshot: las bandas viven en su propia tabla con su
-// visibilidad espejo.
+// Bandas donde aparece un personaje dentro de raiddominion_bands: cruza la
+// tabla buscando en players[] el nombre insensible a mayúsculas. Ya no depende
+// del snapshot: las bandas viven en su propia tabla con su visibilidad espejo.
+//
+// Visibilidad (bug corregido 2026-09-01): el query NUNCA filtra is_public en
+// SQL — lo hace RLS (públicas para cualquiera + propias para el dueño con
+// sesión) — porque ese filtro dejaba invisibles las bandas PRIVADAS del propio
+// jugador en su perfil. Aquí se refina en cliente:
+//   - bandas privadas: solo las ve su dueño (autenticado);
+//   - bandas con hide_players: el dueño conserva su membresía y rol; el resto
+//     no expone pertenencia alguna.
+// Se leen TODAS las filas visibles (paginado), sin truncar en el primer lote.
 export async function getPublicBandsForCharacter(
   charName: string
 ): Promise<{ ok: boolean; bands?: PublicBandSummary[]; error?: string }> {
   const name = (charName ?? '').trim().toLowerCase();
   if (!name) return { ok: true, bands: [] };
 
-  const res = await supabase
-    .from('raiddominion_bands')
-    .select('*')
-    .eq('is_public', true)
-    .limit(500);
+  const { data: sessionData } = await supabase.auth.getSession();
+  const me = sessionData.session?.user?.id ?? null;
 
-  if (res.error) return { ok: false, error: res.error.message };
+  const rows: BandRow[] = [];
+  const PAGE = 500;
+  const MAX = 2000;
+  for (let start = 0; start < MAX; start += PAGE) {
+    const res = await supabase
+      .from('raiddominion_bands')
+      .select('*')
+      .order('name', { ascending: true })
+      .range(start, start + PAGE - 1);
+    if (res.error) return { ok: false, error: res.error.message };
+    const batch = (res.data as BandRow[]) ?? [];
+    rows.push(...batch);
+    if (batch.length < PAGE) break;
+  }
 
-  const rows = (res.data as BandRow[]) ?? [];
   const bands: PublicBandSummary[] = [];
 
   for (const b of rows) {
-    // Bandas que ocultan jugadores no exponen membresía ni rol al público.
-    if (b.hide_players) continue;
+    const isMine = me !== null && b.owner_id === me;
+    // RLS ya entregó solo lo que esta sesión puede ver (públicas + propias);
+    // aquí se refina el caso propias-privadas sin repetir el filtro en SQL.
+    if (!isMine && !b.is_public) continue;
+    // Bandas con hide_players: el dueño ve su membresía; el público no.
+    if (b.hide_players && !isMine) continue;
     const players = Array.isArray(b.players) ? (b.players as Array<{ name?: string; role?: string }>) : [];
-    const me = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
-    if (!me) continue;
+    const meRow = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
+    if (!meRow) continue;
     bands.push({
       name: b.name,
       slug: b.slug ?? undefined,
       schedule: b.schedule ?? undefined,
       minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,
-      role: me.role,
+      role: meRow.role,
       integrated: !!(b.is_rank_integrated && b.guild_id),
       guildId: b.guild_id ?? null,
       ownerId: b.owner_id,
