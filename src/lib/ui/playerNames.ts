@@ -18,6 +18,19 @@ export function isNameless(p: PlayerNameSource): boolean {
   return !(p.display_name ?? '').trim() && !(p.character_name ?? '').trim();
 }
 
+// Personaje PRINCIPAL declarado (perfil.character_name) SOLO si es público.
+// Regla de atribución de bandas/cuentas: un personaje solo se usa como nombre
+// visible si está asignado como principal Y es público; si no → null y el
+// nombre cae al handle @hex (nunca a un personaje secundario).
+export function declaredPrincipalPublic(
+  p: PlayerNameSource,
+  publicNames?: Set<string>,
+): string | null {
+  const cn = (p.character_name ?? '').trim();
+  if (!cn || !publicNames?.has(cn.toLowerCase())) return null;
+  return cn;
+}
+
 // Handle estable y único desde el slug del perfil. Los slugs de cuentas sin
 // nombre nacen como 'perfil-<8hex>'; se muestra '@<hex>'. Para slugs legacy
 // no 'perfil-' se usa '@<slug>' (recortado a 16). Sin slug → fallback.

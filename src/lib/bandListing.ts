@@ -6,7 +6,7 @@
  */
 import { supabase } from '@/lib/supabase';
 import { getPublicAccountNames } from '@/lib/api';
-import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
+import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
 import { bandMergeKey, mergeBandPlayers } from '@/lib/bandMerge';
 import type { BandRow } from '@/types/database';
 
@@ -50,7 +50,7 @@ export async function resolveBandOwners(bands: Array<{ guild_id: string | null; 
       const info = namesMap.get(p.id);
       const publicNames = info?.publicNames;
       // personaje principal solo si coincide con el declarado y es público.
-      const principal = p.character_name && publicNames?.has(p.character_name.toLowerCase()) ? p.character_name : null;
+      const principal = declaredPrincipalPublic(p, publicNames);
       const label = isNamelessSafe(p, { publicNames, fallbackName: principal })
         ? handleFromSlug(p.slug)
         : safePlayerName(p, { publicNames, fallbackName: principal });

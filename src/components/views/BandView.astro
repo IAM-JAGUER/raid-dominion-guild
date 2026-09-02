@@ -92,7 +92,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
-  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
 
   if (isBandRoute()) {
@@ -470,9 +470,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const info = namesRes.get(band.owner_id);
     // La banda se atribuye al JUGADOR (cuenta): si el perfil no declara nombre
     // visible, cae al handle estable @hex, nunca a otro personaje de la cuenta.
-    const label = isNamelessSafe(p, { publicNames: info?.publicNames })
+    // Solo un personaje declarado como principal Y público se usa como nombre.
+    const principal = declaredPrincipalPublic(p, info?.publicNames);
+    const label = isNamelessSafe(p, { publicNames: info?.publicNames, fallbackName: principal })
       ? handleFromSlug(p.slug)
-      : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
+      : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: principal });
     return { href: `/jugador/${p.slug}`, label: `Por ${label}` };
   }
 </script>

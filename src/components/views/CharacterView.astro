@@ -56,7 +56,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classIconEl } from '@/lib/ui/classIcon';
-  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
+  import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import { card, cardTop, iconTile } from '@/lib/ui/card';
   import { chip, el, statChip, setBreadcrumb } from '@/lib/ui/dom';
@@ -141,9 +141,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
       // el perfil dueño no declara nombre visible, la cuenta cae al handle
       // estable @hex del perfil, no al personaje público más relevante.
-      const label = isNamelessSafe(p, { publicNames: info?.publicNames })
+      // Solo un personaje declarado como principal Y público se usa como nombre.
+      const principal = declaredPrincipalPublic(p, info?.publicNames);
+      const label = isNamelessSafe(p, { publicNames: info?.publicNames, fallbackName: principal })
         ? handleFromSlug(p.slug)
-        : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: info?.principal });
+        : safePlayerName(p, { publicNames: info?.publicNames, fallbackName: principal });
       a.textContent = `Cuenta de ${label} →`;
       links.appendChild(a);
     }
