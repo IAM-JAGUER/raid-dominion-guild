@@ -30,6 +30,18 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
          roster del core. -->
     <PanelWindow title="Core">
       <div slot="head">
+        <details id="bv-filtro-roles" class={`${ui.disclosure} mt-4 hidden`}>
+          <summary class={ui.disclosureSummary}>
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Roles
+            </span>
+            <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+          </summary>
+          <div class={ui.disclosureBody}>
+            <div id="bv-stats-roles" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
+          </div>
+        </details>
         <details id="bv-filtro-clases" class={`${ui.disclosure} mt-4 hidden`}>
           <summary class={ui.disclosureSummary}>
             <span class="inline-flex items-center gap-2">
@@ -75,7 +87,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, getGuildBandIntegrationRules, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
-  import { renderBandCore } from '@/lib/ui/preview';
+  import { renderBandCore, coreRoleGroup, CORE_ROLE_LABELS } from '@/lib/ui/preview';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
@@ -165,15 +177,50 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       const mergedOpts = { sourceNames: merged.sourceNames, slugMap };
 
       // Filtros del core (mismo patrón que el roster de hermandad): chips de
-      // clase + buscador por nombre. Ambos filtran players y re-renderizan el
-      // core con renderBandCore, conservando los badges de integración de cada
-      // jugador (puede haber varios) y los enlaces a ficha pública.
-      const state: { cls?: string; query: string } = { query: '' };
+      // rol + chips de clase + buscador por nombre. Todos filtran players y
+      // re-renderizan el core con renderBandCore, conservando los badges de
+      // integración de cada jugador (puede haber varios) y los enlaces a ficha
+      // pública.
+      const state: { cls?: string; role?: string; query: string } = { query: '' };
+      const rolesBox = document.getElementById('bv-stats-roles') as HTMLElement;
+      const rolesFilter = document.getElementById('bv-filtro-roles') as HTMLElement;
       const classesBox = document.getElementById('bv-stats-classes') as HTMLElement;
       const classesFilter = document.getElementById('bv-filtro-clases') as HTMLElement;
       const searchWrap = document.getElementById('bv-search-wrap') as HTMLElement;
       const searchInput = document.getElementById('bv-search') as HTMLInputElement;
       const emptyFilter = document.getElementById('bv-empty-filter') as HTMLElement;
+
+      const roleChip = (o: { label: string; count: number; group: string; active: boolean }): HTMLButtonElement => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
+          (o.active
+            ? 'text-amber-200 border-amber-500/60 bg-gradient-to-b from-amber-900/40 to-amber-950/40 ring-2 ring-amber-400/60'
+            : 'text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/25 hover:border-amber-500/40 hover:from-gray-700/70');
+        btn.setAttribute('aria-pressed', String(o.active));
+        btn.setAttribute('data-role-key', o.group);
+        const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
+        nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
+        btn.appendChild(nameRow);
+        btn.appendChild(el('span', `${ui.statValue} text-[11px]`, String(o.count)));
+        return btn;
+      };
+
+      const renderRoleChips = (): void => {
+        rolesBox.innerHTML = '';
+        const byRole = new Map<'tank' | 'healer' | 'melee' | 'rango', number>();
+        players.forEach((p) => {
+          const g = coreRoleGroup(p);
+          byRole.set(g, (byRole.get(g) ?? 0) + 1);
+        });
+        const chips = (Object.keys(CORE_ROLE_LABELS) as Array<'tank' | 'healer' | 'melee' | 'rango'>)
+          .filter((g) => (byRole.get(g) ?? 0) > 0)
+          .map((g) => roleChip({
+            label: CORE_ROLE_LABELS[g], count: byRole.get(g)!, group: g, active: state.role === g,
+          }));
+        chips.forEach((c) => rolesBox.appendChild(c));
+        rolesFilter.classList.toggle('hidden', chips.length === 0);
+      };
 
       const classChip = (o: { label: string; count: number; cls?: string; active: boolean }): HTMLButtonElement => {
         const btn = document.createElement('button');
@@ -216,6 +263,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       const applyFilters = (): void => {
         const q = state.query.trim().toLowerCase();
         const filtered = players.filter((p) => {
+          if (state.role !== undefined && coreRoleGroup(p) !== state.role) return false;
           if (state.cls !== undefined) {
             const cls = (p.class || '').trim();
             if (cls.toLowerCase() !== state.cls) return false;
@@ -240,12 +288,21 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         renderChips();
         applyFilters();
       });
+      rolesBox.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-role-key]');
+        if (!btn) return;
+        const k = btn.dataset.roleKey ?? '';
+        state.role = state.role === k ? undefined : k;
+        renderRoleChips();
+        applyFilters();
+      });
       searchInput.addEventListener('input', () => {
         state.query = searchInput.value;
         applyFilters();
       });
 
       searchWrap.classList.remove('hidden');
+      renderRoleChips();
       renderChips();
       applyFilters();
     }

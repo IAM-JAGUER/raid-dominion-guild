@@ -193,7 +193,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
 }
 
 // ── Core de banda (estilo lista de asistencia de raids de guild-portal) ─────
-// El roster de una banda se agrupa por rol (TANQUES/SANADORES/DPS/OTROS) con
+// El roster de una banda se agrupa por rol (TANQUES/SANADORES/MELEE/RANGO) con
 // cabeceras de color + ícono + conteo + chevron colapsable, y un grid de
 // fichas con nombre coloreado por clase y badges (líder/baneado/sanción/
 // integración/puntos/dual). Mismo lenguaje visual que el Core de guild-portal.
@@ -201,40 +201,32 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
 const CORE_ICONS: Record<string, string> = {
   tank: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>',
   healer: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
-  dps: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.37 15.83L11.5 8 10 9.5l7.83 7.87-1.42 1.42L8.54 11 7.13 12.41 15 20.28l-1.41 1.41L5.72 13.83l-1.41 1.41L2.89 13.83l1.41-1.41L2.89 11l1.41-1.41L5.72 8.17l1.41 1.41L15 1.72l1.41 1.41-7.87 7.87 1.42 1.42 7.83-7.83 1.42 1.42-7.83 7.83 1.41 1.41 1.41-1.41z"/></svg>',
-  other: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
+  melee: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.37 15.83L11.5 8 10 9.5l7.83 7.87-1.42 1.42L8.54 11 7.13 12.41 15 20.28l-1.41 1.41L5.72 13.83l-1.41 1.41L2.89 13.83l1.41-1.41L2.89 11l1.41-1.41L5.72 8.17l1.41 1.41L15 1.72l1.41 1.41-7.87 7.87 1.42 1.42 7.83-7.83 1.42 1.42-7.83 7.83 1.41 1.41 1.41-1.41z"/></svg>',
+  rango: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12zm0 4a2 2 0 110 4 2 2 0 010-4z"/></svg>',
 };
 
-function coreRoleGroup(p: MergePlayer): 'tank' | 'healer' | 'dps' | 'other' {
+// Etiquetas públicas de los grupos de rol del core (filtro + cabeceras).
+export const CORE_ROLE_LABELS: Record<'tank' | 'healer' | 'melee' | 'rango', string> = {
+  tank: 'Tanques',
+  healer: 'Sanadores',
+  melee: 'Melee',
+  rango: 'Rango',
+};
+
+export function coreRoleGroup(p: { role?: string | null; class?: string | null }): 'tank' | 'healer' | 'melee' | 'rango' {
   const r = (p.role || '').trim().toLowerCase();
   if (r === 't' || r.includes('tanque') || r.includes('tank')) return 'tank';
   if (r === 'h' || r.includes('sanador') || r.includes('heal')) return 'healer';
-  if (r === 'd' || r.includes('dps') || r.includes('melee') || r.includes('ranged') || r.includes('cuerpo') || r.includes('distancia')) return 'dps';
-  return 'other';
+  if (r === 'm' || r.includes('melee') || r.includes('cuerpo')) return 'melee';
+  if (r === 'r' || r.includes('rango') || r.includes('ranged') || r.includes('range') || r.includes('distancia')) return 'rango';
+  // DPS genérico sin precisión: se infiere por clase (cuerpo a cuerpo vs distancia).
+  const cl = (p.class || '').trim().toLowerCase();
+  const ranged = ['mage', 'warlock', 'priest', 'hunter', 'evoker'];
+  return ranged.includes(cl) ? 'rango' : 'melee';
 }
 
 function coreBadge(text: string, extra: string): HTMLElement {
   return el('span', `${ui.badge} ${ui.badgeSm} ${extra}`, text);
-}
-
-// Indicador de ficha pública: enlace a /personaje/:slug con icono de enlace
-// externo. Acompaña al nombre de personajes del roster/core con página
-// pública; el nombre ya enlaza, el icono lo hace explícito.
-function publicProfileLink(slug: string): HTMLElement {
-  const a = el('a', 'ml-1 shrink-0 inline-flex text-amber-400/90 hover:text-amber-300 transition-colors') as HTMLAnchorElement;
-  a.href = `/personaje/${slug}`;
-  a.setAttribute('aria-label', 'Ver ficha pública');
-  a.setAttribute('title', 'Ver ficha pública');
-  const svg = el('svg', 'w-3.5 h-3.5');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.setAttribute('stroke-linecap', 'round');
-  svg.setAttribute('stroke-linejoin', 'round');
-  svg.innerHTML = '<rect x="3" y="11" width="14" height="10" rx="2"/><path d="M10 14h11M17 10l3-3M21 13v-2h-2"/>';
-  a.appendChild(svg);
-  return a;
 }
 
 function renderCoreSection(title: string, count: number, color: string, iconSvg: string, rows: HTMLElement[]): HTMLElement {
@@ -255,7 +247,7 @@ function renderCoreSection(title: string, count: number, color: string, iconSvg:
   chevron.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
   header.appendChild(chevron);
 
-  const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-2');
+  const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3');
   rows.forEach((r) => grid.appendChild(r));
 
   header.addEventListener('click', () => {
@@ -270,29 +262,38 @@ function renderCoreSection(title: string, count: number, color: string, iconSvg:
 
 function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTMLElement {
   const color = classColor(p.class);
-  const row = cardRow('px-3 py-2 flex items-center justify-between gap-2 group');
-  const left = el('div', 'flex items-center gap-2 min-w-0');
-  left.appendChild(classIconEl(p.class, undefined, 'w-6 h-6 rounded-md border border-gray-700/50 shrink-0 object-cover'));
-  const name = el(slug ? 'a' : 'span', 'font-bold italic truncate text-sm');
+  // Mismo lenguaje que la card de personaje (renderCharacterCard): la tarjeta
+  // COMPLETA es el enlace a /personaje/:slug cuando existe; nombre como texto
+  // plano y, a la derecha, el rol/cifras y la flecha indicadora.
+  let row: HTMLElement;
+  if (slug) {
+    row = cardLink(`/personaje/${slug}`, 'px-4 py-3 flex items-center justify-between gap-3 group');
+  } else {
+    row = card('px-4 py-3 flex items-center justify-between gap-3');
+  }
+
+  // Borde izquierdo coloreado por clase (mismo lenguaje que renderCharacterCard).
+  const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
+  accent.style.backgroundColor = color;
+  row.appendChild(accent);
+
+  const left = el('div', 'flex items-center gap-2.5 min-w-0');
+  left.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-md border border-gray-700/50 shrink-0 object-cover'));
+  const name = el('span', 'font-black italic truncate text-sm');
   name.style.color = color;
   name.textContent = p.name || '?';
-  if (slug) {
-    (name as HTMLAnchorElement).href = `/personaje/${slug}`;
-    name.classList.add('underline', 'decoration-amber-600/50', 'underline-offset-2', 'hover:decoration-amber-400');
-  }
   left.appendChild(name);
-  if (slug) left.appendChild(publicProfileLink(slug));
   if (isSource) left.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
   if (p.leader) left.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
   if (p.banned) left.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
   row.appendChild(left);
 
   const right = el('div', 'flex flex-wrap justify-end gap-1.5 text-[10px]');
-  if (p.role) right.appendChild(el('span', 'text-amber-300', roleLabel(p.role) || p.role));
-  if (p.dual) right.appendChild(el('span', 'text-gray-400', `dual: ${p.dual}`));
+  // El rol principal NO se repite en la card: lo comunica la cabecera del
+  // grupo colapsable; en su lugar se muestra el dual cuando existe.
+  if (p.dual) right.appendChild(el('span', 'text-amber-300', roleLabel(p.dual) || p.dual));
   if (p.sanction) right.appendChild(el('span', 'text-orange-300', `sanción: ${p.sanction}`));
   if (typeof p.points === 'number') right.appendChild(el('span', 'text-amber-200', `${p.points} pts`));
-  if (p.class) right.appendChild(el('span', 'text-gray-500', p.class));
   if (slug) right.appendChild(arrowIcon());
   row.appendChild(right);
   return row;
@@ -310,11 +311,11 @@ export interface BandCoreOpts {
 export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTMLElement {
   const sourceSet = new Set((opts?.sourceNames ?? []).map((n) => (n || '').trim().toLowerCase()));
   const slugMap = opts?.slugMap ?? {};
-  const groups: Record<'tank' | 'healer' | 'dps' | 'other', MergePlayer[]> = {
+  const groups: Record<'tank' | 'healer' | 'melee' | 'rango', MergePlayer[]> = {
     tank: [],
     healer: [],
-    dps: [],
-    other: [],
+    melee: [],
+    rango: [],
   };
   players.forEach((p) => {
     const key = coreRoleGroup(p);
@@ -322,11 +323,11 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
     groups[key].push(p);
   });
 
-  const sections: Array<{ key: 'tank' | 'healer' | 'dps' | 'other'; title: string; color: string }> = [
+  const sections: Array<{ key: 'tank' | 'healer' | 'melee' | 'rango'; title: string; color: string }> = [
     { key: 'tank', title: 'Tanques', color: 'text-blue-400' },
     { key: 'healer', title: 'Sanadores', color: 'text-green-400' },
-    { key: 'dps', title: 'DPS', color: 'text-red-400' },
-    { key: 'other', title: 'Otros', color: 'text-gray-400' },
+    { key: 'melee', title: 'Melee', color: 'text-red-400' },
+    { key: 'rango', title: 'Rango', color: 'text-amber-400' },
   ];
 
   const wrap = el('div', '');
