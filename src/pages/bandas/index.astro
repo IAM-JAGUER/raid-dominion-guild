@@ -28,6 +28,7 @@ import { ui } from '@/lib/ui/design';
              domingo por hora de inicio (bandSchedule.ts). -->
         <PanelWindow title="Bandas" bodyCls="space-y-8">
           <div slot="head">
+            <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
             <div class="mt-4" id="filtro-dia" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
           </div>
           <div id="bandas-content" class="space-y-8"></div>
@@ -54,22 +55,15 @@ import { ui } from '@/lib/ui/design';
 
 <script>
   import { listPublicBands } from '@/lib/api';
-  import { resolveBandOwners, mergeDirectoryBands, type OwnerRef, type MergedBand } from '@/lib/bandListing';
+  import { resolveBandOwners, mergeDirectoryBands, type MergedBand } from '@/lib/bandListing';
   import { renderBandCard } from '@/lib/ui/cards';
-  import { el } from '@/lib/ui/dom';
-  import { ui } from '@/lib/ui/design';
-  import { WEEKDAY_LABELS, parseSchedule, groupBandsByDay } from '@/lib/bandSchedule';
+  import { renderBandasPanel } from '@/lib/ui/bandasPanel';
 
   const statusEl = document.getElementById('status') as HTMLElement;
   const filtroEl = document.getElementById('filtro-dia') as HTMLElement;
   const contentEl = document.getElementById('bandas-content') as HTMLElement;
   const directorioEl = document.getElementById('directorio') as HTMLElement;
   const emptyEl = document.getElementById('empty') as HTMLElement;
-
-  // Estado del filtro por día: -1 = todas, 0=lunes … 6=domingo.
-  const state: { day: number } = { day: -1 };
-  let merged: MergedBand[] = [];
-  let owners: Map<string, OwnerRef> = new Map();
 
   // Las bandas viven en raiddominion_bands (personales o de hermandad) y se
   // publican con su visibilidad espejo (perfil del dueño o portal de la guild).
@@ -80,105 +74,22 @@ import { ui } from '@/lib/ui/design';
     directorioEl.classList.add('hidden');
     emptyEl.classList.remove('hidden');
   } else {
-    owners = await resolveBandOwners(res.bands);
-    merged = mergeDirectoryBands(res.bands, owners);
+    const owners = await resolveBandOwners(res.bands);
+    const merged = mergeDirectoryBands(res.bands, owners);
     document.title = `${merged.length} banda${merged.length === 1 ? '' : 's'} — RaidDominion`;
-    renderFilter();
-    renderContent();
+    // Modelo compartido (bandasPanel.ts): filtro por día + grilla de días;
+    // mismo comportamiento que las pestañas Bandas de perfil/personaje/reino.
+    renderBandasPanel({
+      filtro: filtroEl,
+      content: contentEl,
+      items: merged,
+      getSchedule: (item: MergedBand) => item.b.schedule,
+      renderCard: (item: MergedBand) => renderBandCard(item.b, {
+        source: item.source,
+        playerCount: item.playerCount,
+        owner: owners.get(item.b.guild_id || item.b.owner_id),
+      }),
+    });
     statusEl.classList.add('hidden');
   }
-
-  // Chips segmentados del encabezado: "Todas" (conteo total) + cada día de la
-  // semana con su conteo. Una banda multi-día cuenta en cada día donde aparece.
-  function renderFilter(): void {
-    filtroEl.innerHTML = '';
-    // Matriz sin overflow: en móvil grilla 4×2 (Todas + 7 días con celdas de
-    // tamaño uniforme); desde sm una sola fila flexible con flex-wrap.
-    const group = el('div', 'w-full grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap');
-    group.appendChild(dayChip('Todas', merged.length, state.day === -1, -1));
-
-    const counts = new Array<number>(7).fill(0);
-    merged.forEach((item) => parseSchedule(item.b.schedule).days.forEach((d) => { counts[d] += 1; }));
-    WEEKDAY_LABELS.forEach((label, i) => group.appendChild(dayChip(label, counts[i], state.day === i, i)));
-    filtroEl.appendChild(group);
-  }
-
-  function dayChip(label: string, count: number, active: boolean, day: number): HTMLButtonElement {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'flex items-center justify-center gap-1 shrink-0 w-full sm:w-auto whitespace-nowrap px-1.5 sm:px-3 py-2 sm:py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
-      (active
-        ? 'bg-gradient-to-b from-amber-900/50 to-amber-950/50 text-amber-200 border-amber-500/50'
-        : 'bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-400 border-amber-600/25 hover:from-amber-900/40 hover:to-amber-950/40 hover:text-amber-200 hover:border-amber-500/40');
-    const labelSpan = el('span', 'truncate text-center min-w-0');
-    labelSpan.textContent = label;
-    btn.appendChild(labelSpan);
-    // El conteo solo aparece desde sm: en la grilla 4×2 móvil el número no
-    // cabe por celda; en móvil se expone igualmente vía aria-label.
-    if (count > 0) {
-      const badge = el('span', 'hidden sm:inline');
-      badge.textContent = `· ${count}`;
-      btn.appendChild(badge);
-    }
-    btn.setAttribute('aria-label', count > 0 ? `${label}, ${count} banda${count === 1 ? '' : 's'}` : label);
-    btn.setAttribute('aria-pressed', String(active));
-    btn.dataset.day = String(day);
-    return btn;
-  }
-
-  // Contenido del cuerpo de la ventana: los días (lunes → domingo, y "Sin día
-  // fijado") se organizan en una grilla responsive de hasta 3 días por fila
-  // (1 columna en móvil, 2 en tablet, 3 en escritorio ancho). Filtrados al día
-  // seleccionado; con un solo día visible ocupa toda la fila (full-width).
-  function renderContent(): void {
-    contentEl.innerHTML = '';
-    if (merged.length === 0) {
-      contentEl.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`, 'Aún no hay bandas publicadas.'));
-      return;
-    }
-
-    const { groups, undated } = groupBandsByDay(merged, (item) => item.b.schedule);
-    const groupsShown = state.day === -1 ? groups : groups.filter((g) => g.day === state.day);
-    const undatedShown = state.day === -1 ? undated : [];
-
-    if (groupsShown.length === 0 && undatedShown.length === 0) {
-      contentEl.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`, 'No hay bandas este día.'));
-      return;
-    }
-
-    // Grilla de días: hasta 3 por fila con espacio horizontal, responsive
-    // (1 columna en móvil, 2 desde 640px, 3 desde 1024px). El contenedor
-    // trabaja con max-w-6xl, por eso 3 columnas caben ya desde lg.
-    const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start');
-    const totalShown = groupsShown.length + (undatedShown.length > 0 ? 1 : 0);
-    groupsShown.forEach((g) => grid.appendChild(daySection(g.day, g.bands, totalShown === 1)));
-    if (undatedShown.length > 0) grid.appendChild(daySection(-1, undatedShown, totalShown === 1));
-    contentEl.appendChild(grid);
-  }
-
-  function daySection(day: number, bands: MergedBand[], fullWidth: boolean): HTMLElement {
-    // fullWidth → el día ocupa las 3 columnas (vista de un solo día).
-    const section = el('section', fullWidth ? 'sm:col-span-2 lg:col-span-3' : '');
-    const head = el('div', 'flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3');
-    const title = day === -1 ? 'Sin día fijado' : WEEKDAY_LABELS[day];
-    head.appendChild(el('h3', `${ui.subTitle} !mb-0`, title));
-    head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', `· ${bands.length} banda${bands.length === 1 ? '' : 's'}`));
-    section.appendChild(head);
-
-    // En columna de día: cards apiladas; en full-width: grilla de cards.
-    const grid = el('div', fullWidth ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5' : 'grid grid-cols-1 gap-4');
-    bands.forEach((item) => grid.appendChild(renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id) })));
-    section.appendChild(grid);
-    return section;
-  }
-
-  filtroEl.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-day]');
-    if (!btn) return;
-    const d = Number(btn.dataset.day);
-    // Click en el día activo vuelve a "Todas" (toggle); otro día lo selecciona.
-    state.day = state.day === d ? -1 : d;
-    renderFilter();
-    renderContent();
-  });
 </script>

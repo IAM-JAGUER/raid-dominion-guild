@@ -62,7 +62,11 @@ import { ui } from '@/lib/ui/design';
         </PanelWindow>
 
         <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-          <div id="bandas-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          <div slot="head">
+            <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
+            <div class="mt-4" id="bandas-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+          </div>
+          <div id="bandas-content" class="space-y-8"></div>
         </PanelWindow>
 
         <PanelWindow id="panel-hermandades" title="Hermandades" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
@@ -91,6 +95,7 @@ import { ui } from '@/lib/ui/design';
   import { card, cardTop, iconTile } from '@/lib/ui/card';
   import { el, chip, statChip, setBreadcrumb } from '@/lib/ui/dom';
   import { renderCharacterCard, renderGuildCard, renderBandCard } from '@/lib/ui/cards';
+  import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
   import { JUGADOR_TABS, initAvailableTabs } from '@/lib/ui/tabs';
 
@@ -228,10 +233,10 @@ import { ui } from '@/lib/ui/design';
   }
 
   // Panel "Bandas": agrega las bandas públicas de TODOS los personajes de la
-  // cuenta (dedupe por nombre) → /banda/:slug cuando existe slug. La pestaña
-  // solo se genera si hay bandas (available).
+  // cuenta (dedupe por nombre|horario) → /banda/:slug cuando existe slug. La
+  // pestaña solo se genera si hay bandas (available). Usa el modelo compartido
+  // /bandas (renderBandasPanel): filtro por día + día/hora agrupados 3×responsive.
   async function renderPlayerBands(chars: CharacterRow[], available: string[]): Promise<void> {
-    const list = document.getElementById('bandas-list') as HTMLElement;
     const seen = new Set<string>();
     const unique: PublicBandSummary[] = [];
     for (const c of chars) {
@@ -250,7 +255,13 @@ import { ui } from '@/lib/ui/design';
       // Atribución: la card estándar del directorio /bandas identifica a quién
       // pertenece cada banda (hermandad o jugador).
       const owners = await resolveBandOwners(unique.map((b) => ({ guild_id: b.guildId ?? null, owner_id: b.ownerId ?? '' })));
-      unique.forEach((b) => list.appendChild(bandRow(b, owners.get((b.guildId || b.ownerId) ?? ''))));
+      renderBandasPanel({
+        filtro: document.getElementById('bandas-filtro') as HTMLElement,
+        content: document.getElementById('bandas-content') as HTMLElement,
+        items: unique,
+        getSchedule: (b: PublicBandSummary) => b.schedule ?? null,
+        renderCard: (b: PublicBandSummary) => bandRow(b, owners.get((b.guildId || b.ownerId) ?? '')),
+      });
       available.push('bandas');
     }
   }

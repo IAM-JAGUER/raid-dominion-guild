@@ -127,7 +127,11 @@ import { ui } from '@/lib/ui/design';
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y los paneles del portal. -->
             <PanelWindow title="Bandas" gradient={false} titleCls="text-lg font-bold flex items-center text-amber-200">
-              <div id="viewer-bands" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+              <div slot="head">
+                <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
+                <div class="mt-4" id="viewer-bands-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+              </div>
+              <div id="viewer-bands" class="space-y-8"></div>
               <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
                 <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`} aria-hidden="true">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -180,6 +184,7 @@ import { ui } from '@/lib/ui/design';
   import { slugify, RESERVED, currentSlug } from '@/lib/routes';
   import { renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
   import { renderBandCard } from '@/lib/ui/cards';
+  import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners } from '@/lib/bandListing';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { sortRanks } from '@/lib/ui/ranks';
@@ -505,12 +510,22 @@ import { ui } from '@/lib/ui/design';
         // muestran como UNA, con conteo fusionado y badge "Integrada" cuando
         // la fuente es un personaje de un miembro.
         const merged = mergePortalBands(portalBands, g.owner_id);
-        const bandsBox = document.getElementById('viewer-bands') as HTMLElement;
-        bandsBox.innerHTML = '';
-        const bandOwners = await resolveBandOwners(portalBands);
-        merged.forEach(({ band, source, playerCount }) => {
-          bandsBox.appendChild(renderBandCard(band, { source, playerCount, owner: bandOwners.get(band.guild_id || band.owner_id) }));
-        });
+        // Modelo compartido /bandas (renderBandasPanel): filtro por día +
+        // grupos de días lunes→domingo por hora en grilla responsive, con la
+        // ATRIBUCIÓN a esta hermandad y las bandas fusionadas del portal.
+        if (merged.length > 0) {
+          const bandOwners = await resolveBandOwners(portalBands);
+          renderBandasPanel({
+            filtro: document.getElementById('viewer-bands-filtro') as HTMLElement,
+            content: document.getElementById('viewer-bands') as HTMLElement,
+            items: merged,
+            getSchedule: (item) => item.band.schedule,
+            renderCard: (item) => renderBandCard(item.band, { source: item.source, playerCount: item.playerCount, owner: bandOwners.get(item.band.guild_id || item.band.owner_id) }),
+          });
+        } else {
+          // Sin bandas: se oculta también el filtro vacío del encabezado.
+          document.getElementById('viewer-bands-filtro')?.classList.add('hidden');
+        }
         if (merged.length === 0) {
           document.getElementById('bandas-empty')?.classList.remove('hidden');
         }

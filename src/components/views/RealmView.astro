@@ -46,7 +46,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     </PanelWindow>
 
     <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-      <div id="rv-bandas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div slot="head">
+        <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
+        <div class="mt-4" id="rv-bandas-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+      </div>
+      <div id="rv-bandas" class="space-y-8"></div>
     </PanelWindow>
   </div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
@@ -68,6 +72,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { resolveBandOwners, mergeDirectoryBands, type OwnerRef, type MergedBand } from '@/lib/bandListing';
   import { REINO_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { renderGuildCard, renderCharacterCard, renderBandCard } from '@/lib/ui/cards';
+  import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import type { GuildRow } from '@/types/database';
 
   interface ProfileLight { id: string; slug: string | null; display_name: string | null; character_name: string | null }
@@ -162,8 +167,15 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     if (realmBands.length > 0) {
       const owners = await resolveBandOwners(realmBands);
       const merged = mergeDirectoryBands(realmBands, owners);
-      const bandsEl = document.getElementById('rv-bandas') as HTMLElement;
-      merged.forEach((item) => bandsEl.appendChild(renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id) })));
+      // Modelo compartido /bandas (renderBandasPanel): filtro por día +
+      // grupos de días lunes→domingo por hora en grilla responsive.
+      renderBandasPanel({
+        filtro: document.getElementById('rv-bandas-filtro') as HTMLElement,
+        content: document.getElementById('rv-bandas') as HTMLElement,
+        items: merged,
+        getSchedule: (item) => item.b.schedule,
+        renderCard: (item) => renderBandCard(item.b, { source: item.source, playerCount: item.playerCount, owner: owners.get(item.b.guild_id || item.b.owner_id) }),
+      });
       if (merged.length > 0) available.push('bandas');
     }
 

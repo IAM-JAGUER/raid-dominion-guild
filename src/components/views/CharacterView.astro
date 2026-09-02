@@ -31,7 +31,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     </PanelWindow>
 
     <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-      <div id="pv-bandas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div slot="head">
+        <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
+        <div class="mt-4" id="pv-bandas-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+      </div>
+      <div id="pv-bandas" class="space-y-8"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-hermandad" title="Hermandad" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
@@ -57,6 +61,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { card, cardTop, iconTile } from '@/lib/ui/card';
   import { chip, el, statChip, setBreadcrumb } from '@/lib/ui/dom';
   import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
+  import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
   import { PERSONAJE_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
@@ -155,11 +160,17 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const bands = await getPublicBandsForCharacter(c.name);
     const bandList = bands.ok ? (bands.bands ?? []) : [];
     if (bandList.length > 0) {
-      // Cards de banda ESTÁNDAR (modelo del directorio /bandas) con ATRIBUCIÓN:
-      // la card identifica a quién pertenece la banda (hermandad o jugador).
+      // Cards de banda ESTÁNDAR (modelo del directorio /bandas) con ATRIBUCIÓN;
+      // también el layout (filtro por día + grupos de días responsive) viene
+      // del modelo compartido renderBandasPanel.
       const owners = await resolveBandOwners(bandList.map((b) => ({ guild_id: b.guildId ?? null, owner_id: b.ownerId ?? '' })));
-      const bandsEl = document.getElementById('pv-bandas') as HTMLElement;
-      bandList.forEach((b) => bandsEl.appendChild(bandCard(b, owners.get((b.guildId || b.ownerId) ?? ''))));
+      renderBandasPanel({
+        filtro: document.getElementById('pv-bandas-filtro') as HTMLElement,
+        content: document.getElementById('pv-bandas') as HTMLElement,
+        items: bandList,
+        getSchedule: (b) => b.schedule ?? null,
+        renderCard: (b) => bandCard(b, owners.get((b.guildId || b.ownerId) ?? '')),
+      });
       available.push('bandas');
     }
 
