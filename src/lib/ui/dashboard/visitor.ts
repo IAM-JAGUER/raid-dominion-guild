@@ -9,6 +9,7 @@ import { configChip } from '@/lib/ui/dashboard/chips';
 import { resolveRankName } from '@/lib/ui/ranks';
 import { ui } from '@/lib/ui/design';
 import { card, cardTop, cardRow } from '@/lib/ui/card';
+import { renderCharacterCard, type CharacterCardInput } from '@/lib/ui/cards';
 import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, RegistryGuild } from '@/types/parser';
 
 // Lista de ítems de configuración (roles, buffs, auras, abilities)
@@ -48,23 +49,10 @@ export function renderContentList(listId: string, cntId: string, items: ContentI
   wrap.appendChild(list);
 }
 
-// Mi personaje registrado (registry.player): datos + equipamiento
-export function renderPlayerSnapshot(d: ParsedSavedVariables): void {
-  const wrap = document.getElementById('viewer-player') as HTMLElement;
-  wrap.innerHTML = '';
-  const p = d.player;
-  if (!p) {
-    wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin registro de personaje propio (registry.player).'));
-    return;
-  }
-  wrap.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, `${p.name}${p.realm ? '-' + p.realm : ''}`));
-  const chips = el('div', 'flex flex-wrap gap-2 mt-1.5');
-  if (p.race) chips.appendChild(configChip(p.race));
-  if (p.class) chips.appendChild(configChip(p.class));
-  if (typeof p.level === 'number') chips.appendChild(configChip(`Nivel ${p.level}`));
-  if (p.talentSpec) chips.appendChild(configChip(`Spec: ${p.talentSpec}`));
-  if (typeof p.avgIlvl === 'number') chips.appendChild(configChip(`ilvl ${p.avgIlvl}`, true));
-  wrap.appendChild(chips);
+// Clave normalizada de personaje (name-reino en minúsculas) para deduplicar la
+// lista del registro y cruzar con las fichas públicas (slug).
+export function characterListKey(name: string, realm?: string | null): string {
+  return `${(name ?? '').trim().toLowerCase()}-${(realm ?? '').trim().toLowerCase()}`;
 }
 
 // Hermandad del registro normalizada para la ficha del visor.
@@ -163,47 +151,78 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
   });
 }
 
-// Personajes de la cuenta (characters: config compartida del SV)
-export function renderAccountCharacters(d: ParsedSavedVariables): void {
-  const wrap = document.getElementById('viewer-account-chars') as HTMLElement;
-  const cnt = document.getElementById('cnt-account-chars') as HTMLElement;
+// Personajes del registro: fusión de registry.player + personajes de la cuenta
+// (characters) + registros por personaje (registries), deduplicados por
+// name-reino y renderizados con la card de personaje estandarizada.
+// `slugs` (opcional) cruza con las fichas públicas: si el personaje tiene
+// ficha pública, la card enlaza a /personaje/:slug (flecha); si no, card plana.
+export function renderCharactersMerged(d: ParsedSavedVariables, slugs?: Map<string, string>): void {
+  const wrap = document.getElementById('viewer-characters') as HTMLElement;
+  const cnt = document.getElementById('cnt-viewer-chars') as HTMLElement;
   wrap.innerHTML = '';
-  cnt.textContent = `(${d.characters.length})`;
-  if (d.characters.length === 0) {
-    wrap.innerHTML = '<span class="text-[11px] text-gray-600 italic">Sin personajes de cuenta aún.</span>';
-    return;
-  }
-  d.characters.forEach((c) => {
-    const label = `${c.name}${c.realm ? '-' + c.realm : ''}`;
-    wrap.appendChild(configChip(label));
-  });
-}
 
-// Snapshots de registro por personaje (registry["Nombre-Reino"])
-export function renderRegistries(d: ParsedSavedVariables): void {
-  const wrap = document.getElementById('viewer-registries') as HTMLElement;
-  const cnt = document.getElementById('cnt-registries') as HTMLElement;
-  wrap.innerHTML = '';
-  cnt.textContent = String(d.registries.length);
-  if (d.registries.length === 0) {
-    wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin registros por personaje.</p>';
+  const byKey = new Map<string, CharacterCardInput>();
+  const add = (patch: Partial<CharacterCardInput>): void => {
+    const name = patch.name?.trim();
+    if (!name) return;
+    const key = characterListKey(name, patch.realm);
+    const merged: CharacterCardInput = { name, ...byKey.get(key), ...patch };
+    if (!merged.slug && slugs) merged.slug = slugs.get(key) ?? null;
+    byKey.set(key, merged);
+  };
+
+  // Config compartida de la cuenta (characters): base de nombres.
+  d.characters.forEach((c) => add({
+    name: c.name,
+    realm: c.realm ?? null,
+    class: c.class,
+    class_file: c.classFile,
+    level: c.level,
+  }));
+
+  // Snapshots por personaje (registries): equipamiento y hermandad.
+  d.registries.forEach((reg) => {
+    const p = reg.player;
+    if (p) {
+      add({
+        name: p.name,
+        realm: p.realm ?? null,
+        class: p.class,
+        class_file: p.classFile,
+        level: p.level,
+        avg_ilvl: p.avgIlvl,
+        sv_is_gm: reg.guild?.isGM === true,
+      });
+      return;
+    }
+    // Sin snapshot de jugador: se deriva del key "Nombre-Reino".
+    const lastDash = reg.key.lastIndexOf('-');
+    const name = lastDash > 0 ? reg.key.slice(0, lastDash) : reg.key;
+    const realm = lastDash > 0 ? reg.key.slice(lastDash + 1) : undefined;
+    add({ name, realm, sv_is_gm: reg.guild?.isGM === true });
+  });
+
+  // Personaje propio del archivo (registry.player): fuente principal.
+  const tp = d.player;
+  if (tp) {
+    add({
+      name: tp.name,
+      realm: tp.realm ?? null,
+      class: tp.class,
+      class_file: tp.classFile,
+      level: tp.level,
+      avg_ilvl: tp.avgIlvl,
+      sv_is_gm: d.registryGuild?.isGM === true,
+    });
+  }
+
+  cnt.textContent = `(${byKey.size})`;
+  const items = Array.from(byKey.values());
+  if (items.length === 0) {
+    wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin personajes en el registro.'));
     return;
   }
-  d.registries.forEach((reg) => {
-    const cardEl = card('p-4');
-    cardEl.appendChild(cardTop());
-    const head = el('div', 'flex flex-wrap items-center gap-2');
-    head.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, reg.player?.name || reg.key || 'Personaje'));
-    if (reg.player) {
-      if (reg.player.class) head.appendChild(configChip(reg.player.class));
-      if (typeof reg.player.level === 'number') head.appendChild(configChip(`Nivel ${reg.player.level}`));
-      if (typeof reg.player.avgIlvl === 'number') head.appendChild(configChip(`ilvl ${reg.player.avgIlvl}`, true));
-    }
-    if (reg.guild) head.appendChild(configChip(`${reg.guild.name}${reg.guild.isGM ? ' · GM' : ''}`));
-    if (reg.savedAt) head.appendChild(el('span', 'text-[11px] text-gray-500 italic', reg.savedAt));
-    cardEl.appendChild(head);
-    wrap.appendChild(cardEl);
-  });
+  items.forEach((c) => wrap.appendChild(renderCharacterCard(c, { forcePlain: true })));
 }
 
 // Asignaciones detalladas por categoría (nombre → jugador)

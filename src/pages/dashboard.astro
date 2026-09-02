@@ -138,32 +138,19 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                de la pestaña; aquí solo el contenido del registro. -->
           <div class={`${ui.sectionBody} space-y-5`}>
 
-            <!-- Personaje registrado + hermandades del registro, lado a lado -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4">
-                <h4 class={ui.subTitle}>Mi personaje registrado</h4>
-                <div id="viewer-player" class="mt-2"></div>
-              </div>
-              <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4">
-                <h4 class={ui.subTitle}>Hermandades en el registro</h4>
-                <div id="viewer-guilds" class="mt-2 space-y-2"></div>
-              </div>
-            </div>
-
-            <!-- Personajes de la cuenta (config compartida) -->
+            <!-- Personajes del registro: fusión de registry.player + personajes
+                 de la cuenta (characters) + registros por personaje (registries),
+                 con la card de personaje estandarizada -->
             <div>
-              <h4 class={ui.subTitle}>Personajes de la cuenta <span id="cnt-account-chars" class="text-gray-500"></span></h4>
-              <div id="viewer-account-chars" class="flex flex-wrap gap-2"></div>
+              <h4 class={ui.subTitle}>Personajes del registro <span id="cnt-viewer-chars" class="text-gray-500"></span></h4>
+              <div id="viewer-characters" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2"></div>
             </div>
 
-            <!-- Registros por personaje (registry["Nombre-Reino"]) -->
-            <details id="registries-details" class="group">
-              <summary class="cursor-pointer select-none list-none inline-flex items-center gap-1.5 rounded-md px-1 -mx-1 py-0.5 text-xs font-black uppercase tracking-widest text-amber-300/80 hover:text-amber-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">
-                <svg aria-hidden="true" class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                Registros por personaje (<span id="cnt-registries">0</span>)
-              </summary>
-              <div id="viewer-registries" class="mt-3 space-y-2"></div>
-            </details>
+            <!-- Hermandades en el registro -->
+            <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4">
+              <h4 class={ui.subTitle}>Hermandades en el registro</h4>
+              <div id="viewer-guilds" class="mt-2 space-y-2"></div>
+            </div>
 
             <!-- Configuración del addon: submenús + listas + reglas -->
             <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4 space-y-5">
@@ -616,11 +603,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import {
     fillList,
     renderContentList,
-    renderPlayerSnapshot,
     collectRegistryGuilds,
     renderRegistryGuildCards,
-    renderAccountCharacters,
-    renderRegistries,
+    characterListKey,
+    renderCharactersMerged,
     renderAssignments,
   } from '@/lib/ui/dashboard/visitor';
   import { bandPlayerCount, bandRuleCount, renderBandDetail } from '@/lib/ui/dashboard/bands';
@@ -1293,13 +1279,18 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     lastSnapshot = d;
     refreshHdrRegistro();
 
-    // Mi personaje registrado + hermandades del registro (cifras)
-    renderPlayerSnapshot(d);
+    // Hermandades del registro (cifras)
     renderGuilds(d);
 
-    // Personajes de la cuenta y registros por personaje
-    renderAccountCharacters(d);
-    renderRegistries(d);
+    // Personajes del registro (fusión player + cuenta + registries) con la
+    // card de personaje estandarizada; si el personaje tiene ficha pública,
+    // la card enlaza a ella (slug cruzado contra Mis Personajes).
+    const slugByKey = new Map<string, string>();
+    myCharacters.forEach((mc) => {
+      const key = characterListKey(mc.name, mc.realm);
+      if (mc.slug) slugByKey.set(key, mc.slug);
+    });
+    renderCharactersMerged(d, slugByKey);
 
     // Submenús activos (ui.show*Menu)
     const menusEl = document.getElementById('registro-menus') as HTMLElement;

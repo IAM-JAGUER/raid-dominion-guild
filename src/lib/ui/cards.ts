@@ -5,7 +5,7 @@
  * Cards base (cardLink/cardTitle/iconTile) viven en src/lib/ui/card.ts.
  */
 import { supabase } from '@/lib/supabase';
-import { getPublicAccountNames, type CharacterRow, type PublicAccountNames } from '@/lib/api';
+import { getPublicAccountNames, type PublicAccountNames } from '@/lib/api';
 import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { cardLink, card as cardBox, cardTitle, iconTile, arrowIcon } from '@/lib/ui/card';
@@ -58,11 +58,27 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   return link;
 }
 
-// ── Card compacta de personaje (directorio /personajes, reino, perfil) ─────
+// ── Card compacta de personaje (directorio /personajes, reino, perfil, ─────
+// dashboard) ────────────────────────────────────────────────────────────────
 // Modelo de UNA SOLA LÍNEA (mismo lenguaje que el core de banda): a la
 // izquierda ícono de clase + nombre (-reino) y, a la derecha, Nivel/ilvl y el
 // indicador "Ver ficha →" hacia /personaje/:slug (o "Ver perfil →" /jugador
 // cuando el personaje no es público pero el perfil sí).
+// Acepta tanto CharacterRow (DB) como datos parseados del SV: el contrato es
+// un subconjunto mínimo (CharacterCardInput).
+export interface CharacterCardInput {
+  name: string;
+  realm?: string | null;
+  class?: string | null;
+  class_file?: string | null;
+  level?: number | null;
+  avg_ilvl?: number | null;
+  sv_is_gm?: boolean;
+  slug?: string | null;
+  is_public?: boolean;
+  user_id?: string | null;
+}
+
 interface CharacterCardCtx {
   // Perfil dueño de cada personaje (id → slug) para enlazar /jugador/:slug.
   profiles?: Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>;
@@ -83,18 +99,21 @@ interface CharacterCardCtx {
   onSaved?: () => void;
   // Ocultar Nivel/ilvl (dashboard): el toggle ya ocupa el lado derecho.
   hideStats?: boolean;
+  // Sin degradado "Privado": card plana sin enlace (visor interno del
+  // dashboard), conserva ícono+nombre+stats y NO muestra la etiqueta.
+  forcePlain?: boolean;
 }
 
-export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {}): HTMLElement {
-  const profile = ctx.profiles?.get(c.user_id);
+export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx = {}): HTMLElement {
+  const profile = c.user_id ? ctx.profiles?.get(c.user_id) : undefined;
   const charHref = c.slug ? `/personaje/${c.slug}` : null;
   const profHref = profile?.slug ? `/jugador/${profile.slug}` : null;
   const href = charHref ?? profHref;
   const color = classColor(c.class, c.class_file);
   const link: HTMLElement = href
     ? cardLink(href, 'px-4 py-3 group')
-    : cardBox('px-4 py-3 opacity-80');
-  if (!href) link.title = 'El jugador mantiene su perfil privado';
+    : cardBox(ctx.forcePlain ? 'px-4 py-3' : 'px-4 py-3 opacity-80');
+  if (!href && !ctx.forcePlain) link.title = 'El jugador mantiene su perfil privado';
 
   const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
   accent.style.backgroundColor = color;
@@ -174,7 +193,7 @@ export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {})
     // Indicador con ICONO (no texto): la card ya enlaza, la flecha lo hace
     // explícito (mismo lenguaje que el core de banda).
     right.appendChild(arrowIcon());
-  } else {
+  } else if (!ctx.forcePlain) {
     right.appendChild(el('span', 'text-[10px] text-gray-600', 'Privado'));
   }
   row.appendChild(right);
