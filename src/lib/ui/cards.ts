@@ -70,6 +70,19 @@ interface CharacterCardCtx {
   names?: Map<string, PublicAccountNames>;
   // Ocultar el chip de reino (vista acotada a un reino).
   hideRealm?: boolean;
+  // ── Extras opcionales del dashboard "Mis Personajes" ──────────────────────
+  // Chip circular de orden (1, 2, 3…).
+  number?: number;
+  // Gate de publicación: `false` bloquea el toggle de visibilidad (visitante
+  // sin personajes validados). Solo aplica junto a `setVisibility`.
+  canPublish?: boolean;
+  // Setter de visibilidad (dashboard): al pasarlo la card incluye el toggle
+  // "Público". Devuelve `ok` si el cambio se persistió.
+  setVisibility?: (visible: boolean) => Promise<{ ok: boolean }>;
+  // Se ejecuta tras guardar la visibilidad con éxito (refresco del dashboard).
+  onSaved?: () => void;
+  // Ocultar Nivel/ilvl (dashboard): el toggle ya ocupa el lado derecho.
+  hideStats?: boolean;
 }
 
 export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {}): HTMLElement {
@@ -89,6 +102,12 @@ export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {})
 
   const row = el('div', 'flex items-center justify-between gap-3 min-w-0');
   const left = el('div', 'flex items-center gap-2.5 min-w-0');
+  if (ctx.number) {
+    const num = document.createElement('span');
+    num.className = 'shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center';
+    num.textContent = String(ctx.number);
+    left.appendChild(num);
+  }
   left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-md shrink-0 shadow border border-gray-700/50 object-cover'));
   const name = el('span', 'font-black italic truncate text-sm');
   name.style.color = color;
@@ -102,9 +121,54 @@ export function renderCharacterCard(c: CharacterRow, ctx: CharacterCardCtx = {})
   row.appendChild(left);
 
   const right = el('div', 'flex items-center gap-2.5 shrink-0');
-  if (typeof c.level === 'number') right.appendChild(el('span', 'text-[10px] text-gray-400', `Nivel ${c.level}`));
-  if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
-    right.appendChild(el('span', 'text-[10px] text-amber-300', `ilvl ${c.avg_ilvl}`));
+  if (ctx.setVisibility) {
+    // Toggle "Público" del dashboard con gate de publicación.
+    const visLabel = document.createElement('label');
+    visLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-bold uppercase tracking-widest text-gray-400';
+    // La card es un <a>: el clic en el toggle debe cambiar visibilidad y NO
+    // navegar a la ficha.
+    visLabel.addEventListener('click', (ev) => ev.stopPropagation());
+    const visCheck = document.createElement('input');
+    visCheck.type = 'checkbox';
+    visCheck.checked = !!c.is_public;
+    visCheck.className = 'w-3.5 h-3.5 accent-amber-500 shrink-0';
+    const visStatus = document.createElement('span');
+    if (ctx.canPublish === false) {
+      visCheck.disabled = true;
+      visCheck.checked = false;
+      visCheck.className += ' opacity-40';
+      visLabel.className += ' opacity-70 cursor-not-allowed';
+      visLabel.title = 'Requiere cuenta Miembro validada (2+ personajes).';
+      visStatus.textContent = 'bloqueado';
+      visStatus.className = 'text-gray-500';
+    } else {
+      visCheck.addEventListener('change', async () => {
+        visCheck.disabled = true;
+        visStatus.textContent = '· guardando…';
+        visStatus.className = 'text-amber-300';
+        const res = await ctx.setVisibility!(visCheck.checked);
+        visCheck.disabled = false;
+        if (res.ok) {
+          c.is_public = visCheck.checked;
+          visStatus.textContent = '✓ guardado';
+          visStatus.className = 'text-emerald-400';
+          ctx.onSaved?.();
+        } else {
+          visCheck.checked = !visCheck.checked;
+          visStatus.textContent = '✗ error';
+          visStatus.className = 'text-red-400';
+        }
+        window.setTimeout(() => { visStatus.textContent = ''; }, 2500);
+      });
+    }
+    visLabel.append(visCheck, document.createTextNode('Público'), visStatus);
+    right.appendChild(visLabel);
+  }
+  if (!ctx.hideStats) {
+    if (typeof c.level === 'number') right.appendChild(el('span', 'text-[10px] text-gray-400', `Nivel ${c.level}`));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
+      right.appendChild(el('span', 'text-[10px] text-amber-300', `ilvl ${c.avg_ilvl}`));
+    }
   }
   if (href) {
     // Indicador con ICONO (no texto): la card ya enlaza, la flecha lo hace
