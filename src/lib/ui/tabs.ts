@@ -26,13 +26,14 @@ export const DASHBOARD_TABS: TabDef[] = [
   { id: 'registro', label: 'Registro', href: '/dashboard#registro' },
 ];
 
-// Panel oculto de configuración del dashboard (perfil, seguridad y zona de
-// peligro): se abre con el ícono de engranaje del encabezado; NO es una
-// pestaña de la barra. Conserva el hash histórico #perfil para deep-links.
+// Panel oculto de configuración del dashboard (seguridad y zona de peligro):
+// se abre con el ícono de engranaje del encabezado; NO es una pestaña de la
+// barra. El hash #cuenta abre este panel (deep-link histórico #perfil se
+// redirige a #cuenta en dashboard.astro).
 export const DASHBOARD_CONFIG = {
-  id: 'perfil',
+  id: 'cuenta',
   label: 'Configuración',
-  hash: '#perfil',
+  hash: '#cuenta',
 } as const;
 
 // Pestañas del portal público de hermandad (/hermandad/:slug): Miembros · Bandas ·

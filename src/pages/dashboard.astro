@@ -41,7 +41,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <span id="validated-badge" class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}>…</span>
           <span id="public-badge" class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}>…</span>
         </div>
-        <div class={`${ui.dividerFadeRight} mt-6`} aria-hidden="true"></div>
+        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       </header>
 
       <!-- Pestañas (generadas desde src/lib/ui/tabs.ts = contrato único;
@@ -114,6 +114,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </span>
                   </div>
+                  <button type="button" id="sv-delete-btn"
+                    class="w-full mt-2 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[11px] font-black uppercase tracking-widest border border-red-800/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 ${ui.transition} ${ui.focusRing}">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Eliminar este análisis
+                  </button>
                 </div>
               </div>
             </div>
@@ -150,36 +155,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4">
               <h4 class={ui.subTitle}>Hermandades en el registro</h4>
               <div id="viewer-guilds" class="mt-2 space-y-2"></div>
-            </div>
-
-            <!-- Configuración del addon: submenús + listas + reglas -->
-            <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4 space-y-5">
-              <div>
-                <h4 class={ui.subTitle}>Submenús activos en tu addon</h4>
-                <div id="registro-menus" class="flex flex-wrap gap-2"></div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><h4 class={ui.subTitle}>Habilidades <span id="cnt-abilities" class="text-gray-500"></span></h4><div id="list-abilities" class="space-y-1"></div></div>
-                <div><h4 class={ui.subTitle}>Roles <span id="cnt-roles" class="text-gray-500"></span></h4><div id="list-roles" class="space-y-1"></div></div>
-                <div><h4 class={ui.subTitle}>Bendiciones <span id="cnt-buffs" class="text-gray-500"></span></h4><div id="list-buffs" class="space-y-1"></div></div>
-                <div><h4 class={ui.subTitle}>Auras <span id="cnt-auras" class="text-gray-500"></span></h4><div id="list-auras" class="space-y-1"></div></div>
-              </div>
-
-              <div>
-                <h4 class={ui.subTitle}>Reglas <span id="cnt-rules" class="text-gray-500"></span></h4>
-                <div id="list-rules"></div>
-              </div>
-
-              <div>
-                <h4 class={ui.subTitle}>Asignaciones</h4>
-                <div id="viewer-assignments" class="space-y-2"></div>
-              </div>
-
-              <div>
-                <h4 class={ui.subTitle}>General</h4>
-                <div id="registro-general" class="flex flex-wrap gap-2"></div>
-              </div>
             </div>
           </div>
         </div>
@@ -232,6 +207,47 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
 
         <div id="chars-sectionbody" class={`${ui.sectionBody} space-y-5`}>
+          <!-- Datos del perfil: controles dentro del contenido de la ventana de
+               personajes (nombre visible, principal, visibilidad pública, guardar).
+               Estilo de sub-bloque del cuerpo, igual que los bloques del registro. -->
+          <div class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4">
+            <h4 class={ui.subTitle}>Datos del perfil</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="display-name" class={ui.form.label}>Nombre visible</label>
+                <input type="text" id="display-name" maxlength="40" placeholder="Tu nombre en el portal"
+                  class={`${ui.form.input} ${ui.focusRing}`} />
+              </div>
+              <div>
+                <label for="character-main" class={ui.form.label}>Personaje principal</label>
+                <div class="relative">
+                  <select id="character-main" disabled
+                    class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}>
+                    <option value="">Ninguno</option>
+                  </select>
+                  <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+                <p id="character-main-hint" class={ui.form.helperText}>Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
+              </div>
+            </div>
+
+            <label for="profile-public" class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 ${ui.transition}`}>
+              <input type="checkbox" id="profile-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
+              <span class={`${ui.text.body} font-medium`}>Perfil y datos públicos
+                <span class={`block ${ui.text.caption} italic mt-0.5`}>Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
+              </span>
+            </label>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <button id="save-profile"
+                class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}>
+                Guardar cambios
+              </button>
+              <a id="public-profile-link" href="#" target="_blank" rel="noopener" class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}>Ver perfil público →</a>
+            </div>
+            <p id="profile-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
+          </div>
+
           <div id="characters-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
           <p id="characters-onboarding" class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"></p>
           <p id="characters-status" class="hidden text-sm text-gray-400"></p>
@@ -380,68 +396,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </div>
       </section>
 
-      <!-- ── Panel oculto de configuración (perfil + seguridad + peligro) ───
+      <!-- ── Panel oculto de configuración (seguridad + zona de peligro) ────
            No es una pestaña de la barra: se abre con el ícono de engranaje del
-           encabezado (DASHBOARD_CONFIG en tabs.ts, hash #perfil). -->
-      <section id="panel-perfil" role="region" aria-label="Configuración de perfil, seguridad y zona de peligro" class="hidden space-y-6">
-        <!-- Sección 1: Datos del perfil (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 1: Datos del perfil">
-          <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-amber-900/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
-            <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-sm font-black flex items-center justify-center">1</span>
-              <span class="min-w-0">
-                <span class={`block ${ui.eyebrow} mb-1`}>Gestión de perfil</span>
-                <span class="block text-lg font-bold text-amber-200 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Datos del perfil</span>
-              </span>
-            </span>
-            <span class="flex items-center gap-3">
-              <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400/80">Tu identidad pública</span>
-              <svg aria-hidden="true" class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </summary>
-          <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="display-name" class={ui.form.label}>Nombre visible</label>
-              <input type="text" id="display-name" maxlength="40" placeholder="Tu nombre en el portal"
-                class={`${ui.form.input} ${ui.focusRing}`} />
-            </div>
-            <div>
-              <label for="character-main" class={ui.form.label}>Personaje principal</label>
-              <div class="relative">
-                <select id="character-main" disabled
-                  class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}>
-                  <option value="">Ninguno</option>
-                </select>
-                <svg aria-hidden="true" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </div>
-              <p id="character-main-hint" class={ui.form.helperText}>Solo puedes elegir entre los personajes detectados en tu SavedVariables.</p>
-            </div>
-          </div>
-
-          <label for="profile-public" class={`mt-6 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 ${ui.transition}`}>
-            <input type="checkbox" id="profile-public" class="mt-0.5 w-4 h-4 accent-amber-500" />
-            <span class={`${ui.text.body} font-medium`}>Perfil y datos públicos
-              <span class={`block ${ui.text.caption} italic mt-0.5`}>Al activarlo, tu perfil de jugador será visible públicamente para la comunidad.</span>
-            </span>
-          </label>
-
-          <div class="mt-5 flex flex-wrap items-center gap-3">
-            <button id="save-profile"
-              class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}>
-              Guardar cambios
-            </button>
-            <a id="public-profile-link" href="#" target="_blank" rel="noopener" class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}>Ver perfil público →</a>
-          </div>
-          <p id="profile-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
-          </div>
-        </details>
-
-        <!-- Sección 2: Seguridad (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 2: Seguridad">
+           encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta). El hash
+           histórico #perfil se redirige a #cuenta (syncTabFromHash). -->
+      <section id="panel-cuenta" role="region" aria-label="Configuración de cuenta, seguridad y zona de peligro" class="hidden space-y-6">
+        <!-- Sección 1: Seguridad (ventana numerada y colapsable) -->
+        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 1: Seguridad">
           <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
             <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">2</span>
+              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">1</span>
               <span class="min-w-0">
                 <span class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Seguridad</span>
                 <span class="block text-lg font-bold text-amber-200 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>Cuenta y contraseña</span>
@@ -485,11 +449,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </div>
         </details>
 
-        <!-- Sección 3: Zona de peligro (ventana numerada y colapsable) -->
-        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 3: Zona de peligro">
+        <!-- Sección 2: Zona de peligro (ventana numerada y colapsable) -->
+        <details class="group border border-amber-600/30 rounded-t-md" aria-label="Sección 2: Zona de peligro">
           <summary class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6">
             <span class="flex items-center gap-3 min-w-0">
-              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">3</span>
+              <span class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center">2</span>
               <span class="min-w-0">
                 <span class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Zona de peligro</span>
                 <span class="block text-lg font-bold text-red-300 leading-tight flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>Acciones destructivas</span>
@@ -567,6 +531,34 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         </details>
       </section>
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+
+      <!-- Modal de confirmación: eliminar un análisis individual -->
+      <div id="sv-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="sv-delete-title">
+        <div id="sv-delete-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-md bg-gray-900 border border-red-900/50 rounded-md shadow-2xl shadow-black/60 overflow-hidden">
+          <div class="bg-gradient-to-br from-red-950/30 to-transparent border-b border-red-900/40 px-5 py-4">
+            <p class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Registro del addon</p>
+            <h3 id="sv-delete-title" class="text-lg font-bold text-red-200 flex items-center">
+              <span class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
+              ¿Eliminar este análisis?
+            </h3>
+          </div>
+          <div class="p-5">
+            <p class="text-sm text-gray-300 leading-relaxed">Se borrará permanentemente el análisis <strong id="sv-delete-label" class="text-amber-200"></strong> y sus evidencias de roster. Tus personajes detectados se conservan.</p>
+            <p id="sv-delete-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
+            <div class="mt-5 flex flex-wrap items-center justify-end gap-3">
+              <button type="button" id="sv-delete-cancel"
+                class={`${ui.btnBase} px-4 py-2.5 border border-gray-700 text-gray-400 hover:text-gray-200 text-xs font-black uppercase tracking-widest`}>
+                Cancelar
+              </button>
+              <button type="button" id="sv-delete-confirm"
+                class={`${ui.btnBase} px-6 py-2.5 bg-red-900/60 hover:bg-red-800/70 text-red-100 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </Layout>
@@ -576,6 +568,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import {
     listMyUploads,
     getUpload,
+    deleteMyUpload,
     getMyProfile,
     updateMyProfile,
     getMyGuilds,
@@ -598,16 +591,12 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   import { isVisitor } from '@/lib/roles';
   import { ui } from '@/lib/ui/design';
   import { renderCharacterCard } from '@/lib/ui/cards';
-  import { configChip } from '@/lib/ui/dashboard/chips';
-  import { fmtDateTime, svLabel } from '@/lib/ui/dashboard/format';
+  import { svLabel } from '@/lib/ui/dashboard/format';
   import {
-    fillList,
-    renderContentList,
     collectRegistryGuilds,
     renderRegistryGuildCards,
     characterListKey,
     renderCharactersMerged,
-    renderAssignments,
   } from '@/lib/ui/dashboard/visitor';
   import { bandPlayerCount, bandRuleCount, renderBandDetail } from '@/lib/ui/dashboard/bands';
   import { renderGuildCard } from '@/lib/ui/dashboard/guilds';
@@ -939,9 +928,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   document.querySelectorAll<HTMLButtonElement>('.goto-btn').forEach((b) =>
     b.addEventListener('click', () => activateTab((b.dataset.goto ?? PANELS[0]) as PanelName)));
 
-  // "Pestaña oculta" de configuración (perfil, seguridad y zona de peligro):
-  // desactiva la barra y muestra SOLO su panel. Se abre desde el ícono de
-  // engranaje del encabezado (DASHBOARD_CONFIG en tabs.ts) y conserva #perfil.
+  // "Pestaña oculta" de configuración (seguridad y zona de peligro): desactiva
+  // la barra y muestra SOLO su panel. Se abre desde el ícono de engranaje del
+  // encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta).
   function openConfigPanel(updateHash = true): void {
     tabs.forEach((b) => {
       b.setAttribute('aria-selected', 'false');
@@ -961,10 +950,17 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   const configBtn = document.getElementById('config-btn') as HTMLButtonElement | null;
   configBtn?.addEventListener('click', () => openConfigPanel());
 
-  // Deep-link: #perfil abre la configuración; cualquier otro hash cae a la
-  // pestaña correspondiente de la barra (o la primera si no existe).
+  // Deep-link: #cuenta abre la configuración (el hash histórico #perfil se
+  // redirige a #cuenta); cualquier otro hash cae a la pestaña correspondiente
+  // de la barra (o la primera si no existe).
   function syncTabFromHash(): void {
-    const id = tabFromHash(window.location.hash);
+    let id = tabFromHash(window.location.hash);
+    if (id === 'perfil') {
+      id = DASHBOARD_CONFIG.id;
+      if (window.location.hash !== DASHBOARD_CONFIG.hash) {
+        window.history.replaceState(null, '', DASHBOARD_CONFIG.hash);
+      }
+    }
     if (id === DASHBOARD_CONFIG.id) {
       openConfigPanel(false);
       return;
@@ -1292,54 +1288,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     });
     renderCharactersMerged(d, slugByKey);
 
-    // Submenús activos (ui.show*Menu)
-    const menusEl = document.getElementById('registro-menus') as HTMLElement;
-    menusEl.innerHTML = '';
-    const menuLabels: Record<string, string> = {
-      showRolesMenu: 'Roles',
-      showBuffsMenu: 'Bendiciones',
-      showAbilitiesMenu: 'Habilidades',
-      showAurasMenu: 'Auras',
-      showMechanicsMenu: 'Mecánicas',
-      showRulesMenu: 'Reglas',
-      showBandsMenu: 'Bandas',
-    };
-    Object.entries(menuLabels).forEach(([key, label]) => {
-      const active = d.menus?.[key] === true;
-      menusEl.appendChild(configChip(active ? `✓ ${label}` : label, active));
-    });
-
-    // Listas configurables en el orden real del addon
-    fillList('list-abilities', 'cnt-abilities', d.abilities);
-    fillList('list-roles', 'cnt-roles', d.roles);
-    fillList('list-buffs', 'cnt-buffs', d.buffs);
-    fillList('list-auras', 'cnt-auras', d.auras);
-
-    // Reglas completas (sin recorte). Las bandas viven en Mis Bandas (se leen
-    // de la BD por loadBands, no del SV).
-    renderContentList('list-rules', 'cnt-rules', d.rules);
-
-    // Asignaciones detalladas (mapa nombre → jugador)
-    renderAssignments(d);
-
-    // General / chat / metadatos del registro
-    const genEl = document.getElementById('registro-general') as HTMLElement;
-    genEl.innerHTML = '';
-    if (d.chat.channel) genEl.appendChild(configChip(`Canal: ${d.chat.channel}`));
-    if (d.chat.discordLink) {
-      const a = document.createElement('a');
-      a.href = /^https?:\/\//.test(d.chat.discordLink) ? d.chat.discordLink : '#';
-      a.target = '_blank'; a.rel = 'noopener';
-      a.className = 'text-[11px] text-sky-300 underline hover:text-sky-200';
-      a.textContent = 'Discord de la comunidad →';
-      genEl.appendChild(a);
-    }
-    if (d.version) genEl.appendChild(configChip(`Parser ${d.version}`));
-    if (d.generatedBy) genEl.appendChild(configChip(`Generado por: ${d.generatedBy}`));
-    if (typeof d.lastUpdate === 'number') {
-      genEl.appendChild(configChip(`Última actualización: ${fmtDateTime(new Date(d.lastUpdate * 1000).toISOString())}`));
-    }
-
     const leadsAnywhere = d.registryGuild?.isGM === true ||
       d.registries.some((r) => r.guild?.isGM === true);
     updateClaimBanner(leadsAnywhere);
@@ -1403,6 +1351,58 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
   (document.getElementById('sv-select') as HTMLSelectElement).addEventListener('change', (e) => {
     const id = (e.target as HTMLSelectElement).value;
     if (id) void renderSnapshot(id);
+  });
+
+  // ── Eliminar un análisis individual (confirmación modal) ─────────────────
+  const svDeleteModal = document.getElementById('sv-delete-modal') as HTMLElement;
+  const svDeleteBtn = document.getElementById('sv-delete-btn') as HTMLButtonElement;
+  const svDeleteLabel = document.getElementById('sv-delete-label') as HTMLElement;
+  const svDeleteMsg = document.getElementById('sv-delete-msg') as HTMLElement;
+  const svDeleteCancel = document.getElementById('sv-delete-cancel') as HTMLButtonElement;
+  const svDeleteConfirm = document.getElementById('sv-delete-confirm') as HTMLButtonElement;
+
+  function closeSvDeleteModal(): void {
+    svDeleteModal.classList.add('hidden');
+    svDeleteMsg.classList.add('hidden');
+    svDeleteConfirm.disabled = false;
+    svDeleteConfirm.textContent = 'Eliminar';
+  }
+
+  svDeleteBtn.addEventListener('click', () => {
+    const item = uploadsCache.find((u) => u.id === currentSvId);
+    svDeleteLabel.textContent = item ? `"${svLabel(item)}"` : '';
+    svDeleteMsg.classList.add('hidden');
+    svDeleteConfirm.disabled = false;
+    svDeleteConfirm.textContent = 'Eliminar';
+    svDeleteModal.classList.remove('hidden');
+  });
+
+  document.getElementById('sv-delete-backdrop')?.addEventListener('click', closeSvDeleteModal);
+  svDeleteCancel.addEventListener('click', closeSvDeleteModal);
+
+  svDeleteConfirm.addEventListener('click', async () => {
+    if (!currentSvId) { closeSvDeleteModal(); return; }
+    svDeleteConfirm.disabled = true;
+    svDeleteConfirm.textContent = 'Eliminando…';
+    const res = await deleteMyUpload(currentSvId);
+    if (!res.ok) {
+      svDeleteConfirm.disabled = false;
+      svDeleteConfirm.textContent = 'Eliminar';
+      svDeleteMsg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-red-950/40 border border-red-900/40 text-red-200';
+      svDeleteMsg.textContent = 'No se pudo eliminar el análisis: ' + (res.error || '');
+      return;
+    }
+    svDeleteMsg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-emerald-950/40 border border-emerald-900/40 text-emerald-200';
+    svDeleteMsg.textContent = 'Análisis eliminado.';
+    await loadHistory();
+    closeSvDeleteModal();
+  });
+
+  // Escape cierra el modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !svDeleteModal.classList.contains('hidden')) {
+      closeSvDeleteModal();
+    }
   });
 
   // ── Mis Bandas ───────────────────────────────────────────────────────────

@@ -2,12 +2,6 @@
 // Alineados al formato REAL verificado en los SV del cliente
 // (IAMM 2026-08-22 como referencia vigente; IAMM1/JUNGJX para secciones legacy).
 
-// Ítem de una lista configurable (roles, buffs, auras, abilities)
-export interface ConfigListItem {
-  name: string;
-  icon?: string;
-}
-
 // Ítem de contenido (mecánicas, reglas)
 export interface ContentItem {
   title?: string;
@@ -137,14 +131,6 @@ export interface Band {
   };
 }
 
-// Asignaciones (assignments: mapa nombre → jugador)
-export interface Assignments {
-  roles: Record<string, string>;
-  buffs: Record<string, string>;
-  abilities: Record<string, string>;
-  auras: Record<string, string>;
-}
-
 // Resultado normalizado del parseo
 export interface ParsedSavedVariables {
   version: string;
@@ -166,19 +152,7 @@ export interface ParsedSavedVariables {
     isLeaderRank: boolean;
   };
   bands: Band[];
-  roles: ConfigListItem[];
-  buffs: ConfigListItem[];
-  abilities: ConfigListItem[];
-  auras: ConfigListItem[];
-  mechanics: ContentItem[];
   rules: ContentItem[];
-  assignments: Assignments;
-  chat: {
-    channel?: string;
-    discordLink?: string;
-  };
-  // Submenús visibles del addon (ui.show*Menu)
-  menus: Record<string, boolean>;
   raw: {
     guildSize: number;
     hasBands: boolean;

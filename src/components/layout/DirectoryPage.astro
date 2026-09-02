@@ -1,6 +1,6 @@
 ---
 // Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
-// hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeRight +
+// hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeBoth +
 // (filtros opcionales) + #status + #grid + EmptyState + dividerFadeLeft.
 // Cada página conserva solo su <script> (card()/fetch/filtros) y el slot de
 // filtros; los ids #status/#grid/#empty son CONTRATO de este componente
@@ -50,7 +50,7 @@ const {
 <Breadcrumb />
 
 <PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} />
-<div class={`${ui.dividerFadeRight} ${dividerCls}`} aria-hidden="true"></div>
+<div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 
 <slot name="filters" />
 

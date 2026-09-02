@@ -374,10 +374,6 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
    píxel y Chrome las descarta en el primer paint (solo se ven al abrir
    DevTools, que fuerza un repaint). Pintarlas como border-image las rasteriza
    siempre a 1px exacto, sin flicker ni desaparición intermitente. */
-.rd-divider-right {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, rgba(245, 158, 11, 0.6), rgba(217, 119, 6, 0.3), transparent) 1 / 1 / 0 stretch;
-}
 .rd-divider-both {
   border-top: 1px solid transparent;
   border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), transparent) 1 / 1 / 0 stretch;
@@ -386,7 +382,9 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   border-top: 1px solid transparent;
   border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), rgba(245, 158, 11, 0.6)) 1 / 1 / 0 stretch;
 }
-/* Tab-bar: misma técnica, en el ::after inferior */
+/* Tab-bar: misma técnica, en el ::after inferior. Fade a la DERECHA: el borde
+   nace sólido a la izquierda (visible bajo la primera pestaña) y se desvanece
+   hacia la derecha — es parte del diseño de la barra, no un divisor aparte. */
 .rd-tabbar::after {
   content: "";
   position: absolute;
@@ -395,7 +393,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   bottom: 0;
   height: 1px;
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.7), transparent) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, rgba(245, 158, 11, 0.7), rgba(217, 119, 6, 0.3), transparent) 1 / 1 / 0 stretch;
   pointer-events: none;
 }
 

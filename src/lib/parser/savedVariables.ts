@@ -34,9 +34,7 @@ import {
   type GuildRank,
   type GuildMemberSummary,
   type CharacterRegistry,
-  type ConfigListItem,
   type ContentItem,
-  type Assignments,
   type ParsedSavedVariables,
   type ParseResult,
   LEADER_RANKS,
@@ -461,18 +459,6 @@ function asGuildMembers(raw: unknown): GuildMember[] {
     .filter((m) => m !== null) as GuildMember[];
 }
 
-function asConfigList(raw: unknown): ConfigListItem[] {
-  return asArray(raw)
-    .map((entry) => {
-      const e = asObj(entry);
-      if (!e) return null;
-      const name = toStr(e['name']).trim();
-      if (!name) return null;
-      return { name, icon: toStr(e['icon']) || undefined };
-    })
-    .filter((m) => m !== null) as ConfigListItem[];
-}
-
 function asContentItems(raw: unknown): ContentItem[] {
   return asArray(raw)
     .map((entry) => {
@@ -535,37 +521,6 @@ function asBands(raw: unknown): Band[] {
       };
     })
     .filter((b) => b !== null) as Band[];
-}
-
-
-function asAssignments(raw: unknown): Assignments {
-  const obj = asObj(raw);
-  const toMap = (v: unknown): Record<string, string> => {
-    const o = asObj(v);
-    if (!o) return {};
-    const out: Record<string, string> = {};
-    Object.entries(o).forEach(([k, val]) => {
-      out[k] = toStr(val);
-    });
-    return out;
-  };
-  return {
-    roles: toMap(obj?.['roles']),
-    buffs: toMap(obj?.['buffs']),
-    abilities: toMap(obj?.['abilities']),
-    auras: toMap(obj?.['auras']),
-  };
-}
-
-// Submenús visibles del addon (ui.show*Menu = true)
-function asMenus(uiRaw: unknown): Record<string, boolean> {
-  const ui = asObj(uiRaw);
-  if (!ui) return {};
-  const out: Record<string, boolean> = {};
-  Object.entries(ui).forEach(([k, v]) => {
-    if (k.startsWith('show') && k.endsWith('Menu')) out[k] = v === true;
-  });
-  return out;
 }
 
 function isLeaderRank(rank: string): boolean {
@@ -691,18 +646,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
       isLeaderRank: confirmedLeaderRank,
     },
     bands,
-    roles: asConfigList(root['roles']),
-    buffs: asConfigList(root['buffs']),
-    abilities: asConfigList(root['abilities']),
-    auras: asConfigList(root['auras']),
-    mechanics: asContentItems(root['mechanics']),
     rules: asContentItems(root['rules']),
-    assignments: asAssignments(root['assignments']),
-    menus: asMenus(root['ui']),
-    chat: {
-      channel: toStr(asObj(root['chat'])?.['channel']) || undefined,
-      discordLink: toStr(asObj(root['chat'])?.['discordLink']) || undefined,
-    },
     raw: {
       guildSize: members.length,
       hasBands: bands.length > 0,

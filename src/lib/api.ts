@@ -76,6 +76,14 @@ export async function getUpload(id: string): Promise<{ ok: boolean; item?: Saved
   return { ok: true, item: query.data as SavedVariableRow };
 }
 
+// Elimina un upload individual del usuario (RPC SECURITY DEFINER: solo el
+// dueño; cascada a roster_evidence; characters conservan la fila).
+export async function deleteMyUpload(svId: string): Promise<{ ok: boolean; error?: string }> {
+  const res = await supabase.rpc('raiddominion_delete_upload', { p_sv_id: svId });
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true };
+}
+
 // ─── Perfil y roles (fuente de verdad: raiddominion_profiles.role) ──────
 
 export interface ProfileUpdate {

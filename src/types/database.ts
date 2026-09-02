@@ -197,6 +197,7 @@ type PublicFunctions = {
   raiddominion_list_guild_band_proposals: { Args: { p_guild_id: string }; Returns: Record<string, unknown>[] };
   raiddominion_staff_list_guilds: { Args: Record<string, never>; Returns: Record<string, unknown>[] };
   raiddominion_verify_guild_claim: { Args: { p_guild_id: string; p_approved: boolean; p_members: unknown }; Returns: undefined };
+  raiddominion_delete_upload: { Args: { p_sv_id: string }; Returns: undefined };
   raiddominion_staff_set_guild_public: { Args: { p_guild_id: string; p_is_public: boolean }; Returns: undefined };
   raiddominion_admin_list_users: { Args: Record<string, never>; Returns: Record<string, unknown>[] };
   raiddominion_admin_set_role: { Args: { p_user_id: string; p_role: string }; Returns: undefined };

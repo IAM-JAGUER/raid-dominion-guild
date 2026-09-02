@@ -8,46 +8,9 @@ import { el } from '@/lib/ui/preview';
 import { configChip } from '@/lib/ui/dashboard/chips';
 import { resolveRankName } from '@/lib/ui/ranks';
 import { ui } from '@/lib/ui/design';
-import { card, cardTop, cardRow } from '@/lib/ui/card';
+import { card, cardTop } from '@/lib/ui/card';
 import { renderCharacterCard, type CharacterCardInput } from '@/lib/ui/cards';
-import type { ParsedSavedVariables, ConfigListItem, ContentItem, Assignments, RegistryGuild } from '@/types/parser';
-
-// Lista de ítems de configuración (roles, buffs, auras, abilities)
-export function fillList(listId: string, cntId: string, items: ConfigListItem[]): void {
-  const wrap = document.getElementById(listId) as HTMLElement;
-  const cnt = document.getElementById(cntId) as HTMLElement;
-  wrap.innerHTML = '';
-  cnt.textContent = `(${items.length})`;
-  if (items.length === 0) {
-    wrap.innerHTML = '<span class="text-[11px] text-gray-600 italic">Sin elementos aún</span>';
-    return;
-  }
-  items.forEach((it) => wrap.appendChild(configChip(it.name)));
-}
-
-// Lista de contenido (mecánicas, reglas)
-export function renderContentList(listId: string, cntId: string, items: ContentItem[]): void {
-  const wrap = document.getElementById(listId) as HTMLElement;
-  const cnt = document.getElementById(cntId) as HTMLElement;
-  wrap.innerHTML = '';
-  cnt.textContent = `(${items.length})`;
-  if (items.length === 0) {
-    wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin elementos aún</p>';
-    return;
-  }
-  const list = document.createElement('ul');
-  list.className = 'space-y-2';
-  items.forEach((it) => {
-    const li = el('li', 'flex items-start text-sm text-gray-300 bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2');
-    li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
-    const inner = el('div', '');
-    inner.appendChild(el('p', 'font-bold text-white', it.title || 'Elemento'));
-    if (it.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-0.5', it.content));
-    li.appendChild(inner);
-    list.appendChild(li);
-  });
-  wrap.appendChild(list);
-}
+import type { ParsedSavedVariables, RegistryGuild } from '@/types/parser';
 
 // Clave normalizada de personaje (name-reino en minúsculas) para deduplicar la
 // lista del registro y cruzar con las fichas públicas (slug).
@@ -223,36 +186,4 @@ export function renderCharactersMerged(d: ParsedSavedVariables, slugs?: Map<stri
     return;
   }
   items.forEach((c) => wrap.appendChild(renderCharacterCard(c, { forcePlain: true })));
-}
-
-// Asignaciones detalladas por categoría (nombre → jugador)
-export function renderAssignments(d: ParsedSavedVariables): void {
-  const wrap = document.getElementById('viewer-assignments') as HTMLElement;
-  wrap.innerHTML = '';
-  const labels: Record<keyof Assignments, string> = {
-    roles: 'Roles',
-    buffs: 'Bendiciones',
-    abilities: 'Habilidades',
-    auras: 'Auras',
-  };
-  let any = false;
-  (Object.keys(labels) as (keyof Assignments)[]).forEach((cat) => {
-    const entries = Object.entries(d.assignments[cat]);
-    if (entries.length === 0) return;
-    any = true;
-    const box = el('div', '');
-    box.appendChild(el('p', `${ui.eyebrow} mb-1`, labels[cat]));
-    const rows = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1');
-    entries.forEach(([name, player]) => {
-      const row = cardRow('text-xs text-gray-300 flex justify-between gap-3 px-2 py-1');
-      row.appendChild(el('span', 'font-bold text-amber-200', name));
-      row.appendChild(el('span', 'text-gray-400', player));
-      rows.appendChild(row);
-    });
-    box.appendChild(rows);
-    wrap.appendChild(box);
-  });
-  if (!any) {
-    wrap.innerHTML = '<p class="text-[11px] text-gray-600 italic">Sin asignaciones aún.</p>';
-  }
 }

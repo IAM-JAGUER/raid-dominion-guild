@@ -184,10 +184,10 @@ export const ui = {
   // Separador interno sutil (contenido de cards).
   divider: 'h-px w-full bg-gradient-to-r from-amber-500/40 via-amber-600/20 to-transparent',
   // Versiones del separador desvanecido para la página (excepto index):
-  //   dividerFadeRight  — tras el encabezado, se desvanece hacia la derecha.
-  //   dividerFadeBoth   — bajo la navegación de tabs principal, se desvanece a ambos lados.
-  //   dividerFadeLeft   — tras el contenido principal, se desvanece hacia la izquierda.
-  dividerFadeRight: 'rd-divider-right w-full',
+  //   dividerFadeBoth — debajo del ENCABEZADO de la página, se desvanece a ambos lados.
+  //   dividerFadeLeft — tras el contenido principal, se desvanece hacia la izquierda.
+  // El borde inferior de la navegación de tabs es parte del diseño de la barra
+  // (rd-tabbar::after en material.css, fade a la derecha); no usa token.
   dividerFadeBoth: 'rd-divider-both w-full',
   dividerFadeLeft: 'rd-divider-left w-full',
 
