@@ -5,6 +5,11 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Netlify Functions (serverless): chat IA + scheduled de Discord
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@supabase/supabase-js"]
+
 # Portal de hermandad: raíz legacy /:slug → portal canónico /hermandad/:slug
 # (los archivos reales tienen prioridad; /guilds y demás específicos también)
 [[redirects]]
@@ -50,6 +55,12 @@
   from = "/guilds"
   to = "/hermandades"
   status = 301
+
+# Chat con IA: ruta amigable hacia la Netlify Function (antes del SPA catch-all)
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
 
 # Redirecciones SPA
 [[redirects]]

@@ -1,0 +1,228 @@
+---
+// Widget flotante de chat con la guía RaidDominion, disponible en TODAS las páginas.
+// Anclado abajo-izquierda (evita chocar con los botones ↑/↓ de Navigation,
+// que viven abajo-derecha). Reutiliza la lógica de /api/chat (Netlify Function).
+import { ui } from '@/lib/ui/design';
+
+interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+---
+
+<!-- Botón flotante de apertura -->
+<button
+  type="button"
+  id="chat-widget-toggle"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  aria-controls="chat-widget-panel"
+  class={`fixed bottom-4 left-4 z-[60] inline-flex items-center gap-2 rounded-full border border-amber-500/50 bg-gray-900/90 backdrop-blur px-4 py-2.5 text-amber-200 shadow-lg shadow-black/40 hover:bg-amber-900/40 hover:border-amber-400 hover:shadow-amber-500/20 ${ui.transition} ${ui.focusRing} ${className}`}
+>
+  <svg class="w-5 h-5 shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+  <span class="text-xs font-bold uppercase tracking-widest">Guía RD</span>
+</button>
+
+<!-- Panel flotante -->
+<div
+  id="chat-widget-panel"
+  role="dialog"
+  aria-label="Guía RaidDominion"
+  aria-hidden="true"
+  class="fixed bottom-16 left-4 z-[60] hidden w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-md border border-amber-600/30 bg-gray-900/95 backdrop-blur-lg shadow-2xl shadow-black/50"
+>
+  <!-- Cabecera -->
+  <div class={`${ui.sectionHead} flex items-center justify-between gap-3 p-3`}>
+    <div class="flex items-center gap-2 min-w-0">
+      <span class={`${ui.iconTile} w-7 h-7 text-sm`} aria-hidden="true">🤖</span>
+      <div class="min-w-0">
+        <p class="text-sm font-bold text-amber-200 truncate">Guía RaidDominion</p>
+        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Datos reales de la comunidad</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      id="chat-widget-close"
+      aria-label="Cerrar chat"
+      class="shrink-0 p-1.5 rounded-md text-gray-400 hover:text-amber-200 hover:bg-amber-900/30 ${ui.transition} ${ui.focusRing}"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Sugerencias -->
+  <div id="chat-widget-suggestions" class="flex flex-wrap gap-1.5 px-3 pt-3">
+    <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>Hermandades</button>
+    <button type="button" data-suggestion="¿Qué hace el addon de RaidDominion?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>El addon</button>
+    <button type="button" data-suggestion="¿Cómo subo mi SavedVariables?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>Subir SV</button>
+    <button type="button" data-suggestion="¿Cuáles son los personajes con más ilvl?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>Top personajes</button>
+  </div>
+
+  <!-- Conversación -->
+  <div
+    id="chat-widget-log"
+    class="flex-1 px-3 py-3 space-y-3 h-72 overflow-y-auto"
+    aria-live="polite"
+    aria-label="Conversación con la guía"
+  >
+    <div data-bubble="assistant" class="flex justify-start">
+      <div class={`max-w-[85%] rounded-md px-3 py-2 text-sm text-gray-200 bg-gray-800/70 border border-gray-700/50 ${ui.cardRow}`}>
+        ¡Hola! Soy la guía de RaidDominion ⚔️. Pregúntame por hermandades, personajes, bandas o el addon.
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado aria-live -->
+  <p id="chat-widget-status" class="hidden px-3 ${ui.loading.liveText}" role="status">
+    <span class={`${ui.loading.spinner} mr-2 align-middle`} aria-hidden="true"></span>
+    <span class="inline-block align-middle">La guía está buscando respuesta…</span>
+  </p>
+  <p id="chat-widget-error" class="hidden mx-3 mb-1 ${ui.status.error} text-sm rounded-md px-3 py-2" role="alert"></p>
+
+  <!-- Formulario -->
+  <form id="chat-widget-form" class="p-3 border-t border-amber-600/20">
+    <label for="chat-widget-input" class="sr-only">Tu pregunta</label>
+    <div class="flex gap-2">
+      <input
+        type="text"
+        id="chat-widget-input"
+        name="mensaje"
+        placeholder="Ej.: ¿Qué bandas públicas hay ahora?"
+        autocomplete="off"
+        class={`${ui.form.input} ${ui.focusRing} flex-1`}
+      />
+      <button type="submit" id="chat-widget-send" class={`${ui.btnBase} ${ui.btnPrimary} px-4`}>
+        <span id="chat-widget-send-label">Enviar</span>
+        <svg id="chat-widget-spinner" class="hidden w-4 h-4 ${ui.loading.spinner}" aria-hidden="true"></svg>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  interface ChatTurn {
+    role: 'user' | 'assistant';
+    content: string;
+  }
+
+  const CHAT_ENDPOINT = '/api/chat';
+  const toggleEl = document.getElementById('chat-widget-toggle') as HTMLButtonElement;
+  const closeEl = document.getElementById('chat-widget-close') as HTMLButtonElement;
+  const panelEl = document.getElementById('chat-widget-panel') as HTMLElement;
+  const logEl = document.getElementById('chat-widget-log') as HTMLElement;
+  const formEl = document.getElementById('chat-widget-form') as HTMLFormElement;
+  const inputEl = document.getElementById('chat-widget-input') as HTMLInputElement;
+  const sendBtn = document.getElementById('chat-widget-send') as HTMLButtonElement;
+  const sendLabel = document.getElementById('chat-widget-send-label') as HTMLElement;
+  const sendSpinner = document.getElementById('chat-widget-spinner') as unknown as HTMLElement;
+  const statusEl = document.getElementById('chat-widget-status') as HTMLElement;
+  const errorEl = document.getElementById('chat-widget-error') as HTMLElement;
+  const suggestions = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-suggestion]'));
+
+  // Historial corto para dar contexto a la guía sin exceder tokens.
+  let history: ChatTurn[] = [];
+  let open = false;
+
+  function scrollToBottom(): void {
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function addBubble(role: ChatTurn['role'], text: string): void {
+    const row = document.createElement('div');
+    row.dataset.bubble = role;
+    row.className = role === 'user' ? 'flex justify-end' : 'flex justify-start';
+    const bubble = document.createElement('div');
+    bubble.className =
+      'max-w-[85%] rounded-md px-3 py-2 text-sm whitespace-pre-wrap break-words ' +
+      (role === 'user'
+        ? 'text-amber-100 bg-amber-900/30 border border-amber-600/40'
+        : 'text-gray-200 bg-gray-800/70 border border-gray-700/50');
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    logEl.appendChild(row);
+    scrollToBottom();
+  }
+
+  function setOpen(next: boolean): void {
+    open = next;
+    panelEl.classList.toggle('hidden', !open);
+    panelEl.classList.toggle('flex', open);
+    panelEl.setAttribute('aria-hidden', String(!open));
+    toggleEl.setAttribute('aria-expanded', String(open));
+    if (open) {
+      window.setTimeout(() => inputEl.focus(), 50);
+    } else {
+      toggleEl.focus();
+    }
+  }
+
+  function setBusy(busy: boolean): void {
+    sendBtn.disabled = busy;
+    sendBtn.setAttribute('aria-busy', String(busy));
+    sendSpinner.classList.toggle('hidden', !busy);
+    sendLabel.textContent = busy ? 'Pensando…' : 'Enviar';
+    inputEl.disabled = busy;
+    statusEl.classList.toggle('hidden', !busy);
+    errorEl.classList.add('hidden');
+  }
+
+  async function sendMessage(content: string): Promise<void> {
+    const text = content.trim();
+    if (!text || sendBtn.disabled) return;
+
+    history.push({ role: 'user', content: text });
+    addBubble('user', text);
+    inputEl.value = '';
+    setBusy(true);
+
+    try {
+      const res = await fetch(CHAT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as { reply?: string; error?: string };
+      if (!res.ok || !data.reply) {
+        throw new Error(data.error || `Error ${res.status}`);
+      }
+
+      history.push({ role: 'assistant', content: data.reply });
+      addBubble('assistant', data.reply);
+    } catch (err) {
+      errorEl.textContent =
+        err instanceof Error && err.message.startsWith('Error 4')
+          ? 'La guía no está disponible todavía (función no configurada en el servidor).'
+          : 'No se pudo conectar con la guía. Intenta de nuevo en un momento.';
+      errorEl.classList.remove('hidden');
+      // Quita el turno del usuario para no duplicarlo al reintentar
+      history.pop();
+      inputEl.value = text;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  toggleEl.addEventListener('click', () => setOpen(!open));
+  closeEl.addEventListener('click', () => setOpen(false));
+  formEl.addEventListener('submit', (e) => {
+    e.preventDefault();
+    void sendMessage(inputEl.value);
+  });
+
+  suggestions.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!open) setOpen(true);
+      void sendMessage(btn.dataset.suggestion ?? '');
+    });
+  });
+
+  // Cerrar con Escape (devuelve el foco al toggle).
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && open) {
+      e.preventDefault();
+      setOpen(false);
+    }
+  });
+</script>

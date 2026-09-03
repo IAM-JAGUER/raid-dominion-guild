@@ -285,7 +285,33 @@ Rutas locales del addon dev y del repo del portal: SOLO en
 ni ningún otro archivo; si cambian, se actualizan en un solo lugar.
 Contrato completo: `AGENTS.sections/addon.md`.
 
-## 12. Changelog de este archivo
+## 12. Discord y chat con IA (Netlify Functions)
+
+El portal es un build estático; la lógica serverless vive en **Netlify
+Functions** (`netlify/functions/`, bundler esbuild + `@supabase/supabase-js`
+como external). NO usar API routes de Astro ni adapters.
+
+- **`netlify/functions/chat.ts`** — chat con IA contextualizado. Recibe
+  `POST /api/chat` con `{ messages: [{ role, content }] }` (redirect Netlify
+  `/api/chat → /.netlify/functions/chat`). El system prompt se arma en cada
+  llamada con `_shared/context.ts` (fotografía pública de `raiddominion_guilds`,
+  `raiddominion_characters`, `raiddominion_bands` y stats). UI en el **widget
+  flotante global** `src/components/features/ChatWidget.astro` (anclado
+  abajo-izquierda, incluido en `Layout.astro` → disponible en TODAS las
+  páginas). No hay página `/chat`.
+- **`netlify/functions/discord-daily.ts`** — Scheduled Function (cron en UTC
+  `0 6,10,14,18,22 * * *`): genera un mensaje IA con el contexto público y lo
+  publica en el webhook público de Discord. Envs: `DISCORD_WEBHOOK_URL` /
+  `DISCORD_PUBLIC_WEBHOOK_URL`; sin webhook, avisa y omite (no falla).
+- **`_shared/`** — helpers comunes: `supabase.ts` (cliente anon-key, RLS
+  activa: solo lee datos públicos), `groq.ts` (`llama-3.3-70b-versatile`),
+  `discord.ts` (webhooks), `context.ts` (contexto de comunidad).
+
+Env adicionales: `GROQ_API_KEY` (Groq), `DISCORD_WEBHOOK_URL` /
+`DISCORD_PUBLIC_WEBHOOK_URL`. El `.env` local está en `.gitignore`; configurar
+las mismas vars en Netlify para producción.
+
+## 13. Changelog de este archivo
 
 - **2026-08-30 (rutas)**: canonicalización del mapa de rutas en español —
   portal de hermandad de raíz `/:slug` → **`/hermandad/:slug`** (shell

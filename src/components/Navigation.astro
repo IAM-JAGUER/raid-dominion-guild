@@ -12,6 +12,7 @@ export interface Props {
 const { currentPath = '/', className = '' } = Astro.props;
 
 // Enlaces públicos de la comunidad (directorios), visibles para todos.
+// (La Guía RD es un widget flotante global vía Layout → ChatWidget; no va aquí.)
 const PUBLIC_LINKS = [
   { name: 'Bandas', href: '/bandas' },
   { name: 'Hermandades', href: '/hermandades' },
