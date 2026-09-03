@@ -2,7 +2,7 @@
 // de las tablas raiddominion_* que alimenta al chat y a los mensajes de
 // Discord. Solo lee datos públicos (RLS activa vía anon key) y jamás toca
 // officer_note / datos privados.
-import { getSupabase } from './supabase';
+import { rpc, selectFrom } from './supabase';
 
 export interface CommunityContext {
   stats: { guilds: number; characters: number };
@@ -13,39 +13,32 @@ export interface CommunityContext {
 
 // Construye el contexto actual de la comunidad (stats + top públicos).
 export async function buildCommunityContext(): Promise<CommunityContext> {
-  const supabase = getSupabase();
-
-  const [statsRes, guildsRes, charsRes, bandsRes] = await Promise.all([
-    supabase.rpc('raiddominion_public_stats'),
-    supabase
-      .from('raiddominion_guilds')
-      .select('name, realm, faction')
-      .eq('is_public', true)
-      .order('name', { ascending: true })
-      .limit(20),
-    supabase
-      .from('raiddominion_characters')
-      .select('name, realm, class, avg_ilvl')
-      .eq('is_public', true)
-      .order('avg_ilvl', { ascending: false, nullsFirst: false })
-      .limit(10),
-    supabase
-      .from('raiddominion_bands')
-      .select('name, character_realm, schedule, min_gs')
-      .eq('is_public', true)
-      .limit(10),
+  const [stats, guilds, topCharacters, topBands] = await Promise.all([
+    rpc<Array<{ guilds?: number; characters?: number }>>('raiddominion_public_stats'),
+    selectFrom<{ name: string; realm: string | null; faction: string | null }>(
+      'raiddominion_guilds',
+      'select=name,realm,faction&is_public=eq.true&order=name.asc&limit=20',
+    ),
+    selectFrom<{ name: string; realm: string | null; class: string | null; avg_ilvl: number | null }>(
+      'raiddominion_characters',
+      'select=name,realm,class,avg_ilvl&is_public=eq.true&order=avg_ilvl.desc.nullslast&limit=10',
+    ),
+    selectFrom<{ name: string; character_realm: string | null; schedule: string | null; min_gs: number | null }>(
+      'raiddominion_bands',
+      'select=name,character_realm,schedule,min_gs&is_public=eq.true&limit=10',
+    ),
   ]);
 
-  const statsRow = Array.isArray(statsRes.data) ? (statsRes.data[0] as { guilds?: number; characters?: number } | undefined) : undefined;
+  const statsRow = Array.isArray(stats) ? (stats[0] as { guilds?: number; characters?: number } | undefined) : undefined;
 
   return {
     stats: {
       guilds: Number(statsRow?.guilds) || 0,
       characters: Number(statsRow?.characters) || 0,
     },
-    guilds: (guildsRes.data as CommunityContext['guilds']) ?? [],
-    topCharacters: (charsRes.data as CommunityContext['topCharacters']) ?? [],
-    topBands: ((bandsRes.data as Array<{ name: string; character_realm: string | null; schedule: string | null; min_gs: number | null }>) ?? []).map((b) => ({
+    guilds,
+    topCharacters,
+    topBands: topBands.map((b) => ({
       name: b.name,
       realm: b.character_realm ?? null,
       schedule: b.schedule ?? null,

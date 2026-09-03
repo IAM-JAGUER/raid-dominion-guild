@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwind from "@astrojs/tailwind";
+import { loadEnv } from 'vite';
 
 // Slugs reservados: no se interpretan como portal de hermandad en dev.
 // Deben coincidir con RESERVED de src/lib/routes.ts.
@@ -28,6 +29,48 @@ export default defineConfig({
 
   vite: {
     plugins: [
+      {
+        // Dev-only: replica la Netlify Function /api/chat → chat.ts.
+        // astro dev no sirve funciones serverless; este middleware ejecuta la
+        // misma lógica (contexto público + Groq) en el servidor de desarrollo.
+        name: 'dev-chat-function',
+        apply: 'serve',
+        configureServer(server) {
+          // astro dev no sirve funciones serverless: inyectamos las env del
+          // .env en process.env (las funciones leen process.env vía env()) y
+          // ejecutamos el handler de chat.ts con la misma lógica de producción.
+          const loaded = loadEnv(server.config.mode, server.config.root, '');
+          Object.entries(loaded).forEach(([k, v]) => {
+            if (process.env[k] === undefined) process.env[k] = v;
+          });
+          server.middlewares.use(async (req, res, next) => {
+            const url = req.url?.split('?')[0] ?? '';
+            if (url !== '/api/chat' || (req.method ?? 'GET') !== 'POST') return next();
+            try {
+              const mod = await server.ssrLoadModule('/netlify/functions/chat.ts');
+              const handler = mod.default;
+              const chunks = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = Buffer.concat(chunks).toString('utf8');
+              const request = new Request('http://localhost/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': req.headers['content-type'] ?? 'application/json' },
+                body,
+              });
+              const response = await handler(request);
+              res.statusCode = response.status;
+              const ct = response.headers.get('content-type');
+              if (ct) res.setHeader('Content-Type', ct);
+              res.end(await response.text());
+            } catch (err) {
+              console.error('[dev-chat-function]', err);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+            }
+          });
+        },
+      },
       {
         // Dev-only: replica el rewrite /jugador/* → /jugador de netlify.toml
         name: 'dev-p-rewrite',

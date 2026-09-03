@@ -5,10 +5,11 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Netlify Functions (serverless): chat IA + scheduled de Discord
+# Netlify Functions (serverless): guía RaidDominion + scheduled de Discord.
+# Las funciones NO usan @supabase/supabase-js (REST directo), así que no hace
+# falta external_node_modules.
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@supabase/supabase-js"]
 
 # Portal de hermandad: raíz legacy /:slug → portal canónico /hermandad/:slug
 # (los archivos reales tienen prioridad; /guilds y demás específicos también)

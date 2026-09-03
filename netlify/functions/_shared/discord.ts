@@ -1,6 +1,8 @@
 // Helper de Discord (webhooks) para Netlify Functions.
 // Usa DISCORD_WEBHOOK_URL (privado) y DISCORD_PUBLIC_WEBHOOK_URL (público),
 // igual que guild-portal. Si la env no está configurada, no falla: avisa y omite.
+import { env } from './env';
+
 export interface DiscordEmbed {
   title?: string;
   description?: string;
@@ -19,9 +21,9 @@ export interface DiscordPayload {
 // Devuelve el webhook a usar según el tipo: 'public' o 'private' (default).
 export function getWebhookUrl(type: 'public' | 'private' = 'private'): string | undefined {
   if (type === 'public') {
-    return process.env.DISCORD_PUBLIC_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
+    return env('DISCORD_PUBLIC_WEBHOOK_URL') || env('DISCORD_WEBHOOK_URL');
   }
-  return process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_PUBLIC_WEBHOOK_URL;
+  return env('DISCORD_WEBHOOK_URL') || env('DISCORD_PUBLIC_WEBHOOK_URL');
 }
 
 // Envía un mensaje al webhook. Nunca lanza: ante error de red o HTTP devuelve false.

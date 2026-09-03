@@ -18,7 +18,7 @@
 1. **Descarga del addon**: el portal sirve la versión oficial anterior a la
    del addon dev (más reciente). Rutas locales de ambos repos: SOLO en
    `AGENTS.sections/addon.md` — no las dupliques en otro archivo.
-2. **Upload de SavedVariables**: el usuario sube `RaidDominionDB` (`.lua`) y el
+2. **Upload de SavedVariables**: el usuario sube `RaidDominion.lua` y el
    portal lo parsea para mostrar el roster/bandas/roles de su hermandad.
 3. **Verificación de maestro de hermandad**: si se confirma maestro, se le
    invita a registrar su hermandad y recibe un portal web gratuito para su guild.
@@ -288,8 +288,12 @@ Contrato completo: `AGENTS.sections/addon.md`.
 ## 12. Discord y chat con IA (Netlify Functions)
 
 El portal es un build estático; la lógica serverless vive en **Netlify
-Functions** (`netlify/functions/`, bundler esbuild + `@supabase/supabase-js`
-como external). NO usar API routes de Astro ni adapters.
+Functions** (`netlify/functions/`, bundler esbuild). NO usar API routes de
+Astro ni adapters. Las funciones **NO dependen de `@supabase/supabase-js`**:
+usan REST directo (PostgREST, `_shared/supabase.ts`) porque supabase-js
+v2.112+ exige WebSocket nativo (Node 22) y Netlify ejecuta funciones en
+Node 20. `env()` (`_shared/env.ts`) lee `process.env` en deploy e
+`import.meta.env` en dev (astro dev).
 
 - **`netlify/functions/chat.ts`** — chat con IA contextualizado. Recibe
   `POST /api/chat` con `{ messages: [{ role, content }] }` (redirect Netlify
@@ -303,9 +307,10 @@ como external). NO usar API routes de Astro ni adapters.
   `0 6,10,14,18,22 * * *`): genera un mensaje IA con el contexto público y lo
   publica en el webhook público de Discord. Envs: `DISCORD_WEBHOOK_URL` /
   `DISCORD_PUBLIC_WEBHOOK_URL`; sin webhook, avisa y omite (no falla).
-- **`_shared/`** — helpers comunes: `supabase.ts` (cliente anon-key, RLS
-  activa: solo lee datos públicos), `groq.ts` (`llama-3.3-70b-versatile`),
-  `discord.ts` (webhooks), `context.ts` (contexto de comunidad).
+- **`_shared/`** — helpers comunes: `supabase.ts` (REST PostgREST con anon-key
+  y `Accept-Profile: public`, RLS activa: solo lee datos públicos), `env.ts`
+  (envs deploy/dev), `groq.ts` (`groq/compound`), `discord.ts`
+  (webhooks), `context.ts` (contexto de comunidad).
 
 Env adicionales: `GROQ_API_KEY` (Groq), `DISCORD_WEBHOOK_URL` /
 `DISCORD_PUBLIC_WEBHOOK_URL`. El `.env` local está en `.gitignore`; configurar

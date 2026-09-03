@@ -1,7 +1,10 @@
 // Helper de Groq (IA) para Netlify Functions.
-// Misma API que guild-portal (llama-3.3-70b-versatile) pero sin dependencias.
+// Modelo: groq/compound (verificado 2026-09-03; llama-3.3-70b-versatile ya no
+// está disponible en esta cuenta). Misma API que guild-portal.
+import { env } from './env';
+
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+const DEFAULT_MODEL = 'groq/compound';
 
 export interface GroqMessage {
   role: 'system' | 'user' | 'assistant';
@@ -15,7 +18,7 @@ export interface GroqOptions {
 
 // Llama a Groq con los mensajes dados y devuelve el texto de la respuesta.
 export async function groqChat(messages: GroqMessage[], opts: GroqOptions = {}): Promise<string> {
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = env('GROQ_API_KEY');
   if (!apiKey) {
     throw new Error('GROQ_API_KEY no configurada');
   }
