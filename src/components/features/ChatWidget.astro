@@ -25,7 +25,7 @@ const { className = '' } = Astro.props;
 </button>
 
 <!-- Panel flotante -->
-<div id="chat-widget-panel" class="fixed bottom-16 left-2 z-[60] hidden w-[calc(100vw-2rem)] max-w-sm max-h-[calc(100dvh-8.5rem)]" role="dialog" aria-label="Guía RaidDominion" aria-hidden="true">
+<div id="chat-widget-panel" class="fixed bottom-16 inset-x-2 mx-auto z-[60] hidden flex-col overflow-hidden w-[min(24rem,calc(100vw-1rem))] max-h-[calc(100dvh-8.5rem)]" role="dialog" aria-label="Guía RaidDominion" aria-hidden="true">
   <!-- Cabecera -->
   <div class={`${ui.sectionHead} ${ui.cutTop} flex shrink-0 items-center justify-between gap-3 p-3 bg-gradient-to-br from-amber-900/20 to-transparent`}>
     <div class="flex items-center gap-2 min-w-0">
@@ -45,7 +45,7 @@ const { className = '' } = Astro.props;
   </div>
 
   <!-- Cuerpo -->
-  <div class={`${ui.sectionBody} !p-0 rounded-b-md flex flex-col overflow-hidden shadow-2xl shadow-black/50 backdrop-blur-lg`}>
+  <div class={`${ui.sectionBody} !p-0 rounded-b-md flex-1 min-h-0 flex flex-col overflow-hidden shadow-2xl shadow-black/50 backdrop-blur-lg`}>
   <!-- Sugerencias -->
   <div id="chat-widget-suggestions" class="flex shrink-0 flex-wrap gap-1.5 px-3 pt-3">
     <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>Hermandades</button>
@@ -57,7 +57,7 @@ const { className = '' } = Astro.props;
   <!-- Conversación -->
   <div
     id="chat-widget-log"
-    class="flex-1 min-h-0 px-3 py-3 space-y-3 h-72 overflow-y-auto"
+    class="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3"
     aria-live="polite"
     aria-label="Conversación con la guía"
   >
@@ -169,7 +169,7 @@ const { className = '' } = Astro.props;
   function setOpen(next: boolean): void {
     open = next;
     panelEl.classList.toggle('hidden', !open);
-    panelEl.classList.toggle('flex-col', open);
+    panelEl.classList.toggle('flex', open);
     panelEl.setAttribute('aria-hidden', String(!open));
     toggleEl.setAttribute('aria-expanded', String(open));
     if (open) {
