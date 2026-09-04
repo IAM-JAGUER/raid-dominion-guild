@@ -18,27 +18,20 @@ const { className = '' } = Astro.props;
   aria-haspopup="dialog"
   aria-expanded="false"
   aria-controls="chat-widget-panel"
-  class={`fixed bottom-4 left-4 z-[60] inline-flex items-center gap-2 rounded-full border border-amber-500/50 bg-gray-900/90 backdrop-blur px-4 py-2.5 text-amber-200 shadow-lg shadow-black/40 hover:bg-amber-900/40 hover:border-amber-400 hover:shadow-amber-500/20 ${ui.transition} ${ui.focusRing} ${className}`}
+  class={`fixed bottom-2 left-2 z-[60] inline-flex items-center gap-2 rounded-full border border-amber-500/50 bg-gray-900/90 backdrop-blur px-4 py-2.5 text-amber-200 shadow-lg shadow-black/40 hover:bg-amber-900/40 hover:border-amber-400 hover:shadow-amber-500/20 ${ui.transition} ${ui.focusRing} ${className}`}
 >
   <img src="/logo.png" alt="" class="w-5 h-5 shrink-0 rounded" loading="eager" decoding="async" aria-hidden="true" />
   <span class="text-xs font-bold uppercase tracking-widest">Guía RD</span>
 </button>
 
 <!-- Panel flotante -->
-<div
-  id="chat-widget-panel"
-  role="dialog"
-  aria-label="Guía RaidDominion"
-  aria-hidden="true"
-  class="fixed bottom-16 left-4 z-[60] hidden max-h-[calc(100dvh-8.5rem)] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden border border-amber-600/30 bg-gray-900/95 backdrop-blur-lg shadow-2xl shadow-black/50 ${ui.cutTop}"
->
+<div id="chat-widget-panel" class="fixed bottom-16 left-2 z-[60] hidden w-[calc(100vw-2rem)] max-w-sm max-h-[calc(100dvh-8.5rem)]" role="dialog" aria-label="Guía RaidDominion" aria-hidden="true">
   <!-- Cabecera -->
-  <div class={`${ui.sectionHead} flex shrink-0 items-center justify-between gap-3 p-3`}>
+  <div class={`${ui.sectionHead} ${ui.cutTop} flex shrink-0 items-center justify-between gap-3 p-3 bg-gradient-to-br from-amber-900/20 to-transparent`}>
     <div class="flex items-center gap-2 min-w-0">
       <img src="/logo.png" alt="" class="w-7 h-7 shrink-0 rounded" loading="eager" decoding="async" aria-hidden="true" />
       <div class="min-w-0">
         <p class="text-sm font-bold text-amber-200 truncate">Guía RaidDominion</p>
-        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Datos reales de la comunidad</p>
       </div>
     </div>
     <button
@@ -51,6 +44,8 @@ const { className = '' } = Astro.props;
     </button>
   </div>
 
+  <!-- Cuerpo -->
+  <div class={`${ui.sectionBody} !p-0 rounded-b-md flex flex-col overflow-hidden shadow-2xl shadow-black/50 backdrop-blur-lg`}>
   <!-- Sugerencias -->
   <div id="chat-widget-suggestions" class="flex shrink-0 flex-wrap gap-1.5 px-3 pt-3">
     <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-amber-500/40 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 ${ui.transition} ${ui.focusRing}`}>Hermandades</button>
@@ -98,6 +93,7 @@ const { className = '' } = Astro.props;
       </button>
     </div>
   </form>
+  </div>
 </div>
 
 <script>
@@ -173,7 +169,7 @@ const { className = '' } = Astro.props;
   function setOpen(next: boolean): void {
     open = next;
     panelEl.classList.toggle('hidden', !open);
-    panelEl.classList.toggle('flex', open);
+    panelEl.classList.toggle('flex-col', open);
     panelEl.setAttribute('aria-hidden', String(!open));
     toggleEl.setAttribute('aria-expanded', String(open));
     if (open) {
