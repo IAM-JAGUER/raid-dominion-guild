@@ -120,56 +120,28 @@ export const guides: Guide[] = [
     color: 'amber',
     sections: [
       {
-        title: 'Instalación',
+        title: 'Instalación y primeras pasos',
         content: [
-          'Descarga el addon desde el botón "Descargar Ahora" del sitio y descomprime en Interface\\AddOns\\.',
-          'Reinicia World of Warcraft. El addon se activa automáticamente.',
+          'Descarga el addon con el botón "Descargar Ahora" del sitio y descomprime la carpeta en Interface\\AddOns\\. Reinicia World of Warcraft para activarlo.',
+          'Al entrar verás el menú flotante (si "Mostrar menú al iniciar" está activo). Clic izquierdo elige o ejecuta un ítem y clic derecho retrocede.',
+          'Arrastra el menú para moverlo (el addon recuerda dónde lo dejaste). Usa /rd para mostrarlo u ocultarlo.',
         ],
       },
       {
-        title: 'Primera carga',
+        title: 'Registra y sube tu personaje',
         content: [
-          'Al entrar verás el menú flotante (si "Mostrar menú al iniciar" está activo).',
-          'Clic izquierdo en un ítem navega o ejecuta su acción; clic derecho vuelve al menú anterior.',
-          'Arrastra el menú para moverlo (la posición se recuerda). Usa /rd para mostrarlo u ocultarlo.',
+          'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, bandas y hermandad).',
+          'Registra el personaje que usas en raid y repite el paso por cada uno que quieras incluir.',
+          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos.',
+          'Re-subir tu ficha mantiene todo al día sin volver a configurar nada.',
         ],
       },
       {
-        title: 'El submenú RaidDominion',
+        title: 'Beneficios del portal',
         content: [
-          'El submenú RaidDominion (último ítem del menú flotante; ver la [guía "Menú flotante"](#guide-menu-flotante)) tiene 5 ítems:',
-          'Registrar — exporta tu(s) personaje(s) actual(es) en SavedVariables. Imprescindible para /upload.',
-          'Configuración — abre la ventana de configuración (equivalente a /rdc).',
-          'Ayuda — muestra la ayuda del addon en el chat (equivalente a /rdh).',
-          'Recargar — recarga la interfaz (ReloadUI).',
-          'Ocultar — oculta el menú flotante; vuelve a mostrarlo con /rd.',
-          'Subcomandos: /rd c (o config), /rd loot (o botin) y /rd help (o h).',
-          'Registra tantos personajes como quieras.',
-        ],
-      },
-      {
-        title: 'Onboarding en 5 pasos',
-        content: [
-          'Paso 1 — Abre el menú flotante con /rd y entra en RaidDominion > Registrar.',
-          'Paso 2 — El addon exporta tu ficha a la SavedVariables (RaidDominion.lua): equipamiento, iLvl, bandas, asignaciones y hermandad.',
-          'Paso 3 — Sube tu RaidDominion.lua en /upload: el portal carga tu ficha al instante.',
-          'Paso 4 — Si tu SV acredita maestría de hermandad (registry.guild.isGM) con más de dos personajes registrados, la cuenta se promueve a member automáticamente.',
-          'Paso 5 — Si eres maestro de hermandad, reclama tu hermandad y publica su portal en /hermandad/:slug.',
-        ],
-      },
-      {
-        title: 'Beneficios para tu(s) personaje(s)',
-        content: [
-          'Perfil público en /jugador/:slug con tu personaje validado (equipamiento e iLvl) — actívalo desde /dashboard para aparecer en el [directorio de personajes](/personajes).',
-          'Dashboard personal: estado de rol (visitante → member → guild_master) y acceso directo a /upload.',
-          'Si eres maestro: dashboard de hermandad en /dashboard/guild con roster, bandas, Discord y reglas.',
-        ],
-      },
-      {
-        title: 'Beneficios para tu hermandad',
-        content: [
-          'Portal web gratuito en /hermandad/:slug con roster, bandas y reglas sincronizados desde el SV: re-subir tu RaidDominion.lua lo mantiene al día y lo publica en el [directorio de hermandades](/hermandades).',
-          'Sin formularios: los datos provienen del addon.',
+          'Perfil público en /jugador/:slug con tu personaje validado — se activa desde /dashboard para aparecer en el [directorio de personajes](/personajes).',
+          'Si diriges tu hermandad, tendrás tu dashboard de hermandad con roster, bandas, Discord y reglas.',
+          'Portal web gratuito en /hermandad/:slug con tu roster y bandas siempre sincronizados y visibles en el [directorio de hermandades](/hermandades). Sin formularios: todo llega desde el addon.',
         ],
       },
     ],
@@ -186,15 +158,20 @@ export const guides: Guide[] = [
         title: 'Estructura del menú',
         content: [
           'El menú agrupa: Habilidades, Roles, Buffs, Auras, Mecánicas, Reglas, Banda y RaidDominion.',
-          'El submenú RaidDominion reúne Registrar, Configuración, Ayuda, Recargar y Ocultar (ver la [guía "Primeros pasos"](#guide-primeros-pasos)).',
           'Los ítems de roles, habilidades, buffs y auras se asignan y anuncian por el canal (detalle en la [guía "Listas y contenido"](#guide-listas-y-contenido)).',
-          'La barra inferior reúne las acciones de raid (ver la [guía "Barra de acciones"](#guide-barra-acciones)).',
+        ],
+      },
+      {
+        title: 'Submenú RaidDominion y barra de raid',
+        content: [
+          'El submenú RaidDominion reúne Registrar, Configuración, Ayuda, Recargar y Ocultar (ver la [guía "Primeros pasos"](#guide-primeros-pasos)).',
+          'La barra inferior reúne las acciones de raid en vivo (ver la [guía "Barra de acciones"](#guide-barra-acciones)).',
         ],
       },
       {
         title: 'Botón del minimapa',
         content: [
-          'Clic izquierdo abre/cierra el menú flotante; clic derecho abre un menú contextual (Configuración, Gestor de botín, Recoger items, Spamear reglas/banda, Mover, Recargar UI).',
+          'Clic izquierdo abre o cierra el menú flotante; clic derecho abre un menú contextual (Configuración, Gestor de botín, Recoger items, Spamear reglas/banda, Mover, Recargar UI).',
           'Mantén Alt y arrastra para moverlo alrededor del minimapa.',
         ],
       },
@@ -212,7 +189,13 @@ export const guides: Guide[] = [
         title: 'Abrir la configuración',
         content: [
           'Ábrela con /rdc, desde el submenú RaidDominion > Configuración o desde la barra de acciones.',
+        ],
+      },
+      {
+        title: 'Pestañas de ajustes',
+        content: [
           'Se organiza en pestañas: General, [Bandas](#guide-bandas-jugadores), Roles, Habilidades, Buffs, Auras, Mecánicas, Reglas y Ayuda.',
+          'Cada pestaña edita el contenido que se muestra en el menú flotante (roles, habilidades, buffs, etc.).',
         ],
       },
       {
@@ -235,8 +218,13 @@ export const guides: Guide[] = [
         title: 'Listas asignables',
         content: [
           'Roles, habilidades, buffs y auras son listas configurables y asignables: selecciona un objetivo y pulsa el icono del ítem para asignárselo (o desasignarlo); el clic en el texto lo anuncia por el canal configurado.',
-          'Se editan en la pestaña de [Configuración](#guide-configuracion) correspondiente: añade o quita ítems con nombre e icono.',
           '"Obtener" pide la lista al líder; "Reiniciar" la restaura al estado por defecto.',
+        ],
+      },
+      {
+        title: 'Editar y ocultar ítems',
+        content: [
+          'Se editan en la pestaña de [Configuración](#guide-configuracion) correspondiente: añade o quita ítems con nombre e icono.',
           'La visibilidad de cada ítem en el menú se controla con el botón-ojo.',
         ],
       },
@@ -275,12 +263,12 @@ export const guides: Guide[] = [
       {
         title: 'Bandas vivas',
         content: [
-          'Cada banda guarda nombre, horario (schedule), gearscore mínimo (minGS) y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu RaidDominion.lua y tu roster aparece en el [directorio de hermandades](/hermandades).',
+          'Cada banda guarda su nombre, horario, gearscore mínimo y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu ficha: tu roster aparece en el [directorio de hermandades](/hermandades).',
           'Rol del jugador: T (Tanque), H (Healer), R (Rango), M (Melee).',
           'Dual: marca si el jugador tiene doble rol.',
-          'Gearscore: iLvl del jugador; la banda puede exigir un mínimo (minGS).',
+          'Gearscore: el nivel de objeto del jugador; la banda puede exigir un mínimo.',
           'Líder: No, Sí o Ayudante.',
-          'Asistencia y puntos: los botones + / - del gestor ajustan los puntos del jugador; mide su compromiso y fidelidad con la banda (se acumula por banda).',
+          'Asistencia y puntos: los botones + / - del gestor ajustan los puntos del jugador; miden su compromiso y fidelidad con la banda (se acumulan por banda).',
           'Sanción: lag, abandono, rendimiento, baneo, equipamiento (Equip.) o engemado (Eng/Enc).',
         ],
       },
@@ -328,18 +316,28 @@ export const guides: Guide[] = [
     color: 'orange',
     sections: [
       {
-        title: 'Acciones disponibles',
+        title: 'Organización y raid',
         content: [
-          'Acciones de raid EN VIVO: estas funciones se ejecutan dentro de la banda — son el corazón del addon, no del portal.',
-          'Modo de raid: izq. configurar dificultad · der. [pedir asignaciones al líder](#guide-comunicacion).',
-          'Indicar discord: enviar / editar el link.',
-          'Nombrar objetivo: nombrar / ver info.',
-          'Marcar principales: marcar iconos de raid · der. limpiar.',
-          'Susurrar asignaciones.',
-          'Iniciar Check: ready check · der. reportar ausentes.',
-          'Iniciar Pull: cuenta regresiva de pull.',
-          'Cambiar botín: método de botín · der. maestro despojador (ver el [gestor de botín](#guide-gestor-botin)).',
-          'Configuración.',
+          'Son acciones de raid EN VIVO: se ejecutan dentro de la banda. Son el corazón del addon, no del portal.',
+          'Modo de raid: configurar la dificultad y [pedir asignaciones al líder](#guide-comunicacion).',
+          'Iniciar Check: ready check y reportar ausentes.',
+          'Iniciar Pull: cuenta regresiva antes de enganchar.',
+          'Configuración: acceso rápido a la ventana de ajustes.',
+        ],
+      },
+      {
+        title: 'Marcado y objetivos',
+        content: [
+          'Nombrar objetivo: señalar / ver la info del objetivo.',
+          'Marcar principales: poner iconos de raid sobre los principales · der. limpiar.',
+        ],
+      },
+      {
+        title: 'Comunicación y botín',
+        content: [
+          'Indicar discord: enviar o editar el link de tu canal de voz.',
+          'Susurrar asignaciones: manda privados a los jugadores con su tarea.',
+          'Cambiar botín: ajustar el método de botín · der. maestro despojador (ver el [gestor de botín](#guide-gestor-botin)).',
         ],
       },
     ],
@@ -359,11 +357,18 @@ export const guides: Guide[] = [
         ],
       },
       {
-        title: 'Uso',
+        title: 'Sorteo con dados',
         content: [
           'Arrastra un ítem de la bolsa o haz clic con uno en el cursor.',
-          'Tira dados (Main/Dual/Enchant) con límite de tiempo, elige ganador (clic en un dado), declara ganador y desempata si hay empate en el dado más alto (solo tiran los empatados).',
-          'El historial queda agrupado por ítem. También puedes spamear el botín y recoger los ítems hacia el maestro despojador.',
+          'Tira dados (Main/Dual/Enchant) con límite de tiempo y elige ganador al hacer clic en un dado.',
+          'Si hay empate en el dado más alto, puedes desempatar: solo tiran los empatados.',
+        ],
+      },
+      {
+        title: 'Historial y recogida',
+        content: [
+          'El historial queda agrupado por ítem para llevar el control de cada botín.',
+          'También puedes spamear el botín y recoger los ítems hacia el maestro despojador.',
         ],
       },
     ],
@@ -377,14 +382,26 @@ export const guides: Guide[] = [
     color: 'red',
     sections: [
       {
-        title: 'Comandos disponibles',
+        title: 'Comandos principales',
         content: [
-          '/rd — muestra/oculta el menú flotante.',
+          '/rd — muestra u oculta el menú flotante.',
           '/rdc — abre la configuración.',
           '/rdh — muestra la ayuda en el chat.',
           '/rdloot — abre el gestor de botín.',
-          'Subcomandos de /rd: /rd c (config), /rd loot (o botin), /rd help (o h).',
-          'Si empiezas ahora, sigue la [guía de primeros pasos](#guide-primeros-pasos).',
+        ],
+      },
+      {
+        title: 'Subcomandos de /rd',
+        content: [
+          '/rd c (o config) — igual que /rdc.',
+          '/rd loot (o botin) — abre el gestor de botín.',
+          '/rd help (o h) — muestra la ayuda.',
+        ],
+      },
+      {
+        title: '¿Por dónde empezar?',
+        content: [
+          'Si empiezas ahora, sigue la [guía de primeros pasos](#guide-primeros-pasos): instala, registra tu personaje y sube tu ficha en /upload.',
         ],
       },
     ],

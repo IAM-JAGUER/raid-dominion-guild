@@ -67,8 +67,16 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
           data-guide-index={index}
         >
           <!-- Header del panel -->
-          <div class="px-6 py-5 bg-gradient-to-r from-gray-900/80 to-gray-800/40 border-b border-amber-600/30 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
+          <div class="relative px-6 py-5 bg-gradient-to-r from-gray-900/80 to-gray-800/40 border-b border-amber-600/30">
+            <button
+              type="button"
+              class="guide-close absolute top-1.5 right-1.5 p-2 rounded-md bg-gray-800/80 border border-amber-600/30 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              data-guide-index={index}
+              aria-label="Cerrar guía"
+            >
+              ✕
+            </button>
+            <div class="flex items-center gap-3 pr-10">
               <div class={`p-2.5 rounded-md ${c.iconBg} border ${c.iconBorder} w-fit`}>
                 <span class="text-xl">{guide.icon}</span>
               </div>
@@ -81,13 +89,6 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              class="guide-close px-4 py-2 rounded-md bg-gray-800/80 border border-amber-600/30 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-              data-guide-index={index}
-            >
-              ✕ Cerrar
-            </button>
           </div>
 
           <!-- Contenido (accordion de secciones) -->
@@ -188,7 +189,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
           <span class={ui.cardTop} aria-hidden="true"></span>
           <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
           <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center justify-between mb-4">
               <div class={`p-2.5 rounded-md ${c.iconBg} border ${c.iconBorder} w-fit`}>
                 <span class="text-lg">{guide.icon}</span>
               </div>
@@ -196,7 +197,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 {guide.category}
               </span>
             </div>
-            <h4 class={`text-base font-black italic mb-2 leading-[1.35] ${ui.gradientTitle}`}>
+            <h4 class="text-base font-black italic mb-4 leading-[1.35] ${ui.gradientTitle}">
               <span class="text-amber-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
             </h4>
             <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic">
