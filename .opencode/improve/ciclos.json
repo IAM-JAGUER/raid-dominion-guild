@@ -315,6 +315,27 @@
       "aplicada_por": "usuario (manual, sin CLI)",
       "project_ref_verificado": true,
       "notas": "Confirmada por el usuario (2026-09-02). Vista raiddominion_profile_handles (id+slug+realm+principal_name) con re-ejecución tras añadir principal_name."
+    },
+    {
+      "archivo": "20260913_marketing_goals.sql",
+      "fecha_aplicacion": "2026-09-04",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-09-04). Evidencia: motor dev devuelve 7 objetivos seed (uploads_sv, visitante_to_member, member_to_guild_master, guilds_public, chars_validated, players_public, players_active)."
+    },
+    {
+      "archivo": "20260915_visits.sql",
+      "fecha_aplicacion": "2026-09-04",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Confirmada por el usuario (2026-09-04). Evidencia: /api/visit con visitor nuevo devuelve notify:true y la repetición en 60 min notify:false (dedupe OK). Tabla raiddominion_visits registrando visitas."
+    },
+    {
+      "archivo": "20260918_marketing_traffic.sql",
+      "fecha_aplicacion": "2026-09-04",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Aplicada (2026-09-04). Evidencia: motor dev devuelve 11 objetivos (incluye visits_weekly/visitors_30d/visits_upload_7d/visits_directory_7d) y stats con métricas de visitas reales (4→30 visitas semanales)."
     }
   ],
   "migraciones_pendientes_confirmacion": [],

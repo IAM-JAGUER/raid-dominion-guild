@@ -85,6 +85,72 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>{title}</title>
+    <!-- Registro de visitas (estilo guild-portal): beacon a /api/visit con la
+         sección visitada. La visita jamás bloquea la navegación. -->
+    <script is:inline>
+      (function () {
+        try {
+          var host = window.location.hostname || "";
+          if (!host || host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "0.0.0.0") return;
+          var p = window.location.pathname;
+          if (!p || p.indexOf("/api") === 0 || p.indexOf("/_astro") === 0 || p.indexOf("/assets") === 0) return;
+
+          var sid = null;
+          try {
+            sid = window.localStorage.getItem("rd_visitor_id");
+            if (!sid) {
+              sid =
+                window.crypto && window.crypto.randomUUID
+                  ? window.crypto.randomUUID()
+                  : "v-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+              window.localStorage.setItem("rd_visitor_id", sid);
+            }
+          } catch (e) {
+            sid = null;
+          }
+
+          var section = "Otra sección";
+          var paths = [
+            [/^\/upload/, "Subir SavedVariables"],
+            [/^\/hermandades/, "Directorio de hermandades"],
+            [/^\/hermandad[\/?]?/, "Portal de hermandad"],
+            [/^\/jugadores/, "Directorio de jugadores"],
+            [/^\/jugador[\/?]?/, "Perfil de jugador"],
+            [/^\/bandas/, "Directorio de bandas"],
+            [/^\/banda[\/?]?/, "Ficha de banda"],
+            [/^\/personajes/, "Directorio de personajes"],
+            [/^\/personaje[\/?]?/, "Ficha de personaje"],
+            [/^\/servidores/, "Directorio de servidores"],
+            [/^\/servidor[\/?]?/, "Ficha de servidor"],
+            [/^\/dashboard[\/?]?/, "Dashboard"],
+            [/^\/login[\/?]?/, "Login"],
+            [/^\/admin[\/?]?/, "Panel de admin"],
+            [/^\/moderate[\/?]?/, "Moderación"],
+            [/^\/?$/, "Portada"]
+          ];
+          for (var i = 0; i < paths.length; i++) {
+            if (paths[i][0].test(p)) {
+              section = paths[i][1];
+              break;
+            }
+          }
+
+          var data = { path: p, page: section, visitorId: sid };
+          if (window.navigator && window.navigator.sendBeacon) {
+            window.navigator.sendBeacon("/api/visit", new window.Blob([JSON.stringify(data)], { type: "application/json" }));
+          } else {
+            window.fetch("/api/visit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+              keepalive: true
+            });
+          }
+        } catch (e) {
+          /* la visita jamás bloquea la navegación */
+        }
+      })();
+    </script>
   </head>
   <body class="rd-bg relative flex flex-col min-h-[100dvh]">
     <script define:vars={{ rdEnvUrl, rdEnvKey }}>

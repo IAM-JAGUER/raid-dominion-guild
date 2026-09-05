@@ -3,6 +3,14 @@
 // igual que guild-portal. Si la env no está configurada, no falla: avisa y omite.
 import { env } from './env';
 
+// Canales del Discord comunitario de RaidDominion (solo referencia):
+//   - Canal admin/pruebas + visitas . 1475336305075552488  (DISCORD_WEBHOOK_URL → 1475343307210100758)
+//   - Canal público / chat general .. 1432919639003758632  (DISCORD_PUBLIC_WEBHOOK_URL → 1475350391960109108)
+// Un webhook se identifica por su URL completa (id + token), visible en
+// Ajustes del canal → Integraciones → Webhooks → Nueva webhook → Copiar URL.
+// El ID de canal no basta para publicar; los IDs de aquí sirven para verificar
+// que cada entorno (test/prod) apunta al canal correcto.
+
 export interface DiscordEmbed {
   title?: string;
   description?: string;
@@ -16,6 +24,7 @@ export interface DiscordPayload {
   username?: string;
   content?: string;
   embeds?: DiscordEmbed[];
+  allowed_mentions?: { parse?: string[]; users?: string[]; roles?: string[] };
 }
 
 // Devuelve el webhook a usar según el tipo: 'public' o 'private' (default).

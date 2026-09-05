@@ -63,6 +63,19 @@
   to = "/.netlify/functions/chat"
   status = 200
 
+# Discord: envío manual desde el panel admin hacia la Netlify Function
+[[redirects]]
+  from = "/api/discord-send"
+  to = "/.netlify/functions/discord-send"
+  status = 200
+
+# Visitas: el beacon del Layout envía las visitas a las secciones (registro
+# en raiddominion_visits + aviso al canal admin de Discord)
+[[redirects]]
+  from = "/api/visit"
+  to = "/.netlify/functions/visit"
+  status = 200
+
 # Redirecciones SPA
 [[redirects]]
   from = "/*"

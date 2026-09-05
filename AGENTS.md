@@ -307,18 +307,127 @@ Node 20. `env()` (`_shared/env.ts`) lee `process.env` en deploy e
   flotante global** `src/components/features/ChatWidget.astro` (anclado
   abajo-izquierda, incluido en `Layout.astro` → disponible en TODAS las
   páginas). No hay página `/chat`.
-- **`netlify/functions/discord-daily.ts`** — Scheduled Function (cron en UTC
-  `0 6,10,14,18,22 * * *`): genera un mensaje IA con el contexto público y lo
-  publica en el webhook público de Discord. Envs: `DISCORD_WEBHOOK_URL` /
-  `DISCORD_PUBLIC_WEBHOOK_URL`; sin webhook, avisa y omite (no falla).
+- **`netlify/functions/discord-daily.ts`** — Scheduled Function (cron de
+  disparo horario UTC `0 * * * *`): usa el **motor de mercadeo**
+  (`_shared/marketing`) para generar un mensaje dinámico enfocado a conversión
+  y publicarlo en el webhook público de Discord. La **periodicidad real** se
+  controla con la env `DISCORD_DAILY_HOURS` (horas UTC separadas por coma en
+  las que sí publica; por defecto `6,10,14,18,22` ≈ 00‑17 esMX — es decir, 5
+  envíos al día, el disparo horario descarta el resto de horas). Cambiar la
+  cadencia = tocar la env, sin tocar código ni redeployar. Envs:
+  `DISCORD_WEBHOOK_URL` / `DISCORD_PUBLIC_WEBHOOK_URL`; sin webhook, avisa y
+  omite (no falla).
+- **`netlify/functions/_shared/marketing.ts`** — motor de mercadeo inteligente
+  (MISMO para cron y panel admin). Está orientado a generar NUEVOS USUARIOS
+  del addon y CONTENIDO (subidas de SV, personajes validados, bandas y
+  hermandades registradas), no solo visibilidad. Flujo por invocación:
+  ① lee el snapshot de métricas (`raiddominion_marketing_stats`) → ② evalúa
+  objetivos contra el histórico en `raiddominion_marketing`
+  (`raiddominion_marketing_evaluate`): tendencia (up/hold/down) + `focus_boost`
+  (objetivo bajo a priorizar) → ③ Groq redacta un mensaje de conversión con
+  data real priorizando el foco; si se pasa `goalKey`, se focaliza en ese
+  objetivo y el **eje** (bandas/hermandades/jugadores) se deriva de él
+  (`ejeForGoal`) → ④ lo publica según **canal** (`test`/`prod`) vía
+  `sendContent()`. NO persiste mensajes, solo estado de objetivos.
+- **`netlify/functions/discord-send.ts`** — envío manual de un OBJETIVO a
+  Discord desde el panel admin ("cuando quiera"). Recibe `POST /api/discord-send`
+  con `{ goal_key, canal: 'test' | 'prod' }` (redirect `/api/discord-send →
+  /.netlify/functions/discord-send`): el motor focaliza el mensaje en ese
+  objetivo y lo publica. NO persiste nada. Cada tarjeta de objetivo del panel
+  tiene sus dos botones (pruebas / público); el canal `test` usa
+  `DISCORD_WEBHOOK_URL` (webhook privado/admin, SIN @everyone, CON logo,
+  con IP/UA de quien lanzó la prueba en el pie del embed) y `prod` al público
+  (con @everyone y logo). Solo alcanzable desde `/admin` (rol admin).
+- **`netlify/functions/visit.ts`** — registro de visitas estilo guild-portal.
+  El beacon de `Layout.astro` hace `POST /api/visit` con `{ path, page,
+  visitorId }` en cada carga de página (redirect `/api/visit →
+  /.netlify/functions/visit`). La función **excluye el tráfico local** —
+  loopback, IPs privadas/RFC1918 y link-local (`isLocalIp`) y las IPs de la
+  env `RD_IGNORED_IPS` (tu IP para no contarte a ti mismo ni en producción) —
+  y registra el resto en `raiddominion_visits` vía el RPC SECURITY DEFINER
+  `raiddominion_register_visit` (única vía de escritura; RLS bloquea el acceso
+  directo) y, si es la 1ª visita de ese visitante a esa sección en 60 min
+  (dedupe del RPC), avisa al **canal admin** de Discord
+  (`DISCORD_WEBHOOK_URL`, `https://discord.com/api/webhooks/1475343307210100758/...`)
+  con un embed **SIN logo** que presenta la **IP**, visitante,
+  navegador (UA), origen (referrer), sección y ruta. La guardia de tráfico
+  local existe en DOS capas: el endpoint (`isLocalIp` + `RD_IGNORED_IPS`,
+  respuesta `skipped:true`) y el propio RPC (rechaza y NO inserta IPs
+  loopback/RFC1918/link-local — por eso jamás aparecen en "Visitas a la web
+  (7 días)"). Sin webhook, omite: nunca falla la página. Migraciones:
+  `20260915_visits.sql` (tabla + RPC) y `20260920_visits_ip_cleanup.sql`
+  (columna `ip`, limpieza de datos dev/test previos y rechazo local en el RPC).
+
+Env adicionales (migración `20260920`): con `p_ip` al RPC, las visitas
+registran la IP de cada visitante.
 - **`_shared/`** — helpers comunes: `supabase.ts` (REST PostgREST con anon-key
   y `Accept-Profile: public`, RLS activa: solo lee datos públicos), `env.ts`
   (envs deploy/dev), `groq.ts` (`groq/compound`), `discord.ts`
-  (webhooks), `context.ts` (contexto de comunidad).
+  (webhooks), `context.ts` (contexto de comunidad), `marketing.ts` (motor).
 
-Env adicionales: `GROQ_API_KEY` (Groq), `DISCORD_WEBHOOK_URL` /
-`DISCORD_PUBLIC_WEBHOOK_URL`. El `.env` local está en `.gitignore`; configurar
-las mismas vars en Netlify para producción.
+### Migración de mercadeo (20260913_marketing_goals.sql)
+
+Define/afina el sistema de mercadeo:
+
+- Tabla `raiddominion_marketing` (objetivos de conversión + tendencia
+  up/hold/down + `focus_boost` + target/current/previous).
+- RPC `raiddominion_marketing_stats()` (snapshot de métricas, solo conteos,
+  SECURITY DEFINER, GRANT anon/authenticated). **Atención:** si ya existía una
+  versión anterior con distinta forma, el archivo hace `DROP FUNCTION IF EXISTS`
+  antes del `CREATE OR REPLACE` (evita error 42P13).
+- RPC `raiddominion_marketing_evaluate(p_stats jsonb)` (única vía de escritura
+  al estado; calcula tendencia/foco, persiste y devuelve los objetivos).
+
+> ⚠️ **Mensajes fijados (fuera de alcance, 2026-09-04):** la versión inicial de
+> esta migración incluía `raiddominion_marketing_messages` + RPCs CRUD admin
+> (`*_messages_admin`, `*_message_upsert`, `*_message_delete`). Se eliminaron del
+> alcance: el panel de /admin solo envía los objetivos. Si la base llegó a
+> recibirlos, aplicar `20260913_marketing_remove_messages.sql` para limpiarlos.
+
+Si la base aún no la tiene, aplicarla a mano en el SQL Editor del proyecto
+RaidDominion y registrarla en `ciclos.json`; si ya está aplicada, no hace
+falta re-aplicarla.
+
+### Migración de tráfico orgánico (20260918_marketing_traffic.sql)
+
+Ampliación del sistema de mercadeo con estadísticas de **visitas**
+(`raiddominion_visits`, migración 20260915): 4 objetivos nuevos
+(`visits_weekly`, `visitors_30d`, `visits_upload_7d`, `visits_directory_7d`)
+y `raiddominion_marketing_stats()` ampliado con esas métricas (DROP + CREATE
+OR REPLACE por cambio de tipo de retorno). Aplicarla manualmente en el SQL
+Editor del proyecto RaidDominion y registrarla en `ciclos.json`.
+
+Env adicionales: `GROQ_API_KEY` (Groq), `DISCORD_WEBHOOK_URL` (webhook
+privado/admin: test de mercadeo y avisos de visitas),
+`DISCORD_PUBLIC_WEBHOOK_URL` (canal público),
+`DISCORD_DAILY_HOURS` (periodicidad del cron, ver `discord-daily.ts`),
+`SITE_URL` (sobreescribe la URL canónica del portal; por defecto
+`https://raid-dominion.netlify.app`). El `.env` local está en `.gitignore`;
+configurar las mismas vars en Netlify.
+
+Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
+- **Canal público (`prod`)**: logo grande del portal como imagen del embed
+  (embed `image`, sobre la URL canónica + `/logo.png`) + @everyone + CTA.
+- **Canal admin/pruebas (`test`)**: MISMO embed con logo y CTA, SIN @everyone;
+  es un preview de monitoreo con la **IP** y UA de quien lanzó la prueba en el
+  pie del embed.
+- **Solo los avisos de VISITAS (`visit.ts`) van SIN logo** (embed con IP y
+  datos del visitante), también al canal admin.
+- **Enlace útil de la plataforma con CTA** en ambos (título clicable del
+  embed + línea markdown `➜ **<label>**: <url>` según eje): `/upload`,
+  `/hermandades`, `/bandas`.
+- **Formato balanceado y atractivo**: negritas en cifras/paso clave, máx. 3
+  viñetas, entre 1 y 3 emojis colocados con mesura, CTA final. El prompt
+  instruye NO incluir URLs (las agrega el código de forma determinística).
+
+Canales del Discord comunitario (solo referencia; el envío usa el webhook URL
+completo, Configurados en `.env`/Netlify):
+- **Admin / pruebas y visitas** `1475343307210100758` → `DISCORD_WEBHOOK_URL`
+  (webhook privado: botón "Pruebas" de cada objetivo y avisos de visitas;
+  mensajes SIN @everyone).
+- **Público / chat general y cron** `1475350391960109108` →
+  `DISCORD_PUBLIC_WEBHOOK_URL` (canal público: cron `discord-daily` y botón
+  "Público" de cada objetivo; con @everyone y logo).
 
 ## 13. Changelog de este archivo
 

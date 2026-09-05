@@ -33,7 +33,30 @@ import { ui } from '@/lib/ui/design';
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
-        <!-- Vista: listado -->
+        <!-- Pestañas de sección (Usuarios · Discord) -->
+        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class="flex items-center gap-1 border-b border-gray-700/60 mb-6 animate-fade-in-1"></div>
+
+        <!-- Vista: Discord (mercadeo automático) -->
+        <div id="view-discord" class="hidden space-y-6">
+          <section id="discord-panel" class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Discord · Mercadeo automático
+              </h2>
+              <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">objetivos reales → mensaje de conversión</span>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-amber-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-amber-300/80">canal de pruebas</span> (el de guild-portal que avisa cada ingreso) o al <span class="text-amber-300/80">canal público</span>.</p>
+
+            <!-- Objetivos de conversión -->
+            <h3 class={`${ui.subTitle}`}>Objetivos de conversión</h3>
+            <div id="discord-goals" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-5"></div>
+            <p id="discord-status" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status" aria-live="polite"></p>
+            <pre id="discord-preview" class="hidden mt-3 whitespace-pre-wrap rounded-md bg-gray-900/70 border border-amber-600/20 p-3 text-xs text-gray-300"></pre>
+          </section>
+        </div>
+
+        <!-- Vista: listado de usuarios -->
         <div id="view-list" class="space-y-8">
           <!-- Métricas por rol -->
           <section id="role-stats" class="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fade-in-1" style="animation-delay: 0.05s"></section>
@@ -107,7 +130,8 @@ import { ui } from '@/lib/ui/design';
 <script>
   import { getMyProfile, adminListUsers, adminSetRole, listAuditLog, type AdminUserRow, type AuditRow } from '@/lib/api';
   import { ROLES } from '@/lib/roles';
-  import { ADMIN_PANELS, resolveAdminHash } from '@/lib/ui/tabs';
+  import { supabase } from '@/lib/supabase';
+  import { ADMIN_PANELS, ADMIN_TABS, tabFromHash, resolveAdminHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import type { RaiddominionRole } from '@/types/database';
 
@@ -129,10 +153,13 @@ import { ui } from '@/lib/ui/design';
 
   let users: AdminUserRow[] = [];
   let audit: AuditRow[] = [];
+  let activeRole: RaiddominionRole | null = null;
+  const rpcAdmin = supabase.rpc.bind(supabase) as unknown as (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
   const searchEl = document.getElementById('search') as HTMLInputElement;
   searchEl.addEventListener('input', render);
 
   const res = await getMyProfile();
+  const isPersonaAdmin = res.profile?.role === 'admin';
   const loading = document.getElementById('loading') as HTMLElement;
   loading.classList.add('hidden');
 
@@ -144,6 +171,7 @@ import { ui } from '@/lib/ui/design';
     }
   } else {
     document.getElementById('panel')?.classList.remove('hidden');
+    initAdminTabs();
     await loadUsers();
     // El historial de auditoría lo cargan todos los staff; el admin lo usa
     // además para el detalle de usuario.
@@ -152,19 +180,80 @@ import { ui } from '@/lib/ui/design';
     route();
   }
 
-  // ── Routing por hash (#usuario/<id>), coherente con el patrón de tabs ──
+  // ── Barra de tabs de sección (Usuarios · Discord) ────────────────────────
+  // Construye los botones desde ADMIN_TABS (contrato único). El contenido se
+  // lo reparte route(): route() es quien muestra/oculta las vistas y marca el
+  // tab activo; el click solo fija el hash.
+  function initAdminTabs(): void {
+    const bar = document.getElementById('admin-tabs') as HTMLElement;
+    if (!bar) return;
+    bar.innerHTML = '';
+    ADMIN_TABS.forEach((t, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = `admin-tab-${t.id}`;
+      btn.dataset.adminTab = t.id;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-controls', t.id === 'discord' ? 'view-discord' : 'view-list');
+      btn.className = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+      btn.textContent = t.label;
+      btn.addEventListener('click', () => {
+        window.history.replaceState(null, '', t.href);
+        route();
+      });
+      if (i === 0) btn.tabIndex = 0; else btn.tabIndex = -1;
+      bar.appendChild(btn);
+    });
+    bar.addEventListener('keydown', (e) => {
+      const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('button[data-admin-tab]'));
+      const idx = buttons.indexOf(e.target as HTMLButtonElement);
+      if (idx === -1) return;
+      const ev = e as KeyboardEvent;
+      let next: number | null = null;
+      if (ev.key === 'ArrowRight') next = (idx + 1) % buttons.length;
+      else if (ev.key === 'ArrowLeft') next = (idx - 1 + buttons.length) % buttons.length;
+      else if (ev.key === 'Home') next = 0;
+      else if (ev.key === 'End') next = buttons.length - 1;
+      if (next === null) return;
+      ev.preventDefault();
+      const target = buttons[next];
+      target.focus();
+      window.history.replaceState(null, '', ADMIN_TABS[next].href);
+      route();
+    });
+  }
+
+  function setTabActive(id: string): void {
+    document.querySelectorAll<HTMLButtonElement>('[data-admin-tab]').forEach((b) => {
+      const active = b.dataset.adminTab === id;
+      b.setAttribute('aria-selected', String(active));
+      b.tabIndex = active ? 0 : -1;
+      b.classList.toggle('border-amber-400', active);
+      b.classList.toggle('text-amber-200', active);
+      b.classList.toggle('border-transparent', !active);
+      b.classList.toggle('text-gray-500', !active);
+    });
+  }
+
+  // ── Routing por hash (#lista / #discord / #usuario/<id>) ────────────────
   function route(): void {
     const target = resolveAdminHash(window.location.hash);
     const listView = document.getElementById('view-list') as HTMLElement;
     const detailView = document.getElementById('view-detail') as HTMLElement;
+    const discordView = document.getElementById('view-discord') as HTMLElement;
     if (target.kind === 'user') {
       const u = users.find((x) => x.id === target.id);
       listView.classList.add('hidden');
+      discordView.classList.add('hidden');
       detailView.classList.remove('hidden');
+      setTabActive(ADMIN_PANELS.LIST);
       if (u) renderDetail(u); else renderDetailMissing();
     } else {
       detailView.classList.add('hidden');
-      listView.classList.remove('hidden');
+      const isDiscord = tabFromHash(window.location.hash) === ADMIN_TABS[1].id;
+      listView.classList.toggle('hidden', isDiscord);
+      discordView.classList.toggle('hidden', !isDiscord);
+      setTabActive(isDiscord ? 'discord' : ADMIN_PANELS.LIST);
     }
   }
   window.addEventListener('hashchange', route);
@@ -173,6 +262,11 @@ import { ui } from '@/lib/ui/design';
     window.history.replaceState(null, '', `#${ADMIN_PANELS.LIST}`);
     route();
   });
+
+  // ── Discord: visibilidad del panel y carga de objetivos ─────────
+  if (isPersonaAdmin) {
+    await loadGoals();
+  }
 
   function openDetail(id: string): void {
     window.history.replaceState(null, '', `#${ADMIN_PANELS.USER}/${id}`);
@@ -197,16 +291,24 @@ import { ui } from '@/lib/ui/design';
     wrap.innerHTML = '';
     ROLES.forEach((role) => {
       const count = users.filter((u) => u.role === role).length;
-      const card = document.createElement('div');
-      card.className = `bg-gray-900/60 backdrop-blur-sm border rounded-md p-4 ${ROLE_BADGE[role]}`;
+      const isActive = activeRole === role;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[role]} p-4 text-left ${ui.focusRing} ${ui.transition} ${isActive ? ui.active : ''}`;
+      btn.setAttribute('aria-pressed', String(isActive));
       const num = document.createElement('p');
       num.className = 'text-3xl font-black';
       num.textContent = String(count);
-      const label = document.createElement('p');
-      label.className = 'text-[10px] font-black uppercase tracking-widest opacity-80 mt-1';
-      label.textContent = ROLE_LABELS[role];
-      card.append(num, label);
-      wrap.appendChild(card);
+      const lbl = document.createElement('p');
+      lbl.className = 'text-[10px] font-black uppercase tracking-widest opacity-80 mt-1';
+      lbl.textContent = ROLE_LABELS[role];
+      btn.append(num, lbl);
+      btn.addEventListener('click', () => {
+        activeRole = activeRole === role ? null : role;
+        renderStats();
+        render();
+      });
+      wrap.appendChild(btn);
     });
   }
 
@@ -215,12 +317,15 @@ import { ui } from '@/lib/ui/design';
     listEl.innerHTML = '';
     const q = searchEl.value.trim().toLowerCase();
 
-    const filtered = users.filter((u) =>
-      !q ||
-      (u.email ?? '').toLowerCase().includes(q) ||
-      (u.display_name ?? '').toLowerCase().includes(q) ||
-      (u.character_name ?? '').toLowerCase().includes(q)
-    );
+    const filtered = users.filter((u) => {
+      if (activeRole && u.role !== activeRole) return false;
+      if (!q) return true;
+      return (
+        (u.email ?? '').toLowerCase().includes(q) ||
+        (u.display_name ?? '').toLowerCase().includes(q) ||
+        (u.character_name ?? '').toLowerCase().includes(q)
+      );
+    });
 
     filtered.forEach((u) => listEl.appendChild(userRow(u)));
   }
@@ -413,5 +518,129 @@ import { ui } from '@/lib/ui/design';
       li.append(action, meta);
       listEl.appendChild(li);
     });
+  }
+
+  // ── Discord: mercadeo automático (objetivos → mensaje) ─────────────────
+  interface MarketingGoalView {
+    goal_key: string;
+    label: string;
+    target: number;
+    trend: 'up' | 'hold' | 'down';
+    current_value: number;
+    focus_boost: boolean;
+  }
+
+  // Trae el estado de los objetivos desde el RPC de evaluación (persiste y
+  // devuelve la lista). Doc: el RPC hace la evaluación real del motor.
+  async function fetchGoals(): Promise<MarketingGoalView[]> {
+    // El snapshot viene en array de una fila (RETURNS TABLE); se normaliza a
+    // objeto para que la evaluación acepte p_stats (jsonb_typeof = object).
+    const stats = await rpcAdmin('raiddominion_marketing_stats');
+    const statsRow = Array.isArray(stats.data) ? (stats.data[0] ?? {}) : (stats.data ?? {});
+    const goals = await rpcAdmin('raiddominion_marketing_evaluate', { p_stats: statsRow });
+    return (Array.isArray(goals.data) ? goals.data : []) as unknown as MarketingGoalView[];
+  }
+
+  function goalBadgeClasses(trend: MarketingGoalView['trend']): string {
+    if (trend === 'down') return `${ui.badge} ${ui.badgeRole.visitante}`;
+    if (trend === 'up') return `${ui.badge} ${ui.badgeRole.member}`;
+    return `${ui.badge} ${ui.badgeRole.guild_master}`;
+  }
+
+  function renderGoals(goals: MarketingGoalView[]): void {
+    const wrap = document.getElementById('discord-goals') as HTMLElement;
+    wrap.innerHTML = '';
+    goals.forEach((g) => {
+      const card = document.createElement('div');
+      card.className = `rounded-md p-3 border ${g.focus_boost ? 'border-amber-500/60 bg-amber-950/20' : 'border-gray-700/40 bg-gray-800/40'}`;
+      const top = document.createElement('div');
+      top.className = 'flex items-center justify-between gap-2';
+      const label = document.createElement('p');
+      label.className = 'text-[10px] font-black uppercase tracking-widest text-gray-400';
+      label.textContent = g.label;
+      const badge = document.createElement('span');
+      badge.className = goalBadgeClasses(g.trend);
+      badge.textContent = g.trend === 'up' ? 'alza' : g.trend === 'down' ? 'baja' : 'estable';
+      top.append(label, badge);
+      const val = document.createElement('p');
+      val.className = 'text-xl font-black text-amber-200 mt-1';
+      val.textContent = String(g.current_value);
+      const tgt = document.createElement('p');
+      tgt.className = 'text-[10px] text-gray-500';
+      tgt.textContent = `objetivo ${g.target}${g.focus_boost ? ' · priorizar' : ''}`;
+      card.append(top, val, tgt);
+
+      const actions = document.createElement('div');
+      actions.className = 'flex items-center gap-1.5 mt-2.5 pt-2 border-t border-gray-700/40';
+      const btnCls = `${ui.btnBase} ${ui.btnSecondary} flex-1 px-2 py-1 text-[10px] font-black uppercase tracking-widest`;
+      const testBtn = document.createElement('button');
+      testBtn.type = 'button';
+      testBtn.className = btnCls;
+      testBtn.textContent = 'Pruebas';
+      testBtn.setAttribute('aria-label', `Enviar ${g.label} al canal de pruebas`);
+      testBtn.addEventListener('click', () => sendDiscordMessage(g.goal_key, 'test', g.label));
+      const pubBtn = document.createElement('button');
+      pubBtn.type = 'button';
+      pubBtn.className = btnCls;
+      pubBtn.textContent = 'Público';
+      pubBtn.setAttribute('aria-label', `Enviar ${g.label} al canal público`);
+      pubBtn.addEventListener('click', () => sendDiscordMessage(g.goal_key, 'prod', g.label));
+      actions.append(testBtn, pubBtn);
+      card.appendChild(actions);
+      wrap.appendChild(card);
+    });
+  }
+
+  async function loadGoals(): Promise<void> {
+    try {
+      const goals = await fetchGoals();
+      if (goals.length > 0) renderGoals(goals);
+    } catch (err) {
+      console.error('[discord-goals]', err);
+    }
+  }
+
+  // ── Envío de un objetivo a Discord (pruebas o público) ────────────────
+  async function sendDiscordMessage(goalKey: string, canal: 'test' | 'prod', label: string): Promise<void> {
+    const status = document.getElementById('discord-status') as HTMLElement;
+    const preview = document.getElementById('discord-preview') as HTMLElement;
+    status.classList.remove('hidden');
+    preview.classList.add('hidden');
+
+    status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.loading.liveText}`;
+    status.textContent = `Generando y enviando «${label}»…`;
+
+    try {
+      const r = await fetch('/api/discord-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal_key: goalKey, canal }),
+      });
+      const data = (await r.json().catch(() => null)) as {
+        ok?: boolean;
+        sent?: boolean;
+        message?: string;
+        goals?: number;
+        error?: string;
+      } | null;
+
+      if (data?.ok) {
+        status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${data.sent ? ui.status.success : ui.status.warning}`;
+        status.textContent = data.sent
+          ? `Objetivo «${label}» enviado al canal ${canal === 'test' ? 'de pruebas' : 'público'}.`
+          : 'No se envió (webhook no configurado para ese canal).';
+        if (data.message) {
+          preview.textContent = data.message;
+          preview.classList.remove('hidden');
+        }
+        await loadGoals();
+      } else {
+        status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+        status.textContent = data?.error || 'No se pudo generar el mensaje.';
+      }
+    } catch {
+      status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+      status.textContent = 'Error de red al contactar el motor de mercadeo.';
+    }
   }
 </script>

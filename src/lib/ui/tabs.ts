@@ -82,6 +82,15 @@ export const ADMIN_PANELS = {
   USER: 'usuario', // seguido de /<id>
 } as const;
 
+// Pestañas de sección del admin (barra superior): Usuarios · Discord. El
+// detalle de usuario (#usuario/<id>) es una vista aparte que sustituye a
+// "Usuarios" mientras está abierta. admin.astro construye la barra desde aquí
+// (nunca hardcodear labels/ids en la página).
+export const ADMIN_TABS: TabDef[] = [
+  { id: ADMIN_PANELS.LIST, label: 'Usuarios', href: '#lista' },
+  { id: 'discord', label: 'Discord', href: '#discord' },
+];
+
 // Convierte un id de tab a su hash (#<id>).
 export function tabHash(id: string): string {
   return `#${id}`;

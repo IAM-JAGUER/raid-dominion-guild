@@ -72,6 +72,88 @@ export default defineConfig({
         },
       },
       {
+        // Dev-only: replica la Netlify Function /api/discord-send →
+        // discord-send.ts (envío manual a Discord desde el panel admin).
+        name: 'dev-discord-send-function',
+        apply: 'serve',
+        configureServer(server) {
+          const loaded = loadEnv(server.config.mode, server.config.root, '');
+          Object.entries(loaded).forEach(([k, v]) => {
+            if (process.env[k] === undefined) process.env[k] = v;
+          });
+          server.middlewares.use(async (req, res, next) => {
+            const url = req.url?.split('?')[0] ?? '';
+            if (url !== '/api/discord-send' || (req.method ?? 'GET') !== 'POST') return next();
+            try {
+              const mod = await server.ssrLoadModule('/netlify/functions/discord-send.ts');
+              const handler = mod.default;
+              const chunks = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = Buffer.concat(chunks).toString('utf8');
+              const request = new Request('http://localhost/api/discord-send', {
+                method: 'POST',
+                headers: { 'Content-Type': req.headers['content-type'] ?? 'application/json' },
+                body,
+              });
+              const response = await handler(request);
+              res.statusCode = response.status;
+              const ct = response.headers.get('content-type');
+              if (ct) res.setHeader('Content-Type', ct);
+              res.end(await response.text());
+            } catch (err) {
+              console.error('[dev-discord-send-function]', err);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+            }
+          });
+        },
+      },
+      {
+        // Dev-only: replica la Netlify Function /api/visit → visit.ts
+        // (registro de visitas + aviso al canal admin de Discord).
+        name: 'dev-visit-function',
+        apply: 'serve',
+        configureServer(server) {
+          const loaded = loadEnv(server.config.mode, server.config.root, '');
+          Object.entries(loaded).forEach(([k, v]) => {
+            if (process.env[k] === undefined) process.env[k] = v;
+          });
+          server.middlewares.use(async (req, res, next) => {
+            const url = req.url?.split('?')[0] ?? '';
+            if (url !== '/api/visit' || (req.method ?? 'GET') !== 'POST') return next();
+            try {
+              const mod = await server.ssrLoadModule('/netlify/functions/visit.ts');
+              const handler = mod.default;
+              const chunks = [];
+              for await (const chunk of req) chunks.push(chunk);
+              const body = Buffer.concat(chunks).toString('utf8');
+              // visit.ts excluye tráfico local (localhost/LAN) segun IP: pasamos
+              // la IP real del cliente (socket.remoteAddress) como lo haría Netlify.
+              const remoteAddress = req.socket?.remoteAddress;
+              const request = new Request('http://localhost/api/visit', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': req.headers['content-type'] ?? 'application/json',
+                  'x-nf-client-connection-ip': remoteAddress ?? '',
+                },
+                body,
+              });
+              const response = await handler(request);
+              res.statusCode = response.status;
+              const ct = response.headers.get('content-type');
+              if (ct) res.setHeader('Content-Type', ct);
+              res.end(await response.text());
+            } catch (err) {
+              console.error('[dev-visit-function]', err);
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+            }
+          });
+        },
+      },
+      {
         // Dev-only: replica el rewrite /jugador/* → /jugador de netlify.toml
         name: 'dev-p-rewrite',
         apply: 'serve',
