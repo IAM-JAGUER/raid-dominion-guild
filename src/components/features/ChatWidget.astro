@@ -24,8 +24,11 @@ const { className = '' } = Astro.props;
   <span class="text-xs font-bold uppercase tracking-widest">Guía RD</span>
 </button>
 
-<!-- Panel flotante -->
-<div id="chat-widget-panel" class="fixed bottom-16 inset-x-2 mx-auto z-[60] hidden flex-col overflow-hidden w-[min(24rem,calc(100vw-1rem))] max-h-[calc(100dvh-8.5rem)]" role="dialog" aria-label="Guía RaidDominion" aria-hidden="true">
+<!-- Panel flotante, anclado abajo-izquierda (misma esquina que el botón).
+     En móvil ocupa todo el ancho menos 0.5rem por lado (márgenes simétricas);
+     desde sm (≥640px) recién se aplica el ancho máximo y queda alineado al
+     borde izquierdo del toggle. -->
+<div id="chat-widget-panel" class="fixed bottom-16 left-2 z-[60] hidden flex-col overflow-hidden w-[calc(100vw-1rem)] sm:w-[min(24rem,calc(100vw-1rem))] max-h-[calc(100dvh-8.5rem)]" role="dialog" aria-label="Guía RaidDominion" aria-hidden="true">
   <!-- Cabecera -->
   <div class={`${ui.sectionHead} ${ui.cutTop} flex shrink-0 items-center justify-between gap-3 p-3 bg-gradient-to-br from-amber-900/20 to-transparent`}>
     <div class="flex items-center gap-2 min-w-0">
