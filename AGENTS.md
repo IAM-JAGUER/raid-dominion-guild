@@ -388,6 +388,16 @@ Si la base aún no la tiene, aplicarla a mano en el SQL Editor del proyecto
 RaidDominion y registrarla en `ciclos.json`; si ya está aplicada, no hace
 falta re-aplicarla.
 
+### Migración de regeneración de metas (20260922_marketing_target_regrowth.sql)
+
+Modifica `raiddominion_marketing_evaluate` para que **al cumplirse una meta
+(`current >= target`) el objetivo "renazca" con una meta nueva más exigente**:
+`new_target = GREATEST(target + 1, ceil(target × 1.5))` (ej. 1→2, 3→5, 8→12,
+10→15, 30→45). Sin esta migración, un objetivo cumplido quedaba fuera de
+`focus_boost` para siempre; con ella, si se estanca bajo la nueva meta vuelve
+a priorizarse. Aplicarla manualmente en el SQL Editor y registrarla en
+`ciclos.json`.
+
 ### Migración de tráfico orgánico (20260918_marketing_traffic.sql)
 
 Ampliación del sistema de mercadeo con estadísticas de **visitas**
