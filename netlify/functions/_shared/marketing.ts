@@ -16,6 +16,7 @@
 import { rpc } from './supabase';
 import { groqChat } from './groq';
 import { env } from './env';
+import { pickAddonImage, addonImageUrl } from './addonImages';
 
 export type MarketingEje = 'bandas' | 'hermandades' | 'jugadores';
 export type MarketingCanal = 'test' | 'prod';
@@ -121,11 +122,13 @@ function usernameFor(eje: MarketingEje): string {
 //   - 'test' → webhook privado DISCORD_WEBHOOK_URL (canal admin/pruebas)
 //   - 'prod' → DISCORD_PUBLIC_WEBHOOK_URL / DISCORD_WEBHOOK_URL
 //              (canal público / chat general)
-// Ambos canales llevan el LOGO GRANDE del portal como imagen del embed.
+// Ambos canales llevan una CAPTURA del addon (public/images/addon) como
+// imagen del embed, rotada de forma balanceada según el eje del mensaje
+// (bandas/hermandades/jugadores), y el logo como thumbnail.
 // La mención @everyone va SOLO en el canal público (prod); el canal
 // de pruebas/admin no menciona a nadie y, si se pasa `monitor`, incluye
 // la IP/UA desde la que se lanzó la prueba en el pie del embed.
-// Solo el aviso de VISITAS (visit.ts → canal admin) va SIN logo.
+// Solo el aviso de VISITAS (visit.ts → canal admin) va sin captura.
 // Devuelve el contenido final publicado (o que se publicaría). Nunca lanza.
 export async function sendContent(
   eje: MarketingEje,
@@ -162,6 +165,10 @@ export async function sendContent(
     ? { text: 'RaidDominion · Portal comunitario' }
     : { text: `Prueba desde ${monitor?.ip ?? 'n/d'}${monitor?.userAgent ? ` · ${monitor.userAgent.slice(0, 60)}` : ''}` };
 
+  // Captura del addon balanceada (se rota por eje según el mensaje). Si el
+  // RPC de rotación no está disponible se usa el fallback determinista.
+  const img = await pickAddonImage(SITE_URL, eje);
+
   const payload = {
     username: usernameFor(eje),
     content,
@@ -172,9 +179,10 @@ export async function sendContent(
         title: isProd ? `🌐 ${cta.label}` : `🧪 ${cta.label}`,
         url: cta.url,
         description: cta.action,
-        // El logo grande del portal va en TODOS los mensajes de mercadeo
-        // (públicos y de prueba). Solo las visitas (visit.ts) van sin logo.
-        image: { url: LOGO_URL },
+        // La captura del addon va en TODOS los mensajes de mercadeo
+        // (públicos y de prueba). El logo se mantiene como thumbnail.
+        image: { url: addonImageUrl(SITE_URL, img.file) },
+        thumbnail: { url: LOGO_URL },
         footer: embedFooter,
         timestamp: new Date().toISOString(),
       },

@@ -314,7 +314,14 @@ Node 20. `env()` (`_shared/env.ts`) lee `process.env` en deploy e
   controla con la env `DISCORD_DAILY_HOURS` (horas UTC separadas por coma en
   las que sí publica; por defecto `6,10,14,18,22` ≈ 00‑17 esMX — es decir, 5
   envíos al día, el disparo horario descarta el resto de horas). Cambiar la
-  cadencia = tocar la env, sin tocar código ni redeployar. Envs:
+  cadencia = tocar la env, sin tocar código ni redeployar.
+  **Idempotencia anti-duplicados (migración 20260925):** antes de evaluar y
+  enviar, la función reclama el slot de su ventana horaria
+  (`raiddominion_cron_claim_slot`, clave `YYYYMMDD-HH` UTC sobre
+  `raiddominion_cron_slots` con `INSERT ... ON CONFLICT DO NOTHING`, atómico).
+  Si otro disparo o un reintento de Netlify (las Scheduled Functions son
+  at-least-once) ya tomó el slot, responde `skipped` y NO envía → solo un
+  mensaje por ventana. Envs:
   `DISCORD_WEBHOOK_URL` / `DISCORD_PUBLIC_WEBHOOK_URL`; sin webhook, avisa y
   omite (no falla).
 - **`netlify/functions/_shared/marketing.ts`** — motor de mercadeo inteligente
@@ -416,12 +423,16 @@ privado/admin: test de mercadeo y avisos de visitas),
 configurar las mismas vars en Netlify.
 
 Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
-- **Canal público (`prod`)**: logo grande del portal como imagen del embed
-  (embed `image`, sobre la URL canónica + `/logo.png`) + @everyone + CTA.
-- **Canal admin/pruebas (`test`)**: MISMO embed con logo y CTA, SIN @everyone;
-  es un preview de monitoreo con la **IP** y UA de quien lanzó la prueba en el
-  pie del embed.
-- **Solo los avisos de VISITAS (`visit.ts`) van SIN logo** (embed con IP y
+- **Canal público (`prod`)**: una CAPTURA del addon como imagen del embed
+  (`embed image`, desde `public/images/addon/*.jpg`), rotada de forma
+  **balanceada según el eje del mensaje** (bandas/hermandades/jugadores) vía
+  RPC `raiddominion_marketing_pick_image` (tabla `raiddominion_marketing_images`,
+  migración 20260925; fallback determinista en `_shared/addonImages.ts` si el
+  RPC no está aplicado) + logo como thumbnail + @everyone + CTA.
+- **Canal admin/pruebas (`test`)**: MISMO embed con captura + CTA y logo
+  thumbnail, SIN @everyone; es un preview de monitoreo con la **IP** y UA de
+  quien lanzó la prueba en el pie del embed.
+- **Solo los avisos de VISITAS (`visit.ts`) van SIN captura** (embed con IP y
   datos del visitante), también al canal admin.
 - **Enlace útil de la plataforma con CTA** en ambos (título clicable del
   embed + línea markdown `➜ **<label>**: <url>` según eje): `/upload`,
@@ -437,7 +448,7 @@ completo, Configurados en `.env`/Netlify):
   mensajes SIN @everyone).
 - **Público / chat general y cron** `1475350391960109108` →
   `DISCORD_PUBLIC_WEBHOOK_URL` (canal público: cron `discord-daily` y botón
-  "Público" de cada objetivo; con @everyone y logo).
+  "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
 

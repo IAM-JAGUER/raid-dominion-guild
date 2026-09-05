@@ -338,7 +338,22 @@
       "notas": "Aplicada (2026-09-04). Evidencia: motor dev devuelve 11 objetivos (incluye visits_weekly/visitors_30d/visits_upload_7d/visits_directory_7d) y stats con métricas de visitas reales (4→30 visitas semanales)."
     }
   ],
-  "migraciones_pendientes_confirmacion": [],
+  "migraciones_pendientes_confirmacion": [
+    {
+      "archivo": "20260925_cron_dedupe.sql",
+      "fecha_redaccion": "2026-09-05",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": false,
+      "notas": "Pendiente de aplicar. Tabla raiddominion_cron_slots + RPC raiddominion_cron_claim_slot para idempotencia del cron de Discord: garantiza un solo mensaje por ventana horaria aunque Netlify reintente la función (se recibían duplicados)."
+    },
+    {
+      "archivo": "20260925_marketing_images.sql",
+      "fecha_redaccion": "2026-09-05",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": false,
+      "notas": "Pendiente de aplicar. Tabla raiddominion_marketing_images + RPC raiddominion_marketing_pick_image para rotar de forma balanceada las capturas del addon (public/images/addon) en los embeds de mercadeo según el eje del mensaje. Aplicar también 20260925_cron_dedupe.sql."
+    }
+  ],
   "resumen": {
     "total_ciclos": 0,
     "exitosos": 0,
