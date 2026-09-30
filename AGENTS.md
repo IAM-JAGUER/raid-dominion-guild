@@ -123,7 +123,7 @@ evidencia de membresía (GM v3, legacy, bandas) y helpers de roles, leer
 
 ## 5. Formato de SavedVariables
 
-Formato oficial v3.0.0. Parser en `src/lib/parser/savedVariables.ts`.
+Formato actual v3.0.1, compatible con archivos v3.0.0. Parser en `src/lib/parser/savedVariables.ts`.
 Especificación completa: `AGENTS.sections/parser.md`.
 
 ## 6. Organización de código

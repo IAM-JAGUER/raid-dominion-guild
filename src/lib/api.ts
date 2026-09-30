@@ -21,12 +21,23 @@ export async function saveUpload(data: ParsedSavedVariables): Promise<{ ok: bool
   const user = session.session?.user;
   if (!user) return { ok: false, error: 'sin sesión' };
 
+  // `data.version` identifica la versión del parser. La columna addon_version
+  // conserva la versión real del cliente, leída del personaje activo en SV.
+  const playerName = data.player?.name.trim().toLowerCase();
+  const playerRealm = (data.player?.realm ?? '').trim().toLowerCase();
+  const addonVersion = playerName
+    ? data.characters.find((character) =>
+        character.name.trim().toLowerCase() === playerName &&
+        (character.realm ?? '').trim().toLowerCase() === playerRealm
+      )?.version ?? null
+    : null;
+
   const insert = await supabase
     .from('raiddominion_saved_variables')
     .insert({
       user_id: user.id,
       generated_by: data.generatedBy ?? null,
-      addon_version: data.version ?? null,
+      addon_version: addonVersion,
       status: 'parsed',
       raw: data,
     })

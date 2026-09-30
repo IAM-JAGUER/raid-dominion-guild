@@ -21,7 +21,7 @@ import { ui } from '@/lib/ui/design';
           Sube tu SavedVariables
         </h1>
         <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
-          Carga tu <code class="text-amber-300">RaidDominion.lua</code> para ver el roster, las bandas y los roles de tu hermandad.
+          Carga tu <code class="text-amber-300">RaidDominion.lua</code> para analizar roster, bandas y objetivos registrados de tus personajes.
         </p>
       </header>
       <div class={`${ui.dividerFadeBoth} mt-6 mb-10`} aria-hidden="true"></div>
@@ -64,7 +64,7 @@ import { ui } from '@/lib/ui/design';
         </div>
 
         <!-- Cifras del procesamiento -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-guilds">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
@@ -80,6 +80,10 @@ import { ui } from '@/lib/ui/design';
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-rules">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-objectives">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Objetivos</p>
           </div>
         </div>
 
@@ -476,6 +480,11 @@ import { ui } from '@/lib/ui/design';
     (document.getElementById('stat-characters') as HTMLElement).textContent = String(regCharCount);
     (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length);
     (document.getElementById('stat-rules') as HTMLElement).textContent = String(data.rules.length);
+    const objectiveCount = data.registries.reduce((total, registry) => {
+      const objectives = registry.objectives;
+      return total + (objectives?.equipment.length ?? 0) + (objectives?.currencies.length ?? 0);
+    }, 0);
+    (document.getElementById('stat-objectives') as HTMLElement).textContent = String(objectiveCount);
 
     // Claim de maestro (auto por SV; sin formularios manuales)
     const claimBanner = document.getElementById('claim-banner') as HTMLElement;

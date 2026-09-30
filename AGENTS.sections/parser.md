@@ -1,11 +1,11 @@
-# Formato de SavedVariables — Especificación v3.0.0
+# Formato de SavedVariables — Especificación v3.0.1
 
 > Este archivo complementa `AGENTS.md` §5. Solo leerlo cuando se trabaja con
 > el parser de SavedVariables o las guías del addon.
 
 Parser en `src/lib/parser/savedVariables.ts` (evoluciona `public/guildList.py`).
 
-## Estructura de `RaidDominionDB` (formato REAL verificado 2026-08-22)
+## Estructura de `RaidDominionDB` (formato actualizado 2026-09-30)
 
 Referencias: `D:\WowClient esMX\WTF\Account\IAMM\SavedVariables\RaidDominion.lua`
 (formato vigente), IAMM1/JUNGJX (secciones legacy).
@@ -14,8 +14,12 @@ Referencias: `D:\WowClient esMX\WTF\Account\IAMM\SavedVariables\RaidDominion.lua
 RaidDominionDB = {
   ["registry"] = {                    -- ⭐ FUENTE PRINCIPAL — DOS formas reales:
     -- a) mapa por personaje (config compartida v3, vigente):
-    ["Nombre-Reino"] = { ["spammer"], ["player"] = {...equipamiento...}, ["guild"],
-      ["assignments"], ["bands"], ["savedAt"] },
+    ["Nombre-Reino"] = { ["savedAt"], ["player"] = {...equipamiento...},
+      ["objectives"] = {
+        ["equipment"] = { {slot, name, itemID?, ilvl?, quality?, done} },
+        ["currencies"] = { {name, target, reached} },
+      },
+      ["guild"], ["assignments"], ["bands"], ["spammer"] },
     -- b) objeto único plano (formato intermedio): ["player"], ["savedAt"],
     --    ["guild"] = { name, numMembers, isGM, rankIndex, rank }
     -- En AMBAS formas, guild de un GM incluye además:
@@ -43,9 +47,21 @@ RaidDominionDB = {
 }
 ```
 
+`registry["Nombre-Reino"].objectives` es una proyección intencional de la raíz
+local `itemGoals`: exporta metas de equipo y de moneda, pero no iconos ni flags
+de seguimiento (`itemTracked`, `currencyTracked`, `instancesTracked`). El portal
+las conserva en el historial privado del upload; no las agrega a la ficha
+pública del personaje.
+
+`characters["Nombre-Reino"].version` identifica la versión del addon y se
+actualiza al iniciar sesión. El parser la conserva en `AccountCharacter`.
+Snapshots sin `objectives` se aceptan por compatibilidad y generan una
+advertencia para volver a pulsar "Registrar".
+
 ## Reglas del parser
 
-- Prioridad: **formato oficial v3.0.0** (el de arriba). El formato v2 (`Guild`
+- Prioridad: **formato oficial v3.0.1** (el de arriba), con compatibilidad para
+  SV v3.0.0. El formato v2 (`Guild`
   como único origen, bandas solo en `Core`) NO se parsea como fuente principal.
 - Claim de maestro en DOS flujos:
   a) **Primario (v3):** cualquier `registry.*.guild.isGM=true` habilita

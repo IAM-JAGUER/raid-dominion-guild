@@ -1,4 +1,4 @@
-// Parser estructural de SavedVariables de RaidDominion (RaidDominionDB v3.0.0).
+// Parser estructural de SavedVariables de RaidDominion (RaidDominionDB v3.0.1).
 // Alineado al formato REAL del addon v3 (la ruta local del addon dev y los
 // perfiles de ejemplo viven SOLO en AGENTS.sections/addon.md):
 //
@@ -7,6 +7,8 @@
 //       talentSpec, talentTree, avgIlvl, equipmentCount, equipment = { {slot,name,ilvl,quality} } },
 //     registry["Char-Realm"].guild = { name, numMembers, isGM, rankIndex, rank,
 //       memberList = { {name, rank, rankIndex, level, class, classFile, online} } } (roster GM),
+//     registry["Char-Realm"].objectives = { equipment = { {slot,name,itemID?,ilvl?,quality?,done} },
+//       currencies = { {name,target,reached} } },
 //     registry.savedAt,
 //     Guild (legacy) = { lastUpdate, generatedBy, memberList = { {name, class, rank, publicNote, officerNote} } },
 //     bands = { { name, icon, schedule, minGS, players = { {name, class, role, dual, leader, banned, sanction, notes, points} }, spammer } },
@@ -29,6 +31,9 @@ import {
   type BandPlayer,
   type PlayerCharacter,
   type EquipmentPiece,
+  type EquipmentObjective,
+  type CurrencyObjective,
+  type PlayerObjectives,
   type AccountCharacter,
   type RegistryGuild,
   type GuildRank,
@@ -333,6 +338,46 @@ function asEquipmentPieces(raw: unknown): EquipmentPiece[] {
     .filter((x): x is EquipmentPiece => x !== null);
 }
 
+function asPlayerObjectives(raw: unknown): PlayerObjectives | undefined {
+  const e = asObj(raw);
+  if (!e) return undefined;
+
+  const equipment = asArray(e['equipment']).reduce<EquipmentObjective[]>((goals, entry) => {
+    const item = asObj(entry);
+    if (!item) return goals;
+    const slot = toNum(item['slot']);
+    const name = toStr(item['name']).trim();
+    if (slot === undefined || !Number.isInteger(slot) || slot < 0 || slot > 19 || !name) return goals;
+    const goal: EquipmentObjective = {
+      slot,
+      name,
+      done: toBool(item['done']),
+    };
+    const itemID = toNum(item['itemID']);
+    const ilvl = toNum(item['ilvl']);
+    const quality = toNum(item['quality']);
+    if (itemID !== undefined) goal.itemID = itemID;
+    if (ilvl !== undefined) goal.ilvl = ilvl;
+    if (quality !== undefined) goal.quality = quality;
+    goals.push(goal);
+    return goals;
+  }, []).sort((a, b) => a.slot - b.slot);
+
+  const currencies = asArray(e['currencies'])
+    .map((entry) => {
+      const currency = asObj(entry);
+      if (!currency) return null;
+      const name = toStr(currency['name']).trim();
+      const target = toNum(currency['target']);
+      if (!name || target === undefined || target <= 0) return null;
+      return { name, target, reached: toBool(currency['reached']) } satisfies CurrencyObjective;
+    })
+    .filter((goal): goal is CurrencyObjective => goal !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return { equipment, currencies };
+}
+
 // registry.player — personaje propio del archivo actual
 function asPlayerCharacter(raw: unknown): PlayerCharacter | null {
   const e = asObj(raw);
@@ -376,6 +421,7 @@ function asAccountCharacters(raw: unknown): AccountCharacter[] {
         classFile: toStr(e['classFile']).trim() || undefined,
         race: toStr(e['raceName']).trim() || undefined,
         level: toNum(e['level']),
+        version: toStr(e['version']).trim() || undefined,
         firstSeen: toNum(e['firstSeen']),
         lastSeen: toNum(e['lastSeen']),
       };
@@ -570,6 +616,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
       key: `${toStr(registryEntry['player'] && asObj(registryEntry['player'])?.['name'])}-${
         toStr(asObj(registryEntry['player'])?.['realm'])}`,
       player: asPlayerCharacter(registryEntry['player']),
+      objectives: asPlayerObjectives(registryEntry['objectives']),
       guild: asRegistryGuild(registryEntry['guild']),
       savedAt: toStr(registryEntry['savedAt']).trim() || null,
     });
@@ -592,6 +639,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
         registries.push({
           key: e.key,
           player: asPlayerCharacter(e.val['player']),
+          objectives: asPlayerObjectives(e.val['objectives']),
           guild: asRegistryGuild(e.val['guild']),
           savedAt: toStr(e.val['savedAt']).trim() || null,
         });
@@ -613,6 +661,10 @@ export function parseSavedVariables(rawText: string): ParseResult {
   }
   if (!player) {
     warnings.push('El archivo no trae registry.player: abre el addon en el juego y exporta tu personaje.');
+  }
+  const missingObjectives = registries.filter((registry) => registry.player && !registry.objectives);
+  if (missingObjectives.length > 0) {
+    warnings.push('Uno o más registros son anteriores al exportador de objetivos 3.0.1. Entra con cada personaje y pulsa «Registrar» para incluir sus metas de equipo y moneda.');
   }
 
   const guildRaw = asObj(root['Guild']) ?? {};

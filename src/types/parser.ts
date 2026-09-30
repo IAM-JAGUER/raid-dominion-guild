@@ -17,6 +17,27 @@ export interface EquipmentPiece {
   quality: number;
 }
 
+// Metas personales proyectadas desde itemGoals al pulsar "Registrar".
+export interface EquipmentObjective {
+  slot: number;
+  name: string;
+  itemID?: number;
+  ilvl?: number;
+  quality?: number;
+  done: boolean;
+}
+
+export interface CurrencyObjective {
+  name: string;
+  target: number;
+  reached: boolean;
+}
+
+export interface PlayerObjectives {
+  equipment: EquipmentObjective[];
+  currencies: CurrencyObjective[];
+}
+
 // Personaje propio exportado por el addon (registry.player)
 // `server` = realmlist (servidor real, p.ej. "Lordaeron"), DISTINTO de `realm`.
 // Solo existe en registry.player (el roster `characters` de la cuenta no lo trae).
@@ -46,6 +67,7 @@ export interface AccountCharacter {
   classFile?: string;
   race?: string;
   level?: number;
+  version?: string;
   firstSeen?: number;
   lastSeen?: number;
 }
@@ -54,6 +76,8 @@ export interface AccountCharacter {
 export interface CharacterRegistry {
   key: string;
   player: PlayerCharacter | null;
+  // Metas exportadas por Registrar. Ausente en SavedVariables anteriores a 3.0.1.
+  objectives?: PlayerObjectives;
   guild: RegistryGuild | null;
   savedAt: string | null;
 }
@@ -168,7 +192,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-export const PARSER_VERSION = 'v3.1.0';
+export const PARSER_VERSION = 'v3.2.0';
 
 export const MAX_SV_BYTES = 2 * 1024 * 1024; // 2 MB
 
