@@ -26,17 +26,43 @@ export function bandMergeKey(b: { name?: string | null; schedule?: string | null
 
 // Unión de jugadores de varias bandas, deduplicada por name (conserva el orden
 // de aparición). Bandas con hide_players ya llegan sin players[] desde el API.
+//
+// Al repetirse un nombre NO se descarta la entrada nueva: se completa la ya
+// guardada con los campos que le faltaban. Sin esto, las notas de una banda
+// integrada se perdían si el jugador aparecía antes (sin nota) en otra banda
+// del grupo: la ficha pública del core perdía información que el SV sí trae.
+// Regla: gana el primer valor no vacío; el SV es la fuente de verdad, así que
+// no se concatenan notas distintas (evita texto infinito entre reuploads).
+const MERGE_FIELDS = ['class', 'role', 'dual', 'leader', 'notes', 'sanction'] as const;
+
 export function mergeBandPlayers(bands: BandRow[]): MergePlayer[] {
-  const seen = new Set<string>();
-  const out: MergePlayer[] = [];
+  const byName = new Map<string, MergePlayer>();
+  const order: string[] = [];
   bands.forEach((b) => {
     const list = Array.isArray(b.players) ? (b.players as MergePlayer[]) : [];
     list.forEach((p) => {
       const name = (p.name || '').trim();
-      if (!name || seen.has(name)) return;
-      seen.add(name);
-      out.push(p);
+      if (!name) return;
+      const prev = byName.get(name);
+      if (!prev) {
+        byName.set(name, p);
+        order.push(name);
+        return;
+      }
+      MERGE_FIELDS.forEach((field) => {
+        if (prev[field] === undefined || prev[field] === null || prev[field] === '') {
+          const incoming = p[field];
+          if (incoming !== undefined && incoming !== null && incoming !== '') {
+            prev[field] = incoming as never;
+          }
+        }
+      });
+      // Puntos y sanción: gana el valor más alto (acumulación del raid leader).
+      if (typeof p.points === 'number' && (!prev.points || p.points > prev.points)) {
+        prev.points = p.points;
+      }
+      if (p.banned !== undefined && !prev.banned) prev.banned = true;
     });
   });
-  return out;
+  return order.map((name) => byName.get(name) as MergePlayer);
 }

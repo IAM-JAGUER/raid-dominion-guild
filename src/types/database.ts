@@ -76,6 +76,9 @@ export type CharacterRow = {
   talent_spec: string | null;
   avg_ilvl: number | null;
   equipment: unknown[];
+  // Metas públicas (registry[*].objectives saneadas por la DB). Solo se
+  // exponen fuera del dashboard si el personaje es público, igual que el resto.
+  objectives: { equipment: unknown[]; currencies: unknown[] } | null;
   is_public: boolean;
   member_verified: boolean;
   sv_guild_name: string | null;
@@ -105,6 +108,7 @@ export type BandRow = {
   owner_rank_index: number | null;
   // Oculta número y lista de jugadores al público (global).
   hide_players: boolean;
+  notes_public: boolean;
   // true si la banda está aprobada por el GM (cuenta en el portal si además
   // es pública). Antes se auto-calculaba por rango; hoy lo decide el GM.
   is_rank_integrated: boolean;
@@ -124,6 +128,17 @@ export type BandRow = {
   created_at: string;
   updated_at: string;
 }
+
+// Nota privada de un jugador de una banda (raiddominion_band_notes). Solo el
+// dueño de la banda la lee; se proyecta a players[].notes del row público
+// únicamente cuando la banda tiene notes_public activo.
+export type BandNoteRow = {
+  band_id: string;
+  player_key: string;
+  player_name: string;
+  notes: string;
+  updated_at: string;
+};
 
 type PublicSchema = {
   raiddominion_profile_handles: {
@@ -162,6 +177,12 @@ type PublicSchema = {
     Update: Partial<BandRow>;
     Relationships: [];
   };
+  raiddominion_band_notes: {
+    Row: BandNoteRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
   raiddominion_characters: {
     Row: CharacterRow;
     Insert: Partial<CharacterRow> & { user_id: string; name: string };
@@ -191,6 +212,7 @@ type PublicFunctions = {
     Returns: number;
   };
   raiddominion_set_band_hide_players: { Args: { p_band_id: string; p_hide: boolean }; Returns: boolean };
+  raiddominion_set_band_notes_public: { Args: { p_band_id: string; p_public: boolean }; Returns: boolean };
   raiddominion_set_band_guild: { Args: { p_band_id: string; p_guild_id: string | null }; Returns: boolean };
   raiddominion_set_band_rules: { Args: { p_band_id: string; p_rules: Record<string, unknown>[] }; Returns: boolean };
   raiddominion_propose_band_integration: { Args: { p_band_id: string }; Returns: boolean };

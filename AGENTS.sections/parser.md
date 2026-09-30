@@ -50,13 +50,43 @@ RaidDominionDB = {
 `registry["Nombre-Reino"].objectives` es una proyección intencional de la raíz
 local `itemGoals`: exporta metas de equipo y de moneda, pero no iconos ni flags
 de seguimiento (`itemTracked`, `currencyTracked`, `instancesTracked`). El portal
-las conserva en el historial privado del upload; no las agrega a la ficha
-pública del personaje.
+las conserva en el historial privado del upload **y** las publica en la ficha
+pública del personaje (pestaña "Metas"), siempre que la ficha sea pública: la
+columna `raiddominion_characters.objectives` se sella con el mismo
+`is_public` que el resto de la ficha.
+
+`registry["Nombre-Reino"].assignments` se sigue exportando para que el addon
+sincronice cuentas, pero **no es dato comunitario**: el parser no lo expone en
+`AccountCharacter`/`CharacterRegistry` y la web no lo persiste ni lo publica.
+
+### Normalización interna del portal
+
+El SV mantiene `objectives` como rama hermana de `player`; el modelo normalizado
+del portal la anida bajo el personaje para que todo lo público cuelgue de una
+sola entidad:
+
+```
+SV:  registry[name].player = {...}   registry[name].objectives = {...}
+SV → PlayerCharacter.objectives      (CharacterRegistry ya NO tiene `objectives`)
+```
+
+La facción de la hermandad se resuelve con este orden (idéntico en el parser y
+en `raiddominion_claim_from_sv`), y el primer valor válido gana:
+
+1. Raza del GM: `raceFile` (token del cliente) y, si faltara, `raceName`, vía el
+   mapa de facción por raza — cubre las 11 razas de WotLK en es/en.
+2. `characters[*].faction` / `registry[*].guild.faction` declarado, normalizado
+   es/en.
+
+`'?'`, vacío y cualquier otro valor NO son facciones: se descartan (antes se
+convertían erróneamente en "Alliance"). El backfill en SQL rellena
+`raiddominion_guilds.faction` con la misma lógica, incluyendo las filas que
+guardaban `'?'`.
 
 `characters["Nombre-Reino"].version` identifica la versión del addon y se
 actualiza al iniciar sesión. El parser la conserva en `AccountCharacter`.
-Snapshots sin `objectives` se aceptan por compatibilidad y generan una
-advertencia para volver a pulsar "Registrar".
+Snapshots sin `objectives` se aceptan por compatibilidad: la columna queda
+vacía y se muestra el aviso de re-registro.
 
 ## Reglas del parser
 

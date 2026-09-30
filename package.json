@@ -11,6 +11,7 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "test": "node --experimental-strip-types --import ./tests/register-alias.mjs --test tests/*.test.ts",
     "astro": "astro"
   },
   "dependencies": {

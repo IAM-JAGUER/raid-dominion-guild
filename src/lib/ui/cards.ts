@@ -29,7 +29,9 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
 
   // Chips: facción, servidor (enlaza al directorio de servidores), verificación y Discord
   const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
-  if (g.faction) {
+  // Solo se pinta chip si la facción es una real: el addon usa '?' como
+  // marcador de desconocido y no debe verse como Alianza.
+  if (g.faction === 'Horde' || g.faction === 'Alliance') {
     const faction = el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza');
     chips.appendChild(faction);
   }

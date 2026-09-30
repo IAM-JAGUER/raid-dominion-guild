@@ -1,7 +1,12 @@
 import { supabase } from './supabase';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
-import type { ParsedSavedVariables, GuildRank, ContentItem } from '@/types/parser';
+import type { ParsedSavedVariables, GuildRank, ContentItem, PlayerObjectives } from '@/types/parser';
 import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
+
+// Forma persistida de `raiddominion_characters.objectives` (columna JSONB). La
+// sanea la DB (raiddominion_sanitize_objectives) y el parser aplica el mismo
+// filtro, pero el tipo es defensivo: una fila vieja puede no tener la columna.
+export type CharacterObjectives = PlayerObjectives;
 
 // Tipos re-exportados para los consumidores de la capa de datos.
 export type { BandRow } from '@/types/database';
@@ -516,6 +521,9 @@ export async function getPublicBandBySlug(slug: string): Promise<{ ok: boolean; 
 // ─── Gestión de bandas propias ──────────────────────────────────────────
 
 // Bandas del usuario autenticado (RLS: solo las propias).
+// Las notas NO vienen en players[] si la banda no las publica: se leen del
+// almacén privado (RLS: solo el dueño) y se inyectan aquí para que el líder
+// vea y edite SIEMPRE sus notas, publique o no la banda.
 export async function getMyBands(): Promise<{ ok: boolean; items?: BandRow[]; error?: string }> {
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData.session?.user;
@@ -528,7 +536,36 @@ export async function getMyBands(): Promise<{ ok: boolean; items?: BandRow[]; er
     .order('name', { ascending: true });
 
   if (res.error) return { ok: false, error: res.error.message };
-  return { ok: true, items: (res.data as BandRow[]) ?? [] };
+  const items = (res.data as BandRow[]) ?? [];
+  if (items.length === 0) return { ok: true, items };
+
+  const ids = items.map((b) => b.id);
+  const notesRes = await supabase
+    .from('raiddominion_band_notes')
+    .select('band_id, player_key, notes')
+    .in('band_id', ids)
+    .neq('notes', '');
+  if (notesRes.error) return { ok: false, error: notesRes.error.message };
+
+  const byBand = new Map<string, Map<string, string>>();
+  ((notesRes.data ?? []) as Array<{ band_id: string; player_key: string; notes: string }>).forEach((n) => {
+    if (!byBand.has(n.band_id)) byBand.set(n.band_id, new Map());
+    byBand.get(n.band_id)?.set(n.player_key, n.notes);
+  });
+
+  items.forEach((b) => {
+    const map = byBand.get(b.id);
+    if (!map) return;
+    const players = Array.isArray(b.players) ? (b.players as Array<Record<string, unknown>>) : [];
+    if (players.length === 0) return;
+    b.players = players.map((p) => {
+      const key = (p.name ?? '').toString().trim().toLowerCase();
+      const note = key ? map.get(key) : undefined;
+      return note ? { ...p, notes: note } : p;
+    });
+  });
+
+  return { ok: true, items };
 }
 
 // Alterna la visibilidad pública de una banda propia.
@@ -646,6 +683,19 @@ export async function setBandHidePlayers(id: string, hide: boolean): Promise<{ o
   const rpc = await supabase.rpc('raiddominion_set_band_hide_players', {
     p_band_id: id,
     p_hide: hide,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// Publica o retira las NOTAS de los jugadores de una banda propia (interruptor
+// del líder, independiente de "Ocultar jugadores"). Vía RPC SECURITY DEFINER:
+// el texto se guarda siempre en raiddominion_band_notes y solo se inyecta en
+// players[] del row público cuando p_public es TRUE.
+export async function setBandNotesPublic(id: string, notesPublic: boolean): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_band_notes_public', {
+    p_band_id: id,
+    p_public: notesPublic,
   });
   if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true };
@@ -1205,6 +1255,9 @@ export interface CharacterRow {
   talent_spec: string | null;
   avg_ilvl: number | null;
   equipment: Array<{ slot: number; name: string; ilvl: number; quality: number }>;
+  // Metas del personaje (registry[*].objectives saneadas en la DB). Viaja por la
+  // MISMA RLS que el resto de la ficha: si el personaje es privado, no hay metas.
+  objectives: CharacterObjectives;
   is_public: boolean;
   member_verified: boolean;
   sv_guild_name: string | null;
@@ -1216,6 +1269,9 @@ export interface CharacterRow {
 
 // Registra/actualiza el personaje del SV subido (RPC SECURITY DEFINER).
 // 'conflict' = el (nombre, reino) ya está vinculado a otra cuenta.
+// Las metas viajan ANIDADAS en `player.objectives` (mismo scope que el
+// personaje): la RPC las sanea y solo las sobrescribe si el SV trae la rama,
+// así que un snapshot anterior a 3.0.1 no borra metas ya registradas.
 export async function upsertMyCharacter(
   svId: string,
   player: ParsedSavedVariables['player'],

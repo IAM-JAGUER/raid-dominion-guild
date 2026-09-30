@@ -60,9 +60,12 @@ export const JUGADOR_TABS: TabDef[] = [
 ];
 
 // Pestañas de la ficha pública de personaje (/personaje/:slug): Equipamiento ·
-// Bandas · Hermandad. Los paneles sin datos no generan pestaña.
+// Metas · Bandas · Hermandad. Los paneles sin datos no generan pestaña.
+// "Metas" va segunda porque es el dato que el personaje publica para que la
+// comunidad sepa qué busca conseguir (registry[*].objectives).
 export const PERSONAJE_TABS: TabDef[] = [
   { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento' },
+  { id: 'metas', label: 'Metas', href: '#metas' },
   { id: 'bandas', label: 'Bandas', href: '#bandas' },
   { id: 'hermandad', label: 'Hermandad', href: '#hermandad' },
 ];

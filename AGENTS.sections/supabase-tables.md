@@ -65,6 +65,47 @@
 
 Helpers: `canAccessGuildDashboard()`, `canManageGuild()`, `isStaff()`.
 
+## Notas privadas de jugador (`raiddominion_band_notes`)
+
+Regla 20260930. Antes de esta fecha `bands[].players[].notes` viajaba dentro del
+row PÚBLICO de la banda. Como el RLS filtra filas, no columnas JSON, las notas
+ahora viven en una tabla aparte y solo se proyecta al row público cuando el
+líder lo autoriza.
+
+- `raiddominion_band_notes (band_id, player_key, player_name, notes, updated_at)`,
+  PK `(band_id, player_key)`. `player_key = lower(trim(name))`. RLS: solo el
+  `owner_id` de la banda lee y escribe; sin política para `anon`.
+- `raiddominion_bands.notes_public BOOLEAN DEFAULT FALSE` — interruptor propio del
+  líder ("Notas públicas"), **independiente** de `hide_players` (que sigue siendo
+  solo ocultación de cliente, no protege el roster vía REST directo).
+- El texto siempre se guarda en la tabla privada; `notes_public` solo decide si
+  se reproyecta a `players[].notes` del row público.
+- `raiddominion_apply_band_notes(band_id, players)` es el ÚNICO punto de
+  sincronización: `players` NO NULL = sincroniza el almacén con el SV; NULL =
+  solo reproyecta según el flag. Lo invoca `raiddominion_upsert_bands`.
+- `raiddominion_set_band_notes_public(band_id, public)` valida
+  `auth.uid() = owner_id` y hace la reproyección en **dos** statements: cambiar
+  el flag y leerlo en el mismo UPDATE haría que el helper viera el snapshot
+  anterior.
+- Las funciones helper son `SECURITY DEFINER` y están **REVOKEadas de PUBLIC,
+  `anon` y `authenticated`**: se ejecutan como dueño de tabla desde
+  `upsert_bands`/`set_band_notes_public`. Sin ese REVOKE un anónimo podía leer
+  las notas de cualquier banda vía RPC.
+- El backfill copia las notas que ya vivían en `players[]` a la tabla y las
+  borra del row público: quedan privadas hasta que el líder reactive el
+  interruptor.
+- En TypeScript, los `Row` del mapa `PublicSchema` deben ser alias `type`, no
+  `interface`: una `interface` rompe la inferencia de `@supabase/supabase-js` y
+  colapsa todo el esquema a `never`.
+
+## Facción de hermandad inferida
+
+Regla 20260930. `raiddominion_guilds.faction` se rellena con la facción real de
+la raza del GM (`raiddominion_characters.race` de un personaje validado del
+mismo nombre de hermandad). `'?'` y vacío cuentan como desconocido y también se
+sustituyen. El parser aplica la misma prioridad: facción declarada → mapa de
+raza → `raceFile`.
+
 ## URLs públicas (detalles)
 
 - Portal de hermandad: **`/hermandad/:slug`** vía shell `src/pages/hermandad/index.astro`

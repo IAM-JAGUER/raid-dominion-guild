@@ -278,14 +278,23 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   row.appendChild(accent);
 
   const left = el('div', 'flex items-center gap-2.5 min-w-0');
-  left.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-md border border-gray-700/50 shrink-0 object-cover'));
+  // Identidad (icono + nombre + badges) y nota en columna: la nota es texto
+  // largo y en horizontal robaría el ancho del nombre.
+  const ident = el('div', 'flex flex-col min-w-0');
+  const nameRow = el('div', 'flex items-center gap-2 min-w-0');
+  nameRow.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-md border border-gray-700/50 shrink-0 object-cover'));
   const name = el('span', 'font-black italic truncate text-sm');
   name.style.color = color;
   name.textContent = p.name || '?';
-  left.appendChild(name);
-  if (isSource) left.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
-  if (p.leader) left.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
-  if (p.banned) left.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
+  nameRow.appendChild(name);
+  if (isSource) nameRow.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
+  if (p.leader) nameRow.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
+  if (p.banned) nameRow.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
+  ident.appendChild(nameRow);
+  // Solo aparece si el líder publicó las notas: si no, ni siquiera viajan en el
+  // row público (la DB las guarda aparte), así que aquí no hay nada que filtrar.
+  if (p.notes) ident.appendChild(el('p', 'text-[10px] italic text-gray-500 truncate', p.notes));
+  left.appendChild(ident);
   row.appendChild(left);
 
   const right = el('div', 'flex flex-wrap justify-end gap-1.5 text-[10px]');

@@ -481,7 +481,7 @@ import { ui } from '@/lib/ui/design';
     (document.getElementById('stat-bands') as HTMLElement).textContent = String(data.bands.length);
     (document.getElementById('stat-rules') as HTMLElement).textContent = String(data.rules.length);
     const objectiveCount = data.registries.reduce((total, registry) => {
-      const objectives = registry.objectives;
+      const objectives = registry.player?.objectives;
       return total + (objectives?.equipment.length ?? 0) + (objectives?.currencies.length ?? 0);
     }, 0);
     (document.getElementById('stat-objectives') as HTMLElement).textContent = String(objectiveCount);

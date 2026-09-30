@@ -378,13 +378,57 @@ function asPlayerObjectives(raw: unknown): PlayerObjectives | undefined {
   return { equipment, currencies };
 }
 
-// registry.player — personaje propio del archivo actual
-function asPlayerCharacter(raw: unknown): PlayerCharacter | null {
+// ─── Facción deducida de la raza ────────────────────────────────────────────
+// El SV guarda `faction` en `characters["Nombre-Reino"]` (UnitFactionGroup), pero
+// puede venir como "?" si el API no estaba disponible al registrar, y el claim de
+// hermandad acababa guardando facción NULL. La RAZA es el dato estable: siempre
+// está presente en `raceFile` (token del cliente) y en `raceName` (localizado).
+const ALLIANCE_RACES = new Set([
+  'human', 'humano', 'dwarf', 'enano', 'nightelf', 'elfodelanoche', 'gnome', 'gnomo', 'draenei',
+]);
+const HORDE_RACES = new Set([
+  'orc', 'orco', 'undead', 'nomuerto', 'scourge', 'necro', 'tauren', 'taurenen', 'troll', 'trol',
+  'bloodelf', 'elfodesangre', 'elfodelasangre', 'elfosangre',
+]);
+
+// Normaliza a minúsculas sin acentos ni separadores: "Elfo de la noche" y
+// "NightElf" colapsan al mismo token, y ambos son facción searchable.
+function normalizeRaceKey(value: unknown): string {
+  return toStr(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+// Primera raza conocida entre las candidatas (file token antes que localizada).
+export function inferFactionFromRace(...races: unknown[]): 'Alliance' | 'Horde' | undefined {
+  for (const race of races) {
+    const key = normalizeRaceKey(race);
+    if (ALLIANCE_RACES.has(key)) return 'Alliance';
+    if (HORDE_RACES.has(key)) return 'Horde';
+  }
+  return undefined;
+}
+
+// `faction` del SV solo se acepta si es un valor real ("?" no lo es).
+function asFaction(value: unknown): 'Alliance' | 'Horde' | undefined {
+  const key = normalizeRaceKey(value);
+  if (key === 'alliance' || key === 'alianza') return 'Alliance';
+  if (key === 'horde' || key === 'horda') return 'Horde';
+  return undefined;
+}
+
+// registry.player — personaje propio del archivo actual.
+// `objectivesRaw` es la rama hermana `objectives` del SV (o un `objectives`
+// embebido en el propio player, por si el addon lo anida en el futuro).
+function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharacter | null {
   const e = asObj(raw);
   if (!e) return null;
   const name = toStr(e['name']).trim();
   if (!name) return null;
   const equipment = asEquipmentPieces(e['equipment']);
+  const objectives = asPlayerObjectives(objectivesRaw) ?? asPlayerObjectives(e['objectives']);
   return {
     name,
     realm: toStr(e['realm']).trim(),
@@ -399,11 +443,14 @@ function asPlayerCharacter(raw: unknown): PlayerCharacter | null {
     avgIlvl: toNum(e['avgIlvl']),
     equipmentCount: toNum(e['equipmentCount']) ?? equipment.length,
     equipment,
+    ...(objectives ? { objectives } : {}),
   };
 }
 
-// characters["Nombre-Reino"] — todos los personajes de la cuenta
-function asAccountCharacters(raw: unknown): AccountCharacter[] {
+// characters["Nombre-Reino"] — todos los personajes de la cuenta.
+// `raceFiles` (opcional) mapea la clave del roster al `raceFile` del registry,
+// para deducir facción sin depender del `faction` del SV.
+function asAccountCharacters(raw: unknown, raceFiles?: Map<string, string>): AccountCharacter[] {
   const map = asObj(raw);
   if (!map) return [];
   return Object.entries(map)
@@ -412,14 +459,23 @@ function asAccountCharacters(raw: unknown): AccountCharacter[] {
       if (!e) return null;
       const name = toStr(e['name']).trim();
       if (!name) return null;
+      const race = toStr(e['raceName']).trim();
+      // El roster `characters` no trae raceFile; se resuelve el nombre exacto
+      // contra el registry del SV para completar el token del cliente.
+      const raceFile = raceFiles?.get(key.toLowerCase());
       return {
         key,
         name,
         realm: toStr(e['realm']).trim() || undefined,
-        faction: toStr(e['faction']).trim() || undefined,
+        faction:
+          // La RAZA manda (el mapa cubre las 11 de WotLK); el `faction` del SV
+          // es el respaldo cuando la raza no se reconoce. Mismo orden que
+          // raiddominion_claim_from_sv en SQL.
+          inferFactionFromRace(raceFile, race) ??
+          asFaction(e['faction']),
         class: toStr(e['className']).trim() || undefined,
         classFile: toStr(e['classFile']).trim() || undefined,
-        race: toStr(e['raceName']).trim() || undefined,
+        race: race || undefined,
         level: toNum(e['level']),
         version: toStr(e['version']).trim() || undefined,
         firstSeen: toNum(e['firstSeen']),
@@ -615,17 +671,16 @@ export function parseSavedVariables(rawText: string): ParseResult {
     registries.push({
       key: `${toStr(registryEntry['player'] && asObj(registryEntry['player'])?.['name'])}-${
         toStr(asObj(registryEntry['player'])?.['realm'])}`,
-      player: asPlayerCharacter(registryEntry['player']),
-      objectives: asPlayerObjectives(registryEntry['objectives']),
+      player: asPlayerCharacter(registryEntry['player'], registryEntry['objectives']),
       guild: asRegistryGuild(registryEntry['guild']),
       savedAt: toStr(registryEntry['savedAt']).trim() || null,
     });
   } else if (registryRaw && Object.keys(registryRaw).length > 0) {
-    const charsMap = asAccountCharacters(root['characters']);
     const entries = Object.entries(registryRaw)
       .map(([key, val]) => ({ key, val: asObj(val) }))
       .filter((e): e is { key: string; val: Record<string, unknown> } => e.val !== null);
     if (entries.length > 0) {
+      const charsMap = asAccountCharacters(root['characters']);
       // Activo = mayor lastSeen en el roster de la cuenta; si no, savedAt más reciente
       const byKey = new Map(charsMap.map((c) => [c.key.toLowerCase(), c.lastSeen ?? 0]));
       entries.sort((a, b) => {
@@ -638,16 +693,23 @@ export function parseSavedVariables(rawText: string): ParseResult {
       for (const e of entries) {
         registries.push({
           key: e.key,
-          player: asPlayerCharacter(e.val['player']),
-          objectives: asPlayerObjectives(e.val['objectives']),
+          player: asPlayerCharacter(e.val['player'], e.val['objectives']),
           guild: asRegistryGuild(e.val['guild']),
           savedAt: toStr(e.val['savedAt']).trim() || null,
         });
       }
     }
   }
-  const player = asPlayerCharacter(registryEntry?.['player']);
+  const player = asPlayerCharacter(registryEntry?.['player'], registryEntry?.['objectives']);
   const savedAt = toStr(registryEntry?.['savedAt']).trim() || null;
+
+  // Token de raza del cliente por clave del roster ("Nombre-Reino" → "NightElf").
+  // Permite deducir facción en characters[] aunque el SV traiga faction = "?".
+  const raceFilesByKey = new Map<string, string>();
+  registries.forEach((registry) => {
+    const raceFile = registry.player?.raceFile;
+    if (raceFile) raceFilesByKey.set(registry.key.toLowerCase(), raceFile);
+  });
 
   // Hermandad validante: cualquier personaje del SV con isGM gana;
   // si ninguno es GM, se usa la hermandad del personaje activo.
@@ -662,7 +724,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
   if (!player) {
     warnings.push('El archivo no trae registry.player: abre el addon en el juego y exporta tu personaje.');
   }
-  const missingObjectives = registries.filter((registry) => registry.player && !registry.objectives);
+  const missingObjectives = registries.filter((registry) => registry.player && !registry.player.objectives);
   if (missingObjectives.length > 0) {
     warnings.push('Uno o más registros son anteriores al exportador de objetivos 3.0.1. Entra con cada personaje y pulsa «Registrar» para incluir sus metas de equipo y moneda.');
   }
@@ -687,7 +749,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
     version: PARSER_VERSION,
     player,
     savedAt,
-    characters: asAccountCharacters(root['characters']),
+    characters: asAccountCharacters(root['characters'], raceFilesByKey),
     registries,
     registryGuild,
     generatedBy,

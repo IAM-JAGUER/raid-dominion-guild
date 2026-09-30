@@ -9,7 +9,7 @@ import { ruleKey } from '@/lib/ui/dashboard/format';
 import { ui } from '@/lib/ui/design';
 import { toast } from '@/lib/ui/toast';
 import { card, cardTop } from '@/lib/ui/card';
-import { resolveRules, setBandVisibility, setBandHidePlayers, setBandGuild, proposeBandIntegration, setBandRules } from '@/lib/api';
+import { resolveRules, setBandVisibility, setBandHidePlayers, setBandNotesPublic, setBandGuild, proposeBandIntegration, setBandRules } from '@/lib/api';
 import type { BandRow, GuildRow } from '@/types/database';
 import type { ContentItem } from '@/types/parser';
 
@@ -131,6 +131,33 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }));
   visBox.appendChild(toggles);
+  // Las notas son un interruptor APARTE de "Ocultar jugadores": el líder decide
+  // si sus notas se publican. El texto no se pierde al apagarlo (vive en
+  // raiddominion_band_notes), así que se puede volver a activar sin rescribir.
+  toggles.appendChild(makeSwitch(b.notes_public, 'Notas públicas', async (input, status) => {
+    input.disabled = true;
+    status.textContent = 'guardando…';
+    status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    const res = await setBandNotesPublic(b.id, input.checked);
+    input.disabled = false;
+    if (res.ok) {
+      b.notes_public = input.checked;
+      status.textContent = input.checked ? '✓ públicas' : '✓ privadas';
+      status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      toast.success(
+        input.checked ? 'Notas publicadas' : 'Notas retiradas',
+        input.checked
+          ? `Las notas de "${b.name}" ya son visibles en la ficha pública.`
+          : `Las notas de "${b.name}" ya no salen en la web (siguen guardadas para ti).`,
+      );
+    } else {
+      input.checked = !input.checked;
+      status.textContent = '✗ error';
+      status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      toast.error('No se pudo actualizar la banda', res.error || 'Error desconocido');
+    }
+    window.setTimeout(() => { status.textContent = ''; }, 2500);
+  }));
   cardEl.appendChild(visBox);
 
   // ── Hermandad: asignación (1:N) + propuesta de integración ─────────────

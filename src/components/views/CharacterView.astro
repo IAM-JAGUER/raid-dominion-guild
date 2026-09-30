@@ -30,6 +30,10 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       <div id="pv-equip-list" class="grid grid-cols-1 gap-1"></div>
     </PanelWindow>
 
+    <PanelWindow id="panel-metas" title="Metas" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+      <div id="pv-metas"></div>
+    </PanelWindow>
+
     <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
@@ -149,14 +153,20 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       a.textContent = `Cuenta de ${label} →`;
       links.appendChild(a);
     }
-    // Paneles ventana (modelo dashboard): Equipamiento / Bandas / Hermandad.
-    // Cada panel con contenido agrega su pestaña (initAvailableTabs).
+    // Paneles ventana (modelo dashboard): Equipamiento / Metas / Bandas /
+    // Hermandad. Cada panel con contenido agrega su pestaña (initAvailableTabs).
     const available: string[] = [];
 
     const equip = equipmentList(c);
     if (equip) {
       (document.getElementById('pv-equip-list') as HTMLElement).appendChild(equip);
       available.push('equipamiento');
+    }
+
+    const metas = objectivesPanel(c);
+    if (metas) {
+      (document.getElementById('pv-metas') as HTMLElement).appendChild(metas);
+      available.push('metas');
     }
 
     const bands = await getPublicBandsForCharacter(c.name);
@@ -223,6 +233,74 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       list.appendChild(row);
     });
     return list;
+  }
+
+  // Panel "Metas": lo que el personaje publica para la comunidad (equipo que
+  // busca y monedas que persigue). Devuelve null si no hay metas (los SV
+  // anteriores a 3.0.1 no las traen) y entonces la pestaña no se genera.
+  function objectivesPanel(c: CharacterRow): HTMLElement | null {
+    const equipment = [...(c.objectives?.equipment ?? [])].sort((a, b) => a.slot - b.slot);
+    const currencies = [...(c.objectives?.currencies ?? [])];
+    if (equipment.length === 0 && currencies.length === 0) return null;
+
+    // Fila de meta: check a la izquierda, contenido al centro, cifra a la
+    // derecha. Mismo esqueleto que equipmentList para que se lean como una lista.
+    const goalRow = (done: boolean): HTMLElement => {
+      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-gray-900/40 border-l-2 hover:bg-gray-800/50 transition-colors');
+      row.style.borderColor = done ? '#34d399' : '#b45309';
+      row.appendChild(el('span', `text-[9px] uppercase shrink-0 w-4 ${done ? 'text-emerald-400' : 'text-gray-500'}`, done ? '✓' : '○'));
+      return row;
+    };
+    const pendingOf = <T extends { done: boolean } | { reached: boolean }>(list: T[]): number => {
+      let n = 0;
+      list.forEach((g) => {
+        const flag = 'done' in g ? g.done : (g as { reached: boolean }).reached;
+        if (flag) n += 1;
+      });
+      return list.length - n;
+    };
+
+    const wrap = el('div', 'space-y-6');
+
+    if (equipment.length > 0) {
+      const list = el('div', 'grid grid-cols-1 gap-1');
+      equipment.forEach((goal) => {
+        const row = goalRow(goal.done);
+        row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(goal.slot)));
+        const qc = itemQualityColor(goal.quality);
+        const nm = el('a', `text-xs truncate hover:underline ${goal.done ? 'line-through opacity-60' : ''}`);
+        nm.style.color = qc;
+        nm.textContent = goal.name;
+        nm.setAttribute('href', wowItemUrl(goal.name));
+        nm.setAttribute('target', '_blank');
+        nm.setAttribute('rel', 'noopener noreferrer');
+        nm.setAttribute('title', `Ver "${goal.name}" en UltimoWoW`);
+        row.appendChild(nm);
+        if (typeof goal.ilvl === 'number') row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `i${goal.ilvl}`));
+        list.appendChild(row);
+      });
+      const section = el('div', '');
+      section.appendChild(el('p', `${ui.eyebrow} mb-2`, `Equipo buscado · faltan ${pendingOf(equipment)} de ${equipment.length}`));
+      section.appendChild(list);
+      wrap.appendChild(section);
+    }
+
+    if (currencies.length > 0) {
+      const list = el('div', 'grid grid-cols-1 gap-1');
+      currencies.forEach((goal) => {
+        const row = goalRow(goal.reached);
+        const nm = el('span', `text-xs truncate ${goal.reached ? 'line-through opacity-60' : ''}`, goal.name);
+        row.appendChild(nm);
+        row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, goal.reached ? '✓' : `${goal.target}`));
+        list.appendChild(row);
+      });
+      const section = el('div', '');
+      section.appendChild(el('p', `${ui.eyebrow} mb-2`, `Monedas · faltan ${pendingOf(currencies)} de ${currencies.length}`));
+      section.appendChild(list);
+      wrap.appendChild(section);
+    }
+
+    return wrap;
   }
 
   // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);

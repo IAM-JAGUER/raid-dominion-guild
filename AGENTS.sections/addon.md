@@ -17,12 +17,24 @@ El addon dev vive en `D:\WowClient esMX\Interface\AddOns\RaidDominion`
 3. **Objetivos:** `registry["Nombre-Reino"].objectives` exporta metas de equipo
    (`equipment[]`: `slot`, `name`, `itemID?`, `ilvl?`, `quality?`, `done`) y metas
    de moneda (`currencies[]`: `name`, `target`, `reached`) desde `itemGoals`.
-   No se comparten iconos ni flags de seguimiento. El portal conserva la rama en
-   el historial privado del upload; no la expone en perfiles públicos.
-4. **Privacidad:** `registry.guild.memberList` (roster GM) viaja SIN notas
-   pública/oficial por diseño; jamás exponer notas de oficio en el portal.
-5. **Fuente de verdad dual:** formato vivo = `AGENTS.sections/parser.md` +
+   No se comparten iconos ni flags de seguimiento. El portal las publica en la
+   ficha pública del personaje (pestaña "Metas") cuando la ficha es pública, y
+   las guarda selladas en `raiddominion_characters.objectives` con el mismo
+   `is_public`. El SV las deja como rama hermana de `player`; el modelo
+   normalizado del portal las anida en `PlayerCharacter.objectives`.
+4. **Privacidad de hermandad:** `registry.guild.memberList` (roster GM) viaja SIN
+   notas pública/oficial por diseño; jamás exponer notas de oficio en el portal.
+5. **Notas de jugadores de banda:** `bands[].players[].notes` SÍ viaja en el SV
+   (las cura el líder), pero en el portal se guardan SIEMPRE en
+   `raiddominion_band_notes` (privada, RLS del dueño) y solo se proyectan al row
+   público cuando el líder activa "Notas públicas" (`raiddominion_bands.notes_public`,
+   apagado por defecto). Ese interruptor es independiente de `hide_players`.
+6. **Fuente de verdad dual:** formato vivo = `AGENTS.sections/parser.md` +
    `RD_Utils_Registry.lua`. Ante duda, leer ambos antes de tocar parser o guías.
-6. Slash commands vigentes del addon: `/rd`, `/rdc`, `/rdh`, `/rdloot`
+7. Slash commands vigentes del addon: `/rd`, `/rdc`, `/rdh`, `/rdloot`
    (`RD_Init.lua`). Las guías (`src/data/addonGuides.ts`) deben reflejar
    EXACTAMENTE menús (`MENU_DEFINITIONS`) y comandos de `RD_Constants.lua`.
+8. **Facción inferida:** si el SV no trae facción de hermandad, el portal la
+   deduce de la raza del GM (`characters[*].raceName`/`raceFile`). El addon no
+   necesita cambios para esto, pero `raceFile` debe seguir exportándose en
+   `characters[*]` para que el fallback sea posible.

@@ -55,6 +55,10 @@ export interface PlayerCharacter {
   avgIlvl?: number;
   equipmentCount?: number;
   equipment: EquipmentPiece[];
+  // Metas personales proyectadas desde itemGoals por el addon. El SV las
+  // escribe como rama hermana (`registry["Nombre-Reino"].objectives`); aquí se
+  // normalizan dentro del personaje porque son datos scope-del-personaje.
+  objectives?: PlayerObjectives;
 }
 
 // Personaje de la cuenta WoW (characters["Nombre-Reino"]) — config compartida
@@ -75,9 +79,9 @@ export interface AccountCharacter {
 // Snapshot de registro POR PERSONAJE (registry["Nombre-Reino"])
 export interface CharacterRegistry {
   key: string;
+  // Único portador de las metas: `player.objectives`. La rama `objectives` del
+  // SV se lee y se anida aquí; no se expone duplicada en el registry.
   player: PlayerCharacter | null;
-  // Metas exportadas por Registrar. Ausente en SavedVariables anteriores a 3.0.1.
-  objectives?: PlayerObjectives;
   guild: RegistryGuild | null;
   savedAt: string | null;
 }
