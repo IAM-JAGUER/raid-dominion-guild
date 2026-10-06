@@ -57,3 +57,14 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
   await check(res, `RPC ${fn}`);
   return (await res.json()) as T;
 }
+
+// DELETE tipado a una tabla pública. `params` es la query string de PostgREST
+// (p. ej. slot_key=eq.20261006-10). Pensado para compensar el lock del cron
+// cuando el envío no se concreta (ver discord-daily.ts).
+export async function deleteFrom(table: string, params: string): Promise<void> {
+  const res = await fetch(`${getUrl()}/rest/v1/${table}?${params}`, {
+    method: 'DELETE',
+    headers: { ...headers(), Prefer: 'return=minimal' },
+  });
+  await check(res, `DELETE ${table}`);
+}

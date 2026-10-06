@@ -73,7 +73,7 @@ export default async (req: Request): Promise<Response> => {
 
     const reply = await groqChat([{ role: 'system', content: systemContent }, ...messages], {
       temperature: 0.7,
-      maxTokens: 500,
+      maxTokens: 1500,
     });
 
     return new Response(JSON.stringify({ reply }), {

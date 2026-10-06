@@ -369,7 +369,8 @@ Env adicionales (migración `20260920`): con `p_ip` al RPC, las visitas
 registran la IP de cada visitante.
 - **`_shared/`** — helpers comunes: `supabase.ts` (REST PostgREST con anon-key
   y `Accept-Profile: public`, RLS activa: solo lee datos públicos), `env.ts`
-  (envs deploy/dev), `groq.ts` (`groq/compound`), `discord.ts`
+  (envs deploy/dev), `groq.ts` (`openai/gpt-oss-120b`, sobreescribible con
+  `GROQ_MODEL`; modelo de razonamiento: `maxTokens` altos), `discord.ts`
   (webhooks), `context.ts` (contexto de comunidad), `marketing.ts` (motor).
 
 ### Migración de mercadeo (20260913_marketing_goals.sql)
@@ -414,7 +415,9 @@ y `raiddominion_marketing_stats()` ampliado con esas métricas (DROP + CREATE
 OR REPLACE por cambio de tipo de retorno). Aplicarla manualmente en el SQL
 Editor del proyecto RaidDominion y registrarla en `ciclos.json`.
 
-Env adicionales: `GROQ_API_KEY` (Groq), `DISCORD_WEBHOOK_URL` (webhook
+Env adicionales: `GROQ_API_KEY` (Groq), `GROQ_MODEL` (sobreescribe el modelo de
+Groq; por defecto `openai/gpt-oss-120b` — la disponibilidad de modelos en la
+cuenta rota, ver `_shared/groq.ts`), `DISCORD_WEBHOOK_URL` (webhook
 privado/admin: test de mercadeo y avisos de visitas),
 `DISCORD_PUBLIC_WEBHOOK_URL` (canal público),
 `DISCORD_DAILY_HOURS` (periodicidad del cron, ver `discord-daily.ts`),

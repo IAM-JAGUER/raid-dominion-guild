@@ -89,15 +89,19 @@ AS $$
                            'done',    g.done,
                            'itemID',  g.item_id,
                            'ilvl',    g.ilvl,
-                           'quality', g.quality)),
-                       jsonb_build_array()
+                           'quality', g.quality))
                        ORDER BY g.slot, g.name
                    )
             FROM (
                 SELECT
                     (e ->> 'slot')::int AS slot,
                     left(trim(e ->> 'name'), 120) AS name,
-                    COALESCE((e ->> 'done')::boolean, FALSE) AS done,
+                    -- Casting 'texto' a boolean ABORTA la función: se valida
+                    -- antes con el mismo patrón que los numéricos de abajo.
+                    CASE WHEN lower(COALESCE(e ->> 'done', ''))
+                              IN ('true', 't', '1', 'yes', 'y')
+                         THEN TRUE
+                         ELSE FALSE END AS done,
                     CASE WHEN (e ->> 'itemID') ~ '^[0-9]+$'
                          THEN (e ->> 'itemID')::int END AS item_id,
                     CASE WHEN (e ->> 'ilvl') ~ '^[0-9]+$'
@@ -122,15 +126,17 @@ AS $$
                        jsonb_strip_nulls(jsonb_build_object(
                            'name',    c.name,
                            'target',  c.target,
-                           'reached', c.reached)),
-                       jsonb_build_array()
+                           'reached', c.reached))
                        ORDER BY lower(c.name)
                    )
             FROM (
                 SELECT
                     left(trim(cu ->> 'name'), 120) AS name,
                     (cu ->> 'target')::int AS target,
-                    COALESCE((cu ->> 'reached')::boolean, FALSE) AS reached
+                    CASE WHEN lower(COALESCE(cu ->> 'reached', ''))
+                              IN ('true', 't', '1', 'yes', 'y')
+                         THEN TRUE
+                         ELSE FALSE END AS reached
                 FROM jsonb_array_elements(
                          CASE WHEN jsonb_typeof(p_objectives -> 'currencies') = 'array'
                               THEN p_objectives -> 'currencies'

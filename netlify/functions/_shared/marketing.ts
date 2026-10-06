@@ -287,7 +287,7 @@ export async function runMarketing(opts: {
     'Devuelve SOLO el cuerpo del mensaje (sin "Hola @everyone", el cuerpo empieza con el gancho), sin razonamientos previos, encabezados ni explicaciones.',
     'Cierra con una frase corta, sin hashtags, con tono de hermandad y energía.',
   ].filter((l) => l).join('\n');
-  const body = await groqChat([{ role: 'user', content: prompt }], { temperature: 0.85, maxTokens: 400 });
+  const body = await groqChat([{ role: 'user', content: prompt }], { temperature: 0.85, maxTokens: 1200 });
 
   let sent = false;
   let message = body;

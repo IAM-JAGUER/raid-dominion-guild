@@ -17,9 +17,9 @@
 //      conversión y lo publica en el webhook público de Discord.
 //   5. Nunca lanza: ante fallo responde { ok: false } y loguea.
 import { buildCommunityContext, contextToText } from './_shared/context';
-import { runMarketing } from './_shared/marketing';
+import { runMarketing, type MarketingOutcome } from './_shared/marketing';
 import { env } from './_shared/env';
-import { rpc } from './_shared/supabase';
+import { rpc, deleteFrom } from './_shared/supabase';
 
 // Slot de idempotencia: clave YYYYMMDD-HH (UTC). Garantiza que aunque
 // Netlify reintente la función (at-least-once) dentro de una misma ventana
@@ -68,9 +68,11 @@ export default async (): Promise<Response> => {
     try {
       claimed = (await rpc<boolean>('raiddominion_cron_claim_slot', { p_key: key })) === true;
     } catch (err) {
-      // Si el RPC falla (p. ej. migración aún no aplicada), no cortamos el
-      // envío pero avisamos: preferimos publicar a quedarnos en silencio.
-      console.warn('discord-daily: no se pudo verificar el slot de idempotencia:', err);
+      // Si el RPC falla (p. ej. migración aún no aplicada o fallo de red) no
+      // podemos verificar el slot: preferimos PUBLICAR a quedarnos en
+      // silencio. El slot se libera más abajo si el envío no se concreta.
+      console.warn('discord-daily: no se pudo verificar el slot de idempotencia; se publica igual:', err);
+      claimed = true;
     }
     if (!claimed) {
       return new Response(
@@ -79,14 +81,35 @@ export default async (): Promise<Response> => {
       );
     }
 
-    const ctx = await buildCommunityContext();
+    // A partir de aquí el slot está reclamado. Si el envío no se concreta
+    // (error en contexto/motor o webhook caído) liberamos el slot para que
+    // la ventana no quede quemada sin mensaje publicado.
+    const releaseSlot = async () => {
+      try {
+        await deleteFrom('raiddominion_cron_slots', `slot_key=eq.${encodeURIComponent(key)}`);
+      } catch (err) {
+        console.warn('discord-daily: no se pudo liberar el slot tras un envío fallido:', err);
+      }
+    };
 
-    const outcome = await runMarketing({
-      eje: 'jugadores',
-      canal: 'prod',
-      send: true,
-      communityText: contextToText(ctx),
-    });
+    let outcome: MarketingOutcome;
+    try {
+      const ctx = await buildCommunityContext();
+
+      outcome = await runMarketing({
+        eje: 'jugadores',
+        canal: 'prod',
+        send: true,
+        communityText: contextToText(ctx),
+      });
+    } catch (err) {
+      await releaseSlot();
+      throw err;
+    }
+
+    if (!outcome.sent) {
+      await releaseSlot();
+    }
 
     return new Response(
       JSON.stringify({ ok: true, sent: outcome.sent, length: outcome.message.length, goals: outcome.goals.length }),

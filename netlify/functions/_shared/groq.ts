@@ -1,10 +1,20 @@
 // Helper de Groq (IA) para Netlify Functions.
-// Modelo: groq/compound (verificado 2026-09-03; llama-3.3-70b-versatile ya no
-// está disponible en esta cuenta). Misma API que guild-portal.
+// Modelo: openai/gpt-oss-120b (verificado 2026-10-06; antes groq/compound y
+// llama-3.3-70b-versatile, ambos retirados de la cuenta — la disponibilidad
+// rota). Se puede sobreescribir con la env GROQ_MODEL sin redeployar. Misma
+// API que guild-portal.
+//
+// ⚠️ gpt-oss es un modelo de razonamiento: consume del presupuesto de
+// max_tokens antes del contenido final (observado ~1000-1900 tokens), por eso
+// el default es alto. Con presupuestos bajos Groq corta en 'length' y el
+// contenido llega vacío.
 import { env } from './env';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const DEFAULT_MODEL = 'groq/compound';
+
+function defaultModel(): string {
+  return env('GROQ_MODEL') || 'openai/gpt-oss-120b';
+}
 
 export interface GroqMessage {
   role: 'system' | 'user' | 'assistant';
@@ -30,10 +40,10 @@ export async function groqChat(messages: GroqMessage[], opts: GroqOptions = {}):
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: DEFAULT_MODEL,
+      model: defaultModel(),
       messages,
       temperature: opts.temperature ?? 0.8,
-      max_tokens: opts.maxTokens ?? 700,
+      max_tokens: opts.maxTokens ?? 1500,
     }),
   });
 
