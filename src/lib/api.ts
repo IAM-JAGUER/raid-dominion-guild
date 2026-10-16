@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
-import type { ParsedSavedVariables, GuildRank, ContentItem, PlayerObjectives } from '@/types/parser';
+import type { ParsedSavedVariables, GuildRank, ContentItem, PlayerObjectives, CharacterInstance } from '@/types/parser';
 import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
 
 // Forma persistida de `raiddominion_characters.objectives` (columna JSONB). La
@@ -1258,6 +1258,15 @@ export interface CharacterRow {
   // Metas del personaje (registry[*].objectives saneadas en la DB). Viaja por la
   // MISMA RLS que el resto de la ficha: si el personaje es privado, no hay metas.
   objectives: CharacterObjectives;
+  // Instancias guardadas (snapshot del addon v3.1.0, saneado en la DB). Misma
+  // RLS que el resto de la ficha.
+  instances: CharacterInstance[];
+  // Interruptor del dueño para la nota privada; la nota en sí NO vive en esta
+  // tabla (raiddominion_character_notes) y solo llega por la vista pública.
+  notes_public: boolean;
+  // Presente SOLO en lecturas de raiddominion_character_public: texto cuando
+  // notes_public e is_public están activos; null en caso contrario.
+  note?: string | null;
   is_public: boolean;
   member_verified: boolean;
   sv_guild_name: string | null;
@@ -1393,6 +1402,39 @@ export async function setCharacterVisibility(id: string, isPublic: boolean): Pro
     .eq('id', id);
 
   if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true };
+}
+
+// Notas privadas del dueño (RLS de raiddominion_character_notes: solo el
+// dueño lee). Devuelve un mapa character_id → texto para el visor del
+// dashboard; la nota en sí NO viaja en raiddominion_characters.
+export async function getMyCharacterNotes(): Promise<{ ok: boolean; notes?: Map<string, string>; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, error: 'sin sesión' };
+
+  const res = await supabase
+    .from('raiddominion_character_notes')
+    .select('character_id, note')
+    .eq('user_id', user.id);
+
+  if (res.error) return { ok: false, error: res.error.message };
+  const notes = new Map<string, string>();
+  (res.data as Array<{ character_id: string; note: string | null }> ?? []).forEach((row) => {
+    if (row.note) notes.set(row.character_id, row.note);
+  });
+  return { ok: true, notes };
+}
+
+// Interruptor "Nota pública" del personaje (RPC SECURITY DEFINER con check de
+// dueño). La nota vive en raiddominion_character_notes; al activar, la vista
+// pública la inyecta solo si además la ficha es pública.
+export async function setCharacterNotesPublic(id: string, isPublic: boolean): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_set_character_notes_public', {
+    p_character_id: id,
+    p_public: isPublic,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true };
 }
 

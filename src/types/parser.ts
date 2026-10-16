@@ -38,6 +38,16 @@ export interface PlayerObjectives {
   currencies: CurrencyObjective[];
 }
 
+// Instancia guardada proyectada por el addon v3.1.0
+// (registry["Nombre-Reino"].player.instances). `resetAt` es la época absoluta
+// del reinicio (según el último "Registrar"); la web recalcula la cuenta atrás.
+export interface CharacterInstance {
+  name: string;
+  difficulty?: string;
+  resetAt?: number;
+  extended?: boolean;
+}
+
 // Personaje propio exportado por el addon (registry.player)
 // `server` = realmlist (servidor real, p.ej. "Lordaeron"), DISTINTO de `realm`.
 // Solo existe en registry.player (el roster `characters` de la cuenta no lo trae).
@@ -59,6 +69,11 @@ export interface PlayerCharacter {
   // escribe como rama hermana (`registry["Nombre-Reino"].objectives`); aquí se
   // normalizan dentro del personaje porque son datos scope-del-personaje.
   objectives?: PlayerObjectives;
+  // Nota global del personaje (RD_Utils_PlayerNotes). Viaja SIEMPRE que el SV
+  // traiga la clave (puede ser "" para borrarla); ausente = SV anterior a 3.1.0.
+  note?: string;
+  // Instancias guardadas (snapshot del addon v3.1.0). Ausente = SV anterior.
+  instances?: CharacterInstance[];
 }
 
 // Personaje de la cuenta WoW (characters["Nombre-Reino"]) — config compartida
@@ -196,7 +211,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-export const PARSER_VERSION = 'v3.2.0';
+export const PARSER_VERSION = 'v3.3.0';
 
 export const MAX_SV_BYTES = 2 * 1024 * 1024; // 2 MB
 

@@ -1226,6 +1226,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       getMyGuilds,
       ensureMyProfileSlug,
       getMyCharacters,
+      getMyCharacterNotes,
       getMyBands,
       getMyMembershipGuilds,
       getMyRulesCatalog,
@@ -1233,6 +1234,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       claimGuildFromSV,
       tryPromoteMember,
       setCharacterVisibility,
+      setCharacterNotesPublic,
       deleteMyAccount,
       resetMyData,
     } from "@/lib/api";
@@ -1949,6 +1951,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         return;
       }
       const items = res.items ?? [];
+      // Notas privadas del dueño (RLS de raiddominion_character_notes): la
+      // tabla de personajes NO lleva la nota; se leen aparte para el visor.
+      const notesRes = await getMyCharacterNotes();
+      const myNotes = notesRes.ok ? (notesRes.notes ?? new Map<string, string>()) : new Map<string, string>();
       myCharacters = items;
       refreshHdrCharacters();
       populateMainCharacterSelect();
@@ -1977,20 +1983,33 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
       items.forEach((c, i) =>
         listEl.appendChild(
-          renderCharacterCard(c, {
-            number: i + 1,
-            canPublish: canPublishContent(),
-            hideStats: true,
-            setVisibility: async (visible) => {
-              const res = await setCharacterVisibility(c.id, visible);
-              if (res.ok) {
-                // Refresco del selector de personaje principal e indicadores.
-                populateMainCharacterSelect();
-                refreshHdrCharacters();
-              }
-              return res;
+          renderCharacterCard(
+            { ...c, note: myNotes.get(c.id) ?? null },
+            {
+              number: i + 1,
+              canPublish: canPublishContent(),
+              hideStats: true,
+              setVisibility: async (visible) => {
+                const res = await setCharacterVisibility(c.id, visible);
+                if (res.ok) {
+                  // Refresco del selector de personaje principal e indicadores.
+                  populateMainCharacterSelect();
+                  refreshHdrCharacters();
+                }
+                return res;
+              },
+              // Publicación de la nota privada (vive en su tabla; la card
+              // muestra el texto y el interruptor).
+              setNotesPublic: async (visible) => {
+                const res = await setCharacterNotesPublic(c.id, visible);
+                if (res.ok) {
+                  c.notes_public = visible;
+                  refreshHdrCharacters();
+                }
+                return res;
+              },
             },
-          }),
+          ),
         ),
       );
     }

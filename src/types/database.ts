@@ -79,6 +79,10 @@ export type CharacterRow = {
   // Metas públicas (registry[*].objectives saneadas por la DB). Solo se
   // exponen fuera del dashboard si el personaje es público, igual que el resto.
   objectives: { equipment: unknown[]; currencies: unknown[] } | null;
+  // Instancias guardadas (snapshot del SV v3.1.0, saneado por la DB).
+  instances: unknown[];
+  // Interruptor del dueño para su nota privada (raiddominion_character_notes).
+  notes_public: boolean;
   is_public: boolean;
   member_verified: boolean;
   sv_guild_name: string | null;
@@ -140,6 +144,15 @@ export type BandNoteRow = {
   updated_at: string;
 };
 
+// Nota privada de un personaje (raiddominion_character_notes). Solo el dueño la
+// lee; la vista pública la inyecta solo con notes_public e is_public activos.
+export type CharacterNoteRow = {
+  character_id: string;
+  user_id: string;
+  note: string;
+  updated_at: string;
+};
+
 type PublicSchema = {
   raiddominion_profile_handles: {
     Row: ProfileHandleRow;
@@ -179,6 +192,12 @@ type PublicSchema = {
   };
   raiddominion_band_notes: {
     Row: BandNoteRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  raiddominion_character_notes: {
+    Row: CharacterNoteRow;
     Insert: never;
     Update: never;
     Relationships: [];
@@ -238,6 +257,7 @@ type PublicFunctions = {
     };
     Returns: string;
   };
+  raiddominion_set_character_notes_public: { Args: { p_character_id: string; p_public: boolean }; Returns: boolean };
   raiddominion_save_roster_evidence: {
     Args: { p_sv_id: string; p_members: Record<string, unknown>[] };
     Returns: number;

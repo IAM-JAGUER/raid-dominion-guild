@@ -26,8 +26,36 @@
       "notas": "opcional"
     }
   },
-  "_nota_ledger": "LEDGER COMPLETO (2026-08-30): las 40 migraciones de supabase/migrations/ fueron confirmadas como aplicadas por el usuario (aplicación manual vía SQL Editor, sin CLI, ver AGENTS.md §8). 'migraciones_aplicadas' es ahora la fuente de verdad completa desde el origen del proyecto (frallas.md F012 resuelto).",
-  "ciclos": [],
+  "_nota_ledger": "LEDGER COMPLETO (2026-08-30): las 40 migraciones de supabase/migrations/ fueron confirmadas como aplicadas por el usuario (aplicación manual vía SQL Editor, sin CLI, ver AGENTS.md §8). 'migraciones_aplicadas' es ahora la fuente de verdad completa desde el origen del proyecto (frallas.md F012 resuelto). (2026-10-15) Existen migraciones posteriores sin confirmar en 'migraciones_pendientes_confirmacion'.",
+  "ciclos": [
+    {
+      "fecha": "2026-10-15",
+      "agente": "development",
+      "descripcion": "Alineación con el addon v3.1.0: nota por personaje (tabla privada raiddominion_character_notes + notes_public) e instancias guardadas (snapshot con resetAt absoluto); parser v3.3.0, tipos, API, ficha pública (orden Equipamiento·Metas·Notas·Instancias·Bandas·Hermandad), dashboard y guías del addon.",
+      "archivos_tocados": [
+        "src/lib/parser/savedVariables.ts",
+        "src/types/parser.ts",
+        "src/types/database.ts",
+        "src/lib/api.ts",
+        "src/lib/ui/tabs.ts",
+        "src/lib/ui/cards.ts",
+        "src/components/views/CharacterView.astro",
+        "src/pages/dashboard.astro",
+        "src/pages/upload.astro",
+        "src/data/addonGuides.ts",
+        "tests/parser.test.ts",
+        "AGENTS.md",
+        "AGENTS.sections/parser.md",
+        "AGENTS.sections/addon.md"
+      ],
+      "migraciones_creadas": [
+        "20261015_character_notes_and_instances.sql (redactada, no aplicada por el agente)"
+      ],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    }
+  ],
   "migraciones_aplicadas": [
     {
       "archivo": "20260101_raiddominion_rpcs.sql",
@@ -366,7 +394,20 @@
       "notas": "Aplicada (2026-09-05), confirmado por el usuario. Tabla raiddominion_marketing_images + RPC raiddominion_marketing_pick_image para rotar de forma balanceada las capturas del addon en los embeds de mercadeo según el eje del mensaje."
     }
   ],
-  "migraciones_pendientes_confirmacion": [],
+  "migraciones_pendientes_confirmacion": [
+    {
+      "archivo": "20260930_character_objectives_and_race_faction.sql",
+      "notas": "Referenciada por el código ya en uso (pestaña Metas, facción por raza); NO figuraba en el ledger al 2026-10-15. Confirmar aplicación y mover a migraciones_aplicadas."
+    },
+    {
+      "archivo": "20260930_band_notes_private.sql",
+      "notas": "Referenciada por el código ya en uso (toggle 'Notas públicas' de bandas, tabla raiddominion_band_notes); NO figuraba en el ledger al 2026-10-15. Confirmar aplicación y mover a migraciones_aplicadas."
+    },
+    {
+      "archivo": "20261015_character_notes_and_instances.sql",
+      "notas": "Redactada en este ciclo (nota privada por personaje + notes_public + instances). Pendiente de aplicar manualmente por el usuario en el SQL Editor."
+    }
+  ],
   "resumen": {
     "total_ciclos": 0,
     "exitosos": 0,

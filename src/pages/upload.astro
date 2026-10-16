@@ -64,7 +64,7 @@ import { ui } from '@/lib/ui/design';
         </div>
 
         <!-- Cifras del procesamiento -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-guilds">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
@@ -84,6 +84,10 @@ import { ui } from '@/lib/ui/design';
           <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
             <p class="text-3xl font-bold text-amber-300" id="stat-objectives">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Objetivos</p>
+          </div>
+          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
+            <p class="text-3xl font-bold text-amber-300" id="stat-instances">0</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Instancias</p>
           </div>
         </div>
 
@@ -485,6 +489,13 @@ import { ui } from '@/lib/ui/design';
       return total + (objectives?.equipment.length ?? 0) + (objectives?.currencies.length ?? 0);
     }, 0);
     (document.getElementById('stat-objectives') as HTMLElement).textContent = String(objectiveCount);
+    // Instancias guardadas (snapshot del addon 3.1.0): suma por personaje
+    // registrado. 0 en SV anteriores.
+    const instanceCount = data.registries.reduce(
+      (total, registry) => total + (registry.player?.instances?.length ?? 0),
+      0
+    );
+    (document.getElementById('stat-instances') as HTMLElement).textContent = String(instanceCount);
 
     // Claim de maestro (auto por SV; sin formularios manuales)
     const claimBanner = document.getElementById('claim-banner') as HTMLElement;

@@ -80,6 +80,11 @@ export interface CharacterCardInput {
   slug?: string | null;
   is_public?: boolean;
   user_id?: string | null;
+  // Extras del dueño (dashboard "Mis Personajes"): estado del interruptor de
+  // nota, texto privado (solo el dueño lo lee) y snapshot de instancias.
+  notes_public?: boolean;
+  note?: string | null;
+  instances?: Array<{ name: string; difficulty?: string; resetAt?: number; extended?: boolean }>;
 }
 
 interface CharacterCardCtx {
@@ -98,6 +103,10 @@ interface CharacterCardCtx {
   // Setter de visibilidad (dashboard): al pasarlo la card incluye el toggle
   // "Público". Devuelve `ok` si el cambio se persistió.
   setVisibility?: (visible: boolean) => Promise<{ ok: boolean }>;
+  // Setter de "Nota pública" (dashboard): al pasarlo la card añade una fila
+  // inferior con la nota privada, el conteo de instancias guardadas y el
+  // interruptor de publicación de la nota.
+  setNotesPublic?: (visible: boolean) => Promise<{ ok: boolean }>;
   // Se ejecuta tras guardar la visibilidad con éxito (refresco del dashboard).
   onSaved?: () => void;
   // Ocultar Nivel/ilvl (dashboard): el toggle ya ocupa el lado derecho.
@@ -215,6 +224,76 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   row.appendChild(right);
 
   link.appendChild(row);
+
+  // ── Fila de extras del dueño (solo dashboard "Mis Personajes") ──────────
+  // Nota privada + conteo de instancias guardadas + publicación de la nota.
+  // La card puede ser un <a>: los controles cortan la propagación del clic.
+  if (ctx.setNotesPublic) {
+    const extras = el('div', 'mt-3 pt-3 border-t border-amber-600/15 flex items-center justify-between gap-3 min-w-0');
+    extras.addEventListener('click', (ev) => ev.stopPropagation());
+
+    const noteRow = el('div', 'flex items-center gap-2 min-w-0 flex-1');
+    const noteText = (c.note ?? '').trim();
+    if (noteText) {
+      const noteEl = el('span', 'text-[10px] text-gray-400 truncate min-w-0', noteText);
+      noteEl.title = noteText;
+      noteRow.appendChild(noteEl);
+    } else {
+      noteRow.appendChild(el('span', 'text-[10px] text-gray-600 italic', 'Sin nota: escríbela en el addon y vuelve a subir tu SV'));
+    }
+    const instCount = c.instances?.length ?? 0;
+    if (instCount > 0) {
+      noteRow.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 bg-gray-800/60 border-amber-600/20 text-gray-400`, `${instCount} inst.`));
+    }
+    extras.appendChild(noteRow);
+
+    const noteLabel = document.createElement('label');
+    noteLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-bold uppercase tracking-widest text-gray-400 shrink-0';
+    const noteCheck = document.createElement('input');
+    noteCheck.type = 'checkbox';
+    noteCheck.checked = !!c.notes_public;
+    noteCheck.className = 'w-3.5 h-3.5 accent-amber-500 shrink-0';
+    const noteStatus = document.createElement('span');
+    noteStatus.className = 'text-gray-500';
+    noteLabel.append(noteCheck, document.createTextNode('Nota pública'), noteStatus);
+    if (!noteText) {
+      // Sin nota no hay nada que publicar: el gate evita promesas falsas.
+      noteCheck.disabled = true;
+      noteCheck.className += ' opacity-40';
+      noteLabel.className += ' opacity-70 cursor-not-allowed';
+      noteLabel.title = 'Primero registra una nota en el addon (Jugador > Información) y vuelve a subir tu SavedVariables.';
+    } else {
+      noteLabel.title = 'La nota solo se muestra si el personaje también es público.';
+      noteCheck.addEventListener('change', async () => {
+        noteCheck.disabled = true;
+        noteStatus.textContent = '· guardando…';
+        noteStatus.className = 'text-amber-300';
+        const res = await ctx.setNotesPublic!(noteCheck.checked);
+        noteCheck.disabled = false;
+        if (res.ok) {
+          c.notes_public = noteCheck.checked;
+          noteStatus.textContent = '✓ guardado';
+          noteStatus.className = 'text-emerald-400';
+          toast.success(
+            noteCheck.checked ? 'Nota publicada' : 'Nota oculta',
+            noteCheck.checked
+              ? `La nota de ${c.name} es visible en su ficha pública.`
+              : `La nota de ${c.name} ya no se muestra en su ficha pública.`,
+          );
+          ctx.onSaved?.();
+        } else {
+          noteCheck.checked = !noteCheck.checked;
+          noteStatus.textContent = '✗ error';
+          noteStatus.className = 'text-red-400';
+          toast.error('No se pudo actualizar la nota', 'Reintenta o recarga el portal.');
+        }
+        window.setTimeout(() => { noteStatus.textContent = ''; }, 2500);
+      });
+    }
+    extras.appendChild(noteLabel);
+    link.appendChild(extras);
+  }
+
   return link;
 }
 

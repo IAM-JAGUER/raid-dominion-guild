@@ -9,6 +9,8 @@
 //       memberList = { {name, rank, rankIndex, level, class, classFile, online} } } (roster GM),
 //     registry["Char-Realm"].objectives = { equipment = { {slot,name,itemID?,ilvl?,quality?,done} },
 //       currencies = { {name,target,reached} } },
+//     registry["Char-Realm"].player.note = "texto" (nota global; "" = borrar),
+//     registry["Char-Realm"].player.instances = { {name, difficulty?, resetAt?, extended?} },
 //     registry.savedAt,
 //     Guild (legacy) = { lastUpdate, generatedBy, memberList = { {name, class, rank, publicNote, officerNote} } },
 //     bands = { { name, icon, schedule, minGS, players = { {name, class, role, dual, leader, banned, sanction, notes, points} }, spammer } },
@@ -34,6 +36,7 @@ import {
   type EquipmentObjective,
   type CurrencyObjective,
   type PlayerObjectives,
+  type CharacterInstance,
   type AccountCharacter,
   type RegistryGuild,
   type GuildRank,
@@ -378,6 +381,36 @@ function asPlayerObjectives(raw: unknown): PlayerObjectives | undefined {
   return { equipment, currencies };
 }
 
+// registry["Nombre-Reino"].player.instances — snapshot de instancias
+// guardadas (addon v3.1.0). `resetAt` es la época absoluta del reinicio; los
+// campos opcionales se omiten si no son válidos. Tope defensivo de 60 (el
+// mismo del addon) y longitudes acotadas.
+function asPlayerInstances(raw: unknown): CharacterInstance[] {
+  return asArray(raw)
+    .map((entry) => {
+      const e = asObj(entry);
+      if (!e) return null;
+      const name = toStr(e['name']).trim().slice(0, 120);
+      if (!name) return null;
+      const instance: CharacterInstance = { name };
+      const difficulty = toStr(e['difficulty']).trim().slice(0, 8);
+      const resetAt = toNum(e['resetAt']);
+      if (difficulty) instance.difficulty = difficulty;
+      if (resetAt !== undefined && Number.isFinite(resetAt) && resetAt > 0) instance.resetAt = resetAt;
+      if (e['extended'] === true) instance.extended = true;
+      return instance;
+    })
+    .filter((x): x is CharacterInstance => x !== null)
+    .slice(0, 60);
+}
+
+// registry.player.note — nota global del personaje. Solo se acepta string; el
+// "" viaja a propósito (el RPC lo interpreta como "borrar lo publicado").
+function asPlayerNote(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined;
+  return raw.trim().slice(0, 500);
+}
+
 // ─── Facción deducida de la raza ────────────────────────────────────────────
 // El SV guarda `faction` en `characters["Nombre-Reino"]` (UnitFactionGroup), pero
 // puede venir como "?" si el API no estaba disponible al registrar, y el claim de
@@ -429,6 +462,11 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
   if (!name) return null;
   const equipment = asEquipmentPieces(e['equipment']);
   const objectives = asPlayerObjectives(objectivesRaw) ?? asPlayerObjectives(e['objectives']);
+  // Nota e instancias (addon v3.1.0): viven dentro del propio `player`. La
+  // clave ausente se OMITE del modelo (SV anterior → el RPC conserva lo
+  // guardado); presente, aunque vaya vacía, viaja tal cual (permite limpiar).
+  const note = asPlayerNote(e['note']);
+  const instances = e['instances'] !== undefined ? asPlayerInstances(e['instances']) : undefined;
   return {
     name,
     realm: toStr(e['realm']).trim(),
@@ -444,6 +482,8 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
     equipmentCount: toNum(e['equipmentCount']) ?? equipment.length,
     equipment,
     ...(objectives ? { objectives } : {}),
+    ...(note !== undefined ? { note } : {}),
+    ...(instances !== undefined ? { instances } : {}),
   };
 }
 
@@ -727,6 +767,14 @@ export function parseSavedVariables(rawText: string): ParseResult {
   const missingObjectives = registries.filter((registry) => registry.player && !registry.player.objectives);
   if (missingObjectives.length > 0) {
     warnings.push('Uno o más registros son anteriores al exportador de objetivos 3.0.1. Entra con cada personaje y pulsa «Registrar» para incluir sus metas de equipo y moneda.');
+  }
+  // Registros con objetivos pero sin nota/instancias: el addon es 3.0.1
+  // (esquema con objetivos) y aún no 3.1.0.
+  const missingProfileExtras = registries.filter(
+    (registry) => registry.player && registry.player.objectives && registry.player.note === undefined
+  );
+  if (missingProfileExtras.length > 0) {
+    warnings.push('Uno o más registros son anteriores al exportador 3.1.0. Entra con cada personaje y pulsa «Registrar» para incluir su nota y sus instancias guardadas.');
   }
 
   const guildRaw = asObj(root['Guild']) ?? {};

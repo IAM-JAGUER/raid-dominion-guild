@@ -34,6 +34,14 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       <div id="pv-metas"></div>
     </PanelWindow>
 
+    <PanelWindow id="panel-notas" title="Notas" role="tabpanel" ariaLabelledby="tab-notas" hidden>
+      <div id="pv-notas"></div>
+    </PanelWindow>
+
+    <PanelWindow id="panel-instancias" title="Instancias" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
+      <div id="pv-instancias" class="grid grid-cols-1 gap-1"></div>
+    </PanelWindow>
+
     <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
@@ -169,6 +177,18 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       available.push('metas');
     }
 
+    const notas = notePanel(c);
+    if (notas) {
+      (document.getElementById('pv-notas') as HTMLElement).appendChild(notas);
+      available.push('notas');
+    }
+
+    const instancias = instancesPanel(c);
+    if (instancias) {
+      (document.getElementById('pv-instancias') as HTMLElement).appendChild(instancias);
+      available.push('instancias');
+    }
+
     const bands = await getPublicBandsForCharacter(c.name);
     const bandList = bands.ok ? (bands.bands ?? []) : [];
     if (bandList.length > 0) {
@@ -300,6 +320,74 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       wrap.appendChild(section);
     }
 
+    return wrap;
+  }
+
+  // Panel "Notas": la nota del personaje SOLO llega por la vista pública cuando
+  // su dueño activó "Nota pública" (raiddominion_character_notes es privada).
+  // Devuelve null sin nota → la pestaña no se genera.
+  function notePanel(c: CharacterRow): HTMLElement | null {
+    const note = (c.note ?? '').trim();
+    if (!note) return null;
+    const wrap = el('div', '');
+    wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, 'Nota del jugador'));
+    // La nota es multilínea por diseño (el addon la permite): se respeta.
+    wrap.appendChild(el('p', 'text-xs text-gray-300 leading-relaxed whitespace-pre-line rounded-md px-3 py-2 bg-gray-900/40 border-l-2 border-amber-600/40', note));
+    return wrap;
+  }
+
+  // Cuenta atrás "2d 4h" / "5h 20m" / "30m" / "ahora" — mismo formato que el
+  // addon (RD_Utils_Instances.FormatRemaining).
+  function formatRemaining(seconds: number): string {
+    const secs = Math.max(0, Math.floor(seconds));
+    if (secs <= 0) return 'ahora';
+    const days = Math.floor(secs / 86400);
+    const hours = Math.floor((secs % 86400) / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+    if (hours > 0) return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    return `${Math.max(1, mins)}m`;
+  }
+
+  // Panel "Instancias": snapshot de los lockouts guardados (addon 3.1.0).
+  // `resetAt` es una época absoluta capturada al pulsar "Registrar": la cuenta
+  // atrás es una ESTIMACIÓN según ese registro (se indica en el title).
+  function instancesPanel(c: CharacterRow): HTMLElement | null {
+    const instances = [...(c.instances ?? [])];
+    if (instances.length === 0) return null;
+    const now = Date.now() / 1000;
+    // Con reloj primero, por reinicio más próximo (mismo orden que el addon).
+    instances.sort((a, b) => {
+      const ra = typeof a.resetAt === 'number' && a.resetAt > 0 ? a.resetAt : Number.POSITIVE_INFINITY;
+      const rb = typeof b.resetAt === 'number' && b.resetAt > 0 ? b.resetAt : Number.POSITIVE_INFINITY;
+      if (ra !== rb) return ra - rb;
+      return a.name.localeCompare(b.name);
+    });
+
+    const wrap = el('div', '');
+    wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, `Instancias guardadas · ${instances.length}`));
+    const list = el('div', 'grid grid-cols-1 gap-1');
+    instances.forEach((instance) => {
+      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-gray-900/40 border-l-2 hover:bg-gray-800/50 transition-colors');
+      row.style.borderColor = '#b45309';
+      row.appendChild(el('span', 'text-xs truncate flex-1 text-gray-200', instance.name));
+      if (instance.difficulty) {
+        row.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 text-amber-200 bg-amber-950/40 border-amber-600/30`, instance.difficulty));
+      }
+      if (instance.extended) {
+        row.appendChild(el('span', `${ui.text.caption} shrink-0`, 'extendido'));
+      } else if (typeof instance.resetAt === 'number' && instance.resetAt > 0) {
+        const remaining = instance.resetAt - now;
+        // Ya venció: el reinicio ocurrió desde el último registro.
+        const meta = remaining <= 0
+          ? el('span', 'text-xs shrink-0 font-bold text-emerald-400', 'reiniciado')
+          : el('span', `text-xs shrink-0 font-bold ${ui.statValue}`, `reinicia en ${formatRemaining(remaining)}`);
+        meta.title = 'Cuenta atrás estimada según el último registro del addon';
+        row.appendChild(meta);
+      }
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
     return wrap;
   }
 

@@ -38,3 +38,12 @@ El addon dev vive en `D:\WowClient esMX\Interface\AddOns\RaidDominion`
    deduce de la raza del GM (`characters[*].raceName`/`raceFile`). El addon no
    necesita cambios para esto, pero `raceFile` debe seguir exportándose en
    `characters[*]` para que el fallback sea posible.
+9. **Nota e instancias (addon v3.1.0):** `registry["Nombre-Reino"].player`
+   exporta además `note` (nota global del personaje; `""` = borrarla) e
+   `instances` (`{ name, difficulty?, resetAt?, extended? }`; `resetAt` = época
+   ABSOLUTA del reinicio, la web recalcula la cuenta atrás). Clave ausente = SV
+   anterior a 3.1.0 (el portal conserva lo ya guardado). La nota se almacena
+   SIEMPRE en `raiddominion_character_notes` (privada, RLS del dueño) y solo se
+   proyecta a la ficha pública con el interruptor propio `notes_public` (por
+   defecto apagado) **y** la ficha pública; las instancias viajan con la RLS de
+   la ficha (`is_public`).

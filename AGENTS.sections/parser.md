@@ -1,4 +1,4 @@
-# Formato de SavedVariables — Especificación v3.0.1
+# Formato de SavedVariables — Especificación v3.1.0
 
 > Este archivo complementa `AGENTS.md` §5. Solo leerlo cuando se trabaja con
 > el parser de SavedVariables o las guías del addon.
@@ -14,7 +14,11 @@ Referencias: `D:\WowClient esMX\WTF\Account\IAMM\SavedVariables\RaidDominion.lua
 RaidDominionDB = {
   ["registry"] = {                    -- ⭐ FUENTE PRINCIPAL — DOS formas reales:
     -- a) mapa por personaje (config compartida v3, vigente):
-    ["Nombre-Reino"] = { ["savedAt"], ["player"] = {...equipamiento...},
+    ["Nombre-Reino"] = { ["savedAt"], ["player"] = {...equipamiento...,
+        -- v3.1.0: proyecciones del editor "Jugador" (nota + instancias)
+        ["note"] = "texto" | "",        -- nota global; "" = borrar lo publicado
+        ["instances"] = { {name, difficulty?, resetAt?, extended?} },
+      },                                -- resetAt = época absoluta del reinicio
       ["objectives"] = {
         ["equipment"] = { {slot, name, itemID?, ilvl?, quality?, done} },
         ["currencies"] = { {name, target, reached} },
@@ -59,6 +63,19 @@ columna `raiddominion_characters.objectives` se sella con el mismo
 sincronice cuentas, pero **no es dato comunitario**: el parser no lo expone en
 `AccountCharacter`/`CharacterRegistry` y la web no lo persiste ni lo publica.
 
+`registry["Nombre-Reino"].player.note` y `.instances` (addon v3.1.0) viajan
+DENTRO de `player` (no son ramas hermanas). Semántica de las claves, idéntica
+para ambas:
+- **ausente** → SV anterior a 3.1.0: el parser no inventa la clave y el RPC
+  CONSERVA lo ya guardado en la web.
+- **presente** (aunque vaya vacía: `note=""`, `instances={}`) → el SV manda:
+  la nota se sincroniza (vaciar = borrar) y las instancias expiradas se limpian.
+
+La nota se publica SOLO con el interruptor propio del dueño
+(`raiddominion_characters.notes_public`, apagado por defecto) **y** la ficha
+pública; las instancias siguen la RLS de la ficha (`is_public`), igual que
+equipo/metas.
+
 ### Normalización interna del portal
 
 El SV mantiene `objectives` como rama hermana de `player`; el modelo normalizado
@@ -68,6 +85,8 @@ sola entidad:
 ```
 SV:  registry[name].player = {...}   registry[name].objectives = {...}
 SV → PlayerCharacter.objectives      (CharacterRegistry ya NO tiene `objectives`)
+SV:  registry[name].player.note / .instances
+SV → PlayerCharacter.note / PlayerCharacter.instances
 ```
 
 La facción de la hermandad se resuelve con este orden (idéntico en el parser y
@@ -86,12 +105,13 @@ guardaban `'?'`.
 `characters["Nombre-Reino"].version` identifica la versión del addon y se
 actualiza al iniciar sesión. El parser la conserva en `AccountCharacter`.
 Snapshots sin `objectives` se aceptan por compatibilidad: la columna queda
-vacía y se muestra el aviso de re-registro.
+vacía y se muestra el aviso de re-registro. Los registros con `objectives` pero
+sin `note`/`instances` (addon 3.0.1) disparan un aviso de re-registro propio.
 
 ## Reglas del parser
 
-- Prioridad: **formato oficial v3.0.1** (el de arriba), con compatibilidad para
-  SV v3.0.0. El formato v2 (`Guild`
+- Prioridad: **formato oficial v3.1.0** (el de arriba), con compatibilidad para
+  SV v3.0.0/v3.0.1. El formato v2 (`Guild`
   como único origen, bandas solo en `Core`) NO se parsea como fuente principal.
 - Claim de maestro en DOS flujos:
   a) **Primario (v3):** cualquier `registry.*.guild.isGM=true` habilita

@@ -94,7 +94,8 @@ visitante / member
   │       (≥1 personaje validado con SV isGM, regla 20260925) → raiddominion_claim_from_sv al subir (auto GM)
   │    └─ slug autogenerado + dashboard /dashboard/guild
   │         └─ toggle is_public → portal vivo en /hermandad/:slug
-  └─ Re-subir SV actualiza roster/bandas del portal
+  └─ Re-subir SV actualiza roster/bandas, metas, nota (con su interruptor
+     "Nota pública", privada por defecto) e instancias guardadas del portal
 ```
 
 > ⚠️ **Anti-falso-positivo (20260825):** `raiddominion_claim_from_sv` descarta
@@ -123,7 +124,8 @@ evidencia de membresía (GM v3, legacy, bandas) y helpers de roles, leer
 
 ## 5. Formato de SavedVariables
 
-Formato actual v3.0.1, compatible con archivos v3.0.0. Parser en `src/lib/parser/savedVariables.ts`.
+Formato actual v3.1.0, compatible con archivos v3.0.0/v3.0.1. Parser en
+`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.3.0).
 Especificación completa: `AGENTS.sections/parser.md`.
 
 ## 6. Organización de código

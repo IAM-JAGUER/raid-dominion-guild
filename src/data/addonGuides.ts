@@ -1,4 +1,4 @@
-// Guías del addon RaidDominion v3.0.0.
+// Guías del addon RaidDominion v3.1.0.
 // Contenido alineado con las features REALES del addon (RD_Constants.lua,
 // RD_Init.lua y RD_Utils_Registry.lua). La ruta local del addon dev vive
 // SOLO en AGENTS.sections/addon.md (contrato entre repos).
@@ -130,9 +130,9 @@ export const guides: Guide[] = [
       {
         title: 'Registra y sube tu personaje',
         content: [
-          'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, bandas y hermandad).',
+          'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, metas de equipo y moneda, nota, instancias guardadas, bandas y hermandad).',
           'Registra el personaje que usas en raid y repite el paso por cada uno que quieras incluir.',
-          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos.',
+          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Los datos nuevos (metas, nota e instancias) aparecen en tu [ficha de personaje](/personajes) según lo que decidas publicar.',
           'Re-subir tu ficha mantiene todo al día sin volver a configurar nada.',
         ],
       },
@@ -270,6 +270,60 @@ export const guides: Guide[] = [
           'Líder: No, Sí o Ayudante.',
           'Asistencia y puntos: los botones + / - del gestor ajustan los puntos del jugador; miden su compromiso y fidelidad con la banda (se acumulan por banda).',
           'Sanción: lag, abandono, rendimiento, baneo, equipamiento (Equip.) o engemado (Eng/Enc).',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'jugador',
+    title: 'Ficha de jugador',
+    category: 'Bandas',
+    description: 'Tu ficha personal (botón Jugador): información y nota, equipamiento, bandas, instancias guardadas y monedas.',
+    icon: '📋',
+    color: 'purple',
+    sections: [
+      {
+        title: 'Abrir tu ficha',
+        content: [
+          'Clic izquierdo en el botón "Jugador" de la barra inferior (o el ítem "gestor de tu personaje" del menú del minimapa) abre tu editor por secciones: Información, Equipamiento, Bandas, Instancias y Monedas.',
+          'El clic derecho del botón Jugador abre el buscador de jugadores de tus listas.',
+        ],
+      },
+      {
+        title: 'Información',
+        content: [
+          'Muestra nombre y clase, y permite escribir tu nota de jugador: UNA por personaje, compartida entre todas tus bandas y disponible aunque no estés en ninguna.',
+          'El check "Nota en tooltips" añade tus notas en seguimiento al tooltip del botón Jugador y del minimapa.',
+          'Al pulsar [Registrar](#guide-primeros-pasos), la nota viaja con tu ficha; en el portal decides si se publica con el interruptor "Nota pública" de tu dashboard (por defecto es privada).',
+        ],
+      },
+      {
+        title: 'Equipamiento',
+        content: [
+          'Revisa tu equipo en vivo. Mayús+clic sobre una pieza inserta su enlace en el chat activo.',
+          'Fija metas por slot (el ítem que buscas): el check del panel añade el objetivo al seguimiento del tooltip del botón Jugador.',
+        ],
+      },
+      {
+        title: 'Bandas',
+        content: [
+          'Bandas donde figuras y alta en otra banda; el detalle completo está en [Bandas y jugadores](#guide-bandas-jugadores).',
+        ],
+      },
+      {
+        title: 'Instancias',
+        content: [
+          'Lista tus mazmorras y bandas guardadas con su dificultad y el tiempo restante hasta el reinicio (o "extendido" si suspendiste el reinicio).',
+          'El check general de la cabecera añade las instancias guardadas a los tooltips del botón Jugador y del minimapa.',
+          'Al registrar, las instancias viajan como snapshot y aparecen en tu ficha pública del portal (pestaña Instancias) cuando tu personaje es público.',
+        ],
+      },
+      {
+        title: 'Monedas',
+        content: [
+          'Monedas y emblemas en vivo, con el dinero primero. Fija una meta (cantidad objetivo) por moneda.',
+          'El check de seguimiento añade cada moneda vigilada (con su meta y cuánto falta) al tooltip del botón Jugador.',
+          'Las metas de equipo y moneda se publican en la ficha pública del portal (pestaña Metas) al registrar.',
         ],
       },
     ],
