@@ -11,6 +11,14 @@ import { ui } from '@/lib/ui/design';
       <div class="w-full">
         <div class={`${ui.card} ${ui.cut} rounded-none relative overflow-hidden p-4 sm:p-6 md:p-8`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
+          <!-- Textura de la sección (addonBg): bajo el contenido y sobre la
+               superficie de la card (rd-card aísla el contexto de apilado). -->
+          <div
+            class="absolute inset-0 -z-10 bg-cover bg-center opacity-[0.14]"
+            style="background-image:url('/images/addonBg.jpg')"
+            aria-hidden="true"
+          >
+          </div>
           <!-- Header with Logo -->
           <div class="text-center mb-10">
             <div class="mb-6">

@@ -1,0 +1,58 @@
+---
+// Capa atmosférica de página: imagen de fondo + velo de contraste + partículas.
+// Única fuente del markup de la atmósfera; Layout la monta con props opcionales
+// (`background`, `particles`) y DetailShell las reenvía para las fichas.
+//
+// La elección día/noche (index) se resuelve con un script inline ANTES del
+// primer pintado — sin parpadeo ni crossfade que retrase el fondo.
+import type { ParticleVariant } from '@/lib/ui/particles';
+
+interface Props {
+  variant?: ParticleVariant;
+  image?: string;
+  // Imagen nocturna opcional (index): se elige por hora local (19:00–06:00).
+  imageNight?: string;
+  // Intensidad del velo oscuro (0..1); más alto = fondo más tenue.
+  veil?: number;
+}
+
+const { variant = 'arcane', image, imageNight, veil = 0.9 } = Astro.props;
+---
+
+<div class="rd-atmosphere" aria-hidden="true">
+  {
+    image && (
+      <div
+        id="rd-atmosphere-image"
+        class="rd-atmosphere__image"
+        data-image-day={image}
+        data-image-night={imageNight ?? image}
+        style={`background-image:url('${image}')`}
+      />
+    )
+  }
+  <div class="rd-atmosphere__veil" style={`--rd-veil:${veil}`}></div>
+  <canvas class="rd-atmosphere__canvas" data-rd-particles data-variant={variant}></canvas>
+</div>
+
+<script is:inline>
+  // Día/noche por hora local (19:00–06:00 = noche). Inline a propósito: corre
+  // durante el parseo, antes del primer paint, así el fondo correcto aparece
+  // de inmediato. Sin imagen nocturna, no hace nada.
+  (function () {
+    var el = document.getElementById("rd-atmosphere-image");
+    if (!el) return;
+    var day = el.getAttribute("data-image-day") || "";
+    var night = el.getAttribute("data-image-night") || day;
+    if (!day || day === night) return;
+    var hour = new Date().getHours();
+    var url = hour >= 19 || hour < 6 ? night : day;
+    el.style.backgroundImage = "url('" + url + "')";
+  })();
+</script>
+
+<script>
+  import { autoMountParticleFields } from '@/lib/ui/particles';
+
+  autoMountParticleFields();
+</script>

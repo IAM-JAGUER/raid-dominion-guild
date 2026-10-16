@@ -75,6 +75,24 @@ UI MMORPG clásica", no una copia.
 
 - **Atmósfera**: `.rd-bg` en `<body>` (vacío profundo + resplandor ámbar
   ambiental + trama procedural + viñeta). Reemplazó a `background.png`.
+- **Atmósfera de página (2026-10-16)**: `.rd-atmosphere*` (material.css) +
+  `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
+  contenido con imagen de fondo atenuada por un velo de contraste y un canvas
+  de partículas por página (`snow` index/ICC con ventisca, `arcane`
+  personaje/jugador/personajes/usuario/admin/moderación/upload, `ember`
+  banda/bandas, `banner` hermandad/hermandades, `frost`
+  login/servidores/404; el addonBg ambienta las secciones de usuario con
+  `arcane`). Reglas: el markup/engine son contratos únicos (jamás montar
+  canvas suelto en una página); el motor pausa con `visibilitychange` y se
+  personaliza por el evento `rd:particles` (paleta de clase o calidad de
+  ítem). **Movimiento reducido:** `prefers-reduced-motion: reduce` no apaga
+  el ambiente — lo atenúa (35% de velocidad, mitad de densidad, sin ráfagas
+  ni titileo), porque previews embebidos/entornos headless reportan `reduce`
+  por defecto y un campo congelado se percibe como roto. Las páginas pasan
+  `background`/`particles` a `Layout` (o `DetailShell`), nunca estilos de
+  fondo propios. **Apilado:** el contenido del body vive dentro de un wrapper
+  `relative isolate` (Layout); sin ese contexto, el fondo del body
+  (posicionado) tapa la capa `z -1`.
 - **Materiales**: `.rd-metal` (paneles forjados, `ui.panel`/`ui.sectionHead`),
   `.rd-card` (cards con energía sutil, `ui.card`), `.rd-stone`,
   `.rd-parchment` (misiones/citas), `.rd-btn` (botones que se hunden),
@@ -161,6 +179,25 @@ de dashboard con pestañas que ya resuelve esto en desktop.
 
 ## Historial de enmiendas
 
+- **2026-10-16**: atmósfera de página con partículas — `PageAtmosphere.astro`
+  (imagen + velo + canvas, día/noche por hora local para el index) y motor
+  `src/lib/ui/particles.ts` (variantes `snow`/`arcane`/`ember`/`banner`/
+  `frost`, DPR-aware, pausa en background, `prefers-reduced-motion`, tinte en
+  vivo por `rd:particles`). Cableado por props `background`/`particles` de
+  `Layout`/`DetailShell`: `iccDay`/`iccNight`+`snow` en la landing,
+  `GameLoginBg`+`frost` en login, `characterBg`+`arcane` en personaje, jugador
+  y directorio de personajes (la pestaña Equipamiento emite la paleta de
+  calidad de ítem), `bandGuildBg`+`ember`/`banner` en banda, bandas,
+  hermandad y hermandades, `iccNight`+`frost` en servidores y ficha de
+  servidor, `404Bg`+`frost` en la nueva 404. `addonBg`+`arcane` ambienta las
+  secciones de usuario (dashboard, upload) y de staff (admin, moderación),
+  además de la textura sutil de la sección Addon. **Movimiento reducido:** el
+  motor nunca congela el ambiente; con `reduce` baja a 35% de velocidad y
+  mitad de densidad, sin ráfagas ni titileo (2026-10-16, tras comprobar que
+  previews/entornos headless reportan `reduce` por defecto). El contenido del
+  body se envuelve en un contexto de apilado `relative isolate` para que la
+  capa `z -1` quede sobre el fondo del body y bajo el contenido. Sin
+  catch-all SPA, Netlify sirve `dist/404.html`.
 - **2026-08-30**: dirección de arte "interfaz de aventurero / grimorio MMORPG" —
   nuevo `src/styles/material.css` (tokens CSS, atmósfera `.rd-bg`, materiales
   `.rd-metal`/`.rd-card`/`.rd-stone`/`.rd-parchment`, esquinas `clip-path`

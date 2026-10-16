@@ -68,6 +68,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
   import { classIconEl } from '@/lib/ui/classIcon';
+  import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import { card, cardTop, iconTile } from '@/lib/ui/card';
@@ -228,7 +229,52 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 
     initAvailableTabs({ barId: 'pv-tab-bar', tabs: PERSONAJE_TABS, available });
 
+    wireParticleTheme(c);
+
     showView('view-personaje');
+  }
+
+  // Tinte de las partículas de la página: color de clase por defecto y, con la
+  // pestaña "Equipamiento" activa, la paleta de calidades del equipo real del
+  // personaje (épico/legendario dominan). El motor (src/lib/ui/particles.ts)
+  // escucha `rd:particles`; el observer vive solo mientras la vista esté viva.
+  function wireParticleTheme(c: CharacterRow): void {
+    const classPalette = [classColor(c.class, c.class_file)];
+    const qualityColors = new Map<number, string>();
+    (c.equipment ?? []).forEach((piece) => {
+      if (typeof piece.quality === 'number' && piece.quality > 0) {
+        qualityColors.set(piece.quality, itemQualityColor(piece.quality));
+      }
+    });
+    const qualityPalette = Array.from(qualityColors.keys())
+      .sort((a, b) => b - a)
+      .slice(0, 4)
+      .map((q) => qualityColors.get(q) ?? '#ffffff');
+
+    const activePanel = (): string => {
+      const wrap = document.getElementById('pv-panels');
+      if (!wrap) return '';
+      const shown = Array.from(wrap.querySelectorAll<HTMLElement>('[role="tabpanel"]')).find(
+        (panel) => !panel.classList.contains('hidden'),
+      );
+      return (shown?.id ?? '').replace(/^panel-/, '');
+    };
+
+    const emit = (): void => {
+      const palette = activePanel() === 'equipamiento' && qualityPalette.length > 0
+        ? qualityPalette
+        : classPalette;
+      window.dispatchEvent(new CustomEvent('rd:particles', { detail: { palette } }));
+    };
+
+    const wrap = document.getElementById('pv-panels');
+    if (wrap) {
+      // createTabBar alterna `hidden` en los paneles (click, teclado y hash):
+      // observar esa clase es la señal única de "cambió la pestaña activa".
+      const observer = new MutationObserver(emit);
+      observer.observe(wrap, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+    emit();
   }
 
   // Lista de equipamiento del panel (filas slot · ítem · ilvl).

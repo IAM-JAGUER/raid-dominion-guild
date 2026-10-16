@@ -87,6 +87,7 @@ Shell (con `#denied`) + header + vistas. Admin navega por hash
 | Rutas de addon | `AGENTS.sections/addon.md` | ✅ ÚNICA |
 | Cabecera de panel ventana | `PanelWindow.astro` | ✅ ÚNICA (antes 27 literales) |
 | Empty state | `EmptyState.astro` | ✅ ÚNICA (antes 7 bloques) |
+| Atmósfera de página (fondo + partículas) | `PageAtmosphere.astro` + `src/lib/ui/particles.ts` | ✅ ÚNICA (antes sin capa) |
 | PageHeader directorio | `PageHeader.astro` | ✅ ÚNICA (antes 5) |
 | H1 hero | token `ui.titleHero` | ✅ ÚNICA (antes 8 literales) |
 | H1 ficha | token `ui.titleFicha` + `ui.gradientTitle` | ✅ ÚNICA (antes 6) |

@@ -1,0 +1,38 @@
+---
+// Página 404 del portal. Gracias a quitar el catch-all SPA de netlify.toml,
+// Netlify sirve dist/404.html para rutas realmente inexistentes (las rutas
+// cliente por slug conservan sus rewrites explícitos).
+import Layout from '@/layouts/Layout.astro';
+import Navigation from '@/components/Navigation.astro';
+import { ui } from '@/lib/ui/design';
+---
+
+<Layout
+  title="404 - RaidDominion"
+  description="La página que buscas no existe en el portal de RaidDominion."
+  background="/images/404Bg.jpg"
+  particles="frost"
+  veil={0.8}
+>
+  <Navigation />
+  <main class="relative py-24">
+    <div class="max-w-xl mx-auto text-center">
+      <p class={`${ui.eyebrow} flex items-center justify-center`}>
+        <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Zona inexplorada</span>
+      </p>
+      <h1 class={`${ui.titleFicha} ${ui.gradientTitle} mt-3`}>404</h1>
+      <p class={`${ui.text.bodyMuted} mt-4 italic`}>
+        El pergamino que buscas se perdió en la ventisca: esta ruta no existe,
+        es privada o cambió de enlace.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>Volver al portal</a>
+        <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>Ver directorio</a>
+      </div>
+      <div class={`${ui.dividerFadeBoth} mt-12`} aria-hidden="true"></div>
+    </div>
+  </main>
+</Layout>

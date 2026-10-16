@@ -76,11 +76,9 @@
   to = "/.netlify/functions/visit"
   status = 200
 
-# Redirecciones SPA
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Página 404: sin catch-all SPA, Netlify sirve dist/404.html para rutas
+# inexistentes (los shells cliente por slug tienen sus rewrites explícitos
+# arriba y los directorios son archivos reales).
 
 # Configuración de encabezados de seguridad
 [[headers]]

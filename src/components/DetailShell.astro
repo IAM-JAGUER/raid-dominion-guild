@@ -4,18 +4,24 @@
 // que routes.ts (showView/showNotFound) y las vistas de src/components/views/
 // esperan del DOM. Cada ficha es una página física (personaje.astro,
 // servidor.astro, banda.astro) que envuelve su vista en este shell.
-interface Props {
-  title: string;
-  description?: string;
-}
-const { title, description } = Astro.props;
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import { ui } from '@/lib/ui/design';
+import type { ParticleVariant } from '@/lib/ui/particles';
+
+interface Props {
+  title: string;
+  description?: string;
+  // Atmósfera de la ficha (se reenvía al Layout: imagen + partículas).
+  background?: string;
+  particles?: ParticleVariant;
+  veil?: number;
+}
+const { title, description, background, particles, veil } = Astro.props;
 ---
 
-<Layout title={title} description={description}>
+<Layout title={title} description={description} background={background} particles={particles} veil={veil}>
   <Navigation />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">

@@ -88,6 +88,57 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 01b · ATMÓSFERA DE PÁGINA (imagen + partículas)
+   Capa fija bajo el contenido (z -1): por encima del gradiente global del
+   Layout (z -2) y por debajo del contenido. La imagen se atenúa con el velo
+   para conservar el contraste del texto; el canvas solo dibuja partículas
+   (nunca recibe punteros).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rd-atmosphere__image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.42;
+  filter: saturate(0.95) brightness(0.9);
+  transform: scale(1.03);
+}
+
+.rd-atmosphere__veil {
+  position: absolute;
+  inset: 0;
+  opacity: var(--rd-veil, 0.9);
+  background:
+    /* viñeta superior de marca + cierre oscuro para legibilidad */
+    radial-gradient(130% 70% at 50% -10%, rgba(20, 20, 26, 0.2), rgba(10, 10, 12, 0.72) 62%),
+    linear-gradient(180deg, rgba(10, 10, 12, 0.32) 0%, rgba(10, 10, 12, 0.55) 55%, rgba(7, 7, 8, 0.85) 100%);
+}
+
+.rd-atmosphere__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* En pantallas chicas el fondo pesa menos para no competir con el contenido. */
+@media (max-width: 639px) {
+  .rd-atmosphere__image {
+    opacity: 0.3;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    LAYER 02 · MATERIALES ESTRUCTURALES
    Borde por capas: sombra exterior → borde oscuro → línea de iluminación →
    sombra interior. Profundidad sin depender de border simple. El gradiente

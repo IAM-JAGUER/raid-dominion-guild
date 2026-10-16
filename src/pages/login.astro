@@ -5,7 +5,13 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
-<Layout title="Iniciar Sesión - RaidDominion" description="Inicia sesión o crea tu cuenta en el portal comunitario de RaidDominion.">
+<Layout
+  title="Iniciar Sesión - RaidDominion"
+  description="Inicia sesión o crea tu cuenta en el portal comunitario de RaidDominion."
+  background="/images/GameLoginBg.jpg"
+  particles="frost"
+  veil={0.75}
+>
   <Navigation currentPath="/login" />
   <main class="relative py-16">
     <div class="max-w-md mx-auto">
