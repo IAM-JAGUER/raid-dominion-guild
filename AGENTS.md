@@ -247,6 +247,24 @@ reactiva un modelo multi-sesión en el futuro.
   manual y exclusiva del usuario (§8). El agente nunca ejecuta SQL contra
   Supabase, con o sin `bash: allow`.
 
+### Servidor de Live Preview del usuario (prohibición absoluta)
+
+El dev server del usuario (`npm run dev` / `npm start`, puerto **4321**)
+es su Live Preview: **un agente NUNCA lo detiene ni lo reinicia**.
+
+- Prohibido `kill`/`pkill`/`taskkill`/cierre del proceso del puerto 4321 y
+  de cualquier servidor/port-forward del usuario (incluye el port proxy de
+  LAN, §8, y los procesos de sus navegadores/previews).
+- Nunca apuntar por patrón amplio (`pkill -f astro`, `taskkill /IM chrome.exe`):
+  matar por PID solo si el PID es de un proceso **que el propio agente
+  inició** y lo tiene registrado.
+- Si un agente necesita un servidor para verificar (screenshots, curl),
+  lánzalo en **puerto alterno** (`npm run dev -- --port 4322`) y detén
+  únicamente ese PID propio al terminar.
+- Para diagnosticar el servidor del usuario: `curl` de solo lectura contra
+  4321 (p. ej. `curl -s -o /dev/null -w "%{http_code}" http://localhost:4321/`).
+  Reiniciarlo es decisión exclusiva del usuario.
+
 ### Checklist de cambios
 
 1. `scripts/verifica.sh` — sin errores nuevos.
@@ -457,6 +475,10 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-16**: agregada la prohibición absoluta de detener el servidor de
+  Live Preview del usuario (puerto 4321): los agentes nunca lo matan ni lo
+  reinician; pruebas propias en puerto alterno y kill solo por PID propio
+  (§9). Agregada F013 del mismo tema en `frallas.md`.
 - **2026-08-30 (rutas)**: canonicalización del mapa de rutas en español —
   portal de hermandad de raíz `/:slug` → **`/hermandad/:slug`** (shell
   `src/pages/hermandad/index.astro` + rewrite `/hermandad/*`; raíz legacy 301);

@@ -21,6 +21,10 @@ empezar. `PLAN_TRANSFORMACION.md` tiene el roadmap de fases. Rutas locales del
 addon/repo dev viven SOLO en `AGENTS.sections/addon.md` — no las repitas ni
 las asumas desde memoria; si necesitas la ruta, léela ahí.
 
+⚠️ Nunca detengas procesos del usuario (dev server del Live Preview en el
+puerto 4321, port-forward de LAN o sus navegadores). Pruebas propias, en
+puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
+
 ## Archivos de referencia
 
 - `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, onboarding

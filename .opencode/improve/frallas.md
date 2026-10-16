@@ -101,3 +101,18 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   `ciclos.json` → `migraciones_aplicadas` con `project_ref_verificado: true`.
 - **Detección**: manual — sin CLI de Supabase no hay tracking automático,
   ver `AGENTS.md` §8
+
+## F013: Agente detiene el servidor de Live Preview del usuario
+- **Estado**: vigente (2026-10-16)
+- **Error**: `pkill`/`kill` por patrón amplio (`astro`, `astro dev`) o
+  `taskkill` global (`/IM chrome.exe`) tumba el dev server del usuario
+  (puerto 4321, su Live Preview) y/o sus navegadores, dejando el preview
+  roto y, si el proceso queda zombi, el puerto ocupado
+- **Solución**: nunca terminar procesos por patrón ni puertos del usuario;
+  para pruebas del agente usar puerto alterno
+  (`npm run dev -- --port 4322`) y matar SOLO el PID propio registrado al
+  lanzarlo; el 4321 se diagnostica únicamente con `curl` de lectura
+  (regla completa en `AGENTS.md` §9, "Servidor de Live Preview")
+- **Detección**: manual — antes de cualquier "limpieza" de procesos,
+  verificar si el objetivo es del puerto 4321, un port-forward de LAN o un
+  navegador/preview del usuario

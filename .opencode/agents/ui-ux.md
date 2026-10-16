@@ -22,6 +22,10 @@ Lee `AGENTS.sections/design.md` ANTES de empezar — ahí viven las reglas
 geométricas (R1-R8), tokens disponibles y la dirección de personalidad
 visual. Este archivo asume que ya lo leíste; no repite las reglas, las aplica.
 
+⚠️ Nunca detengas procesos del usuario (dev server del Live Preview en el
+puerto 4321, port-forward de LAN o sus navegadores). Pruebas propias, en
+puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
+
 ## Contexto del proyecto
 
 - Landing Astro estática → portal (upload de SavedVariables, dashboards de

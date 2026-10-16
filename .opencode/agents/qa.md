@@ -21,6 +21,10 @@ Lee `.opencode/improve/priorities.md` y `.opencode/improve/frallas.md` antes
 de empezar — toda falla documentada ahí es una regresión conocida; si el diff
 la reintroduce, es automáticamente 🔴 Bloqueante.
 
+⚠️ Nunca detengas procesos del usuario (dev server del Live Preview en el
+puerto 4321, port-forward de LAN o sus navegadores). Pruebas propias, en
+puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
+
 ## Archivos de referencia
 
 - `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, RLS

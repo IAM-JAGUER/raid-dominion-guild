@@ -20,6 +20,10 @@ Lee `.opencode/improve/priorities.md`, `.opencode/improve/frallas.md` y
 `.opencode/improve/patrones.md` antes de empezar — evita reintroducir fallas
 conocidas o desviarte de patrones ya validados en otras divisiones.
 
+⚠️ Nunca detengas procesos del usuario (dev server del Live Preview en el
+puerto 4321, port-forward de LAN o sus navegadores). Pruebas propias, en
+puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
+
 ## Archivos de referencia
 
 - `AGENTS.sections/supabase-tables.md` — ecosistema multi-app, tablas, onboarding, URLs públicas
