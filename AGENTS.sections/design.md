@@ -78,11 +78,16 @@ UI MMORPG clásica", no una copia.
 - **Atmósfera de página (2026-10-16)**: `.rd-atmosphere*` (material.css) +
   `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
   contenido con imagen de fondo atenuada por un velo de contraste y un canvas
-  de partículas por página (`snow` index/ICC con ventisca, `arcane`
-  personaje/jugador/personajes/usuario/admin/moderación/upload, `ember`
-  banda/bandas, `banner` hermandad/hermandades, `frost`
-  login/servidores/404; el addonBg ambienta las secciones de usuario con
-  `arcane`). Reglas: el markup/engine son contratos únicos (jamás montar
+  de partículas por página. Fondo e intensidad por tipo de página:
+  `GameLoginBg`+`snow` en la landing, `GameLoginBg` en los directorios
+  (bandas `ember`, hermandades `banner`, servidores `frost`, personajes y
+  jugadores `arcane`), `characterBg`+`arcane` en las fichas de
+  personaje/jugador, `bandsBg`+`ember` en la ficha de banda,
+  `guildBg`+`banner` en el portal de hermandad, `serverBg`+`frost` en la
+  ficha de servidor, `GameLoginBg`+`frost` en login, `404Bg`+`frost` en la
+  404 y `addonBg`+`arcane` en las secciones de usuario/staff (upload,
+  dashboard, admin, moderación), además de la textura sutil de la sección
+  Addon. Reglas: el markup/engine son contratos únicos (jamás montar
   canvas suelto en una página); el motor pausa con `visibilitychange` y se
   personaliza por el evento `rd:particles` (paleta de clase o calidad de
   ítem). **Movimiento reducido:** `prefers-reduced-motion: reduce` no apaga
@@ -180,24 +185,24 @@ de dashboard con pestañas que ya resuelve esto en desktop.
 ## Historial de enmiendas
 
 - **2026-10-16**: atmósfera de página con partículas — `PageAtmosphere.astro`
-  (imagen + velo + canvas, día/noche por hora local para el index) y motor
-  `src/lib/ui/particles.ts` (variantes `snow`/`arcane`/`ember`/`banner`/
-  `frost`, DPR-aware, pausa en background, `prefers-reduced-motion`, tinte en
-  vivo por `rd:particles`). Cableado por props `background`/`particles` de
-  `Layout`/`DetailShell`: `iccDay`/`iccNight`+`snow` en la landing,
-  `GameLoginBg`+`frost` en login, `characterBg`+`arcane` en personaje, jugador
-  y directorio de personajes (la pestaña Equipamiento emite la paleta de
-  calidad de ítem), `bandGuildBg`+`ember`/`banner` en banda, bandas,
-  hermandad y hermandades, `iccNight`+`frost` en servidores y ficha de
-  servidor, `404Bg`+`frost` en la nueva 404. `addonBg`+`arcane` ambienta las
-  secciones de usuario (dashboard, upload) y de staff (admin, moderación),
-  además de la textura sutil de la sección Addon. **Movimiento reducido:** el
-  motor nunca congela el ambiente; con `reduce` baja a 35% de velocidad y
-  mitad de densidad, sin ráfagas ni titileo (2026-10-16, tras comprobar que
-  previews/entornos headless reportan `reduce` por defecto). El contenido del
-  body se envuelve en un contexto de apilado `relative isolate` para que la
-  capa `z -1` quede sobre el fondo del body y bajo el contenido. Sin
-  catch-all SPA, Netlify sirve `dist/404.html`.
+  (imagen + velo + canvas) y motor `src/lib/ui/particles.ts` (variantes
+  `snow`/`arcane`/`ember`/`banner`/`frost`, DPR-aware, pausa en background,
+  `prefers-reduced-motion`, tinte en vivo por `rd:particles`). Cableado por
+  props `background`/`particles` de `Layout`/`DetailShell` (decisión final de
+  fondos: `GameLoginBg` en landing y todo directorio — `snow`/`ember`/`banner`/
+  `frost`/`arcane` según sección —, `characterBg` en fichas de
+  personaje/jugador, `bandsBg` en ficha de banda, `guildBg` en portal de
+  hermandad, `serverBg` en ficha de servidor, `404Bg` en la nueva 404; se
+  prescindió de `iccDay`/`iccNight` y del selector día/noche). La pestaña
+  Equipamiento emite la paleta de calidad de ítem. `addonBg`+`arcane`
+  ambienta las secciones de usuario (dashboard, upload) y de staff (admin,
+  moderación), además de la textura sutil de la sección Addon. **Movimiento
+  reducido:** el motor nunca congela el ambiente; con `reduce` baja a 35% de
+  velocidad y mitad de densidad, sin ráfagas ni titileo (2026-10-16, tras
+  comprobar que previews/entornos headless reportan `reduce` por defecto). El
+  contenido del body se envuelve en un contexto de apilado `relative isolate`
+  para que la capa `z -1` quede sobre el fondo del body y bajo el contenido.
+  Sin catch-all SPA, Netlify sirve `dist/404.html`.
 - **2026-08-30**: dirección de arte "interfaz de aventurero / grimorio MMORPG" —
   nuevo `src/styles/material.css` (tokens CSS, atmósfera `.rd-bg`, materiales
   `.rd-metal`/`.rd-card`/`.rd-stone`/`.rd-parchment`, esquinas `clip-path`

@@ -13,14 +13,12 @@ interface Props {
   // Atmósfera opcional de la página (imagen + partículas). La fuente única
   // del markup/engine vive en PageAtmosphere + src/lib/ui/particles.ts.
   background?: string;
-  // Variante nocturna del fondo (index): se elige por hora local.
-  backgroundNight?: string;
   particles?: ParticleVariant;
   // Intensidad del velo oscuro sobre la imagen (0..1).
   veil?: number;
 }
 
-const { title, description, background, backgroundNight, particles, veil } = Astro.props;
+const { title, description, background, particles, veil } = Astro.props;
 
 // En dev el pipeline cliente no expone VITE_* en import.meta.env;
 // se pasan por SSR al cliente vía window.__RD_ENV__ (ver src/lib/supabase.ts)
@@ -177,7 +175,6 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
         <PageAtmosphere
           variant={particles}
           image={background}
-          imageNight={backgroundNight}
           veil={veil}
         />
       )}
