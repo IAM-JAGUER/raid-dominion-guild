@@ -11,7 +11,6 @@ import { ui } from '@/lib/ui/design';
 	title="RaidDominion - Addon World of Warcraft 3.3.5a"
 	background="/images/GameLoginBg.jpg"
 	particles="snow"
-	veil={0.05}
 >
 	<Navigation />
 	<main class="relative">
@@ -37,28 +36,4 @@ import { ui } from '@/lib/ui/design';
 			</div>
 		</div>
 	</main>
-
-	<script>
-		// Mostrar el humo después de que cargue la página
-		document.addEventListener('DOMContentLoaded', () => {
-			setTimeout(() => {
-				const smokeContainer = document.getElementById('smoke-container');
-				if (smokeContainer) {
-					smokeContainer.classList.remove('opacity-0');
-				}
-			}, 500);
-		});
-	</script>
-
-	<style is:global>
-		/* Asegurar que el contenedor del humo esté correctamente posicionado */
-		#smoke-container {
-			position: absolute;
-			bottom: 0;
-			left: 0;
-			width: 100%;
-			height: 300px;
-			z-index: -10;
-		}
-	</style>
 </Layout>

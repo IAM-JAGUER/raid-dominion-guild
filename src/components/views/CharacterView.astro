@@ -73,6 +73,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
+  import { applyWowhead } from '@/lib/ui/wowhead';
   import { card, cardTop, iconTileEl } from '@/lib/ui/card';
   import { chip, el, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
@@ -338,13 +339,20 @@ import Icon from '@/components/ui/Icon.astro';
         const row = goalRow(goal.done);
         row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(goal.slot)));
         const qc = itemQualityColor(goal.quality);
-        const nm = el('a', `text-xs truncate hover:underline ${goal.done ? 'line-through opacity-60' : ''}`);
+        const nm = el('a', `text-xs truncate hover:underline ${goal.done ? 'line-through opacity-60' : ''}`) as HTMLAnchorElement;
         nm.style.color = qc;
         nm.textContent = goal.name;
-        nm.setAttribute('href', wowItemUrl(goal.name));
-        nm.setAttribute('target', '_blank');
-        nm.setAttribute('rel', 'noopener noreferrer');
-        nm.setAttribute('title', `Ver "${goal.name}" en UltimoWoW`);
+        // Con itemID del SV, tooltip rico del widget de Wowhead; sin él (SVs
+        // que no exportan metas con id), búsqueda por nombre en UltimoWoW.
+        const linked =
+          typeof goal.itemID === 'number' &&
+          applyWowhead(nm, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
+        if (!linked) {
+          nm.setAttribute('href', wowItemUrl(goal.name));
+          nm.setAttribute('target', '_blank');
+          nm.setAttribute('rel', 'noopener noreferrer');
+          nm.setAttribute('title', `Ver "${goal.name}" en UltimoWoW`);
+        }
         row.appendChild(nm);
         if (typeof goal.ilvl === 'number') row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `i${goal.ilvl}`));
         list.appendChild(row);

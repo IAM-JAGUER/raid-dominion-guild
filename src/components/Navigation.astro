@@ -13,11 +13,12 @@ export interface Props {
 const { currentPath = '/', className = '' } = Astro.props;
 
 // Enlaces públicos de la comunidad (directorios), visibles para todos.
-// (La Guía RD es un widget flotante global vía Layout → ChatWidget; no va aquí.)
+// (La Guía RD es un widget flotante global vía Layout → ChatWidget; no va aquí.
+// El directorio de Jugadores vive SOLO en el Footer: la barra principal se
+// reserva a las dos vitrinas de contenido — bandas y hermandades.)
 const PUBLIC_LINKS = [
   { name: 'Bandas', href: '/bandas', icon: 'espadas' },
   { name: 'Hermandades', href: '/hermandades', icon: 'hermandad' },
-  { name: 'Jugadores', href: '/jugadores', icon: 'jugadores' },
 ] as const;
 
 // Icono del menú de cuenta por pestaña/acción: las pestañas ya traen su

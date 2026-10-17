@@ -100,24 +100,30 @@ grimorio de MMORPG clásico**. Todo el material se construye SOLO con CSS
 copiar assets de WoW. Referencia emocional: "personalidad y densidad de una
 UI MMORPG clásica", no una copia.
 
-- **Atmósfera**: `.rd-bg` en `<body>` (vacío profundo + resplandor de energía
-  ambiental + trama procedural + viñeta). Reemplazó a `background.png`.
+- **Atmósfera**: `.rd-bg` en `<body>` — degradado azul **opaco** (Acero →
+  Abismo). Sin tramas procedurales, resplandores ni velos propios. Reemplazó
+  a `background.png`.
 - **Atmósfera de página (2026-10-16)**: `.rd-atmosphere*` (material.css) +
   `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
-  contenido con imagen de fondo atenuada por un velo de contraste y un canvas
-  de partículas por página. Fondo e intensidad por tipo de página:
+  contenido con la imagen de fondo a **opacidad plena** y UN ÚNICO velo de
+  contraste por página (`.rd-atmosphere__veil`, **0.3** por defecto; SOLO se
+  monta si hay imagen) más su canvas de partículas. Fondo e intensidad por tipo de página:
   `GameLoginBg`+`snow` en la landing, `GameLoginBg` en los directorios
   (bandas `ember`, hermandades `banner`, servidores `frost`, personajes y
   jugadores `arcane`), `characterBg`+`arcane` en las fichas de
   personaje/jugador, `bandsBg`+`ember` en la ficha de banda,
   `guildBg`+`banner` en el portal de hermandad, `serverBg`+`frost` en la
-  ficha de servidor, `GameLoginBg`+`frost` en login, `404Bg`+`frost` en la
-  404 y `addonBg`+`arcane` en las secciones de usuario/staff (upload,
-  dashboard, admin, moderación), además de la textura sutil de la sección
-  Addon. Reglas: el markup/engine son contratos únicos (jamás montar
+  ficha de servidor, `GameLoginBg`+`frost` en login y `404Bg`+`frost` en la
+  404. Las secciones de usuario/staff (upload, dashboard, admin, moderación)
+  van **sin fondo de imagen** (solo `.rd-bg` + partículas `arcane`), y la
+  sección de la Guía del Addon del index conserva su textura `addonBg` al
+  14% dentro de la card (es superficie de card, no capa de página). Reglas: el markup/engine son contratos únicos (jamás montar
   canvas suelto en una página); el motor pausa con `visibilitychange` y se
   personaliza por el evento `rd:particles` (paleta de clase o calidad de
-  ítem). **Ritmo y volumen:** cada partícula lleva `depth` (0 lejos → 1
+  ítem). **Capa única (2026-10-17)**: sobre el fondo solo puede ir el velo
+  (`veil`) — prohibido sumar texturas/tramas/velos extra sobre el fondo
+  (grids `bg-grid-pattern`, imágenes decorativas al X% de opacidad, humo
+  legacy): ensucian el encuadre y compiten con el contenido. **Ritmo y volumen:** cada partícula lleva `depth` (0 lejos → 1
   cerca) y de él derivan tamaño, velocidad, alfa y respuesta al viento
   (`parallax` por variante); el viento es un compuesto de 3 senos
   inconmensurables + una ráfaga de envolvente suave (`windAt`, sin picos
@@ -329,8 +335,45 @@ spans/backgrounds de icono a mano**: usa `Icon.astro` (template) o `iconEl`
   estado micro (`✓ guardado`, contadores): eso es tipografía, no icono.
   Ante la duda, menos iconos.
 
+## 11. Enlaces del juego / markup de chat (2026-10-17)
+
+Los textos del SavedVariables pueden traer markup del cliente WoW
+(`|cAARRGGBB…|r`, `|Htipo:datos|h[Etiqueta]|h`, `|T…|t`). Caso real:
+`bands[].name` es el enlace del logro de la mazmorra. Reglas:
+
+- **Fuente única de parseo**: `src/lib/wowLink.ts` (`stripWowMarkup`,
+  `parseWowLink`, `tokenizeWowText`). El parser NUNCA persiste markup: todo
+  campo visible pasa por su texto limpio.
+- **Render**: `src/lib/ui/wowhead.ts` — `wowLinkEl(link)` (etiqueta + enlace)
+  y `applyWowhead(anchor, link)`. NO escribas `data-wowhead`, URLs de Wowhead
+  ni spans con color del juego a mano.
+- **Color**: se respeta el color del código `|c` del SV (color del juego:
+  logro = dorado, hechizo = azul); sin color, `text-brand-200`. El enlace
+  siempre fija color explícito (nunca hereda `text-transparent` de
+  `ui.gradientTitle`).
+- **Tooltip**: widget oficial de Wowhead (`power.js`), cargado PEREZOSAMENTE
+  (`ensureWowhead`) solo cuando la página monta un enlace con id soportado
+  (item/spell/achievement/quest) — la landing no descarga terceros.
+- **Alcance del id**: el id sale del markup (preview del upload). Los nombres
+  limpios que vienen de la DB NO conservan id → en páginas públicas se
+  degradan a etiqueta limpia (sin tooltip), decisión 2026-10-17.
+
 ## Historial de enmiendas
 
+- **2026-10-17 (enlaces del juego)**: nuevo §11; parseo único de markup de
+  chat en `src/lib/wowLink.ts`, render con widget perezoso de Wowhead en
+  `src/lib/ui/wowhead.ts`, y limpieza del nombre de banda del SV (antes se
+  persistía el enlace crudo → slug basura).
+- **2026-10-17 (capa única sobre el fondo)**: la imagen de atmósfera pasa a
+  opacidad plena (fuera `opacity 0.42/0.3` y el `filter` de saturación/brillo)
+  y `.rd-bg` queda como degradado azul opaco (fuera la trama procedural y el
+  resplandor rgba). El velo `veil` (0.3) es la ÚNICA capa transparente sobre
+  el fondo; se eliminan además capas legacy: grid `bg-grid-pattern` de las
+  tarjetas de guías y el humo `#smoke-container` (código muerto) del index.
+  Las páginas de usuario/staff (upload, dashboard, admin, moderación) sueltan
+  su fondo `addonBg` (quedan con `.rd-bg` liso + partículas); la textura
+  `addonBg` al 14% de la sección «Guía del Addon» del index se CONSERVA
+  (superficie de card). El velo se retinta a la paleta azul.
 - **2026-10-17 (paleta azul/acero)**: sustitución completa de la paleta
   ámbar/dorada por la identidad azul/acero (§1b: Abismo/Acero/Hielo/Plata/
   Energía) — escala `brand` 50–950 en `tailwind.config.js` con reemplazo

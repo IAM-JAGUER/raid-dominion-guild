@@ -4,6 +4,7 @@ import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
+import { wowLinkEl } from '@/lib/ui/wowhead';
 import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
@@ -31,6 +32,16 @@ function chip(text: string, extra = ''): HTMLElement {
   );
 }
 
+// Título de banda: si el SV guardó el nombre como enlace del juego (p. ej. el
+// logro de la mazmorra: `|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`), se
+// muestra la etiqueta limpia con el tooltip de Wowhead; si no, texto plano.
+function bandTitle(band: ParsedSavedVariables['bands'][number]): HTMLElement {
+  const title = cardTitle('', 'text-base');
+  if (band.nameLink) title.appendChild(wowLinkEl(band.nameLink));
+  else title.textContent = band.name || 'Sin nombre';
+  return title;
+}
+
 export function renderBand(
   band: ParsedSavedVariables['bands'][number],
   opts?: { hidePlayers?: boolean },
@@ -39,7 +50,7 @@ export function renderBand(
   const cardEl = card('p-4');
   cardEl.appendChild(cardTop());
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
-  header.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
+  header.appendChild(bandTitle(band));
 
   const meta = el('div', 'flex flex-wrap gap-2');
   if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, band.schedule));
@@ -156,7 +167,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   cardEl.appendChild(cardTop());
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
-  titleWrap.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
+  titleWrap.appendChild(bandTitle(band));
   if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-500 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
   header.appendChild(titleWrap);
 

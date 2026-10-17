@@ -228,3 +228,46 @@ test('las notas de players[] llegan intactas al payload de bandas', () => {
   // El parser omite `notes` cuando viene vacía: no inventa la clave.
   assert.equal(band?.players[1]?.notes, undefined);
 });
+
+// ─── Markup de chat en los textos del SV (enlaces del juego) ────────────────
+
+test('el nombre de banda con enlace del juego se limpia y conserva el enlace', () => {
+  const res = parseData(`
+    registry = { ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena" } } },
+    bands = {
+      { name = "|cffffff00|Hachievement:4608:0000000000174C82:1:11:9:25:4294967295:4294967295:4294967295:4294967295|h[ICC25N]|h|r",
+        players = { { name = "Ana" } } },
+    },
+  `);
+  const band = res.bands?.[0];
+  assert.equal(band?.name, 'ICC25N');
+  assert.equal(band?.nameLink?.type, 'achievement');
+  assert.equal(band?.nameLink?.id, 4608);
+  assert.equal(band?.nameLink?.label, 'ICC25N');
+});
+
+test('una banda sin enlace no inventa nameLink', () => {
+  const res = parseData(`
+    registry = { ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena" } } },
+    bands = { { name = "Los Caballeros", players = {} } },
+  `);
+  assert.equal(res.bands?.[0]?.nameLink, undefined);
+});
+
+test('los campos visibles del SV se limpian de markup de chat', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = { name = "Ana", realm = "Serena", note = "|cff00ff00Busco|r grupo" },
+        objectives = {
+          equipment = { { slot = 15, name = "|cffffffff|Hitem:1:0|h[Cinturón]|h|r", done = false } },
+          currencies = { { name = "|cffffffff|Hitem:2:0|h[Marca]|h|r", target = 100, reached = false } },
+        },
+      },
+    },
+  `);
+  const player = res.registries?.[0]?.player;
+  assert.equal(player?.note, 'Busco grupo');
+  assert.equal(player?.objectives?.equipment[0]?.name, 'Cinturón');
+  assert.equal(player?.objectives?.currencies[0]?.name, 'Marca');
+});

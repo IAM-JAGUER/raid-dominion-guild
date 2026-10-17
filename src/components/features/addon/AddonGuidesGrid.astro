@@ -188,7 +188,6 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
           aria-controls={`guide-panel-${guide.id}`}
         >
           <span class={ui.cardTop} aria-hidden="true"></span>
-          <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
           <div class="relative z-10 flex flex-col h-full">
             <div class="flex items-center justify-between mb-4">
               <div class={`p-2.5 rounded-md ${c.iconBg} border ${c.iconBorder} w-fit`}>
@@ -317,11 +316,6 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 </script>
 
 <style>
-  .bg-grid-pattern {
-    background-image: radial-gradient(circle, #ffffff 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-
   /* Ocultar el marcador por defecto de <summary> */
   .guide-panel summary::-webkit-details-marker {
     display: none;

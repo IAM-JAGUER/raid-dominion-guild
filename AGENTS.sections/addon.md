@@ -14,6 +14,10 @@ El addon dev vive en `D:\WowClient esMX\Interface\AddOns\RaidDominion`
 2. **Sincronía obligatoria:** renombrar/mover claves de `registry`,
    `characters`, `bands` o `Guild` en el addon exige actualizar en el MISMO
    ciclo `src/lib/parser/savedVariables.ts` + `src/types/parser.ts`; y viceversa.
+   El addon puede escribir textos con markup de chat (`|c…|H…|h[Etiqueta]|h|r`;
+   p. ej. `bands[].name` = enlace del logro): el portal lo limpia con
+   `src/lib/wowLink.ts` y conserva el enlace solo para el preview (detalle en
+   `parser.md` → «Markup de chat»). No hay que cambiar el addon por esto.
 3. **Objetivos:** `registry["Nombre-Reino"].objectives` exporta metas de equipo
    (`equipment[]`: `slot`, `name`, `itemID?`, `ilvl?`, `quality?`, `done`) y metas
    de moneda (`currencies[]`: `name`, `target`, `reached`) desde `itemGoals`.

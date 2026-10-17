@@ -26,7 +26,14 @@
 //
 // NO usa regex de `{}` (el de guildList.py): tokeniza el Lua respetando
 // anidación y strings con comillas escapadas.
+//
+// MARKUP DE CHAT: los textos del SV pueden traer códigos del cliente
+// (`|c…|r`, `|Htipo:datos|h[Etiqueta]|h`, `|T…|t`) — p. ej. `bands[].name` es
+// el enlace del logro de la mazmorra. Todo campo visible/persistido pasa por
+// `toCleanStr` (texto plano); el enlace se conserva SOLO como `Band.nameLink`
+// para el tooltip del widget de Wowhead en el preview (ver src/lib/wowLink.ts).
 
+import { parseWowLink, stripWowMarkup } from '@/lib/wowLink';
 import {
   type GuildMember,
   type Band,
@@ -305,6 +312,15 @@ function toStr(v: unknown): string {
   return String(v);
 }
 
+// Texto visible de una cadena del SV. El addon guarda markup de chat en varios
+// campos (p. ej. `bands[].name` es el enlace del logro: `|cffffff00|Hachievement:
+// 4608:…|h[ICC25N]|h|r`). Ese markup NUNCA se persiste ni se muestra: el portal
+// guarda el texto limpio (`ICC25N`). El enlace estructurado para el tooltip se
+// conserva aparte SOLO donde la UI lo necesita (Band.nameLink).
+function toCleanStr(v: unknown): string {
+  return stripWowMarkup(toStr(v)).trim();
+}
+
 function toNum(v: unknown): number | undefined {
   return typeof v === 'number' ? v : undefined;
 }
@@ -327,7 +343,7 @@ function asEquipmentPieces(raw: unknown): EquipmentPiece[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const name = toCleanStr(e['name']);
       if (!name) return null;
       const slot = toNum(e['slot']);
       if (slot === undefined) return null;
@@ -349,7 +365,7 @@ function asPlayerObjectives(raw: unknown): PlayerObjectives | undefined {
     const item = asObj(entry);
     if (!item) return goals;
     const slot = toNum(item['slot']);
-    const name = toStr(item['name']).trim();
+    const name = toCleanStr(item['name']);
     if (slot === undefined || !Number.isInteger(slot) || slot < 0 || slot > 19 || !name) return goals;
     const goal: EquipmentObjective = {
       slot,
@@ -370,7 +386,7 @@ function asPlayerObjectives(raw: unknown): PlayerObjectives | undefined {
     .map((entry) => {
       const currency = asObj(entry);
       if (!currency) return null;
-      const name = toStr(currency['name']).trim();
+      const name = toCleanStr(currency['name']);
       const target = toNum(currency['target']);
       if (!name || target === undefined || target <= 0) return null;
       return { name, target, reached: toBool(currency['reached']) } satisfies CurrencyObjective;
@@ -390,10 +406,10 @@ function asPlayerInstances(raw: unknown): CharacterInstance[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim().slice(0, 120);
+      const name = toCleanStr(e['name']).slice(0, 120);
       if (!name) return null;
       const instance: CharacterInstance = { name };
-      const difficulty = toStr(e['difficulty']).trim().slice(0, 8);
+      const difficulty = toCleanStr(e['difficulty']).slice(0, 8);
       const resetAt = toNum(e['resetAt']);
       if (difficulty) instance.difficulty = difficulty;
       if (resetAt !== undefined && Number.isFinite(resetAt) && resetAt > 0) instance.resetAt = resetAt;
@@ -408,7 +424,7 @@ function asPlayerInstances(raw: unknown): CharacterInstance[] {
 // "" viaja a propósito (el RPC lo interpreta como "borrar lo publicado").
 function asPlayerNote(raw: unknown): string | undefined {
   if (typeof raw !== 'string') return undefined;
-  return raw.trim().slice(0, 500);
+  return stripWowMarkup(raw).trim().slice(0, 500);
 }
 
 // ─── Facción deducida de la raza ────────────────────────────────────────────
@@ -458,7 +474,7 @@ function asFaction(value: unknown): 'Alliance' | 'Horde' | undefined {
 function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharacter | null {
   const e = asObj(raw);
   if (!e) return null;
-  const name = toStr(e['name']).trim();
+  const name = toCleanStr(e['name']);
   if (!name) return null;
   const equipment = asEquipmentPieces(e['equipment']);
   const objectives = asPlayerObjectives(objectivesRaw) ?? asPlayerObjectives(e['objectives']);
@@ -469,14 +485,14 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
   const instances = e['instances'] !== undefined ? asPlayerInstances(e['instances']) : undefined;
   return {
     name,
-    realm: toStr(e['realm']).trim(),
-    server: toStr(e['server']).trim() || undefined,
-    race: toStr(e['race']) || undefined,
+    realm: toCleanStr(e['realm']),
+    server: toCleanStr(e['server']) || undefined,
+    race: toCleanStr(e['race']) || undefined,
     raceFile: toStr(e['raceFile']) || undefined,
-    class: toStr(e['class']) || undefined,
+    class: toCleanStr(e['class']) || undefined,
     classFile: toStr(e['classFile']) || undefined,
     level: toNum(e['level']),
-    talentSpec: toStr(e['talentSpec']) || undefined,
+    talentSpec: toCleanStr(e['talentSpec']) || undefined,
     talentTree: toNum(e['talentTree']),
     avgIlvl: toNum(e['avgIlvl']),
     equipmentCount: toNum(e['equipmentCount']) ?? equipment.length,
@@ -497,23 +513,23 @@ function asAccountCharacters(raw: unknown, raceFiles?: Map<string, string>): Acc
     .map(([key, entry]) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const name = toCleanStr(e['name']);
       if (!name) return null;
-      const race = toStr(e['raceName']).trim();
+      const race = toCleanStr(e['raceName']);
       // El roster `characters` no trae raceFile; se resuelve el nombre exacto
       // contra el registry del SV para completar el token del cliente.
       const raceFile = raceFiles?.get(key.toLowerCase());
       return {
         key,
         name,
-        realm: toStr(e['realm']).trim() || undefined,
+        realm: toCleanStr(e['realm']) || undefined,
         faction:
           // La RAZA manda (el mapa cubre las 11 de WotLK); el `faction` del SV
           // es el respaldo cuando la raza no se reconoce. Mismo orden que
           // raiddominion_claim_from_sv en SQL.
           inferFactionFromRace(raceFile, race) ??
           asFaction(e['faction']),
-        class: toStr(e['className']).trim() || undefined,
+        class: toCleanStr(e['className']) || undefined,
         classFile: toStr(e['classFile']).trim() || undefined,
         race: race || undefined,
         level: toNum(e['level']),
@@ -528,7 +544,7 @@ function asAccountCharacters(raw: unknown, raceFiles?: Map<string, string>): Acc
 function asRegistryGuild(raw: unknown): RegistryGuild | null {
   const e = asObj(raw);
   if (!e) return null;
-  const name = toStr(e['name']).trim();
+  const name = toCleanStr(e['name']);
   if (!name) return null;
   const memberList = asGuildMemberSummaries(e['memberList']);
   const ranks = asGuildRanks(e['ranks']);
@@ -537,7 +553,7 @@ function asRegistryGuild(raw: unknown): RegistryGuild | null {
     numMembers: toNum(e['numMembers']),
     isGM: toBool(e['isGM']),
     rankIndex: toNum(e['rankIndex']),
-    rank: toStr(e['rank']).trim() || undefined,
+    rank: toCleanStr(e['rank']) || undefined,
     ranks: ranks.length > 0 ? ranks : undefined,
     memberList: memberList.length > 0 ? memberList : undefined,
   };
@@ -553,7 +569,7 @@ function asGuildRanks(raw: unknown): GuildRank[] {
       if (!e) return null;
       const index = toNum(e['index']);
       if (index === undefined) return null;
-      return { index, name: toStr(e['name']) };
+      return { index, name: toCleanStr(e['name']) };
     })
     .filter((r): r is GuildRank => r !== null)
     .sort((a, b) => a.index - b.index);
@@ -566,15 +582,15 @@ function asGuildMemberSummaries(raw: unknown): GuildMemberSummary[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const name = toCleanStr(e['name']);
       if (!name) return null;
       const onlineRaw = e['online'];
       return {
         name,
-        rank: toStr(e['rank']).trim() || undefined,
+        rank: toCleanStr(e['rank']) || undefined,
         rankIndex: toNum(e['rankIndex']),
         level: toNum(e['level']),
-        class: toStr(e['class']) || undefined,
+        class: toCleanStr(e['class']) || undefined,
         classFile: toStr(e['classFile']) || undefined,
         online: onlineRaw === undefined ? undefined : toBool(onlineRaw),
       };
@@ -587,15 +603,15 @@ function asGuildMembers(raw: unknown): GuildMember[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const name = toCleanStr(e['name']);
       if (!name) return null;
       return {
         name,
-        class: toStr(e['class']),
-        rank: toStr(e['rank']),
-        race: toStr(e['race']),
-        publicNote: toStr(e['publicNote']),
-        officerNote: toStr(e['officerNote']),
+        class: toCleanStr(e['class']),
+        rank: toCleanStr(e['rank']),
+        race: toCleanStr(e['race']),
+        publicNote: toCleanStr(e['publicNote']),
+        officerNote: toCleanStr(e['officerNote']),
       };
     })
     .filter((m) => m !== null) as GuildMember[];
@@ -607,8 +623,8 @@ function asContentItems(raw: unknown): ContentItem[] {
       const e = asObj(entry);
       if (!e) return null;
       return {
-        title: toStr(e['title']) || undefined,
-        content: toStr(e['content']) || undefined,
+        title: toCleanStr(e['title']) || undefined,
+        content: toCleanStr(e['content']) || undefined,
         icon: toStr(e['icon']) || undefined,
       };
     })
@@ -620,17 +636,17 @@ function asBandPlayers(raw: unknown): BandPlayer[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const name = toCleanStr(e['name']);
       if (!name) return null;
       return {
         name,
-        class: toStr(e['class']) || undefined,
-        role: toStr(e['role']) || undefined,
-        dual: toStr(e['dual']) || undefined,
-        leader: toStr(e['leader']) || undefined,
+        class: toCleanStr(e['class']) || undefined,
+        role: toCleanStr(e['role']) || undefined,
+        dual: toCleanStr(e['dual']) || undefined,
+        leader: toCleanStr(e['leader']) || undefined,
         banned: toBool(e['banned']),
-        sanction: toStr(e['sanction']) || undefined,
-        notes: toStr(e['notes']) || undefined,
+        sanction: toCleanStr(e['sanction']) || undefined,
+        notes: toCleanStr(e['notes']) || undefined,
         points: toNum(e['points']),
       };
     })
@@ -643,13 +659,16 @@ function asBands(raw: unknown): Band[] {
     .map((entry) => {
       const e = asObj(entry);
       if (!e) return null;
-      const name = toStr(e['name']).trim();
+      const rawName = toStr(e['name']);
+      const name = toCleanStr(rawName);
       if (!name) return null;
+      const nameLink = parseWowLink(rawName) ?? undefined;
       const spammer = asObj(e['spammer']);
       return {
         name,
+        ...(nameLink ? { nameLink } : {}),
         icon: toStr(e['icon']) || undefined,
-        schedule: toStr(e['schedule']) || undefined,
+        schedule: toCleanStr(e['schedule']) || undefined,
         minGS: toNum(e['minGS']),
         players: asBandPlayers(e['players']),
         spammer: spammer
@@ -657,7 +676,7 @@ function asBands(raw: unknown): Band[] {
               channels:
                 asObj(spammer['channels']) as Record<string, boolean> | undefined,
               duration: toNum(spammer['duration']),
-              message: toStr(spammer['message']) || undefined,
+              message: toCleanStr(spammer['message']) || undefined,
             }
           : undefined,
       };
@@ -709,8 +728,8 @@ export function parseSavedVariables(rawText: string): ParseResult {
   if (registryRaw && 'player' in registryRaw) {
     registryEntry = registryRaw;
     registries.push({
-      key: `${toStr(registryEntry['player'] && asObj(registryEntry['player'])?.['name'])}-${
-        toStr(asObj(registryEntry['player'])?.['realm'])}`,
+      key: `${stripWowMarkup(toStr(asObj(registryEntry['player'])?.['name'])).trim()}-${
+        stripWowMarkup(toStr(asObj(registryEntry['player'])?.['realm'])).trim()}`,
       player: asPlayerCharacter(registryEntry['player'], registryEntry['objectives']),
       guild: asRegistryGuild(registryEntry['guild']),
       savedAt: toStr(registryEntry['savedAt']).trim() || null,
@@ -779,7 +798,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
 
   const guildRaw = asObj(root['Guild']) ?? {};
   const members = asGuildMembers(guildRaw['memberList']);
-  const generatedBy = toStr(guildRaw['generatedBy']).trim() || null;
+  const generatedBy = toCleanStr(guildRaw['generatedBy']) || null;
   const lastUpdate = toNum(guildRaw['lastUpdate']) ?? null;
 
   // Claim de maestro: el personaje que generó + su rango en memberList

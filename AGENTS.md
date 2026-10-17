@@ -126,8 +126,11 @@ evidencia de membresía (GM v3, legacy, bandas) y helpers de roles, leer
 ## 5. Formato de SavedVariables
 
 Formato actual v3.1.0, compatible con archivos v3.0.0/v3.0.1. Parser en
-`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.3.0).
-Especificación completa: `AGENTS.sections/parser.md`.
+`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.4.0).
+Los textos del SV pueden traer markup de chat (`|c…|H…|h[Etiqueta]|h|r`):
+el parser lo limpia (`src/lib/wowLink.ts`) y el render usa el widget de
+Wowhead donde hay id (`src/lib/ui/wowhead.ts`) — ver parser.md → «Markup de
+chat». Especificación completa: `AGENTS.sections/parser.md`.
 
 ## 6. Organización de código
 
@@ -486,6 +489,15 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-17 (enlaces del juego)**: el parser ahora limpia el markup de
+  chat de WoW en los textos del SV (`src/lib/wowLink.ts`; p. ej.
+  `bands[].name` = enlace del logro: `|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`
+  → `ICC25N`), con `Band.nameLink` en memoria para el tooltip del widget
+  oficial de Wowhead (`src/lib/ui/wowhead.ts`, carga perezosa; también para
+  metas de equipo con `itemID`). `PARSER_VERSION` → v3.4.0; migración de
+  limpieza `20261017_bands_name_wow_markup_cleanup.sql` para bandas ya
+  guardadas con markup (ver `parser.md` → «Markup de chat» y F022).
 
 - **2026-10-17 (paleta y entrada)**: identidad azul/acero adoptada
   (Abismo/Acero/Hielo/Plata/Energía; §1b de `design.md`) sustituyendo la

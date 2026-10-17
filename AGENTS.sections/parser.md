@@ -108,6 +108,29 @@ Snapshots sin `objectives` se aceptan por compatibilidad: la columna queda
 vacía y se muestra el aviso de re-registro. Los registros con `objectives` pero
 sin `note`/`instances` (addon 3.0.1) disparan un aviso de re-registro propio.
 
+### Markup de chat / enlaces del juego (2026-10-17)
+
+Los campos de texto del SV pueden traer markup del cliente WoW: colores
+(`|cAARRGGBB…|r`), enlaces (`|Htipo:datos|h[Etiqueta]|h`), texturas (`|T…|t`)
+y el pipe escapado (`||`). Caso real: `bands[].name` es el enlace del logro
+de la mazmorra (`|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`).
+
+- **Parseo único**: `src/lib/wowLink.ts` (`stripWowMarkup`, `parseWowLink`,
+  `tokenizeWowText`, `isWowMarkup`). Módulo puro, sin DOM.
+- **Regla**: NINGÚN campo visible/persistido conserva markup — el parser lo
+  pasa por `toCleanStr` (texto visible, `[ICC25N]` → `ICC25N`). Los id del
+  enlace no se persisten.
+- **Excepción en memoria**: `Band.nameLink` conserva el enlace estructurado
+  (`{type, id, label, color}`) SOLO para el preview del upload, que muestra su
+  tooltip con el widget de Wowhead (`src/lib/ui/wowhead.ts`). A la DB viaja
+  únicamente `name` limpio.
+- **Consecuencia**: las páginas públicas que leen de la DB muestran la
+  etiqueta limpia sin tooltip rico (el id no viaja), decisión 2026-10-17.
+- **Filas ya guardadas**: si la base tiene bandas con markup en `name`, hay
+  que aplicar la limpieza `20261017_bands_name_wow_markup_cleanup.sql` ANTES
+  de re-subir SV: la idempotencia del RPC es por nombre y el nombre limpio
+  duplicaría la banda sucia.
+
 ## Reglas del parser
 
 - Prioridad: **formato oficial v3.1.0** (el de arriba), con compatibilidad para

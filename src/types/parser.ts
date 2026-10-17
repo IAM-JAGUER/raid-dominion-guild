@@ -2,6 +2,8 @@
 // Alineados al formato REAL verificado en los SV del cliente
 // (IAMM 2026-08-22 como referencia vigente; IAMM1/JUNGJX para secciones legacy).
 
+import type { WowLink } from '@/lib/wowLink';
+
 // Ítem de contenido (mecánicas, reglas)
 export interface ContentItem {
   title?: string;
@@ -163,6 +165,10 @@ export interface BandPlayer {
 // Banda registrada (bands[])
 export interface Band {
   name: string;
+  // Enlace original del nombre cuando el SV lo guardó como markup de chat
+  // (caso real: logro de la mazmorra). Solo vive en memoria para el preview;
+  // a la DB viaja `name` ya limpio (sin markup).
+  nameLink?: WowLink;
   icon?: string;
   schedule?: string;
   minGS?: number;
@@ -211,7 +217,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-export const PARSER_VERSION = 'v3.3.0';
+export const PARSER_VERSION = 'v3.4.0';
 
 export const MAX_SV_BYTES = 2 * 1024 * 1024; // 2 MB
 

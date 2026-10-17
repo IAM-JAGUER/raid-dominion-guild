@@ -8,10 +8,12 @@ interface Props {
   variant?: ParticleVariant;
   image?: string;
   // Intensidad del velo oscuro (0..1); más alto = fondo más tenue.
+  // Única capa permitida sobre el fondo (design.md §3b): 0.3 por defecto
+  // para que la imagen a opacidad plena no compita con el texto.
   veil?: number;
 }
 
-const { variant = 'arcane', image, veil = 0.05 } = Astro.props;
+const { variant = 'arcane', image, veil = 0.3 } = Astro.props;
 ---
 
 <div class="rd-atmosphere" aria-hidden="true">
@@ -23,7 +25,13 @@ const { variant = 'arcane', image, veil = 0.05 } = Astro.props;
       />
     )
   }
-  <div class="rd-atmosphere__veil" style={`--rd-veil:${veil}`}></div>
+  {
+    /* El velo SOLO existe como atenuación de una imagen de fondo: sin imagen
+       (páginas con partículas y `.rd-bg` liso) no se monta capa extra. */
+    image && (
+      <div class="rd-atmosphere__veil" style={`--rd-veil:${veil}`} />
+    )
+  }
   <canvas class="rd-atmosphere__canvas" data-rd-particles data-variant={variant}></canvas>
 </div>
 

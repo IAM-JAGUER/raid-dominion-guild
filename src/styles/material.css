@@ -58,33 +58,15 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER 01 · ATMÓSFERA
-   Fondo de vacío profundo + resplandor de energía ambiental + viñeta + trama
-   procedural (repeating gradients, sin texturas externas).
+   Fondo de vacío azul (Acero → Abismo), OPACO: sin tramas procedurales ni
+   velos propios. La ÚNICA capa transparente sobre el fondo es el velo de la
+   atmósfera (`.rd-atmosphere__veil`, 0.3 por defecto).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .rd-bg {
-  background:
-    /* trama de pergamino/canvas muy sutil */
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 4px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 4px),
-    /* resplandor de energía ambiental superior */
-    radial-gradient(120% 55% at 50% -10%, rgba(0, 191, 255, 0.07), transparent 60%),
-    /* vacío */
-    radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
+  background: radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
   background-attachment: fixed;
   background-color: var(--bg-void);
-}
-
-/* La trama del fondo se amplía en pantallas chicas (celda 4px → 8px) para
-   que la malla respire en correspondencia con el viewport reducido. */
-@media (max-width: 639px) {
-  .rd-bg {
-    background-image:
-repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 12px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 12px),
-      radial-gradient(120% 55% at 50% -10%, rgba(0, 191, 255, 0.07), transparent 60%),
-      radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -112,8 +94,6 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.42;
-  filter: saturate(0.95) brightness(0.9);
   /* Sin transform/scale: el encuadre `cover` ya es estable y un scale
      aplicado tarde (o recomputado al cambiar el ancho útil) producía el
      zoom brusco al cargar — ver frallas.md F016. */
@@ -137,11 +117,11 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 .rd-atmosphere__veil {
   position: absolute;
   inset: 0;
-  opacity: var(--rd-veil, 0.05);
+  opacity: var(--rd-veil, 0.3);
   background:
-    /* viñeta superior de marca + cierre oscuro para legibilidad */
-    radial-gradient(130% 70% at 50% -10%, rgba(20, 20, 26, 0.2), rgba(10, 10, 12, 0.72) 62%),
-    linear-gradient(180deg, rgba(10, 10, 12, 0.32) 0%, rgba(10, 10, 12, 0.55) 55%, rgba(7, 7, 8, 0.85) 100%);
+    /* viñeta superior de marca + cierre oscuro azul para legibilidad */
+    radial-gradient(130% 70% at 50% -10%, rgba(7, 17, 30, 0.25), rgba(7, 17, 30, 0.78) 62%),
+    linear-gradient(180deg, rgba(11, 35, 56, 0.35) 0%, rgba(7, 17, 30, 0.6) 55%, rgba(7, 17, 30, 0.9) 100%);
 }
 
 .rd-atmosphere__canvas {
@@ -149,13 +129,6 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-/* En pantallas chicas el fondo pesa menos para no competir con el contenido. */
-@media (max-width: 639px) {
-  .rd-atmosphere__image {
-    opacity: 0.3;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
