@@ -153,10 +153,13 @@ export const ui = {
 
   // ── Loading / feedback async (design.md §6, F010) ───────────────────────
   // skeleton: placeholder de contenido (roster/bandas). spinner: acción
-  // puntual (submit/upload). liveText: texto de estado en aria-live.
+  // puntual (submit/upload). spinnerLg: bloque de carga de contenido (fichas
+  // y directorios) — mismo aro, tamaño grande. liveText: texto de estado en
+  // aria-live (dentro de un contenedor con el bloque de carga).
   loading: {
     skeleton: 'animate-pulse rounded-md bg-gray-800/60',
     spinner: 'inline-block w-4 h-4 border-2 border-amber-500/30 border-t-amber-300 rounded-full animate-spin',
+    spinnerLg: 'inline-block w-8 h-8 border-2 border-amber-500/30 border-t-amber-300 rounded-full animate-spin',
     liveText: 'text-sm text-gray-400',
   },
 

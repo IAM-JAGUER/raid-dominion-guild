@@ -93,6 +93,9 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <!-- Fondo de atmósfera precargado: queda decodificado antes del primer
+         pintado (sin pop-in) y el encuadre `cover` no reajusta al aparecer. -->
+    {background && <link rel="preload" as="image" href={background} fetchpriority="high" />}
     <title>{title}</title>
     <!-- Registro de visitas (estilo guild-portal): beacon a /api/visit con la
          sección visitada. La visita jamás bloquea la navegación. -->
@@ -193,6 +196,15 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
       <!-- Guía flotante de RaidDominion (abajo-izquierda), disponible en todas las páginas -->
       <ChatWidget />
     </div>
+    <script>
+      // Revelado canónico del contenido async (contrato y motor en
+      // src/lib/ui/reveal.ts): bloques `data-rd-reveal`, grillas
+      // `data-rd-reveal-cards` y paneles `[role="tabpanel"]` entran con
+      // fundido en cuanto están disponibles.
+      import { observeReveals } from '@/lib/ui/reveal';
+
+      observeReveals();
+    </script>
   </body>
 </html>
 
@@ -206,6 +218,14 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     font-family: "Jost Variable", system-ui, sans-serif;
     background-color: var(--bg-void);
     overflow-x: hidden;
+    /* Reserva siempre el canal del scrollbar: el ancho útil no cambia al
+       aparecer la barra y el fondo `cover` de la atmósfera no reencuadra. */
+    scrollbar-gutter: stable;
+    /* Sin anclaje automático de scroll: cuando el layout se asienta después
+       de cargar (imagen del logo, swap de la fuente Jost), Chrome compensaba
+       moviendo el scroll hacia abajo al recargar con la página arriba.
+       El desplazamiento debe ser SIEMPRE del usuario (frallas.md F019). */
+    overflow-anchor: none;
     animation: fadeIn 1.5s ease-in-out;
   }
 

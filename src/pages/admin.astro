@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -17,13 +18,10 @@ import { ui } from '@/lib/ui/design';
       <Breadcrumb />
 
       <!-- Cargando -->
-      <div id="loading" class="text-center py-20">
-        <div class={`${ui.loading.spinner} w-8 h-8`}></div>
-        <p class={`${ui.loading.liveText} italic mt-4`}>Verificando permisos…</p>
-      </div>
+      <LoadingBlock id="loading" text="Verificando permisos…" />
 
       <!-- Sin autorización -->
-      <div id="denied" class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
+      <div id="denied" data-rd-reveal class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
         <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es exclusiva para administradores.</p>
@@ -31,7 +29,7 @@ import { ui } from '@/lib/ui/design';
       </div>
 
       <!-- Panel -->
-      <div id="panel" class="hidden space-y-8">
+      <div id="panel" data-rd-reveal class="hidden space-y-8">
         <header class="animate-fade-in-1">
           <h1 class={`${ui.titleHero}`}>Administración</h1>
           <p class={`${ui.text.bodyMuted} italic mt-2`}>Gestión de usuarios y roles. El primer admin se siembra manualmente en la base de datos.</p>
@@ -42,7 +40,7 @@ import { ui } from '@/lib/ui/design';
         <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class="flex items-center gap-1 border-b border-gray-700/60 mb-6 animate-fade-in-1"></div>
 
         <!-- Vista: Discord (mercadeo automático) -->
-        <div id="view-discord" class="hidden space-y-6">
+        <div id="view-discord" data-rd-reveal class="hidden space-y-6">
           <section id="discord-panel" class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
@@ -62,7 +60,7 @@ import { ui } from '@/lib/ui/design';
         </div>
 
         <!-- Vista: listado de usuarios -->
-        <div id="view-list" class="space-y-8">
+        <div id="view-list" data-rd-reveal class="space-y-8">
           <!-- Métricas por rol -->
           <section id="role-stats" class="grid grid-cols-2 md:grid-cols-5 gap-4 animate-fade-in-1" style="animation-delay: 0.05s"></section>
 
@@ -81,7 +79,7 @@ import { ui } from '@/lib/ui/design';
         </div>
 
         <!-- Vista: detalle de usuario -->
-        <div id="view-detail" class="hidden space-y-6">
+        <div id="view-detail" data-rd-reveal class="hidden space-y-6">
           <button type="button" id="detail-back"
             class={`${ui.btnBase} ${ui.btnSecondary} px-4 py-2 text-xs font-black uppercase tracking-widest`}>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>

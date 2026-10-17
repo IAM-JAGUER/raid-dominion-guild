@@ -7,6 +7,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
 import type { ParticleVariant } from '@/lib/ui/particles';
 
@@ -28,10 +29,7 @@ const { title, description, background, particles, veil } = Astro.props;
       <Breadcrumb />
 
       <!-- Cargando -->
-      <div id="loading" class="text-center py-20">
-        <div class="inline-block w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400 italic mt-4">Cargando…</p>
-      </div>
+      <LoadingBlock id="loading" text="Cargando…" />
 
       <!-- No encontrado -->
       <div id="not-found" class={`hidden ${ui.panel} ${ui.cut} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>

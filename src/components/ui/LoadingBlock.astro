@@ -1,0 +1,37 @@
+---
+// Bloque de carga estándar del portal: spinner grande + texto en `aria-live`.
+// ÚNICA fuente del patrón (fichas y directorios): evita repetir el markup en
+// cada shell/página y garantiza el mismo aspecto y semántica.
+//
+// `listStatus` lo marca como bloque de estado de una lista asíncrona
+// (`data-rd-list-status`, ver src/lib/ui/list.ts) — en un `notice` el script
+// escribe su mensaje en este mismo nodo (textContent) y pierde el spinner a
+// propósito. Las fichas usan `id="loading"` (contrato de routes.ts).
+import { ui } from '@/lib/ui/design';
+
+interface Props {
+  // id del bloque (las fichas usan "loading"; las listas no necesitan id).
+  id?: string;
+  // Texto visible mientras se carga.
+  text: string;
+  // Marca `data-rd-list-status` (listas asíncronas).
+  listStatus?: boolean;
+  // Relleno vertical: listas `md` (py-16), fichas `lg` (py-20).
+  pad?: 'md' | 'lg';
+  // Clases extra (p. ej. `col-span-full` cuando vive en una grilla).
+  class?: string;
+}
+
+const { id, text, listStatus = false, pad = 'lg', class: extraCls = '' } = Astro.props;
+const padCls = pad === 'md' ? 'py-16' : 'py-20';
+---
+
+<div
+  id={id}
+  data-rd-list-status={listStatus ? '' : undefined}
+  class={`text-center ${padCls} italic ${ui.loading.liveText} ${extraCls}`}
+  aria-live="polite"
+>
+  <div class={ui.loading.spinnerLg} aria-hidden="true"></div>
+  <p class="mt-4">{text}</p>
+</div>

@@ -11,7 +11,7 @@ import { ui } from '@/lib/ui/design';
 	title="RaidDominion - Addon World of Warcraft 3.3.5a"
 	background="/images/GameLoginBg.jpg"
 	particles="snow"
-	veil={0.75}
+	veil={0.05}
 >
 	<Navigation />
 	<main class="relative">
@@ -51,21 +51,6 @@ import { ui } from '@/lib/ui/design';
 	</script>
 
 	<style is:global>
-		@keyframes fadeIn {
-			from { opacity: 0; }
-			to { opacity: 1; }
-		}
-
-		.animate-fade-in-1 {
-			opacity: 0;
-			animation: fadeIn 1s ease-out 0.5s forwards;
-		}
-
-		.animate-fade-in-2 {
-			opacity: 0;
-			animation: fadeIn 1s ease-out 1.5s forwards;
-		}
-
 		/* Asegurar que el contenedor del humo esté correctamente posicionado */
 		#smoke-container {
 			position: absolute;

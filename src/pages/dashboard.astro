@@ -154,13 +154,14 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
             <p
               id="registro-empty-note"
+              data-rd-reveal
               class="hidden mt-4 text-xs text-red-300"
             >
             </p>
           </div>
         </EmptyState>
 
-        <div id="registro-main" class="hidden space-y-6">
+        <div id="registro-main" data-rd-reveal class="hidden space-y-6">
           <!-- Ventana: cabecera + visor contiguos (sin gap ni radio en la junta,
                esquina inferior cuadrada) -->
           <div>
@@ -283,6 +284,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                (sin radio ni márgenes) entre la cabecera y el visor -->
             <div
               id="claim-banner"
+              data-rd-reveal
               class="hidden border border-amber-600/30 border-t-0 bg-gradient-to-br from-amber-950/40 to-gray-900/60 p-4 sm:p-6"
             >
               <h3
@@ -566,6 +568,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             </div>
             <p
               id="characters-onboarding"
+              data-rd-reveal
               class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"
             >
             </p>
@@ -684,10 +687,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
           <div id="bands-sectionbody" class={`${ui.sectionBody} space-y-5`}>
             <!-- Detalle de la banda seleccionada -->
-            <div id="band-detail" class="hidden"></div>
+            <div id="band-detail" data-rd-reveal class="hidden"></div>
             <!-- Onboarding: visitante sin validar no puede publicar bandas -->
             <div
               id="bands-onboarding"
+              data-rd-reveal
               class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"
             >
             </div>
@@ -750,7 +754,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </EmptyState>
 
           <!-- Gestión multi-hermandad -->
-          <div id="guild-manage" class="hidden">
+          <div id="guild-manage" data-rd-reveal class="hidden">
             <div
               class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}
             >

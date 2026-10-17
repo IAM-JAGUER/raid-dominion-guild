@@ -116,3 +116,100 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
 - **Detección**: manual — antes de cualquier "limpieza" de procesos,
   verificar si el objetivo es del puerto 4321, un port-forward de LAN o un
   navegador/preview del usuario
+
+## F014: Utilidad core de animación desaparece por plugin que reemplaza `theme.animation`
+- **Estado**: mitigada (2026-10-16)
+- **Error**: `@midudev/tailwind-animations` (plugins de `tailwind.config.js`)
+  define su theme SIN `extend`: reemplaza las escalas `animation`/`keyframes`
+  por defecto de Tailwind. Las utilidades core que el plugin no re-provee
+  (p. ej. `animate-spin`) dejan de generarse EN SILENCIO — el spinner de
+  "Cargando" quedaba estático y `animate-fade-in-1/2/3` (clases custom) nunca
+  fueron utilidad real: solo existían en `index.astro`/`GrandLogo`/`HeroSection`,
+  así que en las fichas el contenido aparecía de golpe
+- **Solución**: definir en `material.css` las core que el portal use (fuente
+  única; hoy `spin`, que alimenta `ui.loading.spinner`) — así existen en dev y
+  build sin depender de la regeneración del plugin ni de reiniciar el dev
+  server (el build de Tailwind queda cacheado por Vite). `theme.extend` también
+  funciona, pero exige reiniciar el server para verse en dev. El reveal de
+  vistas va por `rd-enter`/`animate-fade-in-1` en `material.css` + `routes.ts`
+  (con `reduce` se acorta, nunca se elimina — ver `design.md` §7)
+- **Detección**: grep del CSS servido — si el HTML/JS usa una clase
+  `animate-*` y `@keyframes <nombre>` no existe en el CSS del dev server
+  (`curl` de solo lectura), la utilidad no se generó
+
+## F015: `prefers-reduced-motion` usado para APAGAR el efecto
+- **Estado**: mitigada (2026-10-16)
+- **Error**: la rama `reduce` de `particles.ts` anulaba el viento
+  (`gust = 0`) y bajaba velocidad/densidad a 35%/50%; en entornos que
+  reportan `reduce` por defecto (previews embebidos, headless) la ventisca
+  perdía sus ráfagas y el usuario la percibía como "ya no emula el ritmo de
+  la original" aunque el código "funcionara"
+- **Solución**: `reduce` atenúa, no apaga — ráfagas al 45% (conservadas),
+  50% de velocidad, 70% de densidad, sin titileo. La preferencia busca
+  evitar parpadeo y movimiento brusco, no el movimiento ambiental mismo
+- **Detección**: mirar el efecto en Chrome headless (reporta `reduce` por
+  defecto) y comparar contra un entorno sin la preferencia; si en headless
+  el efecto "no se mueve" o pierde su carácter, la rama `reduce` está
+  apagando algo que debía atenuar
+
+## F016: Zoom brusco del fondo al cargar
+- **Estado**: mitigada (2026-10-16)
+- **Error**: `.rd-atmosphere__image` tenía `transform: scale(1.03)` sobre un
+  `background-size: cover` dentro de la capa fija: el encuadre "saltaba" de
+  tamaño (~3%) al aplicarse tarde / recomputarse cuando cambiaba el ancho
+  útil (aparición del scrollbar), y la imagen no precargada aparecía con
+  pop-in
+- **Solución**: sin transform en la capa de fondo (`cover` ya llena sin
+  costuras), `html { scrollbar-gutter: stable }` fija el ancho útil y
+  `<link rel="preload" as="image" fetchpriority="high">` en `Layout` cuando
+  hay `background`, para decodificar el fondo antes del primer pintado
+- **Detección**: recargar y observar el primer segundo; el computed style
+  del div de fondo no debe tener `transform` distinto de `none` y el ancho
+  del documento no debe cambiar al aparecer el scrollbar
+
+## F017: Doble montaje del motor de partículas (dos efectos superpuestos)
+- **Estado**: mitigada (2026-10-16)
+- **Error**: si el script de montaje corre dos veces (HMR de Vite, doble
+  inclusión del script), `mountParticleField` creaba un SEGUNDO bucle rAF
+  sobre el mismo canvas: cada bucle borra y redibuja su propio set en el
+  mismo frame → el campo "titila" y se percibe como dos efectos de
+  partículas superpuestos aunque el DOM tenga un solo canvas
+- **Solución**: guarda de idempotencia en `mountParticleField` — el disposer
+  se registra en el propio canvas (`__rdParticlesDispose`) y remontar
+  desmonta primero el campo anterior (funciona incluso entre instancias
+  distintas del módulo bajo HMR)
+- **Detección**: si el campo se ve inestable/superpuesto, parchear
+  `requestAnimationFrame` y contar llamadas por frame: 2× el número de
+  campos = hay más de un bucle activo; `--dump-dom` sigue mostrando 1 canvas
+
+## F018: Reescalado brusco de la atmósfera al cambiar de tamaño
+- **Estado**: mitigada (2026-10-16)
+- **Error**: el resize de partículas usaba debounce de 150 ms + `populate()`:
+  al cambiar el viewport, la imagen reencuadraba `cover` al instante mientras
+  el canvas conservaba el bitmap viejo ESTIRADO a la caja nueva
+  (cvCSS ≠ cvPix) y, al vencer el debounce, el campo se re-aleatorizaba. Se
+  percibía como un "efecto de reescalado" simultáneo de imagen y partículas
+- **Solución**: `ResizeObserver` inmediato en `particles.ts` que CONSERVA el
+  campo (reescala posiciones `x*=sx, y*=sy`; nada de `populate()`) y redibuja
+  en el mismo frame; fondo sincronizado por JS con transición corta
+  (`[data-fit]`, 220 ms) para que el reencuadre se anime; capa anclada a
+  `100lvh` para que el chrome del navegador móvil no la redimensione
+- **Detección**: tras un resize, `canvas.clientWidth/Height` debe coincidir
+  con `canvas.width/height` de inmediato (sin frame estirado) y las
+  posiciones del campo no deben re-aleatorizarse
+
+## F019: El scroll salta solo al recargar con la página arriba
+- **Estado**: mitigada (2026-10-16)
+- **Error**: al recargar el index con el scroll en el tope, el **scroll
+  anchoring** de Chrome compensaba el asentamiento tardío del layout (el
+  logo del héroe con `width="280" height="auto"` — `height="auto"` es
+  inválido en HTML y no reserva alto — pasaba de 0 a 280 px al cargar, más
+  el swap de la fuente Jost con `font-display: swap`) moviendo el scroll
+  unos píxeles hacia abajo sin interacción del usuario
+- **Solución**: reservar el espacio real de las imágenes del héroe con
+  `width`/`height` numéricos (nunca `height="auto"`; el PNG es 500×500 →
+  `280×280`) y `html { overflow-anchor: none }` para que el navegador jamás
+  ajuste el scroll por reflujos tardíos — el desplazamiento es siempre del
+  usuario
+- **Detección**: recargar con el scroll en 0 y vigilar `window.scrollY`:
+  debe permanecer en 0 mientras carga la imagen y la fuente

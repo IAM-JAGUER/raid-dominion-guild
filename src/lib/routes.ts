@@ -10,6 +10,8 @@
 // src/components/views/. Mantén RESERVED sincronizado con astro.config.mjs
 // (middleware dev) y netlify.toml.
 
+import { revealEl } from '@/lib/ui/reveal';
+
 export const RESERVED = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
@@ -50,7 +52,10 @@ export function showNotFound(message?: string): void {
   const loading = document.getElementById('loading');
   if (loading) loading.classList.add('hidden');
   const nf = document.getElementById('not-found');
-  if (nf) nf.classList.remove('hidden');
+  if (nf) {
+    nf.classList.remove('hidden');
+    revealEl(nf);
+  }
   if (message) {
     const msg = document.getElementById('not-found-msg');
     if (msg) msg.textContent = message;
@@ -59,11 +64,15 @@ export function showNotFound(message?: string): void {
 }
 
 // Oculta el cargando y muestra un contenedor de vista (id dado).
+// `revealEl` (src/lib/ui/reveal.ts) funde la vista completa al revelarse.
 export function showView(viewId: string): void {
   const loading = document.getElementById('loading');
   if (loading) loading.classList.add('hidden');
   const view = document.getElementById(viewId);
-  if (view) view.classList.remove('hidden');
+  if (view) {
+    view.classList.remove('hidden');
+    revealEl(view);
+  }
 }
 
 // ¿El primer segmento es un slug reservado que no debe resolverse como vista?

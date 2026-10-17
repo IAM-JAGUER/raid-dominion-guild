@@ -11,7 +11,7 @@ interface Props {
   veil?: number;
 }
 
-const { variant = 'arcane', image, veil = 0.9 } = Astro.props;
+const { variant = 'arcane', image, veil = 0.05 } = Astro.props;
 ---
 
 <div class="rd-atmosphere" aria-hidden="true">
@@ -31,4 +31,20 @@ const { variant = 'arcane', image, veil = 0.9 } = Astro.props;
   import { autoMountParticleFields } from '@/lib/ui/particles';
 
   autoMountParticleFields();
+
+  // El fondo se sincroniza por JS con el tamaño de la capa y una transición
+  // corta (ver `[data-fit]` en material.css): un cambio de viewport reencuadra
+  // suave, sin salto. El motor de partículas conserva su campo por su cuenta.
+  const image = document.querySelector<HTMLElement>('.rd-atmosphere__image');
+  if (image) {
+    const fit = (): void => {
+      const layer = image.parentElement;
+      if (!layer) return;
+      image.dataset.fit = '';
+      image.style.width = `${layer.clientWidth}px`;
+      image.style.height = `${layer.clientHeight}px`;
+    };
+    fit();
+    window.addEventListener('resize', fit);
+  }
 </script>

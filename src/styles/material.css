@@ -98,6 +98,9 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 .rd-atmosphere {
   position: fixed;
   inset: 0;
+  /* Viewport GRANDE: en móvil, mostrar/ocultar la barra del navegador no
+     reescala la capa (lvh es estable; sin soporte, `inset: 0` sigue valiendo). */
+  height: 100lvh;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
@@ -111,13 +114,30 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   background-repeat: no-repeat;
   opacity: 0.42;
   filter: saturate(0.95) brightness(0.9);
-  transform: scale(1.03);
+  /* Sin transform/scale: el encuadre `cover` ya es estable y un scale
+     aplicado tarde (o recomputado al cambiar el ancho útil) producía el
+     zoom brusco al cargar — ver frallas.md F016. */
+}
+
+/* Fondo sincronizado por JS (`data-fit`, PageAtmosphere) con transición
+   corta: si el viewport cambia de tamaño (panel/preview), el reencuadre
+   `cover` se anima en vez de saltar (F016). Sin JS no hay `data-fit` y el
+   elemento conserva `inset: 0` (cobertura garantizada). */
+.rd-atmosphere__image[data-fit] {
+  left: 50%;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  transition:
+    width 220ms ease,
+    height 220ms ease;
 }
 
 .rd-atmosphere__veil {
   position: absolute;
   inset: 0;
-  opacity: var(--rd-veil, 0.9);
+  opacity: var(--rd-veil, 0.05);
   background:
     /* viñeta superior de marca + cierre oscuro para legibilidad */
     radial-gradient(130% 70% at 50% -10%, rgba(20, 20, 26, 0.2), rgba(10, 10, 12, 0.72) 62%),
@@ -449,10 +469,59 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   ENTRADA DE CONTENIDO · FUNDIDO CANÓNICO
+   Fuente única del reveal: `.rd-enter` la aplica routes.ts (showView /
+   showNotFound) al mostrar una vista; `.animate-fade-in-1` la llevan los
+   encabezados/secciones en el markup. Ambas reutilizan el `@keyframes fadeIn`
+   global (Layout.astro, solo opacidad 0→1, sin desplazamiento) y con `both`
+   no requieren `opacity:0` en la clase. Con `prefers-reduced-motion: reduce`
+   el fundido NO se elimina: se acorta (0.3s) — es opacidad pura, segura para
+   movimiento reducido, y previews/entornos headless reportan `reduce` por
+   defecto (mismo criterio que las partículas: atenuar, no congelar).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-enter {
+  animation: fadeIn 0.45s ease-out both;
+}
+
+.animate-fade-in-1 {
+  animation: fadeIn 0.5s ease-out 0.05s both;
+}
+
+/* Entrada escalonada de tarjetas/filas recién pintadas por JS
+   (`data-rd-reveal-cards`, motor en src/lib/ui/reveal.ts). El índice del
+   hijo llega en `--rd-card-i`; con `reduce` el retardo se anula abajo. */
+.rd-enter-card {
+  animation: fadeIn 0.4s ease-out both;
+  animation-delay: calc(var(--rd-card-i, 0) * 55ms);
+}
+
+/* ── Core `animate-spin` (definición material, ver frallas.md F014) ────────
+   @midudev/tailwind-animations reemplaza la escala `animation`/`keyframes`
+   de Tailwind y no re-provee `spin`: la utilidad deja de generarse en
+   silencio. Se define AQUÍ (fuente única) para que exista en dev y build sin
+   depender de la regeneración del plugin ni de reiniciar el dev server.
+   Uso: `ui.loading.spinner` (design.ts). */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    ACCESIBILIDAD · MOVIMIENTO REDUCIDO
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
+  .rd-enter,
+  .animate-fade-in-1,
+  .rd-enter-card {
+    animation-duration: 0.3s;
+    animation-delay: 0s;
+  }
   .rd-glow {
     animation: none;
   }
