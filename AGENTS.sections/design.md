@@ -268,6 +268,17 @@ de dashboard con pestañas que ya resuelve esto en desktop.
 
 ## Historial de enmiendas
 
+- **2026-10-17 (entrada sin desplazamiento)**: el `<style>` scoped legacy de
+  `GrandLogo.astro` redefinía `@keyframes fadeIn` con `translateY(10px)`.
+  Astro inyecta el CSS scoped DESPUÉS de las hojas globales: el keyframe
+  homónimo sombreaba al canónico del `Layout` y tanto `html` (fade de
+  entrada) como los `.animate-fade-in-1` del héroe subían 10 px al cargar.
+  Eliminado el bloque completo (incluidas las clases muertas `text-shimmer`,
+  `text-outline`, `animation-delay-200` y un `scroll-behavior: smooth` global
+  redundante — la nav y las guías ya desplazan con `behavior:'smooth'` por
+  JS). El fundido canónico queda SOLO en `material.css` (opacidad pura);
+  regla nueva: jamás redefinir un `@keyframes` global homónimo desde un
+  componente (ver `frallas.md` F021).
 - **2026-10-16 (filtros de directorio)**: esquema de búsqueda+filtros
   unificado en los 5 directorios raíz — motor `src/lib/ui/filterBar.ts`
   (buscador + chips de facetas dinámicas con conteo, `aria-pressed`,

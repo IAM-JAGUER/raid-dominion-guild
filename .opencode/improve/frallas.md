@@ -213,3 +213,23 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   usuario
 - **Detección**: recargar con el scroll en 0 y vigilar `window.scrollY`:
   debe permanecer en 0 mientras carga la imagen y la fuente
+
+## F021: `@keyframes` local sombrea el canónico y desplaza el layout entero
+- **Estado**: mitigada (2026-10-17)
+- **Error**: `GrandLogo.astro` conservaba un `<style>` legacy (scoped) que
+  redefinía `@keyframes fadeIn` con `transform: translateY(10px)`. Astro
+  inyecta el CSS scoped DESPUÉS de las hojas globales en el `<head>`: con dos
+  `@keyframes` homónimos, la última definición gana en la cascada, así que
+  `html { animation: fadeIn 1.5s }` (Layout, pensado solo opacidad) pasó a
+  animar `translateY(10px→0)` y **toda la página** subía 10 px al entrar;
+  los `.animate-fade-in-1` del héroe también (el selector scoped
+  `.animate-fade-in-1[cid]` gana por especificidad al global).
+- **Solución**: eliminar el `<style>` legacy del componente; el fundido
+  canónico vive SOLO en `material.css` (`.animate-fade-in-1`/`.rd-enter`,
+  opacidad pura) y el escalonado va por `animation-delay` inline. Regla:
+  un componente NUNCA redefine un `@keyframes` global homónimo — si necesita
+  variante, nombre propio o token en `material.css`.
+- **Detección**: en el CSS servido, buscar `@keyframes <nombre>` duplicados
+  (`grep -o "@keyframes [a-zA-Z]*" dist/**/*.css`) y que el HTML no tenga
+  `<style>` scoped redefiniendo animaciones del contrato; comparar
+  `window.scrollY`/posiciones antes y después de la animación de entrada.
