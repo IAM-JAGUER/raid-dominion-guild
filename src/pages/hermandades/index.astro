@@ -2,7 +2,6 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
-import { ui } from '@/lib/ui/design';
 ---
 
 <Layout
@@ -28,119 +27,84 @@ import { ui } from '@/lib/ui/design';
           message: 'Los maestros de hermandad publican su portal desde el dashboard al reclamar su guild.',
           cta: { label: 'Sube tu SavedVariables', href: '/upload' },
         }}
-      >
-        <!-- Filtros -->
-        <div slot="filters" class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
-          <div class="relative flex-1">
-            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="search" id="search" placeholder="Buscar por nombre o reino…"
-              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
-          </div>
-          <select id="faction-filter"
-            class={`${ui.form.input} ${ui.focusRing} sm:w-48`}>
-            <option value="">Toda facción</option>
-            <option value="Horde">Horde</option>
-            <option value="Alliance">Alliance</option>
-          </select>
-        </div>
-      </DirectoryPage>
+      />
     </div>
   </main>
 </Layout>
 
 <script>
   import { listPublicGuilds } from '@/lib/api';
-  import type { GuildRow } from '@/types/database';
-  import { ui } from '@/lib/ui/design';
-  import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
-  import { el } from '@/lib/ui/dom';
+  import { renderGuildCard } from '@/lib/ui/cards';
+  import { createFilterBar } from '@/lib/ui/filterBar';
+  import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
 
-  const statusEl = document.getElementById('status') as HTMLElement;
+  const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
-  const emptyEl = document.getElementById('empty') as HTMLElement;
-  const searchEl = document.getElementById('search') as HTMLInputElement;
-  const factionEl = document.getElementById('faction-filter') as HTMLSelectElement;
-
-  let guilds: GuildRow[] = [];
-
-  function card(g: GuildRow): HTMLElement {
-    const link = cardLink(`/hermandad/${g.slug}`, 'p-5');
-
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-    head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
-    link.appendChild(head);
-
-    if (g.description) {
-      const desc = el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description);
-      link.appendChild(desc);
-    }
-
-    // Chips: facción, servidor (enlaza al directorio de servidores), verificación y Discord
-    const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
-    if (g.faction) {
-      const faction = el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza');
-      chips.appendChild(faction);
-    }
-    if (g.server) {
-      const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
-      serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-      chips.appendChild(serverChip);
-    }
-    if (g.claim_status === 'verified') {
-      const verified = el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada');
-      chips.appendChild(verified);
-    }
-    if (g.discord_link) {
-      const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
-      discord.href = g.discord_link;
-      discord.target = '_blank';
-      discord.rel = 'noopener noreferrer';
-      discord.title = 'Discord de la hermandad';
-      chips.appendChild(discord);
-    }
-    if (chips.children.length > 0) link.appendChild(chips);
-
-    const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
-    meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
-    link.appendChild(meta);
-
-    return link;
-  }
-
-  function render(): void {
-    const q = searchEl.value.trim().toLowerCase();
-    const f = factionEl.value;
-    gridEl.innerHTML = '';
-
-    const filtered = guilds.filter((g) => {
-      const matchQ = !q || g.name.toLowerCase().includes(q) || (g.realm ?? '').toLowerCase().includes(q);
-      const matchF = !f || g.faction === f;
-      return matchQ && matchF;
-    });
-
-    if (filtered.length === 0) {
-      emptyEl.classList.remove('hidden');
-      return;
-    }
-    emptyEl.classList.add('hidden');
-    filtered.forEach((g) => gridEl.appendChild(card(g)));
-  }
-
-  searchEl.addEventListener('input', render);
-  factionEl.addEventListener('change', render);
+  const filtersEl = document.getElementById('filters') as HTMLElement;
 
   const res = await listPublicGuilds();
   if (!res.ok) {
-    // #status se usa SOLO para el error de red; en éxito se oculta siempre.
-    statusEl.textContent = 'No se pudo cargar el directorio. Intenta de nuevo más tarde.';
+    settleAsyncList(list, 'notice', 'No se pudo cargar el directorio. Intenta de nuevo más tarde.');
   } else {
-    guilds = res.guilds ?? [];
+    const guilds = res.guilds ?? [];
     document.title = guilds.length > 0
       ? `${guilds.length} hermandad${guilds.length === 1 ? '' : 'es'} — RaidDominion`
       : 'Hermandades - RaidDominion';
-    statusEl.classList.add('hidden');
-    render();
+    if (guilds.length === 0) {
+      settleAsyncList(list, 'empty');
+    } else {
+      // Barra estándar (src/lib/ui/filterBar.ts): buscador (nombre, reino,
+      // servidor, descripción) + chips dinámicos de facción, reino,
+      // Verificada y Discord. Cards vía renderGuildCard (src/lib/ui/cards.ts).
+      createFilterBar({
+        mount: filtersEl,
+        items: guilds,
+        getSearchText: (g) => `${g.name} ${g.realm ?? ''} ${g.server ?? ''} ${g.description ?? ''}`,
+        searchPlaceholder: 'Buscar por nombre, reino o descripción…',
+        searchLabel: 'Buscar hermandades por nombre, reino o descripción',
+        facets: [
+          {
+            id: 'faccion',
+            label: 'Filtrar por facción',
+            // Solo facciones reales: el addon usa '?' como marcador de
+            // desconocido y no debe agruparse como Alianza.
+            getValues: (g) => (g.faction === 'Horde' || g.faction === 'Alliance' ? [g.faction] : []),
+            labelOf: (v) => (v === 'Horde' ? 'Horda' : 'Alianza'),
+            order: () => ['Horde', 'Alliance'],
+          },
+          {
+            id: 'reino',
+            label: 'Filtrar por reino',
+            getValues: (g) => [(g.realm ?? '').trim()].filter(Boolean),
+          },
+          {
+            kind: 'flag',
+            id: 'verified',
+            label: 'Filtrar hermandades verificadas',
+            getFlag: (g) => g.claim_status === 'verified',
+            chipLabel: '✓ Verificada',
+          },
+          {
+            kind: 'flag',
+            id: 'discord',
+            label: 'Filtrar hermandades con Discord',
+            getFlag: (g) => !!g.discord_link,
+            chipLabel: 'Discord',
+          },
+        ],
+        resultNoun: (n) => `${n} hermandad${n === 1 ? '' : 'es'}`,
+        onChange: (filtered, state) => {
+          clearListItems(list);
+          if (filtered.length === 0) {
+            settleAsyncList(list, 'notice', state.query.trim()
+              ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+              : 'Sin resultados con los filtros aplicados.');
+            return;
+          }
+          filtered.forEach((g) => gridEl.appendChild(renderGuildCard(g)));
+          settleAsyncList(list, 'ready');
+        },
+      });
+    }
   }
 </script>

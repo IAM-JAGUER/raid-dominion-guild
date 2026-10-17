@@ -151,6 +151,29 @@ export const ui = {
     errorText: 'mt-1.5 text-[11px] text-red-300',
   },
 
+  // ── Filtros de directorio (2026-10-16, filterBar.ts) ────────────────────
+  // Barra de filtros estándar de los directorios (buscador + chips de
+  // facetas con conteo). ÚNICA fuente del chip de filtro: antes embebido en
+  // bandasPanel.ts; hoy lo consume el motor src/lib/ui/filterBar.ts.
+  filter: {
+    // Fila buscador + contador de resultados (aria-live).
+    searchRow: 'flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3',
+    searchWrap: 'relative flex-1',
+    searchIcon: 'w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
+    // Contador de resultados ("N bandas"): live region de la barra.
+    result: 'text-[10px] font-black uppercase tracking-widest text-gray-500 sm:text-right shrink-0',
+    // Contenedor de filas de facetas (una fila por faceta, con wrap).
+    facets: 'mt-3 space-y-2',
+    row: 'flex flex-wrap gap-1.5',
+    // Chip de filtro (botón): CON texto → rounded-md (R2). Estado por
+    // chipActive/chipIdle; el conteo va en un span con `filter.count`.
+    chip: 'inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400',
+    chipActive: 'bg-gradient-to-b from-amber-900/50 to-amber-950/50 text-amber-200 border-amber-500/50',
+    chipIdle:
+      'bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-400 border-amber-600/25 hover:from-amber-900/40 hover:to-amber-950/40 hover:text-amber-200 hover:border-amber-500/40',
+    count: 'text-[9px] font-bold opacity-60',
+  },
+
   // ── Loading / feedback async (design.md §6, F010) ───────────────────────
   // skeleton: placeholder de contenido (roster/bandas). spinner: acción
   // puntual (submit/upload). spinnerLg: bloque de carga de contenido (fichas

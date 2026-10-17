@@ -41,12 +41,25 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
   import { isNamelessSafe, safePlayerName, playerInitial, handleFromSlug } from '@/lib/ui/playerNames';
   import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
   import { chip, el } from '@/lib/ui/dom';
+  import { createFilterBar } from '@/lib/ui/filterBar';
+  import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
 
-  const statusEl = document.getElementById('status') as HTMLElement;
+  const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
-  const emptyEl = document.getElementById('empty') as HTMLElement;
+  const filtersEl = document.getElementById('filters') as HTMLElement;
 
-  function card(p: ProfileRow, info?: PublicAccountNames): HTMLElement {
+  // Presentación resuelta UNA vez por jugador (card + facetas comparten la
+  // misma derivación de nombre visible, maestro público y perfil sin nombre).
+  interface PlayerItem {
+    p: ProfileRow;
+    gmVisible: boolean;
+    nameless: boolean;
+    name: string;
+    principalPublic: boolean;
+    fromHandle: boolean;
+  }
+
+  function derive(p: ProfileRow, info?: PublicAccountNames): PlayerItem {
     const publicNames = info?.publicNames ?? new Set<string>();
     const fallback = info?.principal;
     // La insignia de maestro solo aplica si hay un personaje maestro PÚBLICO
@@ -59,8 +72,11 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     // declaró un principal; con el principal en "Ninguno" y sin nombre visible,
     // la card cae al handle estable del perfil, nunca a otro personaje.
     const name = safePlayerName(p, { publicNames, fallbackName: principalPublic ? fallback : undefined });
-    const fromHandle = nameless && !principalPublic;
-    const charPublic = principalPublic;
+    return { p, gmVisible, nameless, name, principalPublic, fromHandle: nameless && !principalPublic };
+  }
+
+  function card(item: PlayerItem): HTMLElement {
+    const { p, gmVisible, nameless, name, principalPublic, fromHandle } = item;
     const link = cardLink(`/jugador/${p.slug}`, 'p-5');
 
     const head = el('div', 'flex items-center gap-3 mb-3');
@@ -72,7 +88,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     const nm = cardTitle(name, 'text-base', 'truncate');
     nameWrap.appendChild(nm);
     // Subtítulo: el personaje principal declarado, SOLO si es público y difiere.
-    if (charPublic && p.character_name !== name) {
+    if (principalPublic && p.character_name !== name) {
       nameWrap.appendChild(el('p', 'text-[11px] text-gray-500 truncate', `Principal: ${p.character_name}`));
     }
     head.appendChild(nameWrap);
@@ -104,14 +120,55 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 
   const res = await listPublicPlayers();
   if (!res.ok || !res.players) {
-    statusEl.textContent = 'No se pudo cargar el directorio de jugadores.';
+    settleAsyncList(list, 'notice', 'No se pudo cargar el directorio de jugadores.');
   } else if (res.players.length === 0) {
-    statusEl.classList.add('hidden');
-    emptyEl.classList.remove('hidden');
+    settleAsyncList(list, 'empty');
   } else {
     document.title = `${res.players.length} jugador${res.players.length === 1 ? '' : 'es'} — RaidDominion`;
     const infos = await getPublicAccountNames(res.players.map((p) => p.id));
-    res.players.forEach((p) => gridEl.appendChild(card(p, infos.get(p.id))));
-    statusEl.classList.add('hidden');
+    const items = res.players.map((p) => derive(p, infos.get(p.id)));
+
+    // Barra estándar (src/lib/ui/filterBar.ts): buscador (nombre, personaje,
+    // reino, @handle) + chips dinámicos de reino, Maestro y Sin nombre.
+    createFilterBar({
+      mount: filtersEl,
+      items,
+      getSearchText: (it) => `${it.name} ${it.p.character_name ?? ''} ${it.p.realm ?? ''} ${handleFromSlug(it.p.slug)}`,
+      searchPlaceholder: 'Buscar por nombre, personaje, reino o @handle…',
+      searchLabel: 'Buscar jugadores por nombre, personaje, reino o handle',
+      facets: [
+        {
+          id: 'reino',
+          label: 'Filtrar por reino',
+          getValues: (it) => [(it.p.realm ?? '').trim()].filter(Boolean),
+        },
+        {
+          kind: 'flag',
+          id: 'gm',
+          label: 'Filtrar maestros de hermandad',
+          getFlag: (it) => it.gmVisible,
+          chipLabel: '★ Maestro',
+        },
+        {
+          kind: 'flag',
+          id: 'anon',
+          label: 'Filtrar perfiles sin nombre',
+          getFlag: (it) => it.nameless,
+          chipLabel: 'Sin nombre',
+        },
+      ],
+      resultNoun: (n) => `${n} jugador${n === 1 ? '' : 'es'}`,
+      onChange: (filtered, state) => {
+        clearListItems(list);
+        if (filtered.length === 0) {
+          settleAsyncList(list, 'notice', state.query.trim()
+            ? `Ningún jugador coincide con "${state.query.trim()}".`
+            : 'Sin resultados con los filtros aplicados.');
+          return;
+        }
+        filtered.forEach((it) => gridEl.appendChild(card(it)));
+        settleAsyncList(list, 'ready');
+      },
+    });
   }
 </script>

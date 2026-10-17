@@ -1,6 +1,7 @@
 ---
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
+import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -9,13 +10,10 @@ import { ui } from '@/lib/ui/design';
     <Breadcrumb />
 
     <!-- Cargando -->
-    <div id="loading" class="text-center py-20">
-      <div class={`${ui.loading.spinner} !w-8 !h-8`}></div>
-      <p class="text-sm text-gray-400 italic mt-4">Cargando perfil…</p>
-    </div>
+    <LoadingBlock id="loading" text="Cargando perfil…" />
 
     <!-- No encontrado -->
-    <div id="not-found" class={`hidden ${ui.card} relative overflow-hidden p-8 sm:p-10 text-center`}>
+    <div id="not-found" data-rd-reveal class={`hidden ${ui.card} relative overflow-hidden p-8 sm:p-10 text-center`}>
       <span class={ui.cardTop} aria-hidden="true"></span>
       <div class={`${ui.iconTile} w-12 h-12 mx-auto mb-4`}>
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -26,7 +24,7 @@ import { ui } from '@/lib/ui/design';
     </div>
 
     <!-- Ficha del personaje -->
-    <div id="profile" class="hidden space-y-10">
+    <div id="profile" data-rd-reveal class="hidden space-y-10">
       <header class="animate-fade-in-1">
         <p class={`${ui.eyebrow} mb-2 flex items-center`}>
           <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
@@ -55,7 +53,7 @@ import { ui } from '@/lib/ui/design';
         <PanelWindow id="panel-personajes" title="Personajes" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
           <h3 id="main-title" class={ui.subTitle}></h3>
           <div id="main-card"></div>
-          <div id="characters-section" class="hidden">
+          <div id="characters-section" data-rd-reveal class="hidden">
             <h3 class={`${ui.subTitle} mb-2`}>Otros personajes de la cuenta</h3>
             <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
           </div>
@@ -63,8 +61,9 @@ import { ui } from '@/lib/ui/design';
 
         <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
           <div slot="head">
-            <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
-            <div class="mt-4" id="bandas-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+            <!-- Barra de filtros estándar (buscador + chips de día) del motor
+                 src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
+            <div class="mt-4" id="bandas-filtro" data-rd-reveal-cards></div>
           </div>
           <div id="bandas-content" class="space-y-8"></div>
         </PanelWindow>

@@ -46,6 +46,22 @@ export const CLASS_ALIASES: Record<string, string> = {
 
 export const DEFAULT_CLASS_COLOR = '#f59e0b'; // amber-500 (tema)
 
+// Nombre de clase en esMX (lo que muestra el addon) por clave canónica.
+// ÚNICA fuente del label de clase para chips/filtros: no escribas los
+// nombres de clase sueltos en páginas.
+export const CLASS_LABELS: Record<string, string> = {
+  WARRIOR: 'Guerrero',
+  PALADIN: 'Paladín',
+  HUNTER: 'Cazador',
+  ROGUE: 'Pícaro',
+  PRIEST: 'Sacerdote',
+  DEATHKNIGHT: 'Caballero de la Muerte',
+  SHAMAN: 'Chamán',
+  MAGE: 'Mago',
+  WARLOCK: 'Brujo',
+  DRUID: 'Druida',
+};
+
 // Clave canónica de clase (WARRIOR, MAGE, ...) a partir de class_file
 // (file ID) o del nombre localizado esMX/inglés que guarda el addon.
 export function classKey(className?: string | null, classFile?: string | null): string | undefined {

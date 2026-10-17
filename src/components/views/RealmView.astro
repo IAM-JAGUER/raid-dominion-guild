@@ -47,8 +47,9 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 
     <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
-        <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
-        <div class="mt-4" id="rv-bandas-filtro" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
+        <!-- Barra de filtros estándar (buscador + chips de día) del motor
+             src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
+        <div class="mt-4" id="rv-bandas-filtro" data-rd-reveal-cards></div>
       </div>
       <div id="rv-bandas" class="space-y-8"></div>
     </PanelWindow>

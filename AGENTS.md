@@ -167,6 +167,11 @@ src/
 - **Contrato único visual**: cualquier clase Tailwind que se repita 2+ veces
   se convierte en token de `src/lib/ui/design.ts` antes de seguir usándose
   suelta. Reglas y razones completas en `AGENTS.sections/design.md`.
+- **Contrato único de filtros**: buscador y chips de facetas de los
+  directorios viven SOLO en `src/lib/ui/filterBar.ts` (`createFilterBar`),
+  montados sobre `#filters` en la cabecera del panel (`DirectoryPage` y
+  `/bandas`); `bandasPanel.ts` (día/tipo) lo consume para las pestañas
+  Bandas. Jamás duplicar buscador/chips en una página (design.md §7b).
 - `build` real: `astro build`. Para verificación usar SIEMPRE
   `scripts/verifica.sh` (ver §8).
 

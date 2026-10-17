@@ -1,13 +1,17 @@
 ---
 // Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
 // hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeBoth +
-// (filtros opcionales) + #status + #grid + EmptyState + dividerFadeLeft.
-// Cada página conserva solo su <script> (card()/fetch/filtros) y el slot de
-// filtros; los ids #status/#grid/#empty son CONTRATO de este componente
-// (ver AGENTS.sections/pagina-map.md §2).
+// PanelWindow (cabecera con la barra de filtros estándar) + lista asíncrona
+// + dividerFadeLeft. Cada página conserva solo su <script> (card() + fetch +
+// facetas) y monta la barra sobre #filters con src/lib/ui/filterBar.ts.
+// La lista usa el contrato de src/lib/ui/list.ts
+// (`data-rd-list-status/content/empty/frame`) y los ids #grid/#empty siguen
+// siendo el anclaje del script (ver AGENTS.sections/pagina-map.md §2).
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
+import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import PanelWindow from '@/components/ui/PanelWindow.astro';
 import { ui } from '@/lib/ui/design';
 
 interface EmptyConfig {
@@ -25,6 +29,8 @@ interface Props {
   eyebrow?: string;
   hero: string;
   intro?: string;
+  // Título de la ventana del panel (default: el hero).
+  panelTitle?: string;
   // Texto del estado de carga (aria-live).
   loadingText: string;
   gridLabel: string;
@@ -40,6 +46,7 @@ const {
   eyebrow = 'Directorio público',
   hero,
   intro,
+  panelTitle = hero,
   loadingText,
   gridLabel,
   empty,
@@ -52,10 +59,19 @@ const {
 <PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} />
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 
-<slot name="filters" />
-
-<p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">{loadingText}</p>
-<section id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label={gridLabel}></section>
+<!-- Lista asíncrona estándar (src/lib/ui/list.ts): los ítems viven en la
+     grilla del cuerpo del panel; el bloque de carga es su único hijo mientras
+     carga y se retira al asentarse (reemplazo in-place, sin salto). El motor
+     de reveal escalona los ítems. La cabecera monta la barra de filtros
+     (buscador + chips) vía src/lib/ui/filterBar.ts sobre #filters. -->
+<div data-rd-list-frame>
+  <PanelWindow title={panelTitle}>
+    <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>
+    <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label={gridLabel}>
+      <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
+    </section>
+  </PanelWindow>
+</div>
 
 <EmptyState
   id="empty"

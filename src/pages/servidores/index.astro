@@ -36,25 +36,42 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
   import { listPublicServers } from '@/lib/api';
   import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
   import { chip } from '@/lib/ui/dom';
+  import { createFilterBar } from '@/lib/ui/filterBar';
+  import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
 
-  const statusEl = document.getElementById('status') as HTMLElement;
+  const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
-  const emptyEl = document.getElementById('empty') as HTMLElement;
+  const filtersEl = document.getElementById('filters') as HTMLElement;
 
   // El servidor es la dirección realmlist (p. ej. logon.ultimowow.com); cada
   // servidor aloja uno o varios reinos (la capa siguiente en la jerarquía).
   const res = await listPublicServers();
   if (!res.ok || !res.servers) {
-    statusEl.textContent = 'No se pudo cargar el directorio de servidores.';
+    settleAsyncList(list, 'notice', 'No se pudo cargar el directorio de servidores.');
   } else if (res.servers.length === 0) {
-    statusEl.classList.add('hidden');
-    emptyEl.classList.remove('hidden');
+    settleAsyncList(list, 'empty');
   } else {
-    document.title = `${res.servers.length} servidor${res.servers.length === 1 ? '' : 'es'} — RaidDominion`;
-    res.servers.forEach((s) => {
-      gridEl.appendChild(card(s));
+    const servers = res.servers;
+    document.title = `${servers.length} servidor${servers.length === 1 ? '' : 'es'} — RaidDominion`;
+    // Barra estándar (src/lib/ui/filterBar.ts): con una sola dimensión de
+    // datos (el nombre) solo lleva buscador + contador de resultados.
+    createFilterBar({
+      mount: filtersEl,
+      items: servers,
+      getSearchText: (s) => s,
+      searchPlaceholder: 'Buscar servidor…',
+      searchLabel: 'Buscar servidores por nombre',
+      resultNoun: (n) => `${n} servidor${n === 1 ? '' : 'es'}`,
+      onChange: (filtered, state) => {
+        clearListItems(list);
+        if (filtered.length === 0) {
+          settleAsyncList(list, 'notice', `Ningún servidor coincide con "${state.query.trim()}".`);
+          return;
+        }
+        filtered.forEach((s) => gridEl.appendChild(card(s)));
+        settleAsyncList(list, 'ready');
+      },
     });
-    statusEl.classList.add('hidden');
   }
 
   function card(server: string): HTMLElement {

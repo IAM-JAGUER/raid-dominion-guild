@@ -16,20 +16,26 @@ Composición: `Layout` + `Navigation` + 3 secciones (`GrandLogo`,
 Cero JS de datos. Estilos locales (`is:global`) solo para fade-in/smoke.
 
 ### B. Directorios públicos (5) — `src/pages/{servidores,jugadores,personajes,bandas,hermandades}/index.astro`
-Esqueleto ~idéntico en los 5 (hoy 100-230 líneas c/u):
+Esqueleto ~idéntico en los 5 (hoy 100-180 líneas c/u):
 
 1. `Breadcrumb`
 2. `PageHeader` (eyebrow `Directorio público` + `ui.titleHero` + intro)
-3. `dividerFadeRight`
-4. `#status` (loading `liveText`)
-5. `#grid` (grid de cards)
+3. `dividerFadeBoth`
+4. `PanelWindow` (título) con la **barra de filtros estándar** en la
+   cabecera (`#filters` `data-rd-filter-bar` → `src/lib/ui/filterBar.ts`)
+5. lista asíncrona estándar en el cuerpo (`#grid` `data-rd-list-content`/
+   `data-rd-reveal-cards` + `#empty` `data-rd-list-empty` + `LoadingBlock`
+   `data-rd-list-status` DENTRO de `#grid`; contrato de `src/lib/ui/list.ts`)
 6. `EmptyState` (sectionHead+sectionBody+CTA)
 7. `dividerFadeLeft`
-8. `<script>` propio: `card()` + `chip()` + fetch + toggle status/empty
+8. `<script>` propio: `card()` + fetch + `createFilterBar` con las facetas
+   de sus datos (clase/reino/Maestro; reino/Maestro/sin nombre;
+   facción/reino/Verificada/Discord; día/tipo; servidores solo buscador)
 
-Variantes: **Personajes** y **Hermandades** añaden filtros (search + select);
-el resto es directo. El `DirectoryPage.astro` encapsula los pasos 1-7; cada
-página conserva solo su `<script>` y slots de filtros.
+El `DirectoryPage.astro` encapsula los pasos 1-7; cada página conserva solo
+su `<script>` y el montaje de la barra sobre `#filters`. `/bandas` usa el
+mismo marco de panel pero con `renderBandasPanel` (agrupado por día) y sus
+facetas de día/tipo.
 
 ### C. Fichas públicas slug — `src/pages/{personaje,servidor,banda}.astro`
 - **Shell**: `src/components/DetailShell.astro` = Layout + Navigation +
@@ -89,6 +95,7 @@ Shell (con `#denied`) + header + vistas. Admin navega por hash
 | Empty state | `EmptyState.astro` | ✅ ÚNICA (antes 7 bloques) |
 | Atmósfera de página (fondo + partículas) | `PageAtmosphere.astro` + `src/lib/ui/particles.ts` | ✅ ÚNICA (antes sin capa) |
 | PageHeader directorio | `PageHeader.astro` | ✅ ÚNICA (antes 5) |
+| Barra de filtros (buscador + facetas) | `src/lib/ui/filterBar.ts` | ✅ ÚNICA (antes solo bandasPanel) |
 | H1 hero | token `ui.titleHero` | ✅ ÚNICA (antes 8 literales) |
 | H1 ficha | token `ui.titleFicha` + `ui.gradientTitle` | ✅ ÚNICA (antes 6) |
 | Helpers JS (`el`/`chip`/`statChip`) | `src/lib/ui/dom.ts` | ✅ ÚNICA |
@@ -103,22 +110,42 @@ Shell (con `#denied`) + header + vistas. Admin navega por hash
    `sectionHead`/`sectionBody` sueltos dentro de un empty).
 4. En JS, crear nodos/chips vía `src/lib/ui/dom.ts`; cards vía
    `src/lib/ui/card.ts`. No re-definir `el()`/`chip()` por archivo.
-5. Los ids `#status`, `#grid`, `#empty` de los directorios son un CONTRATO
-   del `DirectoryPage.astro`; el script de cada página los usa, no los crea.
+5. Los ids `#grid`, `#empty` de los directorios son el anclaje de los scripts;
+   la estructura la define `DirectoryPage.astro`. La transición
+   spinner → contenido → vacío pasa SIEMPRE por `resolveAsyncList()` +
+   `settleAsyncList()` de `src/lib/ui/list.ts` (estados `ready`/`empty`/
+   `notice`); el revelado (fade + escalonado) lo hace el motor
+   `src/lib/ui/reveal.ts`, no cada script.
 
 ---
 
 ## 3. Contratos entre capas (no duplicar en otros archivos)
 
-- Slugs reservados: `RESERVED` en `src/lib/ui/routes.ts` ↔ `astro.config.mjs`
+- Slugs reservados: `RESERVED` en `src/lib/routes.ts` ↔ `astro.config.mjs`
   (middleware dev) ↔ `netlify.toml`. Si añades una ruta, actualiza los tres.
 - Tabs: ids/labels/hashes en `src/lib/ui/tabs.ts` (única fuente; ver
   `AGENTS.md` §7 "Contrato único de tabs").
 - Estructura de view pública: `showView(viewId)`/`showNotFound(msg)` de
   `routes.ts` esperan los bloques `#loading`/`#not-found` del shell anfitrión
   (DetailShell, JugadorProfile o hermandad/index).
+- Revelado de contenido async: `data-rd-reveal` (bloque) / (para grillas)
+  `data-rd-reveal-cards` en el markup ↔ motor único
+  `src/lib/ui/reveal.ts` (observer global desde `Layout`); el valor de
+  `data-rd-reveal-cards` es un selector CSS opcional para ítems anidados
+  (p. ej. `".rd-card"` en bandas). Todo `[role="tabpanel"]` funde al
+  desocultarse (no marcar pestañas a mano).
+- Lista asíncrona (spinner → contenido → vacío): estados `ready`/`empty`/
+  `notice` + atributos `data-rd-list-status`/`-content`/`-empty`/`-frame`
+  en `src/lib/ui/list.ts`; el bloque de carga es SIEMPRE
+  `LoadingBlock.astro` y los scripts llaman `settleAsyncList`.
+- Barra de filtros de directorio: `createFilterBar` de
+  `src/lib/ui/filterBar.ts` sobre `#filters` (`data-rd-filter-bar`) en la
+  cabecera del `PanelWindow`; facetas dinámicas (≥2 valores; bandera ≥1) con
+  conteos sobre búsqueda + demás filtros. `bandasPanel.ts` (día/tipo) es su
+  consumidor para las pestañas Bandas; no dupliques buscador ni chips.
 
 ## 4. Referencias cruzadas
 - `AGENTS.md` §6 (organización de código), §7 (contratos de tabs/visual).
-- `AGENTS.sections/design.md` (tokens, reglas Rn, material).
-- `src/lib/ui/design.ts`, `card.ts`, `tabs.ts`, `routes.ts`, `dom.ts`.
+- `AGENTS.sections/design.md` (tokens, reglas Rn, material, §7b filtros).
+- `src/lib/ui/design.ts`, `card.ts`, `tabs.ts`, `reveal.ts`, `list.ts`,
+  `filterBar.ts`, `bandasPanel.ts`, `routes.ts`, `dom.ts`.

@@ -2,7 +2,6 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
-import { ui } from '@/lib/ui/design';
 ---
 
 <Layout
@@ -29,20 +28,7 @@ import { ui } from '@/lib/ui/design';
           message: 'Sube tu SavedVariables, valida tus personajes y activa su visibilidad desde el dashboard.',
           cta: { label: 'Sube tu SavedVariables', href: '/upload' },
         }}
-      >
-        <!-- Filtros -->
-        <div slot="filters" class="flex flex-col sm:flex-row gap-3 mb-8 animate-fade-in-1" style="animation-delay: 0.1s">
-          <div class="relative flex-1">
-            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="search" id="search" placeholder="Buscar por personaje, reino o hermandad…"
-              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
-          </div>
-          <select id="class-filter"
-            class={`${ui.form.input} ${ui.focusRing} sm:w-56`}>
-            <option value="">Toda clase</option>
-          </select>
-        </div>
-      </DirectoryPage>
+      />
     </div>
   </main>
 </Layout>
@@ -51,29 +37,17 @@ import { ui } from '@/lib/ui/design';
   import { supabase } from '@/lib/supabase';
   import { ensureMyCharacterSlugs, type CharacterRow } from '@/lib/api';
   import { renderCharacterCard } from '@/lib/ui/cards';
+  import { CLASS_LABELS, classKey } from '@/lib/ui/classColors';
+  import { classIconEl } from '@/lib/ui/classIcon';
+  import { createFilterBar } from '@/lib/ui/filterBar';
+  import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
 
-  const statusEl = document.getElementById('status') as HTMLElement;
+  const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
-  const emptyEl = document.getElementById('empty') as HTMLElement;
-  const searchEl = document.getElementById('search') as HTMLInputElement;
-  const classEl = document.getElementById('class-filter') as HTMLSelectElement;
+  const filtersEl = document.getElementById('filters') as HTMLElement;
 
   let chars: CharacterRow[] = [];
   const profiles = new Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>();
-
-  function render(): void {
-    const q = searchEl.value.trim().toLowerCase();
-    const cls = classEl.value.toLowerCase();
-    gridEl.innerHTML = '';
-    const filtered = chars.filter((c) => {
-      const hay = `${c.name} ${c.realm ?? ''} ${c.class ?? ''} ${c.sv_guild_name ?? ''}`.toLowerCase();
-      return (!q || hay.includes(q)) && (!cls || (c.class_file ?? '').toLowerCase() === cls);
-    });
-    statusEl.classList.toggle('hidden', filtered.length > 0);
-    emptyEl.classList.toggle('hidden', chars.length > 0);
-    if (filtered.length === 0 && chars.length > 0) statusEl.textContent = 'Sin resultados para tu búsqueda.';
-    filtered.forEach((c) => gridEl.appendChild(renderCharacterCard(c, { profiles })));
-  }
 
   async function load(): Promise<void> {
     const [charsRes, profRes] = await Promise.all([
@@ -103,24 +77,55 @@ import { ui } from '@/lib/ui/design';
       }
     }
 
-    // Filtro dinámico de clases
-    const classes = Array.from(new Set(chars.map((c) => c.class).filter(Boolean))) as string[];
-    classes.sort((a, b) => a.localeCompare(b)).forEach((cl) => {
-      const opt = document.createElement('option');
-      opt.value = cl;
-      opt.textContent = cl;
-      classEl.appendChild(opt);
-    });
-
     if (chars.length === 0) {
-      statusEl.classList.add('hidden');
-      emptyEl.classList.remove('hidden');
+      settleAsyncList(list, 'empty');
       return;
     }
-    render();
+
+    // Barra estándar (src/lib/ui/filterBar.ts): buscador + chips dinámicos
+    // de clase (con ícono WoW y conteo), reino y Maestro (solo si aportan).
+    createFilterBar({
+      mount: filtersEl,
+      items: chars,
+      getSearchText: (c) => `${c.name} ${c.realm ?? ''} ${c.class ?? ''} ${c.sv_guild_name ?? ''}`,
+      searchPlaceholder: 'Buscar por personaje, reino, clase o hermandad…',
+      searchLabel: 'Buscar personajes por nombre, reino, clase o hermandad',
+      facets: [
+        {
+          id: 'clase',
+          label: 'Filtrar por clase',
+          // Clave canónica (class_file o nombre esMX): agrupa variantes.
+          getValues: (c) => [classKey(c.class, c.class_file) ?? '__none__'],
+          labelOf: (v) => (v === '__none__' ? 'Sin clase' : CLASS_LABELS[v] ?? v),
+          iconOf: (v) => (v === '__none__' ? null : classIconEl(v, null, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover')),
+        },
+        {
+          id: 'reino',
+          label: 'Filtrar por reino',
+          getValues: (c) => [(c.realm ?? '').trim()].filter(Boolean),
+        },
+        {
+          kind: 'flag',
+          id: 'gm',
+          label: 'Filtrar maestros de hermandad',
+          getFlag: (c) => c.sv_is_gm === true,
+          chipLabel: '★ Maestro',
+        },
+      ],
+      resultNoun: (n) => `${n} personaje${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        clearListItems(list);
+        if (filtered.length === 0) {
+          settleAsyncList(list, 'notice', state.query.trim()
+            ? `Ningún personaje coincide con "${state.query.trim()}".`
+            : 'Sin resultados con los filtros aplicados.');
+          return;
+        }
+        filtered.forEach((c) => gridEl.appendChild(renderCharacterCard(c, { profiles })));
+        settleAsyncList(list, 'ready');
+      },
+    });
   }
 
   void load();
-  searchEl.addEventListener('input', render);
-  classEl.addEventListener('change', render);
 </script>

@@ -5,6 +5,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
+import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -25,19 +26,22 @@ import { ui } from '@/lib/ui/design';
       />
       <div class={`${ui.dividerFadeBoth} mt-6 mb-10`} aria-hidden="true"></div>
 
+      <!-- Lista asíncrona estándar (src/lib/ui/list.ts): el bloque de carga
+           vive dentro del cuerpo del panel y se retira al asentarse
+           (reemplazo in-place); el marco del panel se mantiene estable.
+           La cabecera monta la barra de filtros estándar (buscador + chips
+           de día y tipo) vía src/lib/ui/filterBar.ts sobre #filters. -->
       <div id="directorio">
-        <p id="status" class={`${ui.loading.liveText} italic mb-4`} aria-live="polite">Cargando bandas…</p>
-
-        <!-- Modelo de ventana (encabezado + contenido): el encabezado lleva el
-             filtro por día y el cuerpo la lista de bandas organizada de lunes a
-             domingo por hora de inicio (bandSchedule.ts). -->
-        <PanelWindow title="Bandas" bodyCls="space-y-8">
-          <div slot="head">
-            <!-- Filtro por día del modelo /bandas (módulo renderBandasPanel). -->
-            <div class="mt-4" id="filtro-dia" role="group" aria-label="Filtrar bandas por día" aria-live="polite"></div>
-          </div>
-          <div id="bandas-content" class="space-y-8"></div>
-        </PanelWindow>
+        <div data-rd-list-frame>
+          <PanelWindow title="Bandas" bodyCls="space-y-8">
+            <div slot="head" class="mt-4" id="filters" data-rd-filter-bar data-rd-reveal-cards></div>
+            <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
+                 funde escalonados en una sola cascada. -->
+            <div id="bandas-content" data-rd-list-content data-rd-reveal-cards=".rd-card" class="space-y-8">
+              <LoadingBlock text="Cargando bandas…" listStatus pad="md" />
+            </div>
+          </PanelWindow>
+        </div>
       </div>
 
       <EmptyState
@@ -63,29 +67,27 @@ import { ui } from '@/lib/ui/design';
   import { resolveBandOwners, mergeDirectoryBands, type MergedBand } from '@/lib/bandListing';
   import { renderBandCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
+  import { resolveAsyncList, settleAsyncList } from '@/lib/ui/list';
 
-  const statusEl = document.getElementById('status') as HTMLElement;
-  const filtroEl = document.getElementById('filtro-dia') as HTMLElement;
+  const list = resolveAsyncList();
+  const filtersEl = document.getElementById('filters') as HTMLElement;
   const contentEl = document.getElementById('bandas-content') as HTMLElement;
-  const directorioEl = document.getElementById('directorio') as HTMLElement;
-  const emptyEl = document.getElementById('empty') as HTMLElement;
 
   // Las bandas viven en raiddominion_bands (personales o de hermandad) y se
   // publican con su visibilidad espejo (perfil del dueño o portal de la guild).
   const res = await listPublicBands();
   if (!res.ok || !res.bands) {
-    statusEl.textContent = 'No se pudo cargar el directorio de bandas.';
+    settleAsyncList(list, 'notice', 'No se pudo cargar el directorio de bandas.');
   } else if (res.bands.length === 0) {
-    directorioEl.classList.add('hidden');
-    emptyEl.classList.remove('hidden');
+    settleAsyncList(list, 'empty');
   } else {
     const owners = await resolveBandOwners(res.bands);
     const merged = mergeDirectoryBands(res.bands, owners);
     document.title = `${merged.length} banda${merged.length === 1 ? '' : 's'} — RaidDominion`;
-    // Modelo compartido (bandasPanel.ts): filtro por día + grilla de días;
+    // Modelo compartido (bandasPanel.ts): buscador + filtro por día y tipo;
     // mismo comportamiento que las pestañas Bandas de perfil/personaje/reino.
     renderBandasPanel({
-      filtro: filtroEl,
+      filtro: filtersEl,
       content: contentEl,
       items: merged,
       getSchedule: (item: MergedBand) => item.b.schedule,
@@ -96,6 +98,8 @@ import { ui } from '@/lib/ui/design';
         item.b.character_name,
         owners.get(item.b.guild_id || item.b.owner_id)?.label,
       ].filter(Boolean).join(' '),
+      // Tipo para el chip Personal / De hermandad (guild_id NULL = personal).
+      getType: (item: MergedBand) => (item.b.guild_id === null ? 'personal' : 'guild'),
       renderCard: (item: MergedBand) => renderBandCard(item.b, {
         source: item.source,
         playerCount: item.playerCount,
@@ -104,7 +108,8 @@ import { ui } from '@/lib/ui/design';
         // (chip "Personal" si no hay dueño público); undefined no infiere.
         guildId: item.b.guild_id,
       }),
+      // Contrato de lista: ready/notice de los filtros se asientan aquí.
+      list,
     });
-    statusEl.classList.add('hidden');
   }
 </script>
