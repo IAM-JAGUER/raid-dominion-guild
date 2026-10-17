@@ -96,6 +96,7 @@ Shell (con `#denied`) + header + vistas. Admin navega por hash
 | Atmósfera de página (fondo + partículas) | `PageAtmosphere.astro` + `src/lib/ui/particles.ts` | ✅ ÚNICA (antes sin capa) |
 | PageHeader directorio | `PageHeader.astro` | ✅ ÚNICA (antes 5) |
 | Barra de filtros (buscador + facetas) | `src/lib/ui/filterBar.ts` | ✅ ÚNICA (antes solo bandasPanel) |
+| Iconos temáticos (65) | `src/lib/ui/icons.ts` + `Icon.astro`/`iconEl` | ✅ ÚNICA (antes SVG/emoji sueltos) |
 | H1 hero | token `ui.titleHero` | ✅ ÚNICA (antes 8 literales) |
 | H1 ficha | token `ui.titleFicha` + `ui.gradientTitle` | ✅ ÚNICA (antes 6) |
 | Helpers JS (`el`/`chip`/`statChip`) | `src/lib/ui/dom.ts` | ✅ ÚNICA |
@@ -125,6 +126,8 @@ Shell (con `#denied`) + header + vistas. Admin navega por hash
   (middleware dev) ↔ `netlify.toml`. Si añades una ruta, actualiza los tres.
 - Tabs: ids/labels/hashes en `src/lib/ui/tabs.ts` (única fuente; ver
   `AGENTS.md` §7 "Contrato único de tabs").
+- Tabs: cada `TabDef` lleva su `icon?: IconName` (contrato de iconos);
+  `PanelWindow` acepta `icon?` para sustituir el punto de acento de su cabecera.
 - Estructura de view pública: `showView(viewId)`/`showNotFound(msg)` de
   `routes.ts` esperan los bloques `#loading`/`#not-found` del shell anfitrión
   (DetailShell, JugadorProfile o hermandad/index).

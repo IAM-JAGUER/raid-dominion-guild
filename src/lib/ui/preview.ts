@@ -7,6 +7,7 @@ import { roleLabel } from '@/lib/ui/itemQuality';
 import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
+import { iconEl, type IconName } from '@/lib/ui/icons';
 
 export { el };
 
@@ -25,7 +26,7 @@ export interface RosterMember {
 function chip(text: string, extra = ''): HTMLElement {
   return el(
     'span',
-    `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20` + (extra ? ` ${extra}` : ''),
+    `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20` + (extra ? ` ${extra}` : ''),
     text,
   );
 }
@@ -41,12 +42,12 @@ export function renderBand(
   header.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
 
   const meta = el('div', 'flex flex-wrap gap-2');
-  if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, band.schedule));
-  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, `GS ${band.minGS}`));
+  if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, band.schedule));
+  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `GS ${band.minGS}`));
   if (hidePlayers) {
-    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, 'jugadores ocultos'));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, 'jugadores ocultos'));
   } else {
-    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-gray-900/60 border-amber-600/20`, `${band.players.length} jugadores`));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `${band.players.length} jugadores`));
   }
   header.appendChild(meta);
   cardEl.appendChild(header);
@@ -59,27 +60,27 @@ export function renderBand(
     });
     const chips = el('div', 'flex flex-wrap gap-2');
     Array.from(roles.entries()).forEach(([role, count]) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
+      chips.appendChild(el('span', 'text-[10px] font-bold text-brand-300/90 bg-brand-900/20 border border-brand-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
     cardEl.appendChild(chips);
 
     const players = document.createElement('details');
     players.className = 'mt-3 group';
     const summary = document.createElement('summary');
-    summary.className = 'cursor-pointer select-none list-none text-xs font-black uppercase tracking-widest text-amber-300/80 hover:text-amber-200';
+    summary.className = 'cursor-pointer select-none list-none text-xs font-black uppercase tracking-widest text-brand-300/80 hover:text-brand-200';
     summary.textContent = `Jugadores (${band.players.length})`;
     const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 gap-1 mt-2');
     band.players.forEach((p) => {
-      const row = el('div', 'text-xs text-gray-300 bg-gray-900/40 rounded px-2 py-1');
+      const row = el('div', 'text-xs text-gray-300 bg-brand-900/40 rounded px-2 py-1');
       const left = el('div', 'flex flex-wrap items-center gap-1.5');
       left.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
       left.appendChild(el('span', 'font-bold text-white', p.name));
       const badges = el('div', 'flex flex-wrap gap-1.5 mt-0.5');
-      if (p.role) badges.appendChild(el('span', 'text-[10px] text-amber-300', p.role));
+      if (p.role) badges.appendChild(el('span', 'text-[10px] text-brand-300', p.role));
       if (p.dual) badges.appendChild(el('span', 'text-[10px] text-gray-400', `dual: ${p.dual}`));
       if (p.leader) badges.appendChild(el('span', 'text-[10px] text-emerald-300', `líder: ${p.leader}`));
       if (p.banned) badges.appendChild(el('span', 'text-[10px] text-red-300', 'baneado'));
-      if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-orange-300', `sanción: ${p.sanction}`));
+      if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-brand-300', `sanción: ${p.sanction}`));
       if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
       if (p.notes) badges.appendChild(el('span', 'text-[10px] text-gray-500 italic', p.notes));
       left.appendChild(badges);
@@ -92,14 +93,14 @@ export function renderBand(
   }
 
   if (band.spammer) {
-    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-gray-900/40 border border-gray-700/50 rounded-md px-3 py-2');
+    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-brand-900/40 border border-gray-700/50 rounded-md px-3 py-2');
     let txt = 'Spammer';
     if (typeof band.spammer.duration === 'number') txt += ` · ${band.spammer.duration}s`;
     const channels = band.spammer.channels
       ? Object.entries(band.spammer.channels).filter(([, v]) => v).map(([c]) => c).join(', ')
       : '';
     if (channels) txt += ` · canales: ${channels}`;
-    spam.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80', txt));
+    spam.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-brand-300/80', txt));
     if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-500 italic', band.spammer.message));
     cardEl.appendChild(spam);
   }
@@ -123,9 +124,9 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   row.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5 mt-1');
-  if (p.role) meta.appendChild(el('span', 'text-[10px] text-amber-300', p.role));
+  if (p.role) meta.appendChild(el('span', 'text-[10px] text-brand-300', p.role));
   if (p.dual) meta.appendChild(el('span', 'text-[10px] text-gray-400', `dual: ${p.dual}`));
-  if (p.sanction) meta.appendChild(el('span', 'text-[10px] text-orange-300', `sanción: ${p.sanction}`));
+  if (p.sanction) meta.appendChild(el('span', 'text-[10px] text-brand-300', `sanción: ${p.sanction}`));
   if (typeof p.points === 'number') meta.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
   if (p.class) meta.appendChild(el('span', 'text-gray-500', p.class));
   row.appendChild(meta);
@@ -134,14 +135,14 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
 }
 
 function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number]['spammer']>): HTMLElement {
-  const box = el('div', 'mt-4 text-xs bg-gray-900/40 border border-amber-700/30 rounded-md px-4 py-3');
-  box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-amber-300/80 mb-1', 'Spammer de la banda'));
+  const box = el('div', 'mt-4 text-xs bg-brand-900/40 border border-brand-700/30 rounded-md px-4 py-3');
+  box.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-brand-300/80 mb-1', 'Spammer de la banda'));
   const details = el('div', 'flex flex-wrap gap-2');
   if (typeof spammer.duration === 'number') details.appendChild(chip(`Ciclo ${spammer.duration}s`));
   const channels = spammer.channels ? Object.entries(spammer.channels) : [];
   const enabled = channels.filter(([, v]) => v).map(([c]) => c);
   const disabled = channels.filter(([, v]) => !v).map(([c]) => c);
-  if (enabled.length > 0) details.appendChild(chip(`Canales: ${enabled.join(', ')}`, '!text-amber-300 !border-amber-500/40'));
+  if (enabled.length > 0) details.appendChild(chip(`Canales: ${enabled.join(', ')}`, '!text-brand-300 !border-brand-500/40'));
   if (disabled.length > 0) details.appendChild(el('span', 'text-[10px] text-gray-600', `(inactivos: ${disabled.join(', ')})`));
   box.appendChild(details);
   if (spammer.message) box.appendChild(el('p', 'mt-2 text-gray-400 italic', spammer.message));
@@ -156,7 +157,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
   titleWrap.appendChild(cardTitle(band.name || 'Sin nombre', 'text-base'));
-  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-500 bg-gray-900/60 border-amber-600/20`, `icon ${band.icon}`));
+  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-500 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
   header.appendChild(titleWrap);
 
   const meta = el('div', 'flex flex-wrap gap-2');
@@ -174,7 +175,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   if (roles.size > 0) {
     const chips = el('div', 'flex flex-wrap gap-2');
     Array.from(roles.entries()).forEach(([role, count]) => {
-      chips.appendChild(el('span', 'text-[10px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
+      chips.appendChild(el('span', 'text-[10px] font-bold text-brand-300/90 bg-brand-900/20 border border-brand-600/20 rounded-md px-2 py-0.5', `${role}: ${count}`));
     });
     cardEl.appendChild(chips);
   }
@@ -198,11 +199,12 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
 // fichas con nombre coloreado por clase y badges (líder/baneado/sanción/
 // integración/puntos/dual). Mismo lenguaje visual que el Core de guild-portal.
 
-const CORE_ICONS: Record<string, string> = {
-  tank: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>',
-  healer: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
-  melee: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.37 15.83L11.5 8 10 9.5l7.83 7.87-1.42 1.42L8.54 11 7.13 12.41 15 20.28l-1.41 1.41L5.72 13.83l-1.41 1.41L2.89 13.83l1.41-1.41L2.89 11l1.41-1.41L5.72 8.17l1.41 1.41L15 1.72l1.41 1.41-7.87 7.87 1.42 1.42 7.83-7.83 1.42 1.42-7.83 7.83 1.41 1.41 1.41-1.41z"/></svg>',
-  rango: '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12zm0 4a2 2 0 110 4 2 2 0 010-4z"/></svg>',
+// Icono temático por grupo de rol del core (contrato src/lib/ui/icons.ts).
+const CORE_ICONS: Record<'tank' | 'healer' | 'melee' | 'rango', IconName> = {
+  tank: 'escudo',
+  healer: 'sanacion',
+  melee: 'espadas',
+  rango: 'arma',
 };
 
 // Etiquetas públicas de los grupos de rol del core (filtro + cabeceras).
@@ -225,21 +227,30 @@ export function coreRoleGroup(p: { role?: string | null; class?: string | null }
   return ranged.includes(cl) ? 'rango' : 'melee';
 }
 
-function coreBadge(text: string, extra: string): HTMLElement {
-  return el('span', `${ui.badge} ${ui.badgeSm} ${extra}`, text);
+function coreBadge(text: string, extra: string, icon?: IconName): HTMLElement {
+  const badge = el('span', `${ui.badge} ${ui.badgeSm} ${extra}`);
+  if (icon) badge.appendChild(iconEl(icon, { size: 'xs' }));
+  badge.appendChild(document.createTextNode(text));
+  return badge;
 }
 
-function renderCoreSection(title: string, count: number, color: string, iconSvg: string, rows: HTMLElement[]): HTMLElement {
+// Cifra/estado plano del core (sin caja de badge) con icono temático.
+function coreText(text: string, cls: string, icon: IconName): HTMLElement {
+  const span = el('span', `inline-flex items-center gap-1 ${cls}`);
+  span.appendChild(iconEl(icon, { size: 'xs', cls: 'shrink-0' }));
+  span.appendChild(document.createTextNode(text));
+  return span;
+}
+
+function renderCoreSection(title: string, count: number, color: string, icon: IconName, rows: HTMLElement[]): HTMLElement {
   const section = el('div', 'mb-4');
 
   const header = document.createElement('button');
   header.type = 'button';
-  header.className = 'w-full flex items-center gap-2 px-1 py-1 cursor-pointer group/header select-none rounded-md hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+  header.className = 'w-full flex items-center gap-2 px-1 py-1 cursor-pointer group/header select-none rounded-md hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
   header.setAttribute('aria-expanded', 'true');
 
-  const icon = el('span', `shrink-0 ${color}`);
-  icon.innerHTML = iconSvg;
-  header.appendChild(icon);
+  header.appendChild(iconEl(icon, { size: 'sm', cls: 'shrink-0' }));
   header.appendChild(el('h4', `text-[10px] font-black tracking-widest uppercase ${color}`, title));
   header.appendChild(el('div', 'flex-1 h-[1px] bg-gradient-to-r from-white/10 to-transparent ml-2'));
   header.appendChild(el('span', 'text-[10px] font-bold text-white/40 mr-2', String(count)));
@@ -287,9 +298,9 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   name.style.color = color;
   name.textContent = p.name || '?';
   nameRow.appendChild(name);
-  if (isSource) nameRow.appendChild(coreBadge('integración', 'text-sky-300 bg-sky-950/40 border-sky-600/40'));
-  if (p.leader) nameRow.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40'));
-  if (p.banned) nameRow.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40'));
+  if (isSource) nameRow.appendChild(coreBadge('integración', 'text-brand-300 bg-brand-950/40 border-brand-600/40', 'enlace'));
+  if (p.leader) nameRow.appendChild(coreBadge('líder', 'text-emerald-300 bg-emerald-950/40 border-emerald-600/40', 'corona'));
+  if (p.banned) nameRow.appendChild(coreBadge('baneado', 'text-red-300 bg-red-950/40 border-red-600/40', 'bloqueo'));
   ident.appendChild(nameRow);
   // Solo aparece si el líder publicó las notas: si no, ni siquiera viajan en el
   // row público (la DB las guarda aparte), así que aquí no hay nada que filtrar.
@@ -300,9 +311,9 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   const right = el('div', 'flex flex-wrap justify-end gap-1.5 text-[10px]');
   // El rol principal NO se repite en la card: lo comunica la cabecera del
   // grupo colapsable; en su lugar se muestra el dual cuando existe.
-  if (p.dual) right.appendChild(el('span', 'text-amber-300', roleLabel(p.dual) || p.dual));
-  if (p.sanction) right.appendChild(el('span', 'text-orange-300', `sanción: ${p.sanction}`));
-  if (typeof p.points === 'number') right.appendChild(el('span', 'text-amber-200', `${p.points} pts`));
+  if (p.dual) right.appendChild(el('span', 'text-brand-300', roleLabel(p.dual) || p.dual));
+  if (p.sanction) right.appendChild(coreText(`sanción: ${p.sanction}`, 'text-brand-300', 'balanza'));
+  if (typeof p.points === 'number') right.appendChild(coreText(`${p.points} pts`, 'text-brand-200', 'dados'));
   if (slug) right.appendChild(arrowIcon());
   row.appendChild(right);
   return row;
@@ -336,7 +347,7 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
     { key: 'tank', title: 'Tanques', color: 'text-blue-400' },
     { key: 'healer', title: 'Sanadores', color: 'text-green-400' },
     { key: 'melee', title: 'Melee', color: 'text-red-400' },
-    { key: 'rango', title: 'Rango', color: 'text-amber-400' },
+    { key: 'rango', title: 'Rango', color: 'text-brand-400' },
   ];
 
   const wrap = el('div', '');
@@ -397,7 +408,7 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
     row.appendChild(left);
 
     const meta = el('div', 'flex flex-wrap gap-1.5');
-    if (u.roles.size) meta.appendChild(el('span', 'text-[10px] text-amber-300', Array.from(u.roles).join(', ')));
+    if (u.roles.size) meta.appendChild(el('span', 'text-[10px] text-brand-300', Array.from(u.roles).join(', ')));
     if (u.classes.size) meta.appendChild(el('span', 'text-gray-500', Array.from(u.classes).join(', ')));
     meta.appendChild(el('span', 'text-[10px] text-gray-500', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
     row.appendChild(meta);
@@ -413,9 +424,9 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
 // Badge de rango según jerarquía (estilo ficha de roster)
 function rankBadgeClass(rank: string | undefined): string {
   const r = (rank ?? '').toLowerCase();
-  if (r.includes('maestro') || r.includes('admin')) return 'text-amber-300 border-amber-500/40 bg-amber-900/20';
-  if (r.includes('oficial')) return 'text-sky-300 border-sky-600/30 bg-sky-950/30';
-  return 'text-gray-300 border-gray-500/40 bg-gray-800/60';
+  if (r.includes('maestro') || r.includes('admin')) return 'text-brand-300 border-brand-500/40 bg-brand-900/20';
+  if (r.includes('oficial')) return 'text-brand-300 border-brand-600/30 bg-brand-950/30';
+  return 'text-gray-300 border-gray-500/40 bg-brand-800/60';
 }
 
 // Roster en grid de fichas, paginado (estilo guild-portal): "Página X de Y •
@@ -477,8 +488,8 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
     const start = (page - 1) * PAGE_SIZE;
     entries.slice(start, start + PAGE_SIZE).forEach(({ m, groupStart, groupLabel }) => {
       if (groupStart && groupLabel) {
-        const hdr = el('div', 'col-span-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-300 border-b border-amber-600/20 pb-1 mt-1');
-        hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0', ''));
+        const hdr = el('div', 'col-span-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-300 border-b border-brand-600/20 pb-1 mt-1');
+        hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0', ''));
         hdr.appendChild(el('span', '', groupLabel));
         grid.appendChild(hdr);
       }
@@ -523,7 +534,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
     });
   };
 
-  const btnCls = 'w-8 h-8 flex items-center justify-center rounded-md border border-amber-600/30 bg-amber-900/20 text-amber-200 hover:bg-amber-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200';
+  const btnCls = 'w-8 h-8 flex items-center justify-center rounded-md border border-brand-600/30 bg-brand-900/20 text-brand-200 hover:bg-brand-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200';
   const prev = el('button', btnCls) as HTMLButtonElement;
   prev.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
   prev.setAttribute('aria-label', 'Página anterior');
@@ -531,7 +542,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   next.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
   next.setAttribute('aria-label', 'Página siguiente');
 
-  const bar = el('div', 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-amber-600/15 pt-3');
+  const bar = el('div', 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3');
   const info = el('p', 'text-xs text-gray-400 italic', `Página ${page} de ${totalPages} • ${members.length} miembros`);
   const controls = el('div', 'flex items-center gap-2');
   controls.append(prev, next);
@@ -566,9 +577,9 @@ export function renderParsedSections(
   containers.rules.innerHTML = '';
   data.rules.slice(0, 20).forEach((r) => {
     const li = el('li', 'flex items-start text-sm text-gray-300');
-    li.appendChild(el('span', 'text-amber-600 mr-2 mt-0.5', '›'));
+    li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
     const inner = el('div', '');
-    inner.appendChild(el('span', 'font-bold text-amber-200', r.title || 'Regla'));
+    inner.appendChild(el('span', 'font-bold text-brand-200', r.title || 'Regla'));
     if (r.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', r.content));
     li.appendChild(inner);
     containers.rules.appendChild(li);

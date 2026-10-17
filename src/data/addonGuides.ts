@@ -3,6 +3,8 @@
 // RD_Init.lua y RD_Utils_Registry.lua). La ruta local del addon dev vive
 // SOLO en AGENTS.sections/addon.md (contrato entre repos).
 
+import type { IconName } from '@/lib/ui/icons';
+
 export type GuideCategory =
   | 'Primeros pasos'
   | 'Interfaz'
@@ -24,7 +26,7 @@ export interface Guide {
   title: string;
   category: GuideCategory;
   description: string;
-  icon: string;
+  icon: IconName;
   color: 'amber' | 'blue' | 'purple' | 'red' | 'green' | 'orange';
   sections: GuideSection[];
 }
@@ -43,15 +45,15 @@ export const guideCategories: GuideCategory[] = [
 
 export const colorClasses: Record<Guide['color'], { border: string; hoverBorder: string; shadow: string; iconBg: string; iconBorder: string; iconText: string; btnBg: string; btnText: string; line: string }> = {
   amber: {
-    border: 'border-amber-900/30',
-    hoverBorder: 'hover:border-amber-700/50',
-    shadow: 'hover:shadow-amber-500/10',
-    iconBg: 'bg-amber-500/10',
-    iconBorder: 'border-amber-500/20',
-    iconText: 'text-amber-400',
-    btnBg: 'bg-amber-500/10',
-    btnText: 'text-amber-300',
-    line: 'from-amber-900/0 via-amber-500/80 to-amber-900/0',
+    border: 'border-brand-900/30',
+    hoverBorder: 'hover:border-brand-700/50',
+    shadow: 'hover:shadow-brand-500/10',
+    iconBg: 'bg-brand-500/10',
+    iconBorder: 'border-brand-500/20',
+    iconText: 'text-brand-400',
+    btnBg: 'bg-brand-500/10',
+    btnText: 'text-brand-300',
+    line: 'from-brand-900/0 via-brand-500/80 to-brand-900/0',
   },
   blue: {
     border: 'border-blue-900/30',
@@ -98,15 +100,15 @@ export const colorClasses: Record<Guide['color'], { border: string; hoverBorder:
     line: 'from-green-900/0 via-green-500/80 to-green-900/0',
   },
   orange: {
-    border: 'border-orange-900/30',
-    hoverBorder: 'hover:border-orange-700/50',
-    shadow: 'hover:shadow-orange-500/10',
-    iconBg: 'bg-orange-500/10',
-    iconBorder: 'border-orange-500/20',
-    iconText: 'text-orange-400',
-    btnBg: 'bg-orange-500/10',
-    btnText: 'text-orange-300',
-    line: 'from-orange-900/0 via-orange-500/80 to-orange-900/0',
+    border: 'border-brand-900/30',
+    hoverBorder: 'hover:border-brand-700/50',
+    shadow: 'hover:shadow-brand-500/10',
+    iconBg: 'bg-brand-500/10',
+    iconBorder: 'border-brand-500/20',
+    iconText: 'text-brand-400',
+    btnBg: 'bg-brand-500/10',
+    btnText: 'text-brand-300',
+    line: 'from-brand-900/0 via-brand-500/80 to-brand-900/0',
   },
 };
 
@@ -116,7 +118,7 @@ export const guides: Guide[] = [
     title: 'Primeros pasos',
     category: 'Primeros pasos',
     description: 'Instalación, primera carga, registrar tu personaje (RaidDominion > Registrar) y los beneficios del portal para jugadores y hermandades.',
-    icon: '🚀',
+    icon: 'anadir',
     color: 'amber',
     sections: [
       {
@@ -151,7 +153,7 @@ export const guides: Guide[] = [
     title: 'Menú flotante',
     category: 'Interfaz',
     description: 'El corazón del addon: menú flotante, submenú RaidDominion y acceso rápido desde el minimapa.',
-    icon: '🧭',
+    icon: 'brujula',
     color: 'blue',
     sections: [
       {
@@ -182,7 +184,7 @@ export const guides: Guide[] = [
     title: 'Configuración',
     category: 'Configuración',
     description: 'Abre la ventana de configuración, se organiza en pestañas y se renderiza según lo que tengas seteado.',
-    icon: '⚙️',
+    icon: 'engranajes',
     color: 'purple',
     sections: [
       {
@@ -211,7 +213,7 @@ export const guides: Guide[] = [
     title: 'Listas y contenido',
     category: 'Listas y contenido',
     description: 'Roles, habilidades, buffs y auras asignables a jugadores; mecánicas y reglas que se anuncian al canal de la banda.',
-    icon: '🎛️',
+    icon: 'ajustes',
     color: 'orange',
     sections: [
       {
@@ -243,7 +245,7 @@ export const guides: Guide[] = [
     title: 'Bandas y jugadores',
     category: 'Bandas',
     description: 'Crea y gestiona bandas: nombre, gearscore mínimo, horario, jugadores y roles.',
-    icon: '👥',
+    icon: 'hermandad',
     color: 'green',
     sections: [
       {
@@ -279,7 +281,7 @@ export const guides: Guide[] = [
     title: 'Ficha de jugador',
     category: 'Bandas',
     description: 'Tu ficha personal (botón Jugador): información y nota, equipamiento, bandas, instancias guardadas y monedas.',
-    icon: '📋',
+    icon: 'jugadores',
     color: 'purple',
     sections: [
       {
@@ -333,7 +335,7 @@ export const guides: Guide[] = [
     title: 'Comunicación y spammers',
     category: 'Comunicación',
     description: 'Pide y comparte asignaciones, reglas, mecánicas y bandas; emite bucles de reclutamiento y rotación de reglas por canal.',
-    icon: '📢',
+    icon: 'megafono',
     color: 'blue',
     sections: [
       {
@@ -366,7 +368,7 @@ export const guides: Guide[] = [
     title: 'Barra de acciones',
     category: 'Raid en vivo',
     description: 'Botones inferiores del menú flotante para acciones de raid en vivo.',
-    icon: '⚡',
+    icon: 'energia',
     color: 'orange',
     sections: [
       {
@@ -401,7 +403,7 @@ export const guides: Guide[] = [
     title: 'Gestor de botín',
     category: 'Botín',
     description: 'Sorteo de ítems con dados, historial por ítem y desempates.',
-    icon: '💰',
+    icon: 'cofre',
     color: 'amber',
     sections: [
       {
@@ -432,7 +434,7 @@ export const guides: Guide[] = [
     title: 'Comandos',
     category: 'Referencia',
     description: 'Todos los comandos de chat del addon.',
-    icon: '⌨️',
+    icon: 'pergamino',
     color: 'red',
     sections: [
       {

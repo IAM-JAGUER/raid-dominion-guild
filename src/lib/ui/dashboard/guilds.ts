@@ -117,9 +117,9 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
 
   body.innerHTML = '';
   items.forEach((bp, i) => {
-    const row = el('div', 'bg-gray-900/40 border border-amber-600/15 rounded-md px-3 py-2.5');
+    const row = el('div', 'bg-brand-900/40 border border-brand-600/15 rounded-md px-3 py-2.5');
     const head = el('div', 'flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-2');
-    const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center', String(i + 1));
+    const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center', String(i + 1));
     head.appendChild(num);
     const info = el('div', 'min-w-0 flex-1');
     info.appendChild(el('p', 'font-bold text-white text-sm break-words', bp.name));
@@ -183,7 +183,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       keys.has(ruleId(r)) || keys.has(`${(r.title ?? '').trim()}|${(r.content ?? '').trim()}`);
     const baseSelection = (): Set<string> => selection[bp.id] ?? new Set();
     const isOn = (r: ContentItem): boolean => ruleSelected(baseSelection(), r);
-    const rulesBox = el('div', 'mt-3 border-t border-amber-600/20 pt-2.5 space-y-2');
+    const rulesBox = el('div', 'mt-3 border-t border-brand-600/20 pt-2.5 space-y-2');
     const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
     rulesHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas propuestas por ' + (escapeHtml(who) || 'el jugador')));
     rulesHead.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'ACTÍVALAS para publicarlas; las que dejes apagadas no salen del proponente al portal. Si apruebas sin activar, la banda se integra sin reglas.'));
@@ -215,11 +215,11 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
         const label = `${r.title ?? r.content ?? 'Regla'} · ${who}`;
         tag.className = 'inline-flex items-center gap-1.5 text-[11px] rounded-md pl-2.5 pr-2 py-1 border transition-all ' +
           (on
-            ? 'text-amber-100 bg-amber-950/40 border-amber-600/40 hover:bg-amber-900/50'
-            : 'text-gray-400 bg-gray-900/60 border-gray-700/60 hover:border-gray-500/60');
+            ? 'text-brand-100 bg-brand-950/40 border-brand-600/40 hover:bg-brand-900/50'
+            : 'text-gray-400 bg-brand-900/60 border-gray-700/60 hover:border-gray-500/60');
         tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
         tag.appendChild(el('span', '', label));
-        const dot = el('span', 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-amber-400' : 'bg-gray-600'), '');
+        const dot = el('span', 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-brand-400' : 'bg-gray-600'), '');
         tag.appendChild(dot);
         tag.setAttribute('aria-pressed', String(on));
         if (tag.title) tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
@@ -247,7 +247,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const decide = async (status: 'approved' | 'rejected'): Promise<void> => {
       approve.disabled = true; reject.disabled = true;
       saving.textContent = 'guardando…';
-      saving.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+      saving.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
       // Persistir la selección de esta banda SIEMPRE al aprobar (aunque quede
       // vacía): la selección guardada es la autoridad de lo que se publica
       // en la página de banda. Las reglas del proponente NO se tocan.
@@ -279,7 +279,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
           refreshState();
           renderActions();
           renderCount();
-          row.classList.add('border-amber-700/40');
+          row.classList.add('border-brand-700/40');
         }
       } else {
         toast.error('No se pudo decidir la banda', r.error || 'Error desconocido');
@@ -309,10 +309,10 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   const portal = el('div', '');
   portal.appendChild(el('p', `${ui.eyebrow} mb-1.5`, 'Dirección de tu portal'));
   const urlRow = el('div', 'flex flex-wrap items-center gap-2');
-  const code = el('code', 'flex-1 min-w-[240px] px-3 py-2.5 rounded-md bg-gray-950/70 border border-gray-700 text-amber-300 text-sm truncate', url);
+  const code = el('code', 'flex-1 min-w-[240px] px-3 py-2.5 rounded-md bg-brand-950/70 border border-gray-700 text-brand-300 text-sm truncate', url);
   const copyBtn = document.createElement('button');
   copyBtn.type = 'button';
-  copyBtn.className = 'px-4 py-2.5 rounded-md border border-amber-600/30 bg-gray-800/80 text-amber-200 hover:bg-amber-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest';
+  copyBtn.className = 'px-4 py-2.5 rounded-md border border-brand-600/30 bg-brand-800/80 text-brand-200 hover:bg-brand-900/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest';
   copyBtn.textContent = 'Copiar';
   const openLink = document.createElement('a');
   openLink.href = url; openLink.target = '_blank'; openLink.rel = 'noopener';
@@ -322,10 +322,10 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   portal.appendChild(urlRow);
 
   const label = document.createElement('label');
-  label.className = 'mt-5 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 transition-colors';
+  label.className = 'mt-5 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-brand-600/40 rounded-md p-4 transition-colors';
   const input = document.createElement('input');
   input.type = 'checkbox';
-  input.className = 'mt-0.5 w-4 h-4 accent-amber-500';
+  input.className = 'mt-0.5 w-4 h-4 accent-brand-500';
   input.checked = g.is_public;
   const span = document.createElement('span');
   span.className = 'text-sm text-gray-300 font-medium';
@@ -367,13 +367,13 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
       return;
     }
     guildRules.forEach((r) => {
-      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-amber-100 bg-amber-950/40 border border-amber-600/40 rounded-md pl-2.5 pr-1 py-1');
+      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-brand-100 bg-brand-950/40 border border-brand-600/40 rounded-md pl-2.5 pr-1 py-1');
       const full = r.content && r.content !== r.title ? r.content : undefined;
       tag.title = full ?? '';
       tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
       const rm = document.createElement('button');
       rm.type = 'button';
-      rm.className = 'w-4 h-4 shrink-0 rounded-md text-amber-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
+      rm.className = 'w-4 h-4 shrink-0 rounded-md text-brand-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
       rm.textContent = '×';
       rm.title = 'Quitar regla';
       rm.addEventListener('click', () => {
@@ -393,7 +393,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
 
   const reglasAddRow = el('div', 'flex flex-wrap items-center gap-2');
   const reglasAdd = document.createElement('select');
-  reglasAdd.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
+  reglasAdd.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-brand-950/70 border border-gray-700 text-sm text-gray-200 focus:border-brand-600/60 focus:outline-none';
   const rebuildReglasSelect = (): void => {
     reglasAdd.innerHTML = '';
     const assigned = new Set(guildRules.map(ruleKey));
@@ -445,7 +445,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
 
   const saveGuildReglas = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
     reglasStatus.textContent = 'guardando…';
-    reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setGuildRules(g.id, next);
     if (res.ok) {
       guildRules = next;
@@ -490,9 +490,9 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   propSec.setAttribute('data-prop-sec', '');
   propSec.appendChild(el('p', `${ui.eyebrow} mb-1`, 'Integración de miembros'));
   const propHead = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-2');
-  propHead.appendChild(el('h4', 'text-sm font-bold text-amber-200', 'Bandas propuestas por tus miembros'));
+  propHead.appendChild(el('h4', 'text-sm font-bold text-brand-200', 'Bandas propuestas por tus miembros'));
   const propCount = document.createElement('span');
-  propCount.className = `${ui.badge} ${ui.badgeSm} text-amber-300 bg-amber-950/30 border-amber-600/40`;
+  propCount.className = `${ui.badge} ${ui.badgeSm} text-brand-300 bg-brand-950/30 border-brand-600/40`;
   propCount.setAttribute('data-prop-count', '');
   propCount.textContent = '0 pendientes';
   propHead.appendChild(propCount);

@@ -3,11 +3,12 @@
 // Auto-gate: solo actúa cuando el primer segmento de la ruta es "personaje".
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
+import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-personaje" class="hidden">
   <header class="animate-fade-in-1 mb-6">
     <p class={`${ui.eyebrow} mb-2 flex items-center`}>
-      <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      <Icon name="personaje" size="xs" class="mr-1.5" />
       <span>Personaje</span>
     </p>
     <div class="flex flex-col sm:flex-row items-start gap-5">
@@ -26,23 +27,23 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
 
   <div id="pv-panels" class="space-y-6">
-    <PanelWindow id="panel-equipamiento" title="Equipamiento" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
+    <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
       <div id="pv-equip-list" class="grid grid-cols-1 gap-1"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-metas" title="Metas" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+    <PanelWindow id="panel-metas" title="Metas" icon="estrella" role="tabpanel" ariaLabelledby="tab-metas" hidden>
       <div id="pv-metas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-notas" title="Notas" role="tabpanel" ariaLabelledby="tab-notas" hidden>
+    <PanelWindow id="panel-notas" title="Notas" icon="nota" role="tabpanel" ariaLabelledby="tab-notas" hidden>
       <div id="pv-notas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-instancias" title="Instancias" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
+    <PanelWindow id="panel-instancias" title="Instancias" icon="ciudadela" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
       <div id="pv-instancias" class="grid grid-cols-1 gap-1"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Barra de filtros estándar (buscador + chips de día) del motor
              src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
@@ -51,7 +52,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       <div id="pv-bandas" class="space-y-8"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-hermandad" title="Hermandad" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
+    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
       <div id="pv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
     </PanelWindow>
   </div>
@@ -72,8 +73,9 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { itemQualityColor, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
-  import { card, cardTop, iconTile } from '@/lib/ui/card';
-  import { chip, el, statChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { card, cardTop, iconTileEl } from '@/lib/ui/card';
+  import { chip, el, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { iconEl } from '@/lib/ui/icons';
   import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
@@ -100,16 +102,16 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     if (c.server) {
       const s = document.createElement('a');
       s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = `${ui.badge} ${ui.badgeMd} text-sky-200 bg-sky-950/40 border-sky-600/30 hover:bg-sky-900/40 transition-all`;
+      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/40 border-brand-600/30 hover:bg-brand-900/40 transition-all`;
       s.textContent = c.server;
       row.appendChild(s);
     }
     if (c.realm) {
       const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-gray-800/60 border-amber-600/20`;
+      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-800/60 border-brand-600/20`;
       if (c.server) {
         (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
-        r.className = `${cls} hover:bg-gray-800/80 transition-all`;
+        r.className = `${cls} hover:bg-brand-800/80 transition-all`;
       } else {
         r.className = cls;
       }
@@ -128,12 +130,13 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const chips = document.getElementById('pv-chips') as HTMLElement;
     if (c.class) chips.appendChild(chip(c.class, '', 'md'));
     if (typeof c.level === 'number') chips.appendChild(statChip('Nivel', String(c.level)));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(statChip('ilvl', String(c.avg_ilvl), '!text-amber-300 !border-amber-500/40'));
-    if (c.member_verified) chips.appendChild(chip('✓ Validado', '!text-emerald-300 !border-emerald-600/40', 'md'));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(statChip('ilvl', String(c.avg_ilvl), '!text-brand-300 !border-brand-500/40'));
+    if (c.member_verified) chips.appendChild(iconChip('validado', 'Validado', '!text-emerald-300 !border-emerald-600/40', 'md'));
     if (c.sv_guild_name) {
-      chips.appendChild(chip(
-        c.sv_is_gm ? `★ ${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`,
-        c.sv_is_gm ? '!text-fuchsia-300 !border-fuchsia-500/40' : '!text-sky-200 !border-sky-600/30',
+      chips.appendChild(iconChip(
+        c.sv_is_gm ? 'estrella' : 'hermandad',
+        c.sv_is_gm ? `${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`,
+        c.sv_is_gm ? '!text-fuchsia-300 !border-fuchsia-500/40' : '!text-brand-200 !border-brand-600/30',
         'md'
       ));
     }
@@ -151,7 +154,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     if (p?.slug) {
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
-      a.className = `${ui.badge} ${ui.badgeMd} bg-gray-800/60 border-amber-600/20 text-amber-200 hover:bg-gray-800/80 transition-all`;
+      a.className = `${ui.badge} ${ui.badgeMd} bg-brand-800/60 border-brand-600/20 text-brand-200 hover:bg-brand-800/80 transition-all`;
       // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
       // el perfil dueño no declara nombre visible, la cuenta cae al handle
       // estable @hex del perfil, no al personaje público más relevante.
@@ -285,7 +288,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const list = el('div', 'grid grid-cols-1 gap-1');
     [...eq].sort((a, b) => a.slot - b.slot).forEach((piece) => {
       const qc = itemQualityColor(piece.quality);
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-gray-900/40 border-l-2 hover:bg-gray-800/50 transition-colors');
+      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
       row.style.borderColor = qc;
       row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(piece.slot)));
       const nm = el('a', 'text-xs truncate hover:underline');
@@ -313,9 +316,9 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     // Fila de meta: check a la izquierda, contenido al centro, cifra a la
     // derecha. Mismo esqueleto que equipmentList para que se lean como una lista.
     const goalRow = (done: boolean): HTMLElement => {
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-gray-900/40 border-l-2 hover:bg-gray-800/50 transition-colors');
-      row.style.borderColor = done ? '#34d399' : '#b45309';
-      row.appendChild(el('span', `text-[9px] uppercase shrink-0 w-4 ${done ? 'text-emerald-400' : 'text-gray-500'}`, done ? '✓' : '○'));
+      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
+      row.style.borderColor = done ? '#34d399' : '#0C74A8';
+      row.appendChild(iconEl(done ? 'correcto' : 'reloj', { size: 'xs', cls: 'shrink-0' }));
       return row;
     };
     const pendingOf = <T extends { done: boolean } | { reached: boolean }>(list: T[]): number => {
@@ -358,7 +361,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         const row = goalRow(goal.reached);
         const nm = el('span', `text-xs truncate ${goal.reached ? 'line-through opacity-60' : ''}`, goal.name);
         row.appendChild(nm);
-        row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, goal.reached ? '✓' : `${goal.target}`));
+        if (goal.reached) {
+          row.appendChild(iconEl('correcto', { size: 'xs', cls: 'shrink-0' }));
+        } else {
+          row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `${goal.target}`));
+        }
         list.appendChild(row);
       });
       const section = el('div', '');
@@ -379,7 +386,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const wrap = el('div', '');
     wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, 'Nota del jugador'));
     // La nota es multilínea por diseño (el addon la permite): se respeta.
-    wrap.appendChild(el('p', 'text-xs text-gray-300 leading-relaxed whitespace-pre-line rounded-md px-3 py-2 bg-gray-900/40 border-l-2 border-amber-600/40', note));
+    wrap.appendChild(el('p', 'text-xs text-gray-300 leading-relaxed whitespace-pre-line rounded-md px-3 py-2 bg-brand-900/40 border-l-2 border-brand-600/40', note));
     return wrap;
   }
 
@@ -415,11 +422,15 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, `Instancias guardadas · ${instances.length}`));
     const list = el('div', 'grid grid-cols-1 gap-1');
     instances.forEach((instance) => {
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-gray-900/40 border-l-2 hover:bg-gray-800/50 transition-colors');
-      row.style.borderColor = '#b45309';
+      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
+      row.style.borderColor = '#0C74A8';
+      row.appendChild(iconEl('ciudadela', { size: 'xs', cls: 'shrink-0' }));
       row.appendChild(el('span', 'text-xs truncate flex-1 text-gray-200', instance.name));
       if (instance.difficulty) {
-        row.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 text-amber-200 bg-amber-950/40 border-amber-600/30`, instance.difficulty));
+        const diff = el('span', `${ui.badge} ${ui.badgeSm} shrink-0 text-brand-200 bg-brand-950/40 border-brand-600/30`);
+        diff.appendChild(iconEl('fuego', { size: 'xs' }));
+        diff.appendChild(document.createTextNode(instance.difficulty));
+        row.appendChild(diff);
       }
       if (instance.extended) {
         row.appendChild(el('span', `${ui.text.caption} shrink-0`, 'extendido'));
@@ -448,7 +459,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const cardEl = card('p-5');
     cardEl.appendChild(cardTop());
     const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTile((b.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
+    head.appendChild(iconTileEl('espadas'));
     head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white', b.name));
     cardEl.appendChild(head);
     const parts: string[] = [];
@@ -456,7 +467,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
     if (parts.length > 0) {
       const chips = el('div', 'flex flex-wrap gap-1.5');
-      parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-gray-300`, p)));
+      parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-gray-300`, p)));
       cardEl.appendChild(chips);
     }
     cardEl.appendChild(el('p', 'text-xs text-gray-500 mt-4', 'Ver banda →'));

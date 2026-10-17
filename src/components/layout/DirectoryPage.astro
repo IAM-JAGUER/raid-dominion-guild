@@ -13,9 +13,10 @@ import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import { ui } from '@/lib/ui/design';
+import type { IconName } from '@/lib/ui/icons';
 
 interface EmptyConfig {
-  icon?: 'server' | 'user' | 'group' | 'building' | 'upload' | 'code';
+  icon?: IconName;
   eyebrow: string;
   title: string;
   titleCls?: string;
@@ -31,6 +32,8 @@ interface Props {
   intro?: string;
   // Título de la ventana del panel (default: el hero).
   panelTitle?: string;
+  // Icono temático de la ventana del panel (contrato src/lib/ui/icons.ts).
+  panelIcon?: IconName;
   // Texto del estado de carga (aria-live).
   loadingText: string;
   gridLabel: string;
@@ -47,6 +50,7 @@ const {
   hero,
   intro,
   panelTitle = hero,
+  panelIcon,
   loadingText,
   gridLabel,
   empty,
@@ -65,7 +69,7 @@ const {
      de reveal escalona los ítems. La cabecera monta la barra de filtros
      (buscador + chips) vía src/lib/ui/filterBar.ts sobre #filters. -->
 <div data-rd-list-frame>
-  <PanelWindow title={panelTitle}>
+  <PanelWindow title={panelTitle} icon={panelIcon}>
     <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>
     <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label={gridLabel}>
       <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />

@@ -31,7 +31,7 @@
 
 // Superficie canónica de paneles/cards: única fuente del literal borde
 // ámbar (R3/R5). Cualquier variante nueva comparte esta constante.
-const SURFACE = 'bg-gray-900/60 backdrop-blur-sm border border-amber-600/30';
+const SURFACE = 'bg-brand-900/60 backdrop-blur-sm border border-brand-600/30';
 
 export const ui = {
   container: 'max-w-6xl mx-auto',
@@ -41,7 +41,7 @@ export const ui = {
   // Materiales (src/styles/material.css): rd-metal forja paneles, rd-card
   // da piedra/energía a las cards, rd-cut bisela esquinas (clip-path).
   panel: `${SURFACE} rd-metal rounded-md`,
-  panelHover: 'hover:border-amber-500/50 transition-all duration-300',
+  panelHover: 'hover:border-brand-500/50 transition-all duration-300',
   // Ventana estilo terminal del dashboard: cabecera + cuerpo contiguos, sin
   // radio en la junta, esquina inferior cuadrada y esquina sup-derecha RECTA
   // (la sup-izquierda la corta el clip-path de ui.cutTop). Van SIEMPRE en
@@ -55,17 +55,17 @@ export const ui = {
   noRivet: 'rd-no-rivet',
   // Colapsables de filtros (patrón <details>/<summary> tipo guía): contenedor
   // + resumen clicable con acento lateral + cuerpo. Cerrados por defecto.
-  disclosure: 'group bg-gray-800/50 border border-amber-600/30 rounded-md overflow-hidden',
+  disclosure: 'group bg-brand-900/50 border border-brand-600/30 rounded-md overflow-hidden',
   disclosureSummary:
-    'cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 text-amber-200 font-bold text-sm hover:bg-amber-900/10 group-open:bg-amber-900/20 border-l-2 border-l-amber-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400 transition-all',
+    'cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 text-brand-200 font-bold text-sm hover:bg-brand-900/10 group-open:bg-brand-900/20 border-l-2 border-l-brand-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400 transition-all',
   disclosureBody: 'px-4 py-3',
   btnBase:
-    `rd-btn inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400`,
+    `rd-btn inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`,
   btnPrimary:
-    'bg-gradient-to-r from-amber-600 to-amber-700 text-white hover:from-amber-500 hover:to-amber-600 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5',
+    'bg-gradient-to-r from-brand-500 to-brand-600 text-brand-950 hover:from-brand-400 hover:to-brand-500 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:-translate-y-0.5',
   btnSecondary:
-    'border border-amber-500/50 text-amber-200 bg-gray-900/60 hover:bg-amber-900/30 hover:border-amber-400 hover:-translate-y-0.5',
-  btnGhost: 'text-gray-300 hover:text-amber-200 hover:border-amber-500/40',
+    'border border-brand-500/50 text-brand-200 bg-brand-950/60 hover:bg-brand-900/30 hover:border-brand-400 hover:-translate-y-0.5',
+  btnGhost: 'text-gray-300 hover:text-brand-200 hover:border-brand-500/40',
   btnSizes: { sm: 'px-4 py-2 text-sm', md: 'px-6 py-3 text-base', lg: 'px-8 py-4 text-lg' },
   badge:
     'inline-flex items-center gap-1.5 rounded-md border font-black uppercase tracking-widest',
@@ -75,24 +75,24 @@ export const ui = {
   badgeMd: 'px-2.5 py-1 text-[10px]',
   // Chip de cifra clave-valor (stat del header/visor): etiqueta + valor.
   badgeStat:
-    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-amber-700/30 bg-gray-950/50 text-[10px] font-black uppercase tracking-widest text-gray-500',
+    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[10px] font-black uppercase tracking-widest text-gray-500',
   // Superficie de color del badge de rol (única fuente; la consumen
   // dashboard, admin y perfiles). El layout lo aporta ui.badge + ui.badgeMd.
   badgeRole: {
-    visitante: 'bg-stone-800/70 border-stone-600 text-stone-300',
-    member: 'bg-gray-800/70 border-gray-600 text-gray-300',
-    guild_master: 'bg-amber-900/40 border-amber-500/60 text-amber-200',
-    moderator: 'bg-sky-900/30 border-sky-600/50 text-sky-200',
+    visitante: 'bg-brand-950/70 border-brand-800 text-brand-300',
+    member: 'bg-brand-900/70 border-brand-700/60 text-brand-200',
+    guild_master: 'bg-brand-900/40 border-brand-500/60 text-brand-200',
+    moderator: 'bg-brand-900/30 border-brand-600/50 text-brand-200',
     admin: 'bg-red-900/30 border-red-600/50 text-red-200',
   } as const,
-  sectionTitle: 'text-3xl font-bold text-amber-400',
-  sectionRule: 'mt-4 h-1 w-24 rounded-full bg-amber-500 mx-auto',
+  sectionTitle: 'text-3xl font-bold text-brand-400',
+  sectionRule: 'mt-4 h-1 w-24 rounded-full bg-brand-500 mx-auto',
   // Subtítulo de bloque dentro de un panel (visores, fichas, listas)
-  subTitle: 'text-xs font-bold uppercase tracking-widest text-amber-300/90 mb-2',
+  subTitle: 'text-xs font-bold uppercase tracking-widest text-brand-300/90 mb-2',
   // Chip de categoría/etiqueta (CON texto → rounded-md obligatorio); el color lo aporta colorClasses
   chip: 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-widest',
   // Comando/ruta estilo tecla para material de referencia
-  kbd: 'inline-block font-mono text-[11px] leading-none bg-gray-800/80 border border-amber-600/20 rounded px-1.5 py-0.5 text-amber-200',
+  kbd: 'inline-block font-mono text-[11px] leading-none bg-brand-900/80 border border-brand-600/20 rounded px-1.5 py-0.5 text-brand-200',
 
   // ── Tipografía (design.md §4, F009) ──────────────────────────────────────
   // Escala única: hero (landing), h1-h3 (jerarquía de sección, SIN color:
@@ -110,7 +110,7 @@ export const ui = {
   // tracking amplio (directorios, upload, login, admin, moderate). ÚNICA
   // fuente del literal del gradiente de h1 (antes duplicado en 8 páginas).
   titleHero:
-    'text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 tracking-wider uppercase',
+    'text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-300 to-brand-500 tracking-wider uppercase',
   // H1 de FICHA/VISTA (personaje, servidor, reino, banda, jugador, portal de
   // hermandad): tamaño grande en itálico, SIN color (lo aporta ui.gradientTitle
   // o un literal de gradiente propio de la vista). Solo base tipográfica.
@@ -124,7 +124,7 @@ export const ui = {
     success: 'text-emerald-300 bg-emerald-950/30 border border-emerald-600/40',
     warning: 'text-amber-300 bg-amber-950/30 border border-amber-500/40',
     error: 'text-red-300 bg-red-950/40 border border-red-600/40',
-    info: 'text-sky-200 bg-gray-900/60 border border-sky-600/30',
+    info: 'text-brand-200 bg-gray-900/60 border border-brand-600/30',
   },
 
   // ── Switch ON/OFF tipo pill (toggles de visibilidad/estado) ─────────────
@@ -133,7 +133,7 @@ export const ui = {
   // (flex/gap/cursor/texto); aquí van SOLO las clases del track y su knob.
   // Uso: label → input.checkbox.peer.sr-only + span con toggleTrack.
   toggleTrack:
-    'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-amber-600/70 peer-checked:border-amber-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white',
+    'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-brand-600/70 peer-checked:border-brand-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white',
   // Label estándar de un toggle pill (layout + cursor).
   toggleLabel: 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-400',
 
@@ -145,7 +145,7 @@ export const ui = {
   form: {
     label: 'block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5',
     input:
-      'w-full px-3 py-2.5 rounded-md bg-gray-800/70 border border-gray-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-500 transition-colors',
+      'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-500 transition-colors',
     inputError: '!border-red-500/70 focus:!border-red-500 focus:!ring-red-500/30',
     helperText: 'mt-1.5 text-[11px] text-gray-500 italic',
     errorText: 'mt-1.5 text-[11px] text-red-300',
@@ -159,7 +159,10 @@ export const ui = {
     // Fila buscador + contador de resultados (aria-live).
     searchRow: 'flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3',
     searchWrap: 'relative flex-1',
-    searchIcon: 'w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
+    // Lupa temática (rd-ico) posicionada dentro del input.
+    searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
+    // Embudo temático que marca el inicio de la zona de facetas.
+    facetLead: 'self-center mr-1 opacity-90',
     // Contador de resultados ("N bandas"): live region de la barra.
     result: 'text-[10px] font-black uppercase tracking-widest text-gray-500 sm:text-right shrink-0',
     // Contenedor de filas de facetas (una fila por faceta, con wrap).
@@ -167,11 +170,24 @@ export const ui = {
     row: 'flex flex-wrap gap-1.5',
     // Chip de filtro (botón): CON texto → rounded-md (R2). Estado por
     // chipActive/chipIdle; el conteo va en un span con `filter.count`.
-    chip: 'inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400',
-    chipActive: 'bg-gradient-to-b from-amber-900/50 to-amber-950/50 text-amber-200 border-amber-500/50',
+    chip: 'inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
+    chipActive: 'bg-gradient-to-b from-brand-900/50 to-brand-950/50 text-brand-200 border-brand-500/50',
     chipIdle:
-      'bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-400 border-amber-600/25 hover:from-amber-900/40 hover:to-amber-950/40 hover:text-amber-200 hover:border-amber-500/40',
+      'bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-400 border-brand-600/25 hover:from-brand-900/40 hover:to-brand-950/40 hover:text-brand-200 hover:border-brand-500/40',
     count: 'text-[9px] font-bold opacity-60',
+  },
+
+  // ── Sistema de iconos (2026-10-16, icons.css) ───────────────────────────
+  // Clases de tamaño del sprite temático (65 iconos, contrato en
+  // src/lib/ui/icons.ts). El componente es Icon.astro / iconEl; estas clases
+  // solo fijan `--rd-ico` (espejo de ICON_SIZE_CLASS). El arte NO se
+  // recolorea: nada de text-* sobre el icono.
+  icon: {
+    xs: 'rd-ico-xs',
+    sm: 'rd-ico-sm',
+    md: 'rd-ico-md',
+    lg: 'rd-ico-lg',
+    xl: 'rd-ico-xl',
   },
 
   // ── Loading / feedback async (design.md §6, F010) ───────────────────────
@@ -181,14 +197,14 @@ export const ui = {
   // aria-live (dentro de un contenedor con el bloque de carga).
   loading: {
     skeleton: 'animate-pulse rounded-md bg-gray-800/60',
-    spinner: 'inline-block w-4 h-4 border-2 border-amber-500/30 border-t-amber-300 rounded-full animate-spin',
-    spinnerLg: 'inline-block w-8 h-8 border-2 border-amber-500/30 border-t-amber-300 rounded-full animate-spin',
+    spinner: 'inline-block w-4 h-4 border-2 border-brand-500/30 border-t-brand-300 rounded-full animate-spin',
+    spinnerLg: 'inline-block w-8 h-8 border-2 border-brand-500/30 border-t-brand-300 rounded-full animate-spin',
     liveText: 'text-sm text-gray-400',
   },
 
   // ── Interacción (design.md §5/P011) ─────────────────────────────────────
   // Foco visible para todo elemento interactivo sin foco propio ya definido.
-  focusRing: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400',
+  focusRing: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
   // Transición única (design.md R7): duración custom solo si se documenta.
   transition: 'transition-all duration-300',
 
@@ -200,25 +216,30 @@ export const ui = {
   // Línea de acento superior: gradiente ámbar sobre la card (apéndice visual;
   // no lleva el foco, solo decoración). Va ABSOLUTA: la card necesita
   // `relative overflow-hidden`.
-  cardTop: 'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent',
+  cardTop: 'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent',
   // Hover de card interactiva: rd-lift (material.css) eleva con peso y enciende
   // un borde energético; el borde Tailwind solo cambia de color.
-  cardHover: 'rd-lift hover:border-amber-500/60',
+  cardHover: 'rd-lift hover:border-brand-500/60',
   // Fila de card (roster, núcleos, listas): superficie tenue, hover de borde.
-  cardRow: 'rounded-md border border-gray-700/40 bg-gray-800/40 hover:border-amber-500/30 transition-colors',
+  cardRow: 'rounded-md border border-brand-800/40 bg-brand-900/40 hover:border-brand-500/30 transition-colors',
   // Eyebrow: etiqueta superior de sección/card (texto, tracking amplio).
-  eyebrow: 'rd-eyebrow text-[10px] font-black uppercase tracking-[0.18em] text-amber-400/80',
+  eyebrow: 'rd-eyebrow text-[10px] font-black uppercase tracking-[0.18em] text-brand-400/80',
   // Título con degradado de marca (hero, h1/h2 de sección destacada).
   // leading despejado + padding inferior: evita que el itálico y las
   // descendentes (g, y, p) se recorten bajo bg-clip-text.
-  gradientTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 leading-[1.3] pb-[0.1em]',
+  gradientTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em]',
   // Cifra destacada (stats, contadores): degradado vertical + tabular.
   // Mismo cuidado tipográfico que gradientTitle (descendentes + itálico).
-  statValue: 'font-black italic tabular-nums text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-500 leading-[1.4] pb-[0.15em]',
+  statValue: 'font-black italic tabular-nums text-transparent bg-clip-text bg-gradient-to-b from-brand-200 to-brand-500 leading-[1.4] pb-[0.15em]',
   // Medallón de icono/inicial (R1): cuadrado rounded-md, gradiente interior.
-  iconTile: 'flex items-center justify-center rounded-md bg-gradient-to-br from-amber-500/25 via-amber-600/10 to-gray-950/40 border border-amber-500/30 text-amber-300 shadow-[inset_0_1px_0_0_rgba(251,191,36,0.25)] shrink-0',
+  iconTile: 'flex items-center justify-center rounded-md bg-gradient-to-br from-brand-500/25 via-brand-600/10 to-brand-950/40 border border-brand-500/30 text-brand-300 shadow-[inset_0_1px_0_0_rgba(92,169,232,0.25)] shrink-0',
+  // Tamaños responsivos del medallón: crecen un paso desde `sm` para
+  // acompañar la escala de prominencia de los iconos lg/xl (icons.css).
+  // md = medallón de card/lista; lg = medallón de estado vacío/héroe.
+  iconTileMd: 'w-10 h-10 sm:w-12 sm:h-12',
+  iconTileLg: 'w-12 h-12 sm:w-14 sm:h-14',
   // Separador interno sutil (contenido de cards).
-  divider: 'h-px w-full bg-gradient-to-r from-amber-500/40 via-amber-600/20 to-transparent',
+  divider: 'h-px w-full bg-gradient-to-r from-brand-500/40 via-brand-600/20 to-transparent',
   // Versiones del separador desvanecido para la página (excepto index):
   //   dividerFadeBoth — debajo del ENCABEZADO de la página, se desvanece a ambos lados.
   //   dividerFadeLeft — tras el contenido principal, se desvanece hacia la izquierda.

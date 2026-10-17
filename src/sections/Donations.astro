@@ -1,6 +1,7 @@
 ---
 import ImageComponent from "@/components/shared/ImageComponent.astro";
 import SectionHeader from "@/components/ui/SectionHeader.astro";
+import Icon from "@/components/ui/Icon.astro";
 import { ui } from "@/lib/ui/design";
 
 // Array con métodos de pago disponibles
@@ -65,15 +66,13 @@ const accounts = [
                 class={`${ui.btnBase} ${ui.btnPrimary} w-full px-4 py-3 text-center`}
               >
                 Donar con {account.service}
-                <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
+                <Icon name="enlace" size="sm" class="ml-2" />
               </a>
             </div>
           )}
         </div>
 
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     ))}
   </div>

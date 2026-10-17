@@ -18,12 +18,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     <div class="max-w-6xl mx-auto">
       <DirectoryPage
         hero="Jugadores"
+        panelIcon="jugadores"
         heroTitleCls="rd-title rd-ornament"
         intro="Cuentas de la comunidad con perfil público. Cada jugador enlaza a su página de perfil con sus personajes y bandas visibles."
         loadingText="Cargando jugadores…"
         gridLabel="Listado de jugadores"
         empty={{
-          icon: 'user',
+          icon: 'perfil',
           eyebrow: 'Directorio público',
           title: 'Aún no hay jugadores con perfil público',
           titleCls: 'font-black italic',
@@ -38,9 +39,10 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 <script>
   import { listPublicPlayers, getPublicAccountNames, type PublicAccountNames } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
-  import { isNamelessSafe, safePlayerName, playerInitial, handleFromSlug } from '@/lib/ui/playerNames';
-  import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
+  import { isNamelessSafe, safePlayerName, handleFromSlug } from '@/lib/ui/playerNames';
+  import { cardLink, iconTileEl, cardTitle } from '@/lib/ui/card';
   import { chip, el } from '@/lib/ui/dom';
+  import { iconEl } from '@/lib/ui/icons';
   import { createFilterBar } from '@/lib/ui/filterBar';
   import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
 
@@ -80,10 +82,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     const link = cardLink(`/jugador/${p.slug}`, 'p-5');
 
     const head = el('div', 'flex items-center gap-3 mb-3');
-    const avatar = iconTile(playerInitial(name), 'w-11 h-11', 'text-lg');
-    avatar.classList.toggle('!text-gray-500', fromHandle);
-    avatar.classList.toggle('!text-amber-300', !fromHandle);
-    head.appendChild(avatar);
+    head.appendChild(iconTileEl('perfil'));
     const nameWrap = el('div', 'min-w-0');
     const nm = cardTitle(name, 'text-base', 'truncate');
     nameWrap.appendChild(nm);
@@ -93,7 +92,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     }
     head.appendChild(nameWrap);
     if (gmVisible) {
-      const star = el('span', 'shrink-0 text-fuchsia-400 text-sm', '★');
+      const star = iconEl('estrella', { size: 'xs', cls: 'shrink-0', label: 'Maestro de hermandad' });
       star.title = 'Maestro de hermandad';
       head.appendChild(star);
     }
@@ -103,17 +102,17 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     chips.appendChild(chip('Perfil público'));
     // Marca distintiva para perfiles sin nombre: handle único + aviso sutil.
     if (fromHandle) {
-      chips.appendChild(chip(handleFromSlug(p.slug), 'text-gray-500 bg-gray-900/60 border-gray-600/40'));
-      chips.appendChild(chip('sin nombre', 'text-amber-400 bg-amber-950/30 border-amber-600/40'));
+      chips.appendChild(chip(handleFromSlug(p.slug), 'text-gray-500 bg-brand-900/60 border-gray-600/40'));
+      chips.appendChild(chip('sin nombre', 'text-brand-400 bg-brand-950/30 border-brand-600/40'));
     } else if (nameless) {
-      chips.appendChild(chip('sin nombre', 'text-amber-400 bg-amber-950/30 border-amber-600/40'));
+      chips.appendChild(chip('sin nombre', 'text-brand-400 bg-brand-950/30 border-brand-600/40'));
     }
-    if (p.realm) chips.appendChild(chip(p.realm, 'text-sky-200 bg-gray-800/60 border-sky-600/30'));
+    if (p.realm) chips.appendChild(chip(p.realm, 'text-brand-200 bg-brand-800/60 border-brand-600/30'));
     if (gmVisible) chips.appendChild(chip('Maestro', 'text-fuchsia-300 bg-fuchsia-950/30 border-fuchsia-600/40'));
     link.appendChild(chips);
 
     const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
-    foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver perfil →'));
+    foot.appendChild(el('span', 'text-brand-300/80 group-hover:text-brand-200 transition-colors', 'Ver perfil →'));
     link.appendChild(foot);
     return link;
   }
@@ -147,7 +146,8 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
           id: 'gm',
           label: 'Filtrar maestros de hermandad',
           getFlag: (it) => it.gmVisible,
-          chipLabel: '★ Maestro',
+          chipLabel: 'Maestro',
+          icon: 'estrella',
         },
         {
           kind: 'flag',

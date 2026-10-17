@@ -5,7 +5,9 @@
 // Cualquier pantalla con pestañas (dashboard, admin) importa de aquí en vez de
 // hardcodear strings; así las pestañas nunca divergen.
 //
-// Tab = { id (data-tab / hash), label, href }.
+// Tab = { id (data-tab / hash), label, href, icon? }.
+
+import { iconEl, type IconName } from '@/lib/ui/icons';
 
 export interface TabDef {
   // id corto: se usa en data-tab, hash (#tab-id) y como sufijo de los ids
@@ -14,16 +16,18 @@ export interface TabDef {
   label: string;
   // Enlace directo del tab (dashboard → /dashboard#<id>).
   href: string;
+  // Icono temático de la pestaña (opcional; contrato src/lib/ui/icons.ts).
+  icon?: IconName;
 }
 
 // Pestañas del dashboard de usuario (orden de la barra superior).
 // CONTRATO APROBADO: Personajes · Bandas · Hermandad · Registro. La
 // configuración NO es una pestaña: se abre desde su ícono de engranaje.
 export const DASHBOARD_TABS: TabDef[] = [
-  { id: 'personajes', label: 'Personajes', href: '/dashboard#personajes' },
-  { id: 'bandas', label: 'Bandas', href: '/dashboard#bandas' },
-  { id: 'hermandad', label: 'Hermandad', href: '/dashboard#hermandad' },
-  { id: 'registro', label: 'Registro', href: '/dashboard#registro' },
+  { id: 'personajes', label: 'Personajes', href: '/dashboard#personajes', icon: 'personaje' },
+  { id: 'bandas', label: 'Bandas', href: '/dashboard#bandas', icon: 'espadas' },
+  { id: 'hermandad', label: 'Hermandad', href: '/dashboard#hermandad', icon: 'hermandad' },
+  { id: 'registro', label: 'Registro', href: '/dashboard#registro', icon: 'bandeja' },
 ];
 
 // Panel oculto de configuración del dashboard (seguridad y zona de peligro):
@@ -40,23 +44,23 @@ export const DASHBOARD_CONFIG = {
 // Reglas. Se navegan por hash (#miembros/#bandas/#reglas). Los paneles vacíos
 // se mantienen visibles con placeholder (contrato: barra fija de 3 pestañas).
 export const PORTAL_TABS: TabDef[] = [
-  { id: 'miembros', label: 'Miembros', href: '#miembros' },
-  { id: 'bandas', label: 'Bandas', href: '#bandas' },
-  { id: 'reglas', label: 'Reglas', href: '#reglas' },
+  { id: 'miembros', label: 'Miembros', href: '#miembros', icon: 'jugadores' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
+  { id: 'reglas', label: 'Reglas', href: '#reglas', icon: 'pergamino' },
 ];
 
 // Pestañas de la vista pública de banda (/banda/:slug): Core · Reglas.
 export const BAND_TABS: TabDef[] = [
-  { id: 'core', label: 'Core', href: '#core' },
-  { id: 'reglas', label: 'Reglas', href: '#reglas' },
+  { id: 'core', label: 'Core', href: '#core', icon: 'jugadores' },
+  { id: 'reglas', label: 'Reglas', href: '#reglas', icon: 'pergamino' },
 ];
 
 // Pestañas del perfil público de jugador (/jugador/:slug): Personajes · Bandas ·
 // Hermandades. Los paneles sin datos no generan pestaña (initAvailableTabs).
 export const JUGADOR_TABS: TabDef[] = [
-  { id: 'personajes', label: 'Personajes', href: '#personajes' },
-  { id: 'bandas', label: 'Bandas', href: '#bandas' },
-  { id: 'hermandades', label: 'Hermandades', href: '#hermandades' },
+  { id: 'personajes', label: 'Personajes', href: '#personajes', icon: 'personaje' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
+  { id: 'hermandades', label: 'Hermandades', href: '#hermandades', icon: 'hermandad' },
 ];
 
 // Pestañas de la ficha pública de personaje (/personaje/:slug): Equipamiento ·
@@ -67,20 +71,20 @@ export const JUGADOR_TABS: TabDef[] = [
 // qué busca (registry[*].objectives); "Notas" (su nota pública opcional) y
 // "Instancias" (snapshot de lockouts) son los datos nuevos del addon 3.1.0.
 export const PERSONAJE_TABS: TabDef[] = [
-  { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento' },
-  { id: 'metas', label: 'Metas', href: '#metas' },
-  { id: 'notas', label: 'Notas', href: '#notas' },
-  { id: 'instancias', label: 'Instancias', href: '#instancias' },
-  { id: 'bandas', label: 'Bandas', href: '#bandas' },
-  { id: 'hermandad', label: 'Hermandad', href: '#hermandad' },
+  { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento', icon: 'arma' },
+  { id: 'metas', label: 'Metas', href: '#metas', icon: 'estrella' },
+  { id: 'notas', label: 'Notas', href: '#notas', icon: 'nota' },
+  { id: 'instancias', label: 'Instancias', href: '#instancias', icon: 'ciudadela' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
+  { id: 'hermandad', label: 'Hermandad', href: '#hermandad', icon: 'hermandad' },
 ];
 
 // Pestañas del reino anidado (/servidor/:server/reino/:realm): Hermandades ·
 // Personajes · Bandas. Bandas solo si hay bandas públicas del reino.
 export const REINO_TABS: TabDef[] = [
-  { id: 'hermandades', label: 'Hermandades', href: '#hermandades' },
-  { id: 'personajes', label: 'Personajes', href: '#personajes' },
-  { id: 'bandas', label: 'Bandas', href: '#bandas' },
+  { id: 'hermandades', label: 'Hermandades', href: '#hermandades', icon: 'hermandad' },
+  { id: 'personajes', label: 'Personajes', href: '#personajes', icon: 'personaje' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
 ];
 
 // Pestañas/paneles del admin. El listado es la raíz (#lista); cada usuario
@@ -95,8 +99,8 @@ export const ADMIN_PANELS = {
 // "Usuarios" mientras está abierta. admin.astro construye la barra desde aquí
 // (nunca hardcodear labels/ids en la página).
 export const ADMIN_TABS: TabDef[] = [
-  { id: ADMIN_PANELS.LIST, label: 'Usuarios', href: '#lista' },
-  { id: 'discord', label: 'Discord', href: '#discord' },
+  { id: ADMIN_PANELS.LIST, label: 'Usuarios', href: '#lista', icon: 'perfil' },
+  { id: 'discord', label: 'Discord', href: '#discord', icon: 'discord' },
 ];
 
 // Convierte un id de tab a su hash (#<id>).
@@ -138,7 +142,7 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
   if (!bar) return { activate: () => undefined };
 
   const tabBtnCls =
-    'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+    'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
     const btn = document.createElement('button');
@@ -147,7 +151,12 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-controls', `panel-${t.id}`);
     btn.className = tabBtnCls;
-    btn.textContent = t.label;
+    // Icono temático decorativo + label (el nombre accesible es el texto).
+    if (t.icon) {
+      btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
+      btn.appendChild(iconEl(t.icon, { size: 'sm' }));
+    }
+    btn.appendChild(document.createTextNode(t.label));
     bar.appendChild(btn);
     return btn;
   });
@@ -160,8 +169,8 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
       b.setAttribute('aria-selected', String(active));
       b.tabIndex = active ? 0 : -1;
       // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
-      b.classList.toggle('border-amber-400', active);
-      b.classList.toggle('text-amber-200', active);
+      b.classList.toggle('border-brand-400', active);
+      b.classList.toggle('text-brand-200', active);
       b.classList.toggle('border-transparent', !active);
       b.classList.toggle('text-gray-500', !active);
     });

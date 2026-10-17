@@ -7,16 +7,17 @@
 // dueño (/jugador/:slug) según corresponda.
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
+import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-banda" class="hidden">
   <header class="animate-fade-in-1 mb-6">
     <p class={`${ui.eyebrow} mb-1 flex items-center`}>
-      <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.36-1.86M17 20H7m10 0v-2c-.17-1.24-1.03-2.29-2.2-2.72M7 20H2v-2a3 3 0 015.2-2.11M9 9a3 3 0 100-6 3 3 0 000 6z"/></svg>
+      <Icon name="espadas" size="xs" class="mr-1.5" />
       <span>Banda de raid</span>
     </p>
     <div class="flex flex-wrap items-end gap-3">
       <h1 id="bv-name" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-      <a id="bv-owner-link" href="#" class={`hidden ${ui.badge} ${ui.badgeMd} bg-sky-950/40 border-sky-600/30 text-sky-200 hover:bg-sky-900/40 transition-all`}></a>
+      <a id="bv-owner-link" href="#" class={`hidden ${ui.badge} ${ui.badgeMd} bg-brand-950/40 border-brand-600/30 text-brand-200 hover:bg-brand-900/40 transition-all`}></a>
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
     <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
@@ -28,15 +29,15 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
          cabecera contigua (título + controles de filtro) + cuerpo con el
          roster del core. -->
-    <PanelWindow title="Core">
+    <PanelWindow title="Core" icon="jugadores">
       <div slot="head">
         <details id="bv-filtro-roles" class={`${ui.disclosure} mt-4 hidden`}>
           <summary class={ui.disclosureSummary}>
             <span class="inline-flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <Icon name="escudo" size="xs" />
               Roles
             </span>
-            <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+            <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
           </summary>
           <div class={ui.disclosureBody}>
             <div id="bv-stats-roles" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
@@ -45,10 +46,10 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         <details id="bv-filtro-clases" class={`${ui.disclosure} mt-4 hidden`}>
           <summary class={ui.disclosureSummary}>
             <span class="inline-flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10v-1a3 3 0 00-3-3h-4a3 3 0 00-3 3v1zm0 0v-3a3 3 0 01-3-3V7a3 3 0 013-3h10a3 3 0 013 3v8a3 3 0 01-3 3v3m-9-7h.01M9 6h.01m.01-1h.01"/></svg>
+              <Icon name="personaje" size="xs" />
               Clases
             </span>
-            <svg class="w-4 h-4 text-amber-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
+            <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
           </summary>
           <div class={ui.disclosureBody}>
             <div id="bv-stats-classes" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
@@ -56,7 +57,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         </details>
         <div id="bv-search-wrap" class="hidden mt-4">
           <div class="relative">
-            <svg class="w-4 h-4 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            <Icon name="buscar" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               id="bv-search"
               type="search"
@@ -68,7 +69,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
           </div>
         </div>
       </div>
-      <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`}>
+      <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-brand-900/40 border border-brand-600/20 rounded-md p-4`}>
         Ningún jugador coincide con estos filtros.
       </p>
       <div id="bv-core"></div>
@@ -76,7 +77,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   </div>
 
   <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
-    <PanelWindow title="Reglas">
+    <PanelWindow title="Reglas" icon="pergamino">
       <div id="bv-rules"></div>
     </PanelWindow>
   </div>
@@ -92,6 +93,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
+  import { iconEl, type IconName } from '@/lib/ui/icons';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
 
@@ -113,12 +115,14 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     return window.location.pathname.split('/').filter(Boolean)[0]?.toLowerCase() === 'banda';
   }
 
-  function metaChip(text: string, extra = ''): HTMLElement {
-    return el('span', `${ui.badge} ${ui.badgeMd} bg-gray-800/60 border-amber-600/20` + (extra ? ` ${extra}` : ''), text);
+  function metaChip(icon: IconName, text: string, extra = ''): HTMLElement {
+    const c = el('span', `${ui.badge} ${ui.badgeMd} bg-brand-800/60 border-brand-600/20` + (extra ? ` ${extra}` : ''), text);
+    c.insertBefore(iconEl(icon, { size: 'sm', cls: 'shrink-0' }), c.firstChild);
+    return c;
   }
 
   function emptyState(text: string): HTMLElement {
-    const box = el('div', 'rounded-md border border-amber-600/20 bg-gray-900/40 p-6 text-center');
+    const box = el('div', 'rounded-md border border-brand-600/20 bg-brand-900/40 p-6 text-center');
     box.appendChild(el('p', `${ui.text.bodyMuted} italic`, text));
     return box;
   }
@@ -143,10 +147,10 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     }
 
     const meta = document.getElementById('bv-meta') as HTMLElement;
-    if (band.schedule) meta.appendChild(metaChip(`Horario: ${band.schedule}`));
-    if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip(`GS mínimo: ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+    if (band.schedule) meta.appendChild(metaChip('calendario', `Horario: ${band.schedule}`));
+    if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(metaChip('diamante', `GS mínimo: ${band.min_gs}`, '!text-brand-300 !border-brand-500/40'));
     if (band.guild_id && band.is_rank_integrated) {
-      meta.appendChild(metaChip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
+      meta.appendChild(metaChip('enlace', 'Integrada', '!text-emerald-300 !border-emerald-500/40'));
     }
     // Jugadores combinados: si la banda está integrada a una hermandad, se
     // unen los rosters de todas las bandas del mismo grupo (clave name|horario|
@@ -154,7 +158,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const merged = await resolveMergeGroup(band);
     const players = merged.players;
     if (band.hide_players) {
-      meta.appendChild(metaChip('jugadores ocultos', '!text-gray-500'));
+      meta.appendChild(metaChip('bloqueo', 'jugadores ocultos', '!text-gray-500'));
     }
 
     const coreBox = document.getElementById('bv-core') as HTMLElement;
@@ -190,16 +194,24 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       const searchInput = document.getElementById('bv-search') as HTMLInputElement;
       const emptyFilter = document.getElementById('bv-empty-filter') as HTMLElement;
 
-      const roleChip = (o: { label: string; count: number; group: string; active: boolean }): HTMLButtonElement => {
+      // Icono temático por grupo de rol del core.
+      const ROLE_ICONS: Record<'tank' | 'healer' | 'melee' | 'rango', IconName> = {
+        tank: 'escudo',
+        healer: 'sanacion',
+        melee: 'espadas',
+        rango: 'arma',
+      };
+      const roleChip = (o: { label: string; count: number; group: 'tank' | 'healer' | 'melee' | 'rango'; active: boolean }): HTMLButtonElement => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
+        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ' +
           (o.active
-            ? 'text-amber-200 border-amber-500/60 bg-gradient-to-b from-amber-900/40 to-amber-950/40 ring-2 ring-amber-400/60'
-            : 'text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/25 hover:border-amber-500/40 hover:from-gray-700/70');
+            ? 'text-brand-200 border-brand-500/60 bg-gradient-to-b from-brand-900/40 to-brand-950/40 ring-2 ring-brand-400/60'
+            : 'text-gray-200 bg-gradient-to-b from-brand-800/80 to-brand-900/80 border-brand-600/25 hover:border-brand-500/40 hover:from-gray-700/70');
         btn.setAttribute('aria-pressed', String(o.active));
         btn.setAttribute('data-role-key', o.group);
         const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
+        nameRow.appendChild(iconEl(ROLE_ICONS[o.group], { size: 'xs', cls: 'shrink-0' }));
         nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
         btn.appendChild(nameRow);
         btn.appendChild(el('span', `${ui.statValue} text-[11px]`, String(o.count)));
@@ -226,10 +238,10 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
         const btn = document.createElement('button');
         btn.type = 'button';
         const key = o.cls ? o.cls.toLowerCase() : '__none__';
-        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ' +
+        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ' +
           (o.active
-            ? 'text-amber-200 border-amber-500/60 bg-gradient-to-b from-amber-900/40 to-amber-950/40 ring-2 ring-amber-400/60'
-            : 'text-gray-200 bg-gradient-to-b from-gray-800/80 to-gray-900/80 border-amber-600/25 hover:border-amber-500/40 hover:from-gray-700/70');
+            ? 'text-brand-200 border-brand-500/60 bg-gradient-to-b from-brand-900/40 to-brand-950/40 ring-2 ring-brand-400/60'
+            : 'text-gray-200 bg-gradient-to-b from-brand-800/80 to-brand-900/80 border-brand-600/25 hover:border-brand-500/40 hover:from-gray-700/70');
         btn.setAttribute('aria-pressed', String(o.active));
         btn.setAttribute('data-class-key', key);
         const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
@@ -357,9 +369,9 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     } else {
       const list = el('ul', 'space-y-3');
       rules.forEach((rule) => {
-        const li = el('li', 'text-sm text-gray-300 leading-relaxed border-l-2 border-amber-600/20 pl-3');
+        const li = el('li', 'text-sm text-gray-300 leading-relaxed border-l-2 border-brand-600/20 pl-3');
         if (rule.title) {
-          li.appendChild(el('span', 'font-bold text-amber-200', `${rule.title}: `));
+          li.appendChild(el('span', 'font-bold text-brand-200', `${rule.title}: `));
         }
         li.appendChild(document.createTextNode(rule.content || ''));
         list.appendChild(li);
@@ -372,14 +384,15 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     // hermandad (#guild-meta). Los jugadores ocultos no exponen su cifra.
     const tabMetaChips: Record<string, HTMLAnchorElement> = {};
     const tabMetaGroup = document.createElement('div');
-    tabMetaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-amber-500/40 bg-amber-600/20 overflow-hidden';
+    tabMetaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-brand-500/40 bg-brand-600/20 overflow-hidden';
     BAND_TABS.forEach((t) => {
       const n = t.id === 'core' ? (band.hide_players ? null : players.length) : rules.length;
       if (n === null) return;
       const chip = document.createElement('a');
       chip.href = t.href;
-      chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-gray-900/90 to-gray-950/90 hover:from-amber-900/50 hover:to-amber-950/50 hover:text-amber-200 text-gray-400';
-      chip.textContent = `${t.label} · ${n}`;
+      chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-400';
+      if (t.icon) chip.appendChild(iconEl(t.icon, { size: 'xs' }));
+      chip.appendChild(document.createTextNode(`${t.label} · ${n}`));
       tabMetaGroup.appendChild(chip);
       tabMetaChips[t.id] = chip;
     });
@@ -400,8 +413,8 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
       if (!tabMetaChips[active]) active = 'core';
       Object.entries(tabMetaChips).forEach(([id, chip]) => {
         const on = id === active;
-        chip.classList.toggle('bg-amber-500/20', on);
-        chip.classList.toggle('text-amber-200', on);
+        chip.classList.toggle('bg-brand-500/20', on);
+        chip.classList.toggle('text-brand-200', on);
         chip.classList.toggle('text-gray-400', !on);
         if (on) chip.setAttribute('aria-current', 'page');
         else chip.removeAttribute('aria-current');

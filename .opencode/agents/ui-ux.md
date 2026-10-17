@@ -1,6 +1,6 @@
 ---
 description: >
-  UX division — accesibilidad, responsive, consistencia del tema WoW (ámbar/dorado),
+  UX division — accesibilidad, responsive, consistencia del tema WoW (azul/acero),
   i18n en español, personalidad visual y motion. Invocar con @ui-ux. Úsalo para
   mejorar accesibilidad, keyboard nav, aria attributes, formularios, loading states
   y consistencia visual de la landing y dashboards.
@@ -30,7 +30,8 @@ puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
 
 - Landing Astro estática → portal (upload de SavedVariables, dashboards de
   hermandad, directorio público).
-- Tema WoW: ámbar/dorado sobre fondo oscuro (`#111`), fuente Jost Variable.
+- Tema WoW azul/acero sobre fondo Abismo (`#07111E`): escala `brand`
+  (Abismo/Acero/Hielo/Plata/Energía, `design.md` §1b), fuente Jost Variable.
 - Público: jugadores de WoW, muchos en pantalla pequeña o con UI propia del
   addon; el portal debe ser legible, ligero y sentirse "de la comunidad".
 
@@ -69,9 +70,9 @@ puerto alterno y con kill solo por PID propio: `AGENTS.md` §9 y F013.
 
 ## Reglas
 
-- NO cambiar colores de marca (ámbar-400/600/900, fondo #111).
+- NO cambiar colores de marca (escala `brand-*`, fondo Abismo `#07111E`).
 - NO eliminar clases `hidden sm:*` que controlan responsive.
-- NO introducir componentes que rompan el estilo "card + border ámbar".
+- NO introducir componentes que rompan el estilo "card + borde de marca".
 - Los textos de la UI en español (esMX); NO hardcodear inglés.
 - Para focus trapping en modales/dialogs de claim de hermandad, usar
   `src/utils/focusTrap.ts` (reutilizable, no reimplementar por componente).

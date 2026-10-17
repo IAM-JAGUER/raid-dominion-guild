@@ -17,6 +17,7 @@
  */
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
+import { iconEl, type IconName } from '@/lib/ui/icons';
 
 // Valor del chip "Todas" (limpia la selección de la fila).
 const ALL = '__all__';
@@ -50,8 +51,10 @@ export interface FlagFacet<T> {
   id: string;
   label: string;
   getFlag: (item: T) => boolean;
-  // Texto visible del chip ("★ Maestro").
+  // Texto visible del chip ("Maestro").
   chipLabel: string;
+  // Icono temático del chip (contrato src/lib/ui/icons.ts).
+  icon?: IconName;
 }
 
 export type Facet<T> = ValueFacet<T> | FlagFacet<T>;
@@ -163,14 +166,7 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): void {
   if (getSearchText) {
     const row = el('div', ui.filter.searchRow);
     const wrap = el('div', ui.filter.searchWrap);
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    icon.setAttribute('class', ui.filter.searchIcon);
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('stroke', 'currentColor');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.setAttribute('aria-hidden', 'true');
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>';
-    wrap.appendChild(icon);
+    wrap.appendChild(iconEl('buscar', { size: 'sm', cls: ui.filter.searchIcon }));
 
     input = document.createElement('input');
     input.type = 'search';
@@ -221,11 +217,18 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): void {
 
   function renderChips(): void {
     facetsBox.textContent = '';
+    let firstRow = true;
     for (const entry of visibleFacets) {
       const { facet } = entry;
       const row = el('div', ui.filter.row);
       row.setAttribute('role', 'group');
       row.setAttribute('aria-label', facet.label);
+      // Marca visual de la zona de facetas: embudo temático al inicio de la
+      // primera fila (decorativo; cada fila ya lleva su aria-label).
+      if (firstRow) {
+        row.appendChild(iconEl('filtrar', { size: 'xs', cls: ui.filter.facetLead }));
+        firstRow = false;
+      }
 
       // Conteos por chip: ítems con búsqueda + los DEMÁS filtros activos.
       const base = apply(facet.id);
@@ -236,6 +239,7 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): void {
           label: facet.chipLabel,
           count,
           active: !!state.flags[facet.id],
+          icon: facet.icon ? iconEl(facet.icon, { size: 'xs', cls: 'shrink-0' }) : null,
           facet: facet.id,
           value: ALL,
         }));

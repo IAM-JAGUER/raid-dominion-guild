@@ -6,6 +6,7 @@ import PageAtmosphere from "@/components/ui/PageAtmosphere.astro";
 import type { ParticleVariant } from "@/lib/ui/particles";
 import "@fontsource-variable/jost";
 import "@/styles/material.css";
+import "@/styles/icons.css";
 
 interface Props {
   title: string;
@@ -235,7 +236,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
   }
 
   ::selection {
-    background: rgba(245, 185, 66, 0.3);
+    background: rgba(0, 191, 255, 0.3);
     color: #fff;
   }
 </style>

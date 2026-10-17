@@ -10,7 +10,7 @@ import { ui } from '@/lib/ui/design';
 export function configChip(text: string, highlight = false): HTMLElement {
   return el(
     'span',
-    `${ui.badge} ${ui.badgeMd} text-gray-300 bg-gray-900/60 border-amber-600/30` + (highlight ? ' !border-amber-500/40' : ''),
+    `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/30` + (highlight ? ' !border-brand-500/40' : ''),
     text,
   );
 }

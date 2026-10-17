@@ -5,21 +5,22 @@
  * Cards base (cardLink/cardTitle/iconTile) viven en src/lib/ui/card.ts.
  */
 import { supabase } from '@/lib/supabase';
-import { getPublicAccountNames, type PublicAccountNames } from '@/lib/api';
+import type { PublicAccountNames } from '@/lib/api';
 import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
-import { cardLink, card as cardBox, cardTitle, iconTile, arrowIcon } from '@/lib/ui/card';
+import { cardLink, card as cardBox, cardTitle, iconTileEl, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
-import { chip, el } from '@/lib/ui/dom';
+import { chip, el, iconChip } from '@/lib/ui/dom';
+import { iconEl } from '@/lib/ui/icons';
 import { toast } from '@/lib/ui/toast';
-import type { GuildRow, BandRow } from '@/types/database';
+import type { GuildRow } from '@/types/database';
 
 // ── Card de hermandad (directorio /hermandades, reino, perfil) ──────────────
 export function renderGuildCard(g: GuildRow): HTMLElement {
   const link = cardLink(`/hermandad/${g.slug}`, 'p-5');
 
   const head = el('div', 'flex items-center gap-3 mb-3');
-  head.appendChild(iconTile((g.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
+  head.appendChild(iconTileEl('hermandad'));
   head.appendChild(cardTitle(g.name, 'text-base', 'truncate min-w-0'));
   link.appendChild(head);
 
@@ -32,16 +33,16 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   // Solo se pinta chip si la facción es una real: el addon usa '?' como
   // marcador de desconocido y no debe verse como Alianza.
   if (g.faction === 'Horde' || g.faction === 'Alliance') {
-    const faction = el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${g.faction === 'Horde' ? 'bg-red-950/40 border-red-700/50 text-red-300' : 'bg-sky-950/40 border-sky-700/50 text-sky-300'}`, g.faction === 'Horde' ? 'Horda' : 'Alianza');
+    const faction = iconChip('facciones', g.faction === 'Horde' ? 'Horda' : 'Alianza', g.faction === 'Horde' ? '!bg-red-950/40 !border-red-700/50 !text-red-300' : '!bg-brand-950/40 !border-brand-700/50 !text-brand-300');
     chips.appendChild(faction);
   }
   if (g.server) {
-    const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-gray-800/60 border-amber-600/20 text-sky-200 hover:bg-sky-900/30 transition-colors`, g.server) as HTMLAnchorElement;
+    const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-brand-200 hover:bg-brand-900/30 transition-colors`, g.server) as HTMLAnchorElement;
     serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
     chips.appendChild(serverChip);
   }
   if (g.claim_status === 'verified') {
-    chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-emerald-950/30 border-emerald-600/40 text-emerald-300`, '✓ Verificada'));
+    chips.appendChild(iconChip('medalla', 'Verificada', '!text-emerald-300 !border-emerald-600/40'));
   }
   if (g.discord_link) {
     const discord = el('a', `${ui.badge} ${ui.badgeSm} bg-indigo-950/30 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/30 transition-colors`, 'Discord') as HTMLAnchorElement;
@@ -53,9 +54,9 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   }
   if (chips.children.length > 0) link.appendChild(chips);
 
-  const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-amber-600/15');
+  const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-brand-600/15');
   meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', g.realm || 'Reino no especificado'));
-  meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-amber-400 group-hover:text-amber-300 transition-colors', 'Ver portal →'));
+  meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-brand-400 group-hover:text-brand-300 transition-colors', 'Ver portal →'));
   link.appendChild(meta);
 
   return link;
@@ -139,7 +140,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   const left = el('div', 'flex items-center gap-2.5 min-w-0');
   if (ctx.number) {
     const num = document.createElement('span');
-    num.className = 'shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center';
+    num.className = 'shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center';
     num.textContent = String(ctx.number);
     left.appendChild(num);
   }
@@ -149,9 +150,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   name.textContent = `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`;
   left.appendChild(name);
   if (c.sv_is_gm) {
-    const star = el('span', 'shrink-0 text-fuchsia-400 text-sm', '★');
-    star.title = 'Maestro de hermandad';
-    left.appendChild(star);
+    left.appendChild(iconEl('estrella', { size: 'xs', cls: 'shrink-0', label: 'Maestro de hermandad' }));
   }
   row.appendChild(left);
 
@@ -166,7 +165,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     const visCheck = document.createElement('input');
     visCheck.type = 'checkbox';
     visCheck.checked = !!c.is_public;
-    visCheck.className = 'w-3.5 h-3.5 accent-amber-500 shrink-0';
+    visCheck.className = 'w-3.5 h-3.5 accent-brand-500 shrink-0';
     const visStatus = document.createElement('span');
     if (ctx.canPublish === false) {
       visCheck.disabled = true;
@@ -180,7 +179,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       visCheck.addEventListener('change', async () => {
         visCheck.disabled = true;
         visStatus.textContent = '· guardando…';
-        visStatus.className = 'text-amber-300';
+        visStatus.className = 'text-brand-300';
         const res = await ctx.setVisibility!(visCheck.checked);
         visCheck.disabled = false;
         if (res.ok) {
@@ -209,7 +208,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   if (!ctx.hideStats) {
     if (typeof c.level === 'number') right.appendChild(el('span', 'text-[10px] text-gray-400', `Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
-      right.appendChild(el('span', 'text-[10px] text-amber-300', `ilvl ${c.avg_ilvl}`));
+      right.appendChild(el('span', 'text-[10px] text-brand-300', `ilvl ${c.avg_ilvl}`));
     }
   }
   if (href) {
@@ -229,7 +228,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   // Nota privada + conteo de instancias guardadas + publicación de la nota.
   // La card puede ser un <a>: los controles cortan la propagación del clic.
   if (ctx.setNotesPublic) {
-    const extras = el('div', 'mt-3 pt-3 border-t border-amber-600/15 flex items-center justify-between gap-3 min-w-0');
+    const extras = el('div', 'mt-3 pt-3 border-t border-brand-600/15 flex items-center justify-between gap-3 min-w-0');
     extras.addEventListener('click', (ev) => ev.stopPropagation());
 
     const noteRow = el('div', 'flex items-center gap-2 min-w-0 flex-1');
@@ -243,7 +242,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     }
     const instCount = c.instances?.length ?? 0;
     if (instCount > 0) {
-      noteRow.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 bg-gray-800/60 border-amber-600/20 text-gray-400`, `${instCount} inst.`));
+      noteRow.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 bg-brand-800/60 border-brand-600/20 text-gray-400`, `${instCount} inst.`));
     }
     extras.appendChild(noteRow);
 
@@ -252,7 +251,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     const noteCheck = document.createElement('input');
     noteCheck.type = 'checkbox';
     noteCheck.checked = !!c.notes_public;
-    noteCheck.className = 'w-3.5 h-3.5 accent-amber-500 shrink-0';
+    noteCheck.className = 'w-3.5 h-3.5 accent-brand-500 shrink-0';
     const noteStatus = document.createElement('span');
     noteStatus.className = 'text-gray-500';
     noteLabel.append(noteCheck, document.createTextNode('Nota pública'), noteStatus);
@@ -267,7 +266,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       noteCheck.addEventListener('change', async () => {
         noteCheck.disabled = true;
         noteStatus.textContent = '· guardando…';
-        noteStatus.className = 'text-amber-300';
+        noteStatus.className = 'text-brand-300';
         const res = await ctx.setNotesPublic!(noteCheck.checked);
         noteCheck.disabled = false;
         if (res.ok) {
@@ -329,23 +328,23 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   const link = cardLink(`/banda/${encodeURIComponent(band.slug)}`, 'p-5');
 
   const head = el('div', 'flex items-center gap-3 mb-3');
-  head.appendChild(iconTile((band.name[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
-  head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-amber-200 transition-colors', band.name));
+  head.appendChild(iconTileEl('espadas'));
+  head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors', band.name));
   link.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5');
   if (band.schedule) meta.appendChild(chip(band.schedule));
-  if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(chip(`GS ${band.min_gs}`, '!text-amber-300 !border-amber-500/40'));
+  if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(chip(`GS ${band.min_gs}`, '!text-brand-300 !border-brand-500/40'));
   if (band.hide_players) {
     meta.appendChild(chip('jugadores ocultos', '!text-gray-500'));
   } else if (typeof opts?.playerCount === 'number') {
     meta.appendChild(chip(`${opts.playerCount} jugador${opts.playerCount === 1 ? '' : 'es'}`));
   }
   if (opts?.owner?.href && opts.owner.label) {
-    meta.appendChild(chip(opts.owner.label, '!text-sky-200 !border-sky-600/30'));
+    meta.appendChild(chip(opts.owner.label, '!text-brand-200 !border-brand-600/30'));
   } else if ((opts?.guildId ?? band.guildId) === null) {
     // Banda personal conocida y sin dueño visible → atribución propia.
-    meta.appendChild(chip('Personal', '!text-sky-200 !border-sky-600/30'));
+    meta.appendChild(chip('Personal', '!text-brand-200 !border-brand-600/30'));
   }
   if (opts?.source || opts?.integrated) {
     meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
@@ -357,10 +356,10 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   // personaje PRINCIPAL del dueño; a falta de principal público, queda el
   // handle @hex (resolveBandOwners).
   if (opts?.owner?.href && opts.owner.label) {
-    foot.appendChild(el('span', 'text-sky-300 hover:text-sky-200 transition-colors', opts.owner.kind === 'guild' ? opts.owner.label : `Por ${opts.owner.label}`));
+    foot.appendChild(el('span', 'text-brand-300 hover:text-brand-200 transition-colors', opts.owner.kind === 'guild' ? opts.owner.label : `Por ${opts.owner.label}`));
     foot.appendChild(document.createTextNode('Ver banda →'));
   } else {
-    foot.appendChild(el('span', 'text-amber-300/80 group-hover:text-amber-200 transition-colors', 'Ver banda →'));
+    foot.appendChild(el('span', 'text-brand-300/80 group-hover:text-brand-200 transition-colors', 'Ver banda →'));
   }
   link.appendChild(foot);
 

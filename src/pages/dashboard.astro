@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Navigation from "@/components/Navigation.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
+import Icon from "@/components/ui/Icon.astro";
 import { ui } from "@/lib/ui/design";
 
 const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
@@ -25,7 +26,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <div class="flex items-start gap-4">
           <div
             id="avatar"
-            class="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-black text-lg font-black shadow-lg shadow-amber-900/30 ring-2 ring-amber-500/30 select-none"
+            class="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-black text-lg font-black shadow-lg shadow-brand-900/30 ring-2 ring-brand-500/30 select-none"
           >
             –
           </div>
@@ -46,66 +47,38 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <div class="flex items-center gap-1.5 shrink-0">
             <a
               href="/upload"
-              class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border bg-amber-900/40 border-amber-500/40 text-amber-300 hover:bg-amber-800/50 hover:border-amber-400/70 ${ui.transition} ${ui.focusRing}`}
+              class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border bg-brand-900/40 border-brand-500/40 text-brand-300 hover:bg-brand-800/50 hover:border-brand-400/70 ${ui.transition} ${ui.focusRing}`}
               title="Sube tu SavedVariables"
               aria-label="Sube tu SavedVariables"
             >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                ><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                ></path></svg
-              >
+              <Icon name="subir" size="sm" />
               <span class="hidden sm:inline">Subir SV</span>
             </a>
             <button
               type="button"
               id="config-btn"
-              class={`inline-flex items-center justify-center w-9 h-9 rounded-md text-[10px] font-black uppercase tracking-widest border bg-gray-800/70 border-gray-600 text-gray-300 hover:text-amber-200 hover:border-amber-500/50 ${ui.transition} ${ui.focusRing}`}
+              class={`inline-flex items-center justify-center w-9 h-9 rounded-md text-[10px] font-black uppercase tracking-widest border bg-brand-800/70 border-gray-600 text-gray-300 hover:text-brand-200 hover:border-brand-500/50 ${ui.transition} ${ui.focusRing}`}
               aria-label="Configuración de perfil, seguridad y zona de peligro"
               title="Configuración de perfil, seguridad y zona de peligro"
             >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                ><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                ></path><path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg
-              >
+              <Icon name="engranajes" size="sm" />
             </button>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-1.5 mt-3">
           <span
             id="role-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-300`}
+            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-300`}
             >…</span
           >
           <span
             id="validated-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}
+            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-400`}
             >…</span
           >
           <span
             id="public-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-gray-800/70 border-gray-600 text-gray-400`}
+            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-400`}
             >…</span
           >
         </div>
@@ -136,7 +109,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         <EmptyState
           id="registro-empty"
           hidden
-          icon="upload"
+          icon="subir"
           eyebrow="Registro del addon"
           title="Aún no subes ningún SavedVariables"
           gradient={false}
@@ -146,7 +119,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         >
           <div slot="body">
             <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">
-              Sube tu archivo <code class="text-amber-300"
+              Sube tu archivo <code class="text-brand-300"
                 >RaidDominion.lua</code
               > para ver aquí todo tu registro: personaje, hermandad y configuración
               del addon.
@@ -166,7 +139,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                esquina inferior cuadrada) -->
           <div>
             <div
-              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}
+              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
             >
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -175,11 +148,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   <p class={`${ui.eyebrow} mb-1`}>Registro del addon</p>
                   <h2
                     id="hdr-registro-title"
-                    class="text-lg font-bold text-amber-200 flex items-center"
+                    class="text-lg font-bold text-brand-200 flex items-center"
                   >
-                    <span
-                      class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                    ></span>
+                    <Icon name="bandeja" size="md" class="mr-2.5" />
                     <span
                       id="hdr-registro-title-text"
                       class={`${ui.gradientTitle} font-black italic`}
@@ -221,7 +192,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
                 <div id="sv-select-wrap" class="md:w-80 shrink-0">
                   <div
-                    class="bg-gray-950/50 border border-amber-700/30 rounded-md p-3 space-y-2"
+                    class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                   >
                     <div class="flex items-center justify-between gap-2">
                       <label
@@ -231,16 +202,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                       >
                       <span
                         id="sv-counter"
-                        class="text-sm font-bold text-amber-300"
+                        class="text-sm font-bold text-brand-300"
                         aria-live="polite"></span>
                     </div>
                     <div class="relative">
                       <select
                         id="sv-select"
-                        class="w-full px-4 py-2.5 pr-10 rounded-md bg-gray-950/80 border border-amber-700/40 text-sm text-amber-100 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-500/20 appearance-none cursor-pointer"
+                        class="w-full px-4 py-2.5 pr-10 rounded-md bg-brand-950/80 border border-brand-700/40 text-sm text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none cursor-pointer"
                       ></select>
                       <span
-                        class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-amber-500/70"
+                        class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-brand-500/70"
                       >
                         <svg
                           class="w-4 h-4"
@@ -260,19 +231,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                       id="sv-delete-btn"
                       class="w-full mt-2 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[11px] font-black uppercase tracking-widest border border-red-800/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 ${ui.transition} ${ui.focusRing}"
                     >
-                      <svg
-                        class="w-3.5 h-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        ><path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path></svg
-                      >
+                      <Icon name="eliminar" size="xs" />
                       Eliminar este análisis
                     </button>
                   </div>
@@ -285,10 +244,10 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <div
               id="claim-banner"
               data-rd-reveal
-              class="hidden border border-amber-600/30 border-t-0 bg-gradient-to-br from-amber-950/40 to-gray-900/60 p-4 sm:p-6"
+              class="hidden border border-brand-600/30 border-t-0 bg-gradient-to-br from-brand-950/40 to-brand-900/60 p-4 sm:p-6"
             >
               <h3
-                class="text-base font-black uppercase tracking-widest text-amber-300 mb-1"
+                class="text-base font-black uppercase tracking-widest text-brand-300 mb-1"
               >
                 ¿Lideras una o más hermandades?
               </h3>
@@ -300,17 +259,17 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <ol class="space-y-2 mb-5 text-sm text-gray-300 list-none">
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-500/15 border border-brand-400/50 text-brand-200 text-xs font-black flex items-center justify-center"
                     >1</span
                   ><span
                     >Sube tu SavedVariables donde el addon te reporte como
-                    Maestro (<code class="text-amber-300"
+                    Maestro (<code class="text-brand-300"
                       >registry.guild.isGM</code
                     >).</span>
                 </li>
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-500/15 border border-brand-400/50 text-brand-200 text-xs font-black flex items-center justify-center"
                     >2</span
                   ><span
                     >Reclama aquí tus hermandades: la ficha de cada una nace con
@@ -318,11 +277,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 </li>
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-500/15 border border-brand-400/50 text-brand-200 text-xs font-black flex items-center justify-center"
                     >3</span
                   ><span
                     >Publícalas desde Hermandad y comparte <code
-                      class="text-amber-300">/hermandad/tu-hermandad</code
+                      class="text-brand-300">/hermandad/tu-hermandad</code
                     >.</span>
                 </li>
               </ol>
@@ -362,7 +321,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
               <!-- Hermandades en el registro -->
               <div
-                class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4"
+                class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4"
               >
                 <h4 class={ui.subTitle}>Hermandades en el registro</h4>
                 <div id="viewer-guilds" class="mt-2 space-y-2"></div>
@@ -384,7 +343,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             id="characters-empty"
             hidden
             cls="mb-6"
-            icon="user"
+            icon="personaje"
             eyebrow="Personajes"
             title="Aún no registras personajes"
             gradient={false}
@@ -394,7 +353,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           />
           <div
             id="chars-sectionhead"
-            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}
+            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
           >
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -403,11 +362,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 <p class={`${ui.eyebrow} mb-1`}>Personajes</p>
                 <h2
                   id="hdr-chars-title"
-                  class="text-lg font-bold text-amber-200 flex items-center"
+                  class="text-lg font-bold text-brand-200 flex items-center"
                 >
-                  <span
-                    class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                  ></span>
+                  <Icon name="personaje" size="md" class="mr-2.5" />
                   <span
                     id="hdr-chars-title-text"
                     class={`${ui.gradientTitle} font-black italic`}
@@ -436,7 +393,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <!-- Ayuda al stat: detecta más personajes subiendo el SV -->
               <div class="md:w-80 shrink-0">
                 <div
-                  class="bg-gray-950/50 border border-amber-700/30 rounded-md p-3 space-y-2"
+                  class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                 >
                   <p
                     class="block text-[11px] font-black uppercase tracking-widest text-gray-500"
@@ -445,20 +402,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   </p>
                   <a
                     href="/upload"
-                    class="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-amber-300 hover:text-amber-200 transition-colors"
+                    class="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-brand-300 hover:text-brand-200 transition-colors"
                   >
-                    <svg
-                      class="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      ><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      ></path></svg
-                    >
+                    <Icon name="subir" size="xs" />
                     Subir SavedVariables
                   </a>
                 </div>
@@ -471,9 +417,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                personajes (nombre visible, principal, visibilidad pública, guardar).
                Estilo de sub-bloque del cuerpo, igual que los bloques del registro. -->
             <div
-              class="bg-gray-800/50 border border-amber-700/30 rounded-md p-4"
+              class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4"
             >
-              <h4 class={ui.subTitle}>Datos del perfil</h4>
+              <h4 class={`${ui.subTitle} flex items-center gap-1.5`}><Icon name="editar" size="xs" />Datos del perfil</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label for="display-name" class={ui.form.label}
@@ -501,7 +447,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     </select>
                     <svg
                       aria-hidden="true"
-                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400"
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -521,12 +467,12 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
               <label
                 for="profile-public"
-                class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-amber-600/40 rounded-md p-4 ${ui.transition}`}
+                class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-brand-600/40 rounded-md p-4 ${ui.transition}`}
               >
                 <input
                   type="checkbox"
                   id="profile-public"
-                  class="mt-0.5 w-4 h-4 accent-amber-500"
+                  class="mt-0.5 w-4 h-4 accent-brand-500"
                 />
                 <span class={`${ui.text.body} font-medium`}
                   >Perfil y datos públicos
@@ -569,7 +515,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <p
               id="characters-onboarding"
               data-rd-reveal
-              class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"
+              class="hidden text-xs text-brand-100/90 bg-brand-950/30 border-l-2 border-brand-500/60 px-4 py-3 rounded-md"
             >
             </p>
             <p id="characters-status" class="hidden text-sm text-gray-400"></p>
@@ -589,7 +535,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             id="bands-empty"
             hidden
             cls="mb-6"
-            icon="code"
+            icon="espadas"
             eyebrow="Bandas"
             title="Aún no detectamos bandas"
             gradient={false}
@@ -600,7 +546,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
           <div
             id="bands-sectionhead"
-            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}
+            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
           >
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -609,11 +555,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 <p class={`${ui.eyebrow} mb-1`}>Gestión de bandas</p>
                 <h2
                   id="hdr-band-name"
-                  class="text-lg font-bold text-amber-200 flex items-center"
+                  class="text-lg font-bold text-brand-200 flex items-center"
                 >
-                  <span
-                    class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                  ></span>
+                  <Icon name="espadas" size="md" class="mr-2.5" />
                   <span
                     id="hdr-band-name-text"
                     class={`${ui.gradientTitle} font-black italic`}
@@ -646,7 +590,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <!-- Navegador de bandas: el selector elige qué banda se edita. -->
               <div id="band-select-wrap" class="hidden md:w-80 shrink-0">
                 <div
-                  class="bg-gray-950/50 border border-amber-700/30 rounded-md p-3 space-y-2"
+                  class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                 >
                   <div class="flex items-center justify-between gap-2">
                     <label
@@ -656,16 +600,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     >
                     <span
                       id="band-counter"
-                      class="text-sm font-bold text-amber-300"
+                      class="text-sm font-bold text-brand-300"
                       aria-live="polite"></span>
                   </div>
                   <div class="relative">
                     <select
                       id="band-select"
-                      class="w-full px-4 py-2.5 pr-10 rounded-md bg-gray-950/80 border border-amber-700/40 text-sm text-amber-100 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-500/20 appearance-none cursor-pointer"
+                      class="w-full px-4 py-2.5 pr-10 rounded-md bg-brand-950/80 border border-brand-700/40 text-sm text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none cursor-pointer"
                     ></select>
                     <span
-                      class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-amber-500/70"
+                      class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-brand-500/70"
                     >
                       <svg
                         class="w-4 h-4"
@@ -692,7 +636,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             <div
               id="bands-onboarding"
               data-rd-reveal
-              class="hidden text-xs text-amber-100/90 bg-amber-950/30 border-l-2 border-amber-500/60 px-4 py-3 rounded-md"
+              class="hidden text-xs text-brand-100/90 bg-brand-950/30 border-l-2 border-brand-500/60 px-4 py-3 rounded-md"
             >
             </div>
           </div>
@@ -711,7 +655,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <EmptyState
             id="guild-empty"
             hidden
-            icon="building"
+            icon="hermandad"
             eyebrow="Hermandad"
             title="Tu hermandad nace de tu SavedVariables"
             gradient={false}
@@ -725,7 +669,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <ol class="space-y-3 mb-7 text-sm text-gray-300 list-none">
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >1</span
                   ><span
                     >Sube un SavedVariables donde el addon te reporte como
@@ -733,7 +677,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 </li>
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >2</span
                   ><span
                     >Reclama la hermandad desde Registro: tu rol de Maestro se
@@ -741,7 +685,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 </li>
                 <li class="flex gap-3">
                   <span
-                    class="shrink-0 w-6 h-6 rounded-full bg-amber-900/40 border border-amber-500/40 text-amber-200 text-xs font-black flex items-center justify-center"
+                    class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >3</span
                   ><span
                     >Publica el portal y comparte su dirección con tu comunidad.</span>
@@ -756,7 +700,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           <!-- Gestión multi-hermandad -->
           <div id="guild-manage" data-rd-reveal class="hidden">
             <div
-              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent`}
+              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
             >
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -765,11 +709,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   <p class={`${ui.eyebrow} mb-1`}>Gestión de hermandad</p>
                   <h2
                     id="hdr-guild-name"
-                    class="text-lg font-bold text-amber-200 flex items-center"
+                    class="text-lg font-bold text-brand-200 flex items-center"
                   >
-                    <span
-                      class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                    ></span>
+                    <Icon name="estandarte" size="md" class="mr-2.5" />
                     <span
                       id="hdr-guild-name-text"
                       class={`${ui.gradientTitle} font-black italic`}
@@ -809,7 +751,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 <!-- Navegador de hermandades: el selector elige qué ficha se edita. -->
                 <div id="guild-select-wrap" class="hidden md:w-80 shrink-0">
                   <div
-                    class="bg-gray-950/50 border border-amber-700/30 rounded-md p-3 space-y-2"
+                    class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                   >
                     <div class="flex items-center justify-between gap-2">
                       <label
@@ -819,16 +761,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                       >
                       <span
                         id="guild-counter"
-                        class="text-sm font-bold text-amber-300"
+                        class="text-sm font-bold text-brand-300"
                         aria-live="polite"></span>
                     </div>
                     <div class="relative">
                       <select
                         id="guild-select"
-                        class="w-full px-4 py-2.5 pr-10 rounded-md bg-gray-950/80 border border-amber-700/40 text-sm text-amber-100 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-500/20 appearance-none cursor-pointer"
+                        class="w-full px-4 py-2.5 pr-10 rounded-md bg-brand-950/80 border border-brand-700/40 text-sm text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20 appearance-none cursor-pointer"
                       ></select>
                       <span
-                        class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-amber-500/70"
+                        class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-brand-500/70"
                       >
                         <svg
                           class="w-4 h-4"
@@ -865,11 +807,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         >
           <!-- Sección 1: Seguridad (ventana numerada y colapsable) -->
           <details
-            class="group border border-amber-600/30 rounded-t-md"
+            class="group border border-brand-600/30 rounded-t-md"
             aria-label="Sección 1: Seguridad"
           >
             <summary
-              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6"
+              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-brand-600/30 p-4 sm:p-6"
             >
               <span class="flex items-center gap-3 min-w-0">
                 <span
@@ -882,10 +824,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     >Seguridad</span
                   >
                   <span
-                    class="block text-lg font-bold text-amber-200 leading-tight flex items-center"
-                    ><span
-                      class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-                    ></span>Cuenta y contraseña</span
+                    class="block text-lg font-bold text-brand-200 leading-tight flex items-center"
+                    ><Icon name="bloqueo-alt" size="md" class="mr-2.5" />Cuenta y contraseña</span
                   >
                 </span>
               </span>
@@ -908,7 +848,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 >
               </span>
             </summary>
-            <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
+            <div class="bg-brand-900/60 backdrop-blur-sm p-4 sm:p-6">
               <div class="space-y-4">
                 <div>
                   <label for="new-password" class={ui.form.label}
@@ -971,11 +911,11 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
           <!-- Sección 2: Zona de peligro (ventana numerada y colapsable) -->
           <details
-            class="group border border-amber-600/30 rounded-t-md"
+            class="group border border-brand-600/30 rounded-t-md"
             aria-label="Sección 2: Zona de peligro"
           >
             <summary
-              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-amber-600/30 p-4 sm:p-6"
+              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-brand-600/30 p-4 sm:p-6"
             >
               <span class="flex items-center gap-3 min-w-0">
                 <span
@@ -989,9 +929,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   >
                   <span
                     class="block text-lg font-bold text-red-300 leading-tight flex items-center"
-                    ><span
-                      class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-                    ></span>Acciones destructivas</span
+                    ><Icon name="advertencia" size="md" class="mr-2.5" />Acciones destructivas</span
                   >
                 </span>
               </span>
@@ -1014,20 +952,20 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 >
               </span>
             </summary>
-            <div class="bg-gray-900/60 backdrop-blur-sm p-4 sm:p-6">
+            <div class="bg-brand-900/60 backdrop-blur-sm p-4 sm:p-6">
               <!-- Resetear datos (moderado: conserva la cuenta) -->
               <div
-                class="border border-amber-800/40 bg-amber-950/10 rounded-md p-5"
+                class="border border-brand-800/40 bg-brand-950/10 rounded-md p-5"
               >
                 <div class="flex flex-wrap items-start justify-between gap-4">
                   <div class="max-w-md">
-                    <h3 class={`${ui.text.h3} text-amber-300`}>
+                    <h3 class={`${ui.text.h3} text-brand-300`}>
                       Resetear datos del SV
                     </h3>
                     <p class={`${ui.text.caption} mt-1`}>
                       Borra tu historial de uploads, los personajes detectados
                       y, si la tienes, tu hermandad con su portal. Tu rol vuelve
-                      a <strong class="text-amber-300">visitante</strong> (salvo staff)
+                      a <strong class="text-brand-300">visitante</strong> (salvo staff)
                       y podrás re-subir tu SavedVariables para empezar desde cero.
                       Tu cuenta, nombre visible y datos en otras apps del ecosistema
                       se conservan.
@@ -1035,7 +973,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   </div>
                   <button
                     id="reset-data-btn"
-                    class={`${ui.btnBase} px-6 py-2.5 border border-amber-700/50 text-amber-300 hover:bg-amber-950/40 hover:text-amber-200 text-xs font-black uppercase tracking-widest`}
+                    class={`${ui.btnBase} px-6 py-2.5 border border-brand-700/50 text-brand-300 hover:bg-brand-950/40 hover:text-brand-200 text-xs font-black uppercase tracking-widest`}
                   >
                     Resetear mis datos
                   </button>
@@ -1043,9 +981,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
                 <div
                   id="reset-data-confirm"
-                  class="hidden mt-4 border border-amber-800/50 bg-amber-950/20 rounded-md p-5"
+                  class="hidden mt-4 border border-brand-800/50 bg-brand-950/20 rounded-md p-5"
                 >
-                  <p class={`${ui.text.body} text-amber-100 mb-3`}>
+                  <p class={`${ui.text.body} text-brand-100 mb-3`}>
                     Esto borrará permanentemente tu historial de SV, personajes
                     y hermandad. Escribe <span class="font-black uppercase"
                       >RESETEAR</span
@@ -1062,7 +1000,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     <button
                       id="reset-data-confirm-btn"
                       disabled
-                      class={`${ui.btnBase} px-6 py-2.5 bg-amber-800/60 hover:bg-amber-700/70 text-amber-100 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}
+                      class={`${ui.btnBase} px-6 py-2.5 bg-brand-800/60 hover:bg-brand-700/70 text-brand-100 text-xs font-black uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}
                     >
                       Confirmar reseteo
                     </button>
@@ -1164,7 +1102,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           >
           </div>
           <div
-            class="relative w-full max-w-md bg-gray-900 border border-red-900/50 rounded-md shadow-2xl shadow-black/60 overflow-hidden"
+            class="relative w-full max-w-md bg-brand-900 border border-red-900/50 rounded-md shadow-2xl shadow-black/60 overflow-hidden"
           >
             <div
               class="bg-gradient-to-br from-red-950/30 to-transparent border-b border-red-900/40 px-5 py-4"
@@ -1178,9 +1116,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 id="sv-delete-title"
                 class="text-lg font-bold text-red-200 flex items-center"
               >
-                <span
-                  class="w-2 h-2 rounded-full bg-red-500 mr-3 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-                ></span>
+                <Icon name="eliminar" size="md" class="mr-2.5" />
                 ¿Eliminar este análisis?
               </h3>
             </div>
@@ -1188,7 +1124,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               <p class="text-sm text-gray-300 leading-relaxed">
                 Se borrará permanentemente el análisis <strong
                   id="sv-delete-label"
-                  class="text-amber-200"></strong> y sus evidencias de roster. Tus
+                  class="text-brand-200"></strong> y sus evidencias de roster. Tus
                 personajes detectados se conservan.
               </p>
               <p
@@ -1306,9 +1242,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       validatedBadgeEl.textContent = validated
         ? "✓ Cuenta validada"
         : "Cuenta sin validar";
-      validatedBadgeEl.className = `${BADGE_BASE} ${validated ? ui.status.success : "bg-gray-800/70 border-gray-600 text-gray-400"}`;
+      validatedBadgeEl.className = `${BADGE_BASE} ${validated ? ui.status.success : "bg-brand-800/70 border-gray-600 text-gray-400"}`;
       publicBadgeEl.textContent = profilePublic ? "Público" : "Privado";
-      publicBadgeEl.className = `${BADGE_BASE} ${profilePublic ? ui.badgeRole.guild_master : "bg-gray-800/70 border-gray-600 text-gray-400"}`;
+      publicBadgeEl.className = `${BADGE_BASE} ${profilePublic ? ui.badgeRole.guild_master : "bg-brand-800/70 border-gray-600 text-gray-400"}`;
     }
 
     // ── Estado reactivo (declarado antes de las llamadas void load*) ─────────
@@ -1449,7 +1385,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           cls = "text-emerald-300 bg-emerald-950/30 border-emerald-600/40";
         } else if (st === "pending") {
           text = "⏳ propuesta pendiente";
-          cls = "text-sky-300 bg-sky-950/30 border-sky-600/40";
+          cls = "text-brand-300 bg-brand-950/30 border-brand-600/40";
         } else if (st === "rejected") {
           text = "✗ propuesta rechazada";
           cls = "text-red-300 bg-red-950/30 border-red-600/40";
@@ -1507,7 +1443,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             chipBase +
             (guild.is_public
               ? " text-emerald-300 bg-emerald-950/30 border-emerald-600/40"
-              : " text-gray-400 bg-gray-950/50 border-gray-700/50");
+              : " text-gray-400 bg-brand-950/50 border-gray-700/50");
           visEl.classList.remove("hidden");
         }
       }
@@ -1531,7 +1467,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               ? " text-emerald-300 bg-emerald-950/30 border-emerald-600/40"
               : guild.claim_status === "rejected"
                 ? " text-red-300 bg-red-950/30 border-red-600/40"
-                : " text-amber-300 bg-amber-950/30 border-amber-600/40");
+                : " text-brand-300 bg-brand-950/30 border-brand-600/40");
           claimEl.classList.remove("hidden");
         }
       }
@@ -1614,7 +1550,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     // ids, labels y hashes salen SOLO de ahí, nunca hardcodeados aquí.
     const tabBar = document.getElementById("tab-bar") as HTMLElement;
     const tabBtnCls =
-      "tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 hover:text-amber-200";
+      "tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 hover:text-brand-200";
     const tabs: HTMLButtonElement[] = DASHBOARD_TABS.map((t) => {
       const btn = document.createElement("button");
       btn.id = `tab-${t.id}`;
@@ -1640,8 +1576,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         b.setAttribute("aria-selected", String(active));
         b.tabIndex = active ? 0 : -1;
         // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
-        b.classList.toggle("border-amber-400", active);
-        b.classList.toggle("text-amber-200", active);
+        b.classList.toggle("border-brand-400", active);
+        b.classList.toggle("text-brand-200", active);
         b.classList.toggle("border-transparent", !active);
         b.classList.toggle("text-gray-500", !active);
       });
@@ -1679,7 +1615,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       tabs.forEach((b) => {
         b.setAttribute("aria-selected", "false");
         b.tabIndex = -1;
-        b.classList.remove("border-amber-400", "text-amber-200");
+        b.classList.remove("border-brand-400", "text-brand-200");
         b.classList.add("border-transparent", "text-gray-500");
       });
       PANELS.forEach((p) =>

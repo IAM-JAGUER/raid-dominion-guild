@@ -10,6 +10,7 @@ import { WEEKDAY_LABELS, parseSchedule, groupBandsByDay } from '@/lib/bandSchedu
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
 import { createFilterBar, type Facet, type FilterBarState } from '@/lib/ui/filterBar';
+import { iconEl } from '@/lib/ui/icons';
 import { settleAsyncList, type AsyncList } from '@/lib/ui/list';
 
 // Tipo de banda para el filtro: personal (sin hermandad) o de hermandad.
@@ -96,7 +97,7 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
           ? 'No hay bandas que coincidan con los filtros.'
           : emptyText;
       if (list) settleAsyncList(list, 'notice', msg);
-      else content.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-gray-900/40 border border-amber-600/20 rounded-md p-4`, msg));
+      else content.appendChild(el('p', `${ui.text.bodyMuted} italic text-center bg-brand-900/40 border border-brand-600/20 rounded-md p-4`, msg));
       return;
     }
 
@@ -119,6 +120,7 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     const section = el('section', fullWidth ? 'sm:col-span-2 lg:col-span-3' : '');
     const head = el('div', 'flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3');
     const title = day === -1 ? 'Sin día fijado' : WEEKDAY_LABELS[day];
+    head.appendChild(iconEl('calendario', { size: 'xs', cls: 'self-center' }));
     head.appendChild(el('h3', `${ui.subTitle} !mb-0`, title));
     head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', `· ${bands.length} banda${bands.length === 1 ? '' : 's'}`));
     section.appendChild(head);

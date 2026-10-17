@@ -86,6 +86,13 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   (red-300 ≈8.4:1, emerald-300 ≈9.7:1, amber-300 ≈12:1, sky-200 ≈10.5:1).
   Pendiente: barrer los usos sueltos restantes (`placeholder:text-gray-600`
   ≈3:1 NO pasa — corregir con placeholder más claro) en componentes no migrados.
+- **Actualización 2026-10-17 (paleta azul/acero)**: sobre la superficie teñida
+  (`bg-brand-900/60` ≈ `#091D2E`) los contrastes medidos son: `gray-300`
+  11.6:1, `gray-400` 6.7:1, `brand-200` 11.4:1 y `brand-400` 6.8:1 (todos AA);
+  `gray-500` baja a **3.54:1** (antes ≈3.9:1 sobre gris) — NO pasa AA en
+  texto normal. `ui.text.caption` y `ui.filter.result` aún usan `gray-500`:
+  el barrido de captions (a `brand-200/70` ≈6.3:1 o `gray-400`) queda como
+  trabajo pendiente de este ciclo.
 - **Detección**: manual — pendiente incorporar a `verifica.sh` o CI
 
 ## F012: Migración aplicada sin registrar en el ledger
@@ -213,6 +220,18 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   usuario
 - **Detección**: recargar con el scroll en 0 y vigilar `window.scrollY`:
   debe permanecer en 0 mientras carga la imagen y la fuente
+
+## F020: `hidden` no ocultaba un icono del sprite (display empatado)
+- **Estado**: mitigada (2026-10-16)
+- **Error**: `.rd-ico` (icons.css) fija `display:inline-block` para poder
+  dimensionar el sprite. La utilidad `hidden` de Tailwind tiene la MISMA
+  especificidad (0,1,0) y, según el orden de hojas, `.rd-ico` ganaba: el
+  ícono "ojo cerrado" del login se veía junto al abierto.
+- **Solución**: regla explícita `.rd-ico.hidden { display:none }` en
+  `icons.css` (especificidad mayor) — `class="hidden"` sobre `<Icon>` es
+  confiable siempre, sin `!important` en los consumidores.
+- **Detección**: cualquier `Icon` con clase `hidden` que siga visible; o al
+  añadir utilidades de display (`inline-flex`, `block`) a un `.rd-ico`.
 
 ## F021: `@keyframes` local sombrea el canónico y desplaza el layout entero
 - **Estado**: mitigada (2026-10-17)

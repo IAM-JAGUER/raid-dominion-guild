@@ -11,13 +11,16 @@
 ## 1. Personalidad visual
 
 El portal no es un dashboard genérico: es la casa web de una comunidad de
-WoW 3.3.5a. La consistencia de color (ámbar/dorado sobre `#111`) es la base,
-pero la diferenciación real viene de tres cosas:
+WoW 3.3.5a. La consistencia de color (azul/acero sobre `#07111E`, §1b) es la
+base, pero la diferenciación real viene de tres cosas:
 
-- **Iconografía temática**: clase/rol de personaje, tipo de banda, insignia
-  de maestro de hermandad — íconos reconocibles para el público de WoW, no
-  iconografía SaaS genérica (nada de check-marks/settings-gear estilo
-  producto B2B).
+- **Iconografía temática**: el portal usa un **set propio de 65 iconos**
+  estilo WoW (azul/acero, ver §10). La vieja regla "nada de
+  check-marks/settings-gear genéricos" se resolvió con arte PROPIO: los
+  glifos de estado/acción (confirmar, engranaje, buscar, eliminar…) existen,
+  pero dibujados como material de fantasía, no como iconografía SaaS plana.
+  Además: clase/rol de personaje, tipo de banda e insignia de maestro
+  conservan sus íconos reconocibles.
 - **Micro-interacciones al parsear el SV**: la subida y el parseo del
   `RaidDominionDB` es el momento de mayor valor percibido del producto (ver
   `product.md` §Prioridades #2). Merece una transición con intención —
@@ -28,6 +31,27 @@ pero la diferenciación real viene de tres cosas:
   rápido. Preferir cards con jerarquía clara (`ui.text.h3` + `ui.text.caption`)
   sobre tablas comprimidas en vista de escritorio; en móvil, cards es
   obligatorio (no hay tabla que quepa en 320px sin scroll horizontal).
+
+## 1b. Paleta (2026-10-17)
+
+Identidad **azul/acero**, alineada con el arte del set de iconos. Cinco
+colores ancla: **Abismo** `#07111E` (fondo profundo), **Acero** `#123253`
+(superficies y bordes oscuros), **Hielo** `#5CA9E8` (acento secundario),
+**Plata** `#B8D7F1` (texto claro) y **Energía** `#00BFFF` (acento primario).
+
+- La escala Tailwind es `brand` 50–950 (`tailwind.config.js`), con los ancla
+  en 200/400/500/800/950. El sustituto de la vieja `amber-*` es `brand-*` al
+  MISMO índice: el rol de cada parada se conserva (500/600 acento, 900/950
+  fondos). Lo hardcodeado vive en `material.css` (`--accent-*`, `--bg-*`,
+  `--metal-*`, resplandores del `.rd-bg`) y en los tokens `ui.*`.
+- **Superficies teñidas, texto neutro**: `bg/from/to/via-gray-800|900|950`
+  pasan a `brand-*` (Acero/Abismo); `text/border/ring-gray-*` se mantienen
+  neutros para legibilidad (los grises calibrados de F011 no cambian).
+- **Única excepción semántica**: `ui.status.warning` conserva ámbar
+  (`amber-300/950/500`) — el código universal de advertencia no debe
+  confundirse con la marca. `success`/`error` no cambian.
+- Assets con tonos tibios (`gallery/logo.png`, `GameLoginBg.jpg`) quedan
+  fuera de código: reemplazarlos es una decisión de arte pendiente.
 
 ## 2. Sistema de tokens (`src/lib/ui/design.ts`)
 
@@ -51,11 +75,12 @@ una vez, primero agrégalo como token — no lo dupliques en 2+ componentes.
 Toda card de la plataforma usa la misma superficie (`ui.card`, que comparte
 `SURFACE`) y, según su rol:
 
-- **Interactiva** (enlace): `ui.cardHover` (lift `-translate-y-1` + halo ámbar).
-- **Destacada**: línea de acento superior `ui.cardTop` (gradiente ámbar;
+- **Interactiva** (enlace): `ui.cardHover` (lift `-translate-y-1` + halo de
+  energía).
+- **Destacada**: línea de acento superior `ui.cardTop` (gradiente de marca;
   requiere `relative overflow-hidden` en la card).
 - **Fila** (roster/núcleos/listas): `ui.cardRow` (superficie tenue, hover de
-  borde ámbar).
+  borde de acento).
 - **Medallón de icono/inicial**: `ui.iconTile` (un glifo, gradiente interior).
 - **Etiqueta superior**: `ui.eyebrow`. **Título destacado**: `ui.gradientTitle`
   (bg-clip-text; no combinarlo con `group-hover:text-*`, pelea con el gradiente).
@@ -63,8 +88,8 @@ Toda card de la plataforma usa la misma superficie (`ui.card`, que comparte
 
 En render JS usa los helpers de `src/lib/ui/card.ts` (`cardLink`, `card`,
 `cardTop`, `iconTile`, `eyebrow`, `stat`, `cardTitle`, `cardRow`, `divider`)
-como fuente única del literal (R5). No escribir `bg-gray-900/60` + borde ámbar
-sueltos fuera de ese helper.
+como fuente única del literal (R5). No escribir `bg-brand-900/60` + borde de
+marca sueltos fuera de ese helper.
 
 ## 3b. Materiales y dirección de arte (2026-08-30)
 
@@ -75,7 +100,7 @@ grimorio de MMORPG clásico**. Todo el material se construye SOLO con CSS
 copiar assets de WoW. Referencia emocional: "personalidad y densidad de una
 UI MMORPG clásica", no una copia.
 
-- **Atmósfera**: `.rd-bg` en `<body>` (vacío profundo + resplandor ámbar
+- **Atmósfera**: `.rd-bg` en `<body>` (vacío profundo + resplandor de energía
   ambiental + trama procedural + viñeta). Reemplazó a `background.png`.
 - **Atmósfera de página (2026-10-16)**: `.rd-atmosphere*` (material.css) +
   `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
@@ -140,7 +165,7 @@ UI MMORPG clásica", no una copia.
   (vía `ui.chip`/`ui.badge`); prohibido `rounded-lg` flotante. Excepción:
   `rounded-t-lg` en pestañas ancladas a una barra.
 - **R3 — Superficie única en dashboards**: paneles siempre vía `ui.panel`
-  (borde canónico `amber-600/30`, definido una sola vez en la constante
+  (borde canónico `brand-600/30`, definido una sola vez en la constante
   `SURFACE` de `design.ts`); prohibido reescribir el literal bg/border/rounded.
   Interactivo → sumar `ui.panelHover`.
 - **R4 — Alcance de `SectionHeader`**: solo landing/páginas de contenido.
@@ -148,11 +173,11 @@ UI MMORPG clásica", no una copia.
   encabezado.
 - **R5 — Sin duplicar el literal de superficie**: cualquier variante nueva de
   panel/card comparte la constante `SURFACE` en vez de repetir la cadena
-  `bg-gray-900/60 backdrop-blur-sm border border-amber-600/30`.
+  `bg-brand-900/60 backdrop-blur-sm border border-brand-600/30`.
 - **R6 — Estado semántico único**: mensajes de error/éxito/advertencia SIEMPRE
   vía `ui.status.*`. Prohibidos colores Tailwind sueltos (`red-500`,
   `green-500`, etc.) fuera de ese token — deben leerse bien sobre `#111` y no
-  competir visualmente con el acento ámbar de marca.
+  competir visualmente con el acento de marca.
 - **R7 — Transición única**: toda transición usa `ui.transition`
   (`transition-all duration-300`). Duración custom solo si se documenta el
   motivo puntual en el componente.
@@ -260,14 +285,66 @@ de dashboard con pestañas que ya resuelve esto en desktop.
 
 ## 9. Reglas fijas (no negociables sin discusión explícita)
 
-- NO cambiar colores de marca (ámbar-400/600/900, fondo `#111`).
+- NO cambiar colores de marca sin decisión deliberada (§1b: escala
+  `brand-n`, fondo Abismo `#07111E`).
 - NO eliminar clases `hidden sm:*` que controlan responsive.
-- NO introducir componentes que rompan el estilo "card + borde ámbar".
+- NO introducir componentes que rompan el estilo "card + borde de marca".
 - Textos de UI en español (esMX); NO hardcodear inglés.
 - Prohibidos `rounded-xl/2xl/3xl` en `src/`.
 
+## 10. Sistema de iconos (2026-10-16)
+
+**Fuente única**: `src/lib/ui/icons.ts` — 65 iconos (`IconName`), con la
+celda (`row`/`col`) del sprite normalizado y la trazabilidad (`crop`/
+`center`) con la fuente maestra `public/images/icons.png`. **NO escribas
+spans/backgrounds de icono a mano**: usa `Icon.astro` (template) o `iconEl`
+(render JS); ambos comparten el mismo markup.
+
+- **Assets**: `public/icons/rd-icons.webp` (+`.png` de respaldo), rejilla
+  uniforme 8×9 de celdas 96px generada por `scripts/icons-sheet.py` a partir
+  de la fuente maestra (rejilla irregular). Regenerar SOLO con ese script.
+- **CSS**: `src/styles/icons.css` — `.rd-ico` escala el sprite con
+  `--rd-ico` (tamaño) y `--rd-ico-col/-row` (celda). Excepción documentada a
+  la regla de cascada de material.css: aquí `background-image` ES contenido.
+- **Tamaños**: `ui.icon.xs…xl` (14/16/20/24/32px) = `ICON_SIZE_CLASS`.
+  Default de `Icon.astro`/`iconEl`: `sm` (16px); en medallones y cabeceras
+  se usa `lg`/`xl`.
+- **Escala de prominencia (responsiva)**: SOLO los dos tamaños mayores crecen
+  en pantallas grandes — `lg` 24→28px y `xl` 32→40px desde `sm`, y `xl`
+  →44px desde `lg` (media queries en `icons.css`). Los medallones acompañan
+  con `ui.iconTileMd` (40→48px) y `ui.iconTileLg` (48→56px). `md/sm/xs` son
+  tamaño de DENSIDAD (nav, tabs, chips, filtros, toasts, botones) y **no
+  escalan nunca**: agrandarlos rompe el ritmo de las barras y el balance de
+  los controles.
+- **Color**: el arte va a color; PROHIBIDO recolorear con `text-*` o
+  `opacity` para “teñir”. La jerarquía se logra por tamaño y por el
+  medallón (`ui.iconTile`), no por color.
+- **Accesibilidad**: sin `label` el icono es decorativo (`aria-hidden`); con
+  `label` se anuncia (`role="img"`). Nunca un control icon-only sin nombre
+  accesible. `class="hidden"` sobre `Icon` funciona (regla `.rd-ico.hidden`).
+- **Contención (balance)**: los iconos marcan jerarquía y acciones —
+  navegación, tabs, cabeceras de panel, medallones de cards, estados
+  vacíos, toasts, filtros, acciones (añadir/editar/eliminar/compartir) y
+  badges de logro. NO van en cada línea de texto ni reemplazan texto de
+  estado micro (`✓ guardado`, contadores): eso es tipografía, no icono.
+  Ante la duda, menos iconos.
+
 ## Historial de enmiendas
 
+- **2026-10-17 (paleta azul/acero)**: sustitución completa de la paleta
+  ámbar/dorada por la identidad azul/acero (§1b: Abismo/Acero/Hielo/Plata/
+  Energía) — escala `brand` 50–950 en `tailwind.config.js` con reemplazo
+  índice a índice (`amber|yellow|orange|sky-N` → `brand-N`) en 35 archivos,
+  variables/materiales/resplandores azules en `material.css`, superficies
+  `bg-gray-800|900|950` teñidas a `brand-*` con texto gris neutro, y
+  excepción única de `status.warning` (sigue ámbar). El arte del sistema de
+  iconos ya era azul/acero: la UI ahora lo acompaña.
+
+- **2026-10-17 (escala de iconos)**: escala de prominencia responsiva del
+  sprite — `lg`/`xl` crecen en `sm` (y `xl` también en `lg`) desde
+  `icons.css`; medallones con tokens nuevos `ui.iconTileMd`/`ui.iconTileLg`
+  (`EmptyState`, cards de directorio, estados vacíos del portal, upload,
+  perfil de jugador). `md/sm/xs` quedan fijos por densidad (§10).
 - **2026-10-17 (entrada sin desplazamiento)**: el `<style>` scoped legacy de
   `GrandLogo.astro` redefinía `@keyframes fadeIn` con `translateY(10px)`.
   Astro inyecta el CSS scoped DESPUÉS de las hojas globales: el keyframe
@@ -279,6 +356,13 @@ de dashboard con pestañas que ya resuelve esto en desktop.
   JS). El fundido canónico queda SOLO en `material.css` (opacidad pura);
   regla nueva: jamás redefinir un `@keyframes` global homónimo desde un
   componente (ver `frallas.md` F021).
+- **2026-10-16 (sistema de iconos)**: adopción del set temático de 65
+  iconos — `src/lib/ui/icons.ts` (contrato), `Icon.astro`/`iconEl` (render),
+  `icons.css` (CSS-sprite normalizado) y `scripts/icons-sheet.py`
+  (generador); §1 enmendada (el veto a glifos genéricos queda resuelto con
+  arte propio) y §10 nueva. Integrado en nav, tabs (`TabDef.icon`),
+  `PanelWindow` (`icon`), `EmptyState`, toasts, filtros, directorios,
+  fichas, dashboard, portal de hermandad, landing y guías.
 - **2026-10-16 (filtros de directorio)**: esquema de búsqueda+filtros
   unificado en los 5 directorios raíz — motor `src/lib/ui/filterBar.ts`
   (buscador + chips de facetas dinámicas con conteo, `aria-pressed`,

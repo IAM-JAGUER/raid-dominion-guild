@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ICON SYSTEM — RaidDominion Portal
+   Los 65 iconos temáticos en un sprite normalizado (rejilla uniforme,
+   celdas de 96px; ver scripts/icons-sheet.py y src/lib/ui/icons.ts).
+
+   Excepción documentada a la REGLA DE CASCADA de material.css: la clase
+   `.rd-ico` define `background-image` sobre el propio elemento a propósito —
+   aquí la imagen ES el contenido del icono, no decoración de superficie.
+
+   Escala: el sprite se agranda a `--rd-ico * 8` de ancho (8 columnas) y cada
+   celda queda exactamente del tamaño `--rd-ico`; la posición se deriva de
+   `--rd-ico-col` / `--rd-ico-row` (variables por instancia, ver Icon.astro).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-ico {
+  --rd-ico: 1.25rem;
+  --rd-ico-col: 0;
+  --rd-ico-row: 0;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--rd-ico);
+  height: var(--rd-ico);
+  background-image: url('/icons/rd-icons.png');
+  background-image: image-set(
+    url('/icons/rd-icons.webp') type('image/webp'),
+    url('/icons/rd-icons.png') type('image/png')
+  );
+  background-repeat: no-repeat;
+  background-size: calc(var(--rd-ico) * 8) auto;
+  background-position: calc(var(--rd-ico) * var(--rd-ico-col) * -1)
+    calc(var(--rd-ico) * var(--rd-ico-row) * -1);
+  vertical-align: -0.125em;
+}
+
+/* Tamaños (espejo de ui.icon / ICON_SIZE_CLASS). */
+.rd-ico-xs { --rd-ico: 0.875rem; }
+.rd-ico-sm { --rd-ico: 1rem; }
+.rd-ico-md { --rd-ico: 1.25rem; }
+.rd-ico-lg { --rd-ico: 1.5rem; }
+.rd-ico-xl { --rd-ico: 2rem; }
+
+/* Escala de PROMINENCIA (design.md §10): solo los dos tamaños mayores crecen
+   en pantallas grandes para dar jerarquía a los iconos protagonistas
+   (medallones, estados vacíos/heros, dropzone). md/sm/xs son tamaño de
+   densidad (nav, tabs, chips, botones) y NO escalan nunca. */
+@media (min-width: 640px) {
+  .rd-ico-lg { --rd-ico: 1.75rem; }
+  .rd-ico-xl { --rd-ico: 2.5rem; }
+}
+@media (min-width: 1024px) {
+  .rd-ico-xl { --rd-ico: 2.75rem; }
+}
+
+/* `hidden` sobre un icono debe ganar SIEMPRE: .rd-ico fija display y la
+   utilidad de Tailwind empata en especificidad (el orden de hojas decidiría).
+   Con esta regla, `class="hidden"` en <Icon> oculta de forma confiable. */
+.rd-ico.hidden {
+  display: none;
+}

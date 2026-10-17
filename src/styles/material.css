@@ -18,27 +18,27 @@
 
 :root {
   /* ── FASE 2 · Design tokens ──────────────────────────────────────────── */
-  --bg-void: #0a0a0c;
-  --bg-surface: #111114;
-  --surface-primary: #17171c;
-  --surface-secondary: #1e1e26;
+  --bg-void: #07111E;
+  --bg-surface: #0B2338;
+  --surface-primary: #0E2A45;
+  --surface-secondary: #123253;
 
-  --metal-dark: #0c0c10;
-  --metal-mid: #26262e;
-  --metal-light: #3a3a46;
+  --metal-dark: #07111E;
+  --metal-mid: #123253;
+  --metal-light: #1E4A73;
 
-  --stone-dark: #121215;
-  --stone-light: #23232b;
+  --stone-dark: #0A1C2E;
+  --stone-light: #123253;
 
-  --parchment-dark: #1a1610;
-  --parchment-light: #2a2217;
+  --parchment-dark: #0B2338;
+  --parchment-light: #123253;
 
-  --text-primary: #f2ede4;
-  --text-secondary: #cbbfae;
-  --text-muted: #8a8072;
+  --text-primary: #E6F1FB;
+  --text-secondary: #B8D7F1;
+  --text-muted: #7FA8C9;
 
-  --accent-primary: #f5b942;
-  --accent-secondary: #e08a1e;
+  --accent-primary: #00BFFF;
+  --accent-secondary: #5CA9E8;
   --accent-danger: #b4472f;
 
   --shadow-deep: 0 18px 50px rgba(0, 0, 0, 0.55), 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -58,7 +58,7 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER 01 · ATMÓSFERA
-   Fondo de vacío profundo + resplandor ámbar ambiental + viñeta + trama
+   Fondo de vacío profundo + resplandor de energía ambiental + viñeta + trama
    procedural (repeating gradients, sin texturas externas).
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -67,10 +67,10 @@
     /* trama de pergamino/canvas muy sutil */
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 4px),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 4px),
-    /* resplandor ámbar ambiental superior */
-    radial-gradient(120% 55% at 50% -10%, rgba(245, 185, 66, 0.07), transparent 60%),
+    /* resplandor de energía ambiental superior */
+    radial-gradient(120% 55% at 50% -10%, rgba(0, 191, 255, 0.07), transparent 60%),
     /* vacío */
-    radial-gradient(140% 100% at 50% 0%, #14141a 0%, #0b0b0e 55%, #070708 100%);
+    radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
   background-attachment: fixed;
   background-color: var(--bg-void);
 }
@@ -82,8 +82,8 @@
     background-image:
 repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 12px),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, transparent 1px 12px),
-      radial-gradient(120% 55% at 50% -10%, rgba(245, 185, 66, 0.07), transparent 60%),
-      radial-gradient(140% 100% at 50% 0%, #14141a 0%, #0b0b0e 55%, #070708 100%);
+      radial-gradient(120% 55% at 50% -10%, rgba(0, 191, 255, 0.07), transparent 60%),
+      radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
   }
 }
 
@@ -196,19 +196,19 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 .rd-metal::before {
   /* superficie forjada + remache esquinero */
   background-image:
-    radial-gradient(circle at 4px 4px, rgba(245, 185, 66, 0.4), transparent 11px),
+    radial-gradient(circle at 4px 4px, rgba(0, 191, 255, 0.4), transparent 11px),
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 42%),
     linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
 }
 .rd-metal::after {
-  /* costura de forja superior: línea de luz ámbar */
+  /* costura de forja superior: línea de luz de energía */
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.45) 20%, rgba(245, 185, 66, 0.45) 80%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent);
   opacity: 0.7;
   pointer-events: none;
 }
@@ -250,7 +250,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 .rd-card::before {
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 30%),
-    radial-gradient(120% 70% at 50% 0%, rgba(245, 185, 66, 0.05), transparent 55%);
+    radial-gradient(120% 70% at 50% 0%, rgba(0, 191, 255, 0.05), transparent 55%);
 }
 .rd-card.rd-lift {
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
@@ -260,9 +260,9 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     inset 0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(245, 185, 66, 0.5),
+    0 0 0 1px rgba(0, 191, 255, 0.5),
     0 16px 34px rgba(0, 0, 0, 0.5),
-    0 0 26px rgba(245, 185, 66, 0.14);
+    0 0 26px rgba(0, 191, 255, 0.14);
 }
 
 /* PERGAMINO (misiones, citas, marcos de artefacto) */
@@ -275,7 +275,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 }
 .rd-parchment::before {
   background-image:
-    radial-gradient(90% 120% at 50% 0%, rgba(245, 185, 66, 0.05), transparent 55%),
+    radial-gradient(90% 120% at 50% 0%, rgba(0, 191, 255, 0.05), transparent 55%),
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 5px);
 }
 
@@ -307,8 +307,8 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   height: 9px;
   margin: 0.65em auto 0;
   background:
-    linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.9) 18%, rgba(245, 185, 66, 0.9) 82%, transparent) 0 50% / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.35) 30%, rgba(245, 185, 66, 0.35) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.9) 18%, rgba(0, 191, 255, 0.9) 82%, transparent) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.35) 30%, rgba(0, 191, 255, 0.35) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
 }
 .rd-title.rd-ornament::before {
   content: "◆";
@@ -318,7 +318,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   transform: translateX(-50%);
   color: var(--accent-primary);
   font-size: 9px;
-  text-shadow: 0 0 8px rgba(245, 185, 66, 0.7);
+  text-shadow: 0 0 8px rgba(0, 191, 255, 0.7);
 }
 
 .rd-eyebrow {
@@ -331,7 +331,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   position: relative;
   height: 1px;
   margin: var(--space-md) 0;
-  background: linear-gradient(90deg, transparent, rgba(245, 185, 66, 0.55) 30%, rgba(245, 185, 66, 0.55) 70%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.55) 30%, rgba(0, 191, 255, 0.55) 70%, transparent);
 }
 .rd-divider::before {
   content: "❖";
@@ -341,7 +341,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   transform: translate(-50%, -50%);
   color: var(--accent-secondary);
   font-size: 11px;
-  text-shadow: 0 0 6px rgba(245, 185, 66, 0.6);
+  text-shadow: 0 0 6px rgba(0, 191, 255, 0.6);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -373,11 +373,11 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
     0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* Selección activa: borde energético ámbar + brillo inferior */
+/* Selección activa: borde energético + brillo inferior */
 .rd-active {
   box-shadow:
-    inset 0 0 0 1px rgba(245, 185, 66, 0.7),
-    inset 0 -2px 0 rgba(245, 185, 66, 0.6),
+    inset 0 0 0 1px rgba(0, 191, 255, 0.7),
+    inset 0 -2px 0 rgba(0, 191, 255, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -399,16 +399,16 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 }
 .rd-progress > * {
   background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 45%), linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
-  box-shadow: 0 0 10px rgba(245, 185, 66, 0.5);
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
 }
 
 /* Foco ceremonial */
 .rd-focus:focus-visible {
   outline: none;
   box-shadow:
-    inset 0 0 0 1px rgba(245, 185, 66, 0.9),
-    0 0 0 2px rgba(245, 185, 66, 0.25),
-    0 0 18px rgba(245, 185, 66, 0.25);
+    inset 0 0 0 1px rgba(0, 191, 255, 0.9),
+    0 0 0 2px rgba(0, 191, 255, 0.25),
+    0 0 18px rgba(0, 191, 255, 0.25);
 }
 
 /* Navegación tipo barra de habilidades: material + estados */
@@ -432,12 +432,12 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
 }
 .rd-nav-item[aria-current="page"] {
   box-shadow:
-    inset 0 0 0 1px rgba(245, 185, 66, 0.65),
-    inset 0 -2px 0 rgba(245, 185, 66, 0.7),
+    inset 0 0 0 1px rgba(0, 191, 255, 0.65),
+    inset 0 -2px 0 rgba(0, 191, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .rd-nav-item[aria-current="page"]::before {
-  background-image: linear-gradient(180deg, rgba(245, 185, 66, 0.12), rgba(245, 185, 66, 0) 55%);
+  background-image: linear-gradient(180deg, rgba(0, 191, 255, 0.12), rgba(0, 191, 255, 0) 55%);
 }
 
 /* ── Separadores hairline anti-subpixel ────────────────────────────────────
@@ -447,11 +447,11 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
    siempre a 1px exacto, sin flicker ni desaparición intermitente. */
 .rd-divider-both {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), transparent) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.4), transparent) 1 / 1 / 0 stretch;
 }
 .rd-divider-left {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.4), rgba(245, 158, 11, 0.6)) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.4), rgba(0, 191, 255, 0.6)) 1 / 1 / 0 stretch;
 }
 /* Tab-bar: misma técnica, en el ::after inferior. Fade a la DERECHA: el borde
    nace sólido a la izquierda (visible bajo la primera pestaña) y se desvanece
@@ -464,7 +464,7 @@ repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1p
   bottom: 0;
   height: 1px;
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, rgba(245, 158, 11, 0.7), rgba(217, 119, 6, 0.3), transparent) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, rgba(0, 191, 255, 0.7), rgba(0, 160, 220, 0.3), transparent) 1 / 1 / 0 stretch;
   pointer-events: none;
 }
 

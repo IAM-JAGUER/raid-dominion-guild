@@ -8,7 +8,8 @@
 ## 1. Stack
 
 - **Framework:** Astro 4 + TypeScript
-- **Styling:** Tailwind CSS v3 (tema WoW: ámbar/dorado, fondo oscuro)
+- **Styling:** Tailwind CSS v3 (tema WoW azul/acero: escala `brand`,
+  fondo Abismo `#07111E`; ver `AGENTS.sections/design.md` §1b)
 - **Backend:** Supabase (JS client v2)
 - **Deploy:** Netlify (Node 20)
 - **Package Manager:** npm
@@ -143,6 +144,7 @@ src/
 │   ├── api.ts       # wrappers RPC/queries tipadas
 │   ├── routes.ts    # resolver de rutas públicas
 │   ├── ui/design.ts # tokens visuales — ver AGENTS.sections/design.md
+│   ├── ui/icons.ts  # sistema de 65 iconos (contrato único) — ver design.md §10
 │   └── parser/      # savedVariables.ts (parser SV)
 ├── types/           # interfaces TS
 └── utils/           # utilidades
@@ -172,6 +174,11 @@ src/
   montados sobre `#filters` en la cabecera del panel (`DirectoryPage` y
   `/bandas`); `bandasPanel.ts` (día/tipo) lo consume para las pestañas
   Bandas. Jamás duplicar buscador/chips en una página (design.md §7b).
+- **Contrato único de iconos**: los 65 iconos temáticos viven SOLO en
+  `src/lib/ui/icons.ts` (sprite `public/icons/rd-icons.*`, generado por
+  `scripts/icons-sheet.py`). Render SIEMPRE vía `Icon.astro` o `iconEl`
+  (nunca spans/backgrounds sueltos); arte a color, prohibido recolorear
+  (design.md §10).
 - `build` real: `astro build`. Para verificación usar SIEMPRE
   `scripts/verifica.sh` (ver §8).
 
@@ -479,6 +486,19 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-17 (paleta y entrada)**: identidad azul/acero adoptada
+  (Abismo/Acero/Hielo/Plata/Energía; §1b de `design.md`) sustituyendo la
+  ámbar/dorada en tokens, `material.css` y 35 archivos; eliminado el
+  `<style>` legacy de `GrandLogo` que sombreaba `@keyframes fadeIn` y
+  desplazaba el layout 10px al entrar (F021); escala de prominencia
+  responsiva de los iconos `lg`/`xl` y tokens `ui.iconTileMd/Lg` (§10).
+
+- **2026-10-16 (iconos)**: adoptado el sistema de 65 iconos temáticos
+  (`src/lib/ui/icons.ts` + `Icon.astro`/`iconEl` + `icons.css` +
+  `scripts/icons-sheet.py`; sprite normalizado en `public/icons/`),
+  integrado en toda la plataforma; añadido el contrato único de iconos a §7
+  y los archivos a §6. Detalle visual en `design.md` §10.
 
 - **2026-10-16**: agregada la prohibición absoluta de detener el servidor de
   Live Preview del usuario (puerto 4321): los agentes nunca lo matan ni lo

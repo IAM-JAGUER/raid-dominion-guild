@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -22,7 +23,7 @@ import { ui } from '@/lib/ui/design';
 
       <!-- Sin autorización -->
       <div id="denied" data-rd-reveal class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
-        <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <Icon name="bloqueo" size="xl" class="mx-auto mb-3" />
         <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
         <p id="denied-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es solo para moderadores y administradores.</p>
         <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
@@ -37,27 +38,27 @@ import { ui } from '@/lib/ui/design';
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
         <!-- Cola de claims -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
-          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Claims pendientes
+        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+          <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
+            <Icon name="balanza" size="md" class="mr-2.5" />Claims pendientes
           </h2>
           <p id="claims-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="claims-list" class="space-y-4"></ul>
         </section>
 
         <!-- Hermandades verificadas -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
-          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Hermandades verificadas
+        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+          <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
+            <Icon name="medalla" size="md" class="mr-2.5" />Hermandades verificadas
           </h2>
           <p id="verified-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="verified-list" class="space-y-3"></ul>
         </section>
 
         <!-- Auditoría -->
-        <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.2s">
-          <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-            <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Bitácora reciente
+        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.2s">
+          <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
+            <Icon name="notificaciones" size="md" class="mr-2.5" />Bitácora reciente
           </h2>
           <p id="audit-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="audit-list" class="space-y-2"></ul>
@@ -72,6 +73,8 @@ import { ui } from '@/lib/ui/design';
   import { getMyProfile, staffListGuilds, verifyClaim, staffSetGuildPublic, listAuditLog, type StaffGuildRow } from '@/lib/api';
   import { isStaff } from '@/lib/roles';
   import { ui } from '@/lib/ui/design';
+  import { el } from '@/lib/ui/dom';
+  import { iconEl, type IconName } from '@/lib/ui/icons';
 
   function msgCls(ok: boolean): string {
     return ok
@@ -126,7 +129,7 @@ import { ui } from '@/lib/ui/design';
 
   function claimCard(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'bg-gray-800/50 border border-amber-700/40 rounded-md p-4';
+    li.className = 'bg-brand-800/50 border border-brand-700/40 rounded-md p-4';
     li.dataset.guildId = g.id;
 
     const head = document.createElement('div');
@@ -158,12 +161,14 @@ import { ui } from '@/lib/ui/design';
 
     const approve = document.createElement('button');
     approve.type = 'button';
-    approve.className = 'px-4 py-2 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50';
-    approve.textContent = '✓ Aprobar';
+    approve.className = 'inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-50';
+    approve.appendChild(iconEl('confirmacion', { size: 'xs' }));
+    approve.appendChild(document.createTextNode('Aprobar'));
     const reject = document.createElement('button');
     reject.type = 'button';
-    reject.className = 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50';
-    reject.textContent = '✕ Rechazar';
+    reject.className = 'inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50';
+    reject.appendChild(iconEl('error', { size: 'xs' }));
+    reject.appendChild(document.createTextNode('Rechazar'));
 
     const out = document.createElement('p');
     out.className = 'hidden w-full';
@@ -191,7 +196,7 @@ import { ui } from '@/lib/ui/design';
 
   function verifiedRow(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
+    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
 
     const info = document.createElement('div');
     const name = document.createElement('p');
@@ -205,20 +210,25 @@ import { ui } from '@/lib/ui/design';
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = g.is_public
-      ? 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
-      : 'px-4 py-2 rounded-md border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
-    btn.textContent = g.is_public ? 'Retirar del directorio' : 'Republicar';
+    const btnCls = (isPublic: boolean): string =>
+      'inline-flex items-center gap-1.5 px-4 py-2 rounded-md border text-[11px] font-black uppercase tracking-widest transition-all ' +
+      (isPublic
+        ? 'border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200'
+        : 'border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200');
+    const btnLabel = (isPublic: boolean): string => (isPublic ? 'Retirar del directorio' : 'Republicar');
+    const btnIcon = (isPublic: boolean): HTMLElement => iconEl(isPublic ? 'bloqueo' : 'visibilidad', { size: 'xs' });
+    btn.className = btnCls(g.is_public);
+    const lbl = el('span', '', btnLabel(g.is_public));
+    btn.append(btnIcon(g.is_public), lbl);
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
       const r = await staffSetGuildPublic(g.id, !g.is_public);
       if (r.ok) {
         meta.textContent = `/hermandad/${g.slug} · ${!g.is_public ? 'Pública' : 'Retirada'}`;
-        btn.textContent = !g.is_public ? 'Retirar del directorio' : 'Republicar';
-        btn.className = !g.is_public
-          ? 'px-4 py-2 rounded-md border border-red-700/50 text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-all text-[11px] font-black uppercase tracking-widest'
-          : 'px-4 py-2 rounded-md border border-emerald-700/50 text-emerald-300 hover:bg-emerald-950/40 hover:text-emerald-200 transition-all text-[11px] font-black uppercase tracking-widest';
+        lbl.textContent = btnLabel(!g.is_public);
+        btn.firstElementChild?.replaceWith(btnIcon(!g.is_public));
+        btn.className = btnCls(!g.is_public);
       }
       btn.disabled = false;
     });
@@ -250,13 +260,21 @@ import { ui } from '@/lib/ui/design';
       guild_takedown: 'Portal retirado',
       user_role_changed: 'Rol cambiado',
     };
+    const ICON_BY_ACTION: Record<string, IconName> = {
+      guild_claim_verified: 'correcto',
+      guild_claim_rejected: 'error',
+      guild_published: 'visibilidad',
+      guild_takedown: 'bloqueo',
+      user_role_changed: 'corona',
+    };
 
     items.forEach((a) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-amber-600/10 pb-2';
+      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-brand-600/10 pb-2';
       const action = document.createElement('span');
-      action.className = 'font-bold text-amber-200';
-      action.textContent = LABELS[a.action] ?? a.action;
+      action.className = 'inline-flex items-center gap-1.5 font-bold text-brand-200';
+      action.appendChild(iconEl(ICON_BY_ACTION[a.action] ?? 'bandeja', { size: 'xs' }));
+      action.appendChild(document.createTextNode(LABELS[a.action] ?? a.action));
       const when = new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
       const meta = document.createElement('span');
       meta.textContent = `${a.target ? '· ' + a.target.slice(0, 8) : ''} · ${when}`;

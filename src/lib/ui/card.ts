@@ -5,9 +5,10 @@
  * hover (ui.cardHover), medallón (ui.iconTile), eyebrow y cifra (ui.statValue).
  *
  * Estos helpers son la fuente ÚNICA del literal de card en el render dinámico:
- * no dupliques bg-gray-900/60 + borde ámbar sueltos fuera de aquí (R5).
+ * no dupliques bg-brand-900/60 + borde ámbar sueltos fuera de aquí (R5).
  */
 import { ui } from '@/lib/ui/design';
+import { iconEl, type IconName, type IconSize } from '@/lib/ui/icons';
 
 function node(tag: string, cls: string, text?: string): HTMLElement {
   const n = document.createElement(tag);
@@ -42,6 +43,14 @@ export function iconTile(text: string, size = 'w-10 h-10', textCls = 'text-lg'):
   return node('div', `${ui.iconTile} ${size} ${textCls}`, text);
 }
 
+// Medallón con icono TEMÁTICO (arte a color del sprite) sobre ui.iconTile.
+// El tamaño por defecto es el token responsivo de card/lista (crece en sm).
+export function iconTileEl(name: IconName, size = ui.iconTileMd, iconSize: IconSize = 'lg'): HTMLElement {
+  const tile = node('div', `${ui.iconTile} ${size}`);
+  tile.appendChild(iconEl(name, { size: iconSize }));
+  return tile;
+}
+
 // Eyebrow: etiqueta superior de sección/card.
 export function eyebrow(text: string, cls = ''): HTMLElement {
   return node('p', `${ui.eyebrow} ${cls}`.trim(), text);
@@ -71,7 +80,7 @@ export function divider(): HTMLElement {
 // enlace ya está en la card; el icono lo hace explícito (aria-hidden, el
 // texto del enlace lleva la accesibilidad).
 export function arrowIcon(): HTMLElement {
-  const span = node('span', 'shrink-0 inline-flex items-center justify-center text-amber-400 group-hover:text-amber-300 transition-colors');
+  const span = node('span', 'shrink-0 inline-flex items-center justify-center text-brand-400 group-hover:text-brand-300 transition-colors');
   span.setAttribute('aria-hidden', 'true');
   const svg = node('svg', 'w-4 h-4');
   svg.setAttribute('viewBox', '0 0 24 24');

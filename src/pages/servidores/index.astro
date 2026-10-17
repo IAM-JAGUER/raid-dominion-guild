@@ -15,12 +15,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     <div class="max-w-6xl mx-auto">
       <DirectoryPage
         hero="Servidores"
+        panelIcon="servidor"
         heroTitleCls="rd-title rd-ornament"
         intro="Reinos con hermandades y personajes públicos, derivados de los SavedVariables subidos por la comunidad."
         loadingText="Cargando servidores…"
         gridLabel="Listado de servidores"
         empty={{
-          icon: 'server',
+          icon: 'servidor',
           eyebrow: 'Directorio público',
           title: 'Aún no hay servidores con datos públicos',
           titleCls: 'font-black italic',
@@ -34,7 +35,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 
 <script>
   import { listPublicServers } from '@/lib/api';
-  import { cardLink, iconTile, cardTitle } from '@/lib/ui/card';
+  import { cardLink, iconTileEl, cardTitle } from '@/lib/ui/card';
   import { chip } from '@/lib/ui/dom';
   import { createFilterBar } from '@/lib/ui/filterBar';
   import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
@@ -79,7 +80,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
 
     const head = document.createElement('div');
     head.className = 'flex items-center gap-3 mb-3';
-    head.appendChild(iconTile((server[0] || '?').toUpperCase(), 'w-10 h-10', 'text-lg'));
+    head.appendChild(iconTileEl('servidor'));
     const name = cardTitle(server, 'text-base', 'break-all');
     head.appendChild(name);
     link.appendChild(head);

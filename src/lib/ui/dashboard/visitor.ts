@@ -5,6 +5,7 @@
 // updateClaimBanner) lo conecta la capa fina de dashboard.astro.
 
 import { el } from '@/lib/ui/preview';
+import { iconChip } from '@/lib/ui/dom';
 import { configChip } from '@/lib/ui/dashboard/chips';
 import { resolveRankName } from '@/lib/ui/ranks';
 import { ui } from '@/lib/ui/design';
@@ -68,7 +69,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     cardEl.appendChild(cardTop());
     const head = el('div', 'flex flex-wrap items-center gap-2');
     head.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, g.name));
-    if (g.isGM) head.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-amber-300 bg-amber-950/30 border-amber-500/40`, '★ Maestro'));
+    if (g.isGM) head.appendChild(iconChip('estrella', 'Maestro', '!text-brand-300 !border-brand-500/40', 'md'));
     cardEl.appendChild(head);
 
     // El rango propio se detecta por rankIndex contra la jerarquía; el
@@ -98,10 +99,10 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
           : (!!g.ownRank && r.name.trim().toLowerCase() === g.ownRank.trim().toLowerCase());
         const label = r.name.trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`);
         const cls = isMine
-          ? 'text-amber-300 border-amber-500/50 bg-amber-900/30'
+          ? 'text-brand-300 border-brand-500/50 bg-brand-900/30'
           : r.index === 0
-            ? 'text-amber-200/90 border-amber-600/30 bg-gray-900/60'
-            : 'text-gray-400 border-gray-700/40 bg-gray-900/60';
+            ? 'text-brand-200/90 border-brand-600/30 bg-brand-900/60'
+            : 'text-gray-400 border-gray-700/40 bg-brand-900/60';
         hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border ${cls}`,
           `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
       });

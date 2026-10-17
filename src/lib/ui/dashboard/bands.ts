@@ -63,7 +63,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     input.type = 'checkbox';
     input.className = 'peer sr-only';
     input.checked = checked;
-    const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-amber-600/70 peer-checked:border-amber-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
+    const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-brand-600/70 peer-checked:border-brand-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
     const textEl = el('span', '', text);
     const status = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
     label.append(input, track, textEl, status);
@@ -86,7 +86,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.is_public, 'Pública', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandVisibility(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
@@ -109,7 +109,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.hide_players, 'Ocultar jugadores', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandHidePlayers(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
@@ -137,7 +137,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.notes_public, 'Notas públicas', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandNotesPublic(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
@@ -180,7 +180,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
 
   const gRow = el('div', 'flex flex-wrap items-center gap-2');
   const select = document.createElement('select');
-  select.className = 'flex-1 min-w-[200px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
+  select.className = 'flex-1 min-w-[200px] px-3 py-2 rounded-md bg-brand-950/70 border border-gray-700 text-sm text-gray-200 focus:border-brand-600/60 focus:outline-none';
   const personalOpt = document.createElement('option');
   personalOpt.value = '';
   personalOpt.textContent = 'Sin hermandad (personal)';
@@ -204,7 +204,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     select.addEventListener('change', async () => {
       select.disabled = true;
       gStatus.textContent = 'guardando…';
-      gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+      gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
       gErr.textContent = '';
       const gid = select.value === '' ? null : select.value;
       const res = await setBandGuild(b.id, gid);
@@ -246,7 +246,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   propLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
   const prop = document.createElement('input');
   prop.type = 'checkbox';
-  prop.className = 'w-4 h-4 accent-amber-500';
+  prop.className = 'w-4 h-4 accent-brand-500';
   prop.checked = b.integration_status === 'pending';
   const propStatus = el('span', 'ml-1 text-[10px] font-bold uppercase tracking-widest', '');
   // Estado del control de propuesta: reactivo al DESTINO (target) y al estado
@@ -258,14 +258,14 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     const baseLabelCls = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
     if (!canPropose) {
       prop.disabled = true;
-      prop.className = 'w-4 h-4 accent-amber-500 opacity-40';
+      prop.className = 'w-4 h-4 accent-brand-500 opacity-40';
       propLabel.className = baseLabelCls + ' opacity-60 cursor-not-allowed';
       propLabel.title = !effG
         ? 'Asigna la banda a una hermandad para proponer su integración.'
         : (b.integration_status === 'approved' ? 'Esta banda ya está integrada al portal.' : 'Requiere cuenta Miembro validada.');
     } else {
       prop.disabled = false;
-      prop.className = 'w-4 h-4 accent-amber-500';
+      prop.className = 'w-4 h-4 accent-brand-500';
       propLabel.className = baseLabelCls;
       propLabel.title = '';
     }
@@ -275,14 +275,14 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     if (!prop.checked) return; // retirar propuesta = el GM decide; aquí no se despropone
     prop.disabled = true;
     propStatus.textContent = 'proponiendo…';
-    propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-sky-300';
+    propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await proposeBandIntegration(b.id);
     prop.disabled = false;
     if (res.ok) {
       b.integration_status = 'pending';
       prop.checked = true;
       propStatus.textContent = '✓ propuesta enviada al maestro';
-      propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-sky-300';
+      propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-brand-300';
       opts.onHdrRefresh();
     } else {
       prop.checked = false;
@@ -323,14 +323,14 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       return;
     }
     assigned.forEach((r) => {
-      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-amber-100 bg-amber-950/40 border border-amber-600/40 rounded-md pl-2.5 pr-1 py-1');
+      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-brand-100 bg-brand-950/40 border border-brand-600/40 rounded-md pl-2.5 pr-1 py-1');
       const full = r.content && r.content !== r.title ? r.content : undefined;
       tag.title = full ?? '';
       tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
       if (!blocked) {
         const rm = document.createElement('button');
         rm.type = 'button';
-        rm.className = 'w-4 h-4 shrink-0 rounded-md text-amber-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
+        rm.className = 'w-4 h-4 shrink-0 rounded-md text-brand-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
         rm.textContent = '×';
         rm.title = 'Quitar regla';
         rm.addEventListener('click', () => {
@@ -353,7 +353,7 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
   // asignadas a esta banda; elegir una la añade como tag y persiste.
   const addRow = el('div', 'flex flex-wrap items-center gap-2');
   const addSelect = document.createElement('select');
-  addSelect.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-gray-950/70 border border-gray-700 text-sm text-gray-200 focus:border-amber-600/60 focus:outline-none';
+  addSelect.className = 'flex-1 min-w-[220px] px-3 py-2 rounded-md bg-brand-950/70 border border-gray-700 text-sm text-gray-200 focus:border-brand-600/60 focus:outline-none';
   const rebuildAddSelect = (): void => {
     addSelect.innerHTML = '';
     const assigned = bandAssignedRules(b, opts.rulesCatalog);
@@ -395,7 +395,7 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
 
   const saveRules = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
     rulesStatus.textContent = 'guardando…';
-    rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandRules(b.id, next);
     if (res.ok) {
       b.rules = next as unknown as BandRow['rules'];

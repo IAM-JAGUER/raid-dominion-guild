@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -18,7 +19,7 @@ import { ui } from '@/lib/ui/design';
       <Breadcrumb />
       <!-- Encabezado con logo -->
       <header class="text-center mb-8 animate-fade-in-1">
-        <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]" loading="eager" decoding="async" />
+        <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(0,191,255,0.35)]" loading="eager" decoding="async" />
         <h1 class={`${ui.titleHero}`}>
           <span id="form-title">Iniciar Sesión</span>
         </h1>
@@ -28,14 +29,14 @@ import { ui } from '@/lib/ui/design';
 
       <section class={`${ui.panel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
         <!-- Alternancia de modo -->
-        <div class="grid grid-cols-2 border-b border-amber-600/20" role="tablist" aria-label="Modo de acceso">
+        <div class="grid grid-cols-2 border-b border-brand-600/20" role="tablist" aria-label="Modo de acceso">
           <button id="tab-signin" type="button" role="tab" aria-selected="true"
-            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-amber-400 text-amber-200 bg-amber-900/20`}>
-            Ingresar
+            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-brand-400 text-brand-200 bg-brand-900/20`}>
+            <span class="inline-flex items-center gap-1.5"><Icon name="portal" size="sm" />Ingresar</span>
           </button>
           <button id="tab-signup" type="button" role="tab" aria-selected="false"
             class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-transparent text-gray-500 hover:text-gray-300`}>
-            Crear cuenta
+            <span class="inline-flex items-center gap-1.5"><Icon name="anadir" size="sm" />Crear cuenta</span>
           </button>
         </div>
 
@@ -44,9 +45,7 @@ import { ui } from '@/lib/ui/design';
           <div>
             <label for="email" class={ui.form.label}>Correo electrónico</label>
             <div class="relative">
-              <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-              </svg>
+              <Icon name="nota" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input type="email" id="email" name="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com" aria-describedby="auth-error"
                 class={`${ui.form.input} ${ui.focusRing} pl-10`} />
             </div>
@@ -56,23 +55,16 @@ import { ui } from '@/lib/ui/design';
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="password" class={ui.form.label}>Contraseña</label>
-              <button type="button" id="forgot-link" class={`hidden text-[11px] text-amber-400/90 hover:text-amber-300 underline underline-offset-2 ${ui.transition} ${ui.focusRing}`}>¿Olvidaste tu contraseña?</button>
+              <button type="button" id="forgot-link" class={`hidden inline-flex items-center gap-1 text-[11px] text-brand-400/90 hover:text-brand-300 underline underline-offset-2 ${ui.transition} ${ui.focusRing}`}><Icon name="ayuda" size="xs" />¿Olvidaste tu contraseña?</button>
             </div>
             <div class="relative">
-              <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a2 2 0 00-8 0v4h8z" />
-              </svg>
+              <Icon name="bloqueo-alt" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" aria-describedby="auth-error"
                 class={`${ui.form.input} ${ui.focusRing} pl-10 pr-11`} />
               <button type="button" id="toggle-pass" aria-label="Mostrar u ocultar contraseña" aria-pressed="false"
-                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-amber-300 ${ui.transition} ${ui.focusRing}`}>
-                <svg id="eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <svg id="eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                </svg>
+                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-brand-300 ${ui.transition} ${ui.focusRing}`}>
+                <Icon id="eye-open" name="visibilidad" size="md" />
+                <Icon id="eye-closed" name="bloqueo" size="md" class="hidden" />
               </button>
             </div>
 
@@ -92,7 +84,7 @@ import { ui } from '@/lib/ui/design';
           </div>
 
           <!-- Formulario de recuperación -->
-          <div id="reset-box" class="hidden border border-amber-600/30 bg-amber-900/10 rounded-md p-4 space-y-3">
+          <div id="reset-box" class="hidden border border-brand-600/30 bg-brand-900/10 rounded-md p-4 space-y-3">
             <p class={ui.text.caption}>Te enviaremos un enlace para restablecer tu contraseña.</p>
             <button type="button" id="reset-send"
               class={`${ui.btnBase} ${ui.btnSecondary} w-full px-4 py-2.5 text-xs font-black uppercase tracking-widest`}>
@@ -113,7 +105,7 @@ import { ui } from '@/lib/ui/design';
 
       <p class={`${ui.text.caption} text-center mt-6`}>
         Al crear cuenta aceptas ser parte de la comunidad RaidDominion.<br />
-        <a href="/" class={`hover:text-amber-300 ${ui.transition}`}>← Volver al portal</a>
+        <a href="/" class={`hover:text-brand-300 ${ui.transition}`}>← Volver al portal</a>
       </p>
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
@@ -137,8 +129,8 @@ import { ui } from '@/lib/ui/design';
   const resetBox = document.getElementById('reset-box') as HTMLElement;
   const resetSend = document.getElementById('reset-send') as HTMLButtonElement;
   const togglePassBtn = document.getElementById('toggle-pass') as HTMLButtonElement;
-  const eyeOpen = document.getElementById('eye-open') as unknown as SVGElement;
-  const eyeClosed = document.getElementById('eye-closed') as unknown as SVGElement;
+  const eyeOpen = document.getElementById('eye-open') as HTMLElement;
+  const eyeClosed = document.getElementById('eye-closed') as HTMLElement;
   const form = document.getElementById('auth-form') as HTMLFormElement;
   const emailInput = document.getElementById('email') as HTMLInputElement;
   const passwordInput = document.getElementById('password') as HTMLInputElement;
@@ -160,7 +152,7 @@ import { ui } from '@/lib/ui/design';
 
     tabSignin.setAttribute('aria-selected', String(mode === 'signin'));
     tabSignup.setAttribute('aria-selected', String(mode === 'signup'));
-    const on = ['border-amber-400', 'text-amber-200', 'bg-amber-900/20'];
+    const on = ['border-brand-400', 'text-brand-200', 'bg-brand-900/20'];
     const off = ['border-transparent', 'text-gray-500'];
     if (mode === 'signin') {
       tabSignin.classList.add(...on); tabSignin.classList.remove(...off);

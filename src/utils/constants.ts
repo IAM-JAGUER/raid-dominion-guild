@@ -27,7 +27,7 @@ export const SITE_CONFIG = {
   DESCRIPTION: 'Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar.',
   KEYWORDS: ['wow', 'wotlk', 'addon', 'raid', '3.3.5a', 'bandas', 'pve', 'roles', 'buffs', 'raiddominion'],
   AUTHOR: 'RaidDominion',
-  THEME_COLOR: '#d97706', // Color ámbar-600
+  THEME_COLOR: '#00BFFF', // Energía (paleta azul/acero)
   LOCALE: 'es-ES',
 };
 

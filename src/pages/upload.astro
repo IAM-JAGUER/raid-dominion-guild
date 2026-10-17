@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -17,31 +18,27 @@ import { ui } from '@/lib/ui/design';
       <Breadcrumb />
       <!-- Header -->
       <header class="text-center mb-12 animate-fade-in-1">
-        <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-amber-600 to-amber-800 rounded-md flex items-center justify-center shadow-lg shadow-amber-900/20">
-          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
+        <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 shadow-lg shadow-brand-900/20`}>
+          <Icon name="subir" size="xl" />
         </div>
         <h1 class={`${ui.titleHero}`}>
           Sube tu SavedVariables
         </h1>
         <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
-          Carga tu <code class="text-amber-300">RaidDominion.lua</code> para analizar roster, bandas y objetivos registrados de tus personajes.
+          Carga tu <code class="text-brand-300">RaidDominion.lua</code> para analizar roster, bandas y objetivos registrados de tus personajes.
         </p>
       </header>
       <div class={`${ui.dividerFadeBoth} mt-6 mb-10`} aria-hidden="true"></div>
 
       <!-- Dropzone -->
-      <section class="bg-gray-900/50 backdrop-blur-sm border border-amber-600/30 rounded-md p-4 sm:p-6 md:p-8 mb-8">
+      <section class="bg-brand-900/50 backdrop-blur-sm border border-brand-600/30 rounded-md p-4 sm:p-6 md:p-8 mb-8">
         <label
           for="sv-file"
           id="dropzone"
-          class="flex flex-col items-center justify-center border-2 border-dashed border-amber-600/40 rounded-md p-8 sm:p-10 cursor-pointer hover:border-amber-500/70 hover:bg-amber-900/10 ${ui.transition}"
+          class="flex flex-col items-center justify-center border-2 border-dashed border-brand-600/40 rounded-md p-8 sm:p-10 cursor-pointer hover:border-brand-500/70 hover:bg-brand-900/10 ${ui.transition}"
         >
-          <svg class="w-10 h-10 text-amber-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
-          <span class="text-sm text-amber-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
+          <Icon name="subir" size="xl" class="mb-3" />
+          <span class="text-sm text-brand-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
           <span class="text-xs text-gray-500 mt-1">RaidDominion.lua · máx. 2 MB · uno o varios archivos</span>
           <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" multiple />
         </label>
@@ -55,14 +52,14 @@ import { ui } from '@/lib/ui/design';
       <!-- Resultado -->
       <section id="result" data-rd-reveal class="hidden space-y-6">
         <!-- Claim de maestro (solo vía SV; sin formularios) -->
-        <div id="claim-banner" data-rd-reveal class="hidden bg-gradient-to-r from-amber-900/40 to-amber-800/20 border border-amber-600/40 rounded-md p-4 sm:p-6">
-          <h2 class={`${ui.text.h2} text-amber-300 mb-2`}>¡Eres candidato a maestro de hermandad!</h2>
+        <div id="claim-banner" data-rd-reveal class="hidden bg-gradient-to-r from-brand-900/40 to-brand-800/20 border border-brand-600/40 rounded-md p-4 sm:p-6">
+          <h2 class={`${ui.text.h2} text-brand-300 mb-2 flex items-center gap-2`}><Icon name="corona" size="md" />¡Eres candidato a maestro de hermandad!</h2>
           <p class={`${ui.text.body} mb-4`}>
-            Tu SavedVariables fue generado por <strong id="claim-char" class="text-amber-200"></strong> con rango de liderazgo.
+            Tu SavedVariables fue generado por <strong id="claim-char" class="text-brand-200"></strong> con rango de liderazgo.
             Al guardar el análisis, el portal detecta tu maestría y te permite registrar tu hermandad
-            <strong class="text-amber-200">automáticamente desde el propio archivo</strong> (sin formularios).
+            <strong class="text-brand-200">automáticamente desde el propio archivo</strong> (sin formularios).
           </p>
-          <p id="claim-status-note" class="hidden text-sm text-amber-200/80">
+          <p id="claim-status-note" class="hidden text-sm text-brand-200/80">
             Si tu rango no es de liderazgo, tu solicitud quedará en revisión para un moderador.
           </p>
           <p id="claim-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
@@ -70,28 +67,34 @@ import { ui } from '@/lib/ui/design';
 
         <!-- Cifras del procesamiento -->
         <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-guilds">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="hermandad" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-guilds">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-characters">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="personaje" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-characters">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Personajes</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-bands">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="espadas" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-bands">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-rules">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="pergamino" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-rules">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-objectives">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="estrella" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-objectives">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Objetivos</p>
           </div>
-          <div class="bg-gray-900/50 border border-amber-600/30 rounded-md p-4 text-center">
-            <p class="text-3xl font-bold text-amber-300" id="stat-instances">0</p>
+          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+            <Icon name="ciudadela" size="lg" class="mx-auto mb-1" />
+            <p class="text-3xl font-bold text-brand-300" id="stat-instances">0</p>
             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Instancias</p>
           </div>
         </div>
@@ -117,6 +120,7 @@ import { ui } from '@/lib/ui/design';
 
 <script>
   import { parseSavedVariables } from '@/lib/parser/savedVariables';
+  import { iconEl } from '@/lib/ui/icons';
   import type { ParsedSavedVariables, GuildMember } from '@/types/parser';
   import { el } from '@/lib/ui/preview';
   import { supabase } from '@/lib/supabase';
@@ -208,7 +212,10 @@ import { ui } from '@/lib/ui/design';
   }
 
   function addWarning(msg: string, opts?: { toast?: boolean }): void {
-    warningsEl.appendChild(el('div', 'text-xs text-amber-200/80 bg-amber-900/20 border-l-2 border-amber-500/50 px-4 py-2 rounded-md', '⚠ ' + msg));
+    const warn = el('div', 'flex items-start gap-2 text-xs text-brand-200/80 bg-brand-900/20 border-l-2 border-brand-500/50 px-4 py-2 rounded-md');
+    warn.appendChild(iconEl('advertencia', { size: 'xs', cls: 'shrink-0 mt-0.5' }));
+    warn.appendChild(document.createTextNode(msg));
+    warningsEl.appendChild(warn);
     if (opts?.toast === false) return;
     toast.warning('Atención', msg);
   }
@@ -217,9 +224,9 @@ import { ui } from '@/lib/ui/design';
   async function persistIfLoggedIn(data: ParsedSavedVariables): Promise<void> {
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session?.user) {
-      const info = el('div', 'text-xs text-gray-400 bg-gray-900/60 border-l-2 border-amber-500/50 px-4 py-2 rounded-md mt-2');
+      const info = el('div', 'text-xs text-gray-400 bg-brand-900/60 border-l-2 border-brand-500/50 px-4 py-2 rounded-md mt-2');
       info.appendChild(document.createTextNode('Inicia sesión para guardar este análisis en tu historial. '));
-      const link = el('a', 'text-amber-300 underline hover:text-amber-200', 'Iniciar Sesión');
+      const link = el('a', 'text-brand-300 underline hover:text-brand-200', 'Iniciar Sesión');
       (link as HTMLAnchorElement).href = '/login?next=%2Fupload';
       info.appendChild(link);
       warningsEl.appendChild(info);
@@ -467,9 +474,10 @@ import { ui } from '@/lib/ui/design';
   function renderOnboardingBanner(kind: 'success' | 'visitor', msg: string): void {
     const cls = kind === 'success'
       ? 'text-emerald-200 bg-emerald-950/40 border-l-2 border-emerald-500/60'
-      : 'text-amber-100 bg-amber-950/30 border-l-2 border-amber-500/60';
-    const box = el('div', 'text-xs px-4 py-3 rounded-md mb-2 ' + cls);
-    box.textContent = kind === 'success' ? '✓ ' + msg : '⬆ ' + msg;
+      : 'text-brand-100 bg-brand-950/30 border-l-2 border-brand-500/60';
+    const box = el('div', 'flex items-start gap-2 text-xs px-4 py-3 rounded-md mb-2 ' + cls);
+    box.appendChild(iconEl(kind === 'success' ? 'correcto' : 'subir', { size: 'xs', cls: 'shrink-0 mt-0.5' }));
+    box.appendChild(document.createTextNode(msg));
     warningsEl.prepend(box);
   }
 

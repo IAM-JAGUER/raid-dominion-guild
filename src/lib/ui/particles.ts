@@ -2,7 +2,7 @@
 //
 // Una sola pieza consume TODOS los fondos: cada página monta un <canvas
 // data-rd-particles="<variante>"> y aquí vive el contrato de variantes
-// (nieve/ventisca del index, motas de clase en personaje, ascuas de banda,
+// (nieve/ventisca del index, motas de clase en personaje, chispas de banda,
 // motas heráldicas de hermandad y esquirlas del 404).
 //
 // Reglas del motor:
@@ -108,12 +108,12 @@ const VARIANT_CONFIG: Record<ParticleVariant, VariantConfig> = {
     drift: 14,
     wind: 0,
     twinkle: 0.8,
-    palette: ['#69ccf0', '#a78bfa', '#f5b942'],
+    palette: ['#5CA9E8', '#a78bfa', '#00BFFF'],
     additive: true,
     parallax: 0.7,
     shape: 'dot',
   },
-  // Ascuas de hoguera de raid (ficha de banda): suben rápido y titilan.
+  // Chispas de energía de raid (ficha de banda): suben rápido y titilan.
   ember: {
     count: 90,
     opacity: 0.8,
@@ -123,12 +123,12 @@ const VARIANT_CONFIG: Record<ParticleVariant, VariantConfig> = {
     drift: 10,
     wind: 6,
     twinkle: 1,
-    palette: ['#ff8000', '#f5b942', '#ef4444'],
+    palette: ['#00BFFF', '#5CA9E8', '#B8D7F1'],
     additive: true,
     parallax: 0.75,
     shape: 'ember',
   },
-  // Motas heráldicas doradas (portal de hermandad): caen lento y destellan.
+  // Motas heráldicas plateadas (portal de hermandad): caen lento y destellan.
   banner: {
     count: 80,
     opacity: 0.65,
@@ -138,7 +138,7 @@ const VARIANT_CONFIG: Record<ParticleVariant, VariantConfig> = {
     drift: 6,
     wind: 8,
     twinkle: 1.2,
-    palette: ['#f5b942', '#e6cc80', '#fff3c4'],
+    palette: ['#B8D7F1', '#5CA9E8', '#EEF6FE'],
     additive: true,
     parallax: 0.6,
     shape: 'dot',

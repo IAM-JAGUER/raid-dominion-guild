@@ -41,7 +41,7 @@ actualiza la línea en vez de dejarla apuntando a algo que ya no existe.
 - Sincronía obligatoria al cambiar claves (rutas y detalle en
   `AGENTS.sections/addon.md`)
 
-## P007: Tema WoW (ámbar/dorado)
+## P007: Tema WoW (azul/acero)
 - Tokens en `src/lib/ui/design.ts`
 - Importar tokens, no duplicar literales
 - `rounded-md` para elementos con texto

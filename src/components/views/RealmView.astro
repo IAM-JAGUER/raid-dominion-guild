@@ -5,25 +5,29 @@
 // del servidor (realmlist) que enlaza a /servidor/:server.
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
+import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-reino" class="hidden">
   <header class="animate-fade-in-1 mb-6">
     <p class={`${ui.eyebrow} mb-1 flex items-center`}>
-      <svg class="w-3.5 h-3.5 mr-1.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zm-9-9h18M12 3c-2.5 2.5-2.5 15 0 18M12 3c2.5 2.5 2.5 15 0 18"/></svg>
+      <Icon name="vientos" size="xs" class="mr-1.5" />
       <span>Reino</span>
     </p>
     <div class="flex flex-wrap items-end gap-3">
       <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-      <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-sky-950/60 to-sky-950/30 border-sky-600/40 text-sky-200 hover:from-sky-900/70 hover:to-sky-900/40 hover:border-sky-400/60 hover:text-sky-100 transition-all`}></a>
+      <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-brand-950/60 to-brand-950/30 border-brand-600/40 text-brand-200 hover:from-brand-900/70 hover:to-brand-900/40 hover:border-brand-400/60 hover:text-brand-100 transition-all`}></a>
     </div>
     <div class="flex flex-wrap gap-2 mt-4" aria-label="Indicadores del reino">
       <span class="${ui.badgeStat}">
+        <Icon name="hermandad" size="xs" class="self-center" />
         Hermandades <strong id="rv-stat-guilds" class={`${ui.statValue} text-sm`}>0</strong>
       </span>
       <span class="${ui.badgeStat}">
+        <Icon name="personaje" size="xs" class="self-center" />
         Personajes <strong id="rv-stat-chars" class={`${ui.statValue} text-sm`}>0</strong>
       </span>
       <span class="${ui.badgeStat}">
+        <Icon name="espadas" size="xs" class="self-center" />
         Bandas <strong id="rv-stat-bands" class={`${ui.statValue} text-sm`}>0</strong>
       </span>
     </div>
@@ -35,17 +39,17 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
 
   <div id="rv-panels" class="space-y-6">
-    <PanelWindow id="panel-hermandades" title="Hermandades" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+    <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
       <p id="rv-guilds-empty" class="hidden text-sm text-gray-500 italic">Sin hermandades públicas en este reino.</p>
       <div id="rv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-personajes" title="Personajes" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
+    <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
       <p id="rv-chars-empty" class="hidden text-sm text-gray-500 italic">Sin personajes públicos en este reino.</p>
       <div id="rv-chars" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-bandas" title="Bandas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Barra de filtros estándar (buscador + chips de día) del motor
              src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
@@ -64,17 +68,11 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   } from '@/lib/api';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
   import { supabase } from '@/lib/supabase';
-  import { classColor } from '@/lib/ui/classColors';
-  import { classIconEl } from '@/lib/ui/classIcon';
-  import { cardLink, card as cardBox, cardTitle, iconTile } from '@/lib/ui/card';
-  import { ui } from '@/lib/ui/design';
-  import { chip, el, setBreadcrumb } from '@/lib/ui/dom';
-  import { safePlayerName, isNamelessSafe, handleFromSlug } from '@/lib/ui/playerNames';
-  import { resolveBandOwners, mergeDirectoryBands, type OwnerRef, type MergedBand } from '@/lib/bandListing';
+  import { setBreadcrumb } from '@/lib/ui/dom';
+  import { resolveBandOwners, mergeDirectoryBands } from '@/lib/bandListing';
   import { REINO_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { renderGuildCard, renderCharacterCard, renderBandCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
-  import type { GuildRow } from '@/types/database';
 
   interface ProfileLight { id: string; slug: string | null; display_name: string | null; character_name: string | null }
 

@@ -1,0 +1,33 @@
+---
+// Icono temático del sistema RaidDominion (65 iconos, CSS-sprite).
+// Contrato ÚNICO en src/lib/ui/icons.ts: NO escribas spans/backgrounds de
+// icono a mano — usa este componente (template) o `iconEl` (render JS).
+//
+// Accesibilidad: sin `label` el icono es decorativo (aria-hidden) porque el
+// texto vecino ya comunica; con `label` se anuncia como imagen.
+interface Props {
+  name: IconName;
+  size?: IconSize;
+  // Clases extra del span (layout/margen; no recolorear el arte).
+  class?: string;
+  label?: string;
+  // id del span (toggle JS de estados, p. ej. ojo de contraseña).
+  id?: string;
+}
+
+import { ICONS, ICON_SIZE_CLASS, type IconName, type IconSize } from '@/lib/ui/icons';
+
+const { name, size = 'sm', class: extraCls = '', label, id } = Astro.props;
+const meta = ICONS[name];
+const cls = `rd-ico ${ICON_SIZE_CLASS[size]} ${extraCls}`.trim();
+const style = `--rd-ico-col:${meta.col};--rd-ico-row:${meta.row}`;
+---
+
+<span
+  id={id}
+  class={cls}
+  style={style}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+></span>

@@ -9,6 +9,9 @@
 interface Props {
   id?: string;
   title: string;
+  // Icono temático de la cabecera (contrato src/lib/ui/icons.ts). Si no se
+  // pasa, la cabecera conserva el punto ámbar clásico.
+  icon?: IconName;
   // Clases del h2. Default: patrón de dashboard/vistas (gradiente de marca).
   titleCls?: string;
   // Clases extra del contenedor del body (p. ej. `space-y-5`).
@@ -28,6 +31,7 @@ interface Props {
 const {
   id,
   title,
+  icon,
   titleCls = 'text-lg font-bold flex items-center',
   bodyCls = '',
   headCls = '',
@@ -39,14 +43,20 @@ const {
 } = Astro.props;
 
 import { ui } from '@/lib/ui/design';
+import Icon from '@/components/ui/Icon.astro';
+import type { IconName } from '@/lib/ui/icons';
 
 const h2Cls = gradient ? `${titleCls} ${ui.gradientTitle} pb-[0.1em]` : `${titleCls} pb-[0.1em]`;
 const wrapClsFull = `${hidden ? 'hidden ' : ''}${wrapCls}`.trim();
 ---
 <div id={id} class={wrapClsFull} role={role} aria-labelledby={ariaLabelledby}>
-  <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-amber-900/20 to-transparent ${headCls}`}>
+  <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent ${headCls}`}>
     <h2 class={h2Cls}>
-      <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+      {icon ? (
+        <Icon name={icon} size="md" class="mr-2.5" />
+      ) : (
+        <span class="w-2 h-2 rounded-full bg-brand-500 mr-3 shadow-[0_0_8px_rgba(0,191,255,0.5)]"></span>
+      )}
       {title}
     </h2>
     <slot name="head" />

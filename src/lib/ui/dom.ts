@@ -2,6 +2,7 @@
 // de `el`/`chip`/`statChip`/`setBreadcrumb` — no re-definirlos por archivo
 // (ver AGENTS.sections/pagina-map.md §2). Cards vía src/lib/ui/card.ts.
 import { ui } from '@/lib/ui/design';
+import { iconEl, type IconName } from '@/lib/ui/icons';
 
 // Crea un nodo con clase (y texto opcional).
 export function el(tag: string, cls: string, text?: string): HTMLElement {
@@ -17,14 +18,22 @@ export function el(tag: string, cls: string, text?: string): HTMLElement {
 export function chip(text: string, extra = '', size: 'sm' | 'md' = 'sm'): HTMLElement {
   return el(
     'span',
-    `${ui.badge} ${size === 'md' ? ui.badgeMd : ui.badgeSm} text-gray-300 bg-gray-800/60 border-amber-600/20` + (extra ? ` ${extra}` : ''),
+    `${ui.badge} ${size === 'md' ? ui.badgeMd : ui.badgeSm} text-gray-300 bg-brand-800/60 border-brand-600/20` + (extra ? ` ${extra}` : ''),
     text,
   );
 }
 
+// Chip con icono temático al inicio (arte a color + texto). El icono es
+// decorativo: el texto del chip es el nombre accesible.
+export function iconChip(name: IconName, text: string, extra = '', size: 'sm' | 'md' = 'sm'): HTMLElement {
+  const c = chip(text, extra, size);
+  c.insertBefore(iconEl(name, { size: size === 'md' ? 'sm' : 'xs', cls: 'shrink-0' }), c.firstChild);
+  return c;
+}
+
 // Chip de cifra clave-valor (etiqueta muted + valor con degradado ui.statValue).
 export function statChip(label: string, value: string | number, extra = ''): HTMLElement {
-  const c = el('span', `${ui.badge} ${ui.badgeMd} bg-gray-800/60 border-amber-600/20 flex items-baseline gap-1.5` + (extra ? ` ${extra}` : ''));
+  const c = el('span', `${ui.badge} ${ui.badgeMd} bg-brand-800/60 border-brand-600/20 flex items-baseline gap-1.5` + (extra ? ` ${extra}` : ''));
   c.appendChild(el('span', 'text-gray-400', label));
   c.appendChild(el('span', `${ui.statValue} text-sm`, String(value)));
   return c;

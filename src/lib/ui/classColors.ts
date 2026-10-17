@@ -44,7 +44,7 @@ export const CLASS_ALIASES: Record<string, string> = {
   Druida: 'DRUID',
 };
 
-export const DEFAULT_CLASS_COLOR = '#f59e0b'; // amber-500 (tema)
+export const DEFAULT_CLASS_COLOR = '#00BFFF'; // Energía (tema azul/acero)
 
 // Nombre de clase en esMX (lo que muestra el addon) por clave canónica.
 // ÚNICA fuente del label de clase para chips/filtros: no escribas los

@@ -15,13 +15,14 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     <div class="max-w-6xl mx-auto">
       <DirectoryPage
         hero="Personajes"
+        panelIcon="personaje"
         heroTitleCls="rd-title rd-ornament"
         intro="Personajes validados y hechos públicos por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables."
         loadingText="Cargando personajes…"
         gridLabel="Listado de personajes"
         dividerCls="mt-6 mb-8"
         empty={{
-          icon: 'user',
+          icon: 'personaje',
           eyebrow: 'Directorio público',
           title: 'Aún no hay personajes públicos',
           titleCls: 'font-black italic',
@@ -109,7 +110,8 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
           id: 'gm',
           label: 'Filtrar maestros de hermandad',
           getFlag: (c) => c.sv_is_gm === true,
-          chipLabel: '★ Maestro',
+          chipLabel: 'Maestro',
+          icon: 'estrella',
         },
       ],
       resultNoun: (n) => `${n} personaje${n === 1 ? '' : 's'}`,

@@ -9,6 +9,23 @@ export default {
         'dsm': '320px',
       },
       colors: {
+        // ── Paleta de marca RaidDominion (azul/acero) ─────────────────────
+        // Escala 50–950 que ancla los cinco colores de la identidad:
+        // 200 Plata #B8D7F1 · 400 Hielo #5CA9E8 · 500 Energía #00BFFF ·
+        // 800 Acero #123253 · 950 Abismo #07111E (ver design.md §1).
+        brand: {
+          50: '#EEF6FE',
+          100: '#DCEBFB',
+          200: '#B8D7F1',
+          300: '#93C4EE',
+          400: '#5CA9E8',
+          500: '#00BFFF',
+          600: '#00A0DC',
+          700: '#0C74A8',
+          800: '#123253',
+          900: '#0B2338',
+          950: '#07111E',
+        },
         normal: "rgba(221, 213, 184,.8)",
         primary: "rgba(213, 185, 84,.8)",
         enphasis: "rgba(58, 41, 43, .8)",

@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -22,7 +23,7 @@ import { ui } from '@/lib/ui/design';
 
       <!-- Sin autorización -->
       <div id="denied" data-rd-reveal class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
-        <svg class="w-10 h-10 text-red-400/70 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <Icon name="bloqueo" size="xl" class="mx-auto mb-3" />
         <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
         <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es exclusiva para administradores.</p>
         <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
@@ -41,21 +42,21 @@ import { ui } from '@/lib/ui/design';
 
         <!-- Vista: Discord (mercadeo automático) -->
         <div id="view-discord" data-rd-reveal class="hidden space-y-6">
-          <section id="discord-panel" class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+          <section id="discord-panel" class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h2 class={`${ui.text.h2} text-amber-200 flex items-center`}>
-                <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Discord · Mercadeo automático
+              <h2 class={`${ui.text.h2} text-brand-200 flex items-center`}>
+                <Icon name="megafono" size="md" class="mr-2.5" />Discord · Mercadeo automático
               </h2>
               <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">objetivos reales → mensaje de conversión</span>
             </div>
 
-            <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-amber-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-amber-300/80">canal de pruebas</span> (el de guild-portal que avisa cada ingreso) o al <span class="text-amber-300/80">canal público</span>.</p>
+            <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-brand-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-brand-300/80">canal de pruebas</span> (el de guild-portal que avisa cada ingreso) o al <span class="text-brand-300/80">canal público</span>.</p>
 
             <!-- Objetivos de conversión -->
             <h3 class={`${ui.subTitle}`}>Objetivos de conversión</h3>
             <div id="discord-goals" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-5"></div>
             <p id="discord-status" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status" aria-live="polite"></p>
-            <pre id="discord-preview" class="hidden mt-3 whitespace-pre-wrap rounded-md bg-gray-900/70 border border-amber-600/20 p-3 text-xs text-gray-300"></pre>
+            <pre id="discord-preview" class="hidden mt-3 whitespace-pre-wrap rounded-md bg-brand-900/70 border border-brand-600/20 p-3 text-xs text-gray-300"></pre>
           </section>
         </div>
 
@@ -66,13 +67,13 @@ import { ui } from '@/lib/ui/design';
 
           <!-- Búsqueda -->
           <div class="relative animate-fade-in-1" style="animation-delay: 0.1s">
-            <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <Icon name="buscar" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input type="search" id="search" placeholder="Buscar por correo, nombre o personaje…"
               class={`${ui.form.input} ${ui.focusRing} pl-9 pr-4`} />
           </div>
 
           <!-- Usuarios -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
             <p id="users-status" class={`${ui.loading.liveText} italic mb-3`} aria-live="polite">Cargando usuarios…</p>
             <ul id="users-list" class="space-y-3"></ul>
           </section>
@@ -87,11 +88,11 @@ import { ui } from '@/lib/ui/design';
           </button>
 
           <!-- Perfil completo -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
             <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
               <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Detalle de usuario</p>
-                <h2 id="detail-name" class={`${ui.text.h1} text-amber-200`}></h2>
+                <p class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-1">Detalle de usuario</p>
+                <h2 id="detail-name" class={`${ui.text.h1} text-brand-200`}></h2>
                 <p id="detail-email" class={`${ui.text.bodyMuted} mt-1`}></p>
                 <p id="detail-id" class="text-xs font-mono text-gray-500 mt-1 truncate"></p>
               </div>
@@ -102,10 +103,10 @@ import { ui } from '@/lib/ui/design';
           </section>
 
           <!-- Estado del perfil (editable por admin) -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 flex items-center mb-4">
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 leading-[1.3] pb-[0.1em] font-black italic">Estado del perfil</span>
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class="text-lg font-bold text-brand-200 flex items-center mb-4">
+              <Icon name="editar-perfil" size="md" class="mr-2.5" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Estado del perfil</span>
             </h2>
             <div class="flex flex-wrap items-center justify-between gap-3">
               <p class="text-sm text-gray-300">
@@ -118,9 +119,9 @@ import { ui } from '@/lib/ui/design';
           </section>
 
           <!-- Gestión de rol (solo admin) -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Gestión de rol
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
+              <Icon name="corona" size="md" class="mr-2.5" />Gestión de rol
             </h2>
             <div class="flex flex-wrap items-center gap-3">
               <select id="detail-role-select" class={`${ui.form.input} ${ui.focusRing} !w-auto`}></select>
@@ -133,39 +134,39 @@ import { ui } from '@/lib/ui/design';
           </section>
 
           <!-- Personajes del usuario -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 flex items-center mb-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 leading-[1.3] pb-[0.1em] font-black italic">Personajes</span>
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
+              <Icon name="personaje" size="md" class="mr-2.5" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Personajes</span>
             </h2>
             <p id="detail-chars-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-chars-list" class="space-y-2"></ul>
           </section>
 
           <!-- Hermandades del usuario -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 flex items-center mb-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 leading-[1.3] pb-[0.1em] font-black italic">Hermandades</span>
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
+              <Icon name="hermandad" size="md" class="mr-2.5" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Hermandades</span>
             </h2>
             <p id="detail-guilds-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-guilds-list" class="space-y-2"></ul>
           </section>
 
           <!-- Bandas del usuario -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-amber-200 flex items-center mb-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-600 leading-[1.3] pb-[0.1em] font-black italic">Bandas</span>
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
+              <Icon name="espadas" size="md" class="mr-2.5" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Bandas</span>
             </h2>
             <p id="detail-bands-status" class="text-sm text-gray-400 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-bands-list" class="space-y-2"></ul>
           </section>
 
           <!-- Historial de auditoría del usuario -->
-          <section class="bg-gray-900/60 backdrop-blur-sm border border-amber-600/25 rounded-md p-4 sm:p-6">
-            <h2 class={`${ui.text.h2} text-amber-200 mb-4 flex items-center`}>
-              <span class="w-2 h-2 rounded-full bg-amber-500 mr-3 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>Historial de auditoría
+          <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6">
+            <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
+              <Icon name="bandeja" size="md" class="mr-2.5" />Historial de auditoría
             </h2>
             <p id="detail-audit-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
             <ul id="detail-audit-list" class="mt-3 space-y-2"></ul>
@@ -197,6 +198,7 @@ import { ui } from '@/lib/ui/design';
   } from '@/lib/api';
   import { ROLES } from '@/lib/roles';
   import { supabase } from '@/lib/supabase';
+  import { iconEl, type IconName } from '@/lib/ui/icons';
   import { ADMIN_PANELS, ADMIN_TABS, tabFromHash, resolveAdminHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import type { RaiddominionRole } from '@/types/database';
@@ -265,7 +267,7 @@ import { ui } from '@/lib/ui/design';
       btn.dataset.adminTab = t.id;
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-controls', t.id === 'discord' ? 'view-discord' : 'view-list');
-      btn.className = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400';
+      btn.className = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
       btn.textContent = t.label;
       btn.addEventListener('click', () => {
         window.history.replaceState(null, '', t.href);
@@ -298,8 +300,8 @@ import { ui } from '@/lib/ui/design';
       const active = b.dataset.adminTab === id;
       b.setAttribute('aria-selected', String(active));
       b.tabIndex = active ? 0 : -1;
-      b.classList.toggle('border-amber-400', active);
-      b.classList.toggle('text-amber-200', active);
+      b.classList.toggle('border-brand-400', active);
+      b.classList.toggle('text-brand-200', active);
       b.classList.toggle('border-transparent', !active);
       b.classList.toggle('text-gray-500', !active);
     });
@@ -356,6 +358,15 @@ import { ui } from '@/lib/ui/design';
     render();
   }
 
+  // Icono temático del medallón de cada rol (métricas del admin).
+  const ROLE_ICONS: Record<string, IconName> = {
+    visitante: 'visibilidad',
+    member: 'perfil',
+    guild_master: 'corona',
+    moderator: 'balanza',
+    admin: 'bloqueo-alt',
+  };
+
   function renderStats(): void {
     const wrap = document.getElementById('role-stats') as HTMLElement;
     wrap.innerHTML = '';
@@ -366,6 +377,7 @@ import { ui } from '@/lib/ui/design';
       btn.type = 'button';
       btn.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[role]} p-4 text-left ${ui.focusRing} ${ui.transition} ${isActive ? ui.active : ''}`;
       btn.setAttribute('aria-pressed', String(isActive));
+      btn.appendChild(iconEl(ROLE_ICONS[role] ?? 'perfil', { size: 'md', cls: 'mb-1' }));
       const num = document.createElement('p');
       num.className = 'text-3xl font-black';
       num.textContent = String(count);
@@ -402,7 +414,7 @@ import { ui } from '@/lib/ui/design';
 
   function userRow(u: AdminUserRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
+    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
 
     const info = document.createElement('div');
     info.className = 'min-w-0';
@@ -487,11 +499,11 @@ import { ui } from '@/lib/ui/design';
       dt.className = 'text-[10px] font-black uppercase tracking-widest text-gray-500';
       dt.textContent = k;
       const dd = document.createElement('dd');
-      dd.className = mono ? 'text-sm font-mono text-amber-200/90 truncate' : 'text-sm text-gray-200';
+      dd.className = mono ? 'text-sm font-mono text-brand-200/90 truncate' : 'text-sm text-gray-200';
       if (mono) {
         const copy = document.createElement('button');
         copy.type = 'button';
-        copy.className = 'inline-flex items-center gap-1.5 ml-2 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest rounded border border-amber-600/30 text-amber-300/80 hover:bg-amber-900/30 hover:border-amber-500/50 transition-colors';
+        copy.className = 'inline-flex items-center gap-1.5 ml-2 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest rounded border border-brand-600/30 text-brand-300/80 hover:bg-brand-900/30 hover:border-brand-500/50 transition-colors';
         copy.textContent = 'copiar';
         copy.addEventListener('click', async () => {
           await navigator.clipboard.writeText(v).catch(() => undefined);
@@ -614,7 +626,7 @@ import { ui } from '@/lib/ui/design';
         const newVal = input.value.trim();
         btn.disabled = true;
         status.textContent = 'guardando…';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center text-amber-300';
+        status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center text-brand-300';
         const r = await adminSetProfileField(userId, d.key, newVal);
         if (r.ok) {
           d.value = newVal || null;
@@ -665,7 +677,7 @@ import { ui } from '@/lib/ui/design';
   ): Promise<void> {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
     const r = await fn();
     input.disabled = false;
     if (r.ok) {
@@ -686,13 +698,17 @@ import { ui } from '@/lib/ui/design';
     listEl.innerHTML = '';
     chars.forEach((c) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
+      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
 
       const info = document.createElement('div');
       info.className = 'min-w-0';
       const name = document.createElement('p');
       name.className = 'text-sm font-bold text-white truncate';
-      name.textContent = `${c.name}${c.sv_is_gm ? ' ★' : ''}`;
+      name.appendChild(document.createTextNode(c.name));
+      if (c.sv_is_gm) {
+        name.appendChild(document.createTextNode(' '));
+        name.appendChild(iconEl('estrella', { size: 'xs', cls: 'shrink-0 align-middle', label: 'Maestro de hermandad' }));
+      }
       const meta = document.createElement('p');
       meta.className = 'text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-1.5';
       const parts: Array<string | null> = [c.realm, c.server, c.class, c.level != null ? `Nv ${c.level}` : null, c.avg_ilvl != null ? `ilvl ${c.avg_ilvl}` : null, c.sv_guild_name];
@@ -716,12 +732,12 @@ import { ui } from '@/lib/ui/design';
 
       const pubStatus = c.is_public ? 'pública' : 'privada';
       const pubBadge = document.createElement('span');
-      pubBadge.className = `${ui.badge} ${ui.badgeMd} ${c.is_public ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-gray-400 bg-gray-950/50 border-gray-700/50'}`;
+      pubBadge.className = `${ui.badge} ${ui.badgeMd} ${c.is_public ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-gray-400 bg-brand-950/50 border-gray-700/50'}`;
       pubBadge.textContent = pubStatus;
 
       const verStatus = c.member_verified ? 'verificado' : 'sin verificar';
       const verBadge = document.createElement('span');
-      verBadge.className = `${ui.badge} ${ui.badgeMd} ${c.member_verified ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-amber-300 bg-amber-950/30 border-amber-500/40'}`;
+      verBadge.className = `${ui.badge} ${ui.badgeMd} ${c.member_verified ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-brand-300 bg-brand-950/30 border-brand-500/40'}`;
       verBadge.textContent = verStatus;
 
       right.append(pubBadge, verBadge);
@@ -730,7 +746,7 @@ import { ui } from '@/lib/ui/design';
         runToggle(input, status, () => adminSetCharacterStatus(c.id, input.checked, c.member_verified), () => {
           c.is_public = input.checked;
           pubBadge.textContent = c.is_public ? 'pública' : 'privada';
-          pubBadge.className = `${ui.badge} ${ui.badgeMd} ${c.is_public ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-gray-400 bg-gray-950/50 border-gray-700/50'}`;
+          pubBadge.className = `${ui.badge} ${ui.badgeMd} ${c.is_public ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-gray-400 bg-brand-950/50 border-gray-700/50'}`;
         }),
       ));
 
@@ -738,7 +754,7 @@ import { ui } from '@/lib/ui/design';
         runToggle(input, status, () => adminSetCharacterStatus(c.id, c.is_public, input.checked), () => {
           c.member_verified = input.checked;
           verBadge.textContent = c.member_verified ? 'verificado' : 'sin verificar';
-          verBadge.className = `${ui.badge} ${ui.badgeMd} ${c.member_verified ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-amber-300 bg-amber-950/30 border-amber-500/40'}`;
+          verBadge.className = `${ui.badge} ${ui.badgeMd} ${c.member_verified ? 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40' : 'text-brand-300 bg-brand-950/30 border-brand-500/40'}`;
         }),
       ));
 
@@ -753,7 +769,7 @@ import { ui } from '@/lib/ui/design';
     listEl.innerHTML = '';
     guilds.forEach((g) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
+      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
 
       const info = document.createElement('div');
       info.className = 'min-w-0';
@@ -813,7 +829,7 @@ import { ui } from '@/lib/ui/design';
           saveBtn.dataset.confirm = 'yes';
           saveBtn.textContent = '¿Confirmar?';
           msg.textContent = `Se marcará «${claimLabel(newStatus)}».`;
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
           window.setTimeout(() => {
             if (saveBtn.dataset.confirm === 'yes') {
               saveBtn.dataset.confirm = '';
@@ -856,7 +872,7 @@ import { ui } from '@/lib/ui/design';
   function claimColor(s: AdminEntityGuild['claim_status']): string {
     if (s === 'verified') return 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40';
     if (s === 'rejected') return 'text-red-300 bg-red-950/30 border-red-600/40';
-    return 'text-amber-300 bg-amber-950/30 border-amber-500/40';
+    return 'text-brand-300 bg-brand-950/30 border-brand-500/40';
   }
 
   // ── Bandas ────────────────────────────────────────────────────────────
@@ -865,7 +881,7 @@ import { ui } from '@/lib/ui/design';
     listEl.innerHTML = '';
     bands.forEach((b) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-gray-800/40 border border-amber-700/30 rounded-md px-4 py-3';
+      li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
 
       const info = document.createElement('div');
       info.className = 'min-w-0';
@@ -922,7 +938,7 @@ import { ui } from '@/lib/ui/design';
           saveBtn.dataset.confirm = 'yes';
           saveBtn.textContent = '¿Confirmar?';
           msg.textContent = `Se marcará «${integrationLabel({ ...b, integration_status: newStatus }, false)}».`;
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-amber-300';
+          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
           window.setTimeout(() => {
             if (saveBtn.dataset.confirm === 'yes') {
               saveBtn.dataset.confirm = '';
@@ -966,8 +982,8 @@ import { ui } from '@/lib/ui/design';
   function integrationColor(s: AdminEntityBand['integration_status']): string {
     if (s === 'approved') return 'text-emerald-300 bg-emerald-950/30 border-emerald-600/40';
     if (s === 'rejected') return 'text-red-300 bg-red-950/30 border-red-600/40';
-    if (s === 'pending') return 'text-amber-300 bg-amber-950/30 border-amber-500/40';
-    return 'text-gray-400 bg-gray-950/50 border-gray-700/50';
+    if (s === 'pending') return 'text-brand-300 bg-brand-950/30 border-brand-500/40';
+    return 'text-gray-400 bg-brand-950/50 border-gray-700/50';
   }
 
   // Confirmación explícita antes de cambiar el rol
@@ -984,7 +1000,7 @@ import { ui } from '@/lib/ui/design';
 
     const newRole = sel.value as RaiddominionRole;
     if (newRole === u.role) {
-      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-gray-800/60 border border-gray-600/40 text-gray-300';
+      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-brand-800/60 border border-gray-600/40 text-gray-300';
       msg.textContent = 'El rol seleccionado ya es el actual; no hay cambios.';
       return;
     }
@@ -1042,9 +1058,9 @@ import { ui } from '@/lib/ui/design';
     status.classList.add('hidden');
     mine.forEach((a) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-amber-600/10 pb-2';
+      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-brand-600/10 pb-2';
       const action = document.createElement('span');
-      action.className = 'font-bold text-amber-200';
+      action.className = 'font-bold text-brand-200';
       action.textContent = AUDIT_LABELS[a.action] ?? a.action;
       const when = new Date(a.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
       const meta = document.createElement('span');
@@ -1075,6 +1091,21 @@ import { ui } from '@/lib/ui/design';
     return (Array.isArray(goals.data) ? goals.data : []) as unknown as MarketingGoalView[];
   }
 
+  // Icono temático por objetivo de mercadeo (claves de la migración 20260913/18).
+  const GOAL_ICONS: Record<string, IconName> = {
+    uploads_sv: 'subir',
+    visitante_to_member: 'anadir',
+    member_to_guild_master: 'corona',
+    guilds_public: 'hermandad',
+    chars_validated: 'validado',
+    players_public: 'perfil',
+    players_active: 'energia',
+    visits_weekly: 'vientos',
+    visitors_30d: 'perfil-alt',
+    visits_upload_7d: 'sincronizar',
+    visits_directory_7d: 'brujula',
+  };
+
   function goalBadgeClasses(trend: MarketingGoalView['trend']): string {
     if (trend === 'down') return `${ui.badge} ${ui.badgeRole.visitante}`;
     if (trend === 'up') return `${ui.badge} ${ui.badgeRole.member}`;
@@ -1086,18 +1117,19 @@ import { ui } from '@/lib/ui/design';
     wrap.innerHTML = '';
     goals.forEach((g) => {
       const card = document.createElement('div');
-      card.className = `rounded-md p-3 border ${g.focus_boost ? 'border-amber-500/60 bg-amber-950/20' : 'border-gray-700/40 bg-gray-800/40'}`;
+      card.className = `rounded-md p-3 border ${g.focus_boost ? 'border-brand-500/60 bg-brand-950/20' : 'border-gray-700/40 bg-brand-800/40'}`;
       const top = document.createElement('div');
       top.className = 'flex items-center justify-between gap-2';
       const label = document.createElement('p');
-      label.className = 'text-[10px] font-black uppercase tracking-widest text-gray-400';
-      label.textContent = g.label;
+      label.className = 'text-[10px] font-black uppercase tracking-widest text-gray-400 inline-flex items-center gap-1.5';
+      label.appendChild(iconEl(GOAL_ICONS[g.goal_key] ?? 'trofeo', { size: 'xs', cls: 'shrink-0' }));
+      label.appendChild(document.createTextNode(g.label));
       const badge = document.createElement('span');
       badge.className = goalBadgeClasses(g.trend);
       badge.textContent = g.trend === 'up' ? 'alza' : g.trend === 'down' ? 'baja' : 'estable';
       top.append(label, badge);
       const val = document.createElement('p');
-      val.className = 'text-xl font-black text-amber-200 mt-1';
+      val.className = 'text-xl font-black text-brand-200 mt-1';
       val.textContent = String(g.current_value);
       const tgt = document.createElement('p');
       tgt.className = 'text-[10px] text-gray-500';
