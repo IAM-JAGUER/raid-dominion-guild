@@ -76,7 +76,7 @@ import Icon from '@/components/ui/Icon.astro';
           </div>
         </div>
       </div>
-      <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-brand-900/40 border border-brand-600/20 rounded-md p-4`}>
+      <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center ${ui.surf.row} p-4`}>
         Ningún jugador coincide con estos filtros.
       </p>
       <div id="bv-core"></div>
@@ -129,7 +129,7 @@ import Icon from '@/components/ui/Icon.astro';
   }
 
   function emptyState(text: string): HTMLElement {
-    const box = el('div', 'rounded-md border border-brand-600/20 bg-brand-900/40 p-6 text-center');
+    const box = el('div', `${ui.surf.row} p-6 text-center`);
     box.appendChild(el('p', `${ui.text.bodyMuted} italic`, text));
     return box;
   }
@@ -165,7 +165,7 @@ import Icon from '@/components/ui/Icon.astro';
     const merged = await resolveMergeGroup(band);
     const players = merged.players;
     if (band.hide_players) {
-      meta.appendChild(metaChip('bloqueo', 'jugadores ocultos', '!text-gray-500'));
+      meta.appendChild(metaChip('bloqueo', 'jugadores ocultos', '!text-gray-400'));
     }
 
     const coreBox = document.getElementById('bv-core') as HTMLElement;

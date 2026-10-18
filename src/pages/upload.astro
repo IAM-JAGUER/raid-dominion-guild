@@ -15,22 +15,25 @@ import { ui } from '@/lib/ui/design';
   <main class="relative py-16">
     <div class="max-w-4xl mx-auto">
       <Breadcrumb />
-      <!-- Header -->
+      <!-- Header (placa: el texto no se disuelve sobre la imagen) -->
       <header class="text-center mb-12 animate-fade-in-1">
-        <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 shadow-lg shadow-brand-900/20`}>
-          <Icon name="subir" size="xl" />
+        <div class={`relative mx-auto max-w-2xl px-6 py-6 ${ui.plaque}`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 shadow-lg shadow-brand-900/20`}>
+            <Icon name="subir" size="xl" />
+          </div>
+          <h1 class={`${ui.titleHero}`}>
+            Sube tu SavedVariables
+          </h1>
+          <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
+            Carga tu <code class="text-brand-300">RaidDominion.lua</code> para analizar roster, bandas y metas registradas de tus personajes.
+          </p>
         </div>
-        <h1 class={`${ui.titleHero}`}>
-          Sube tu SavedVariables
-        </h1>
-        <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
-          Carga tu <code class="text-brand-300">RaidDominion.lua</code> para analizar roster, bandas y objetivos registrados de tus personajes.
-        </p>
       </header>
       <div class={`${ui.dividerFadeBoth} mt-6 mb-10`} aria-hidden="true"></div>
 
       <!-- Dropzone -->
-      <section class="bg-brand-900/50 backdrop-blur-sm border border-brand-600/30 rounded-md p-4 sm:p-6 md:p-8 mb-8">
+      <section class={`${ui.panel} p-4 sm:p-6 md:p-8 mb-8`}>
         <label
           for="sv-file"
           id="dropzone"
@@ -38,9 +41,16 @@ import { ui } from '@/lib/ui/design';
         >
           <Icon name="subir" size="xl" class="mb-3" />
           <span class="text-sm text-brand-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
-          <span class="text-xs text-gray-500 mt-1">RaidDominion.lua · máx. 2 MB · uno o varios archivos</span>
+          <span class="text-xs text-gray-400 mt-1">RaidDominion.lua · máx. 2 MB · uno o varios archivos</span>
           <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" multiple />
         </label>
+
+        <p class={`${ui.text.caption} mt-3 text-center`}>
+          ¿Cómo lo obtengo? En el juego abre el menú con <code class="text-brand-300">/rd</code> →
+          RaidDominion &gt; Registrar y busca el archivo en tu
+          <code class="text-brand-300">WTF/Account/&lt;cuenta&gt;/SavedVariables</code>
+          · <a href="/#guide-primeros-pasos" class="text-brand-300 underline hover:text-brand-200">Ver guía</a>
+        </p>
 
         <div id="status" class={`mt-4 text-center ${ui.loading.liveText}`} aria-live="polite"></div>
 
@@ -51,7 +61,8 @@ import { ui } from '@/lib/ui/design';
       <!-- Resultado -->
       <section id="result" data-rd-reveal class="hidden space-y-6">
         <!-- Claim de maestro (solo vía SV; sin formularios) -->
-        <div id="claim-banner" data-rd-reveal class="hidden bg-gradient-to-r from-brand-900/40 to-brand-800/20 border border-brand-600/40 rounded-md p-4 sm:p-6">
+        <div id="claim-banner" data-rd-reveal class={`hidden relative p-4 sm:p-6 ${ui.plaque}`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
           <h2 class={`${ui.text.h2} text-brand-300 mb-2 flex items-center gap-2`}><Icon name="corona" size="md" />¡Eres candidato a maestro de hermandad!</h2>
           <p class={`${ui.text.body} mb-4`}>
             Tu SavedVariables fue generado por <strong id="claim-char" class="text-brand-200"></strong> con rango de liderazgo.
@@ -59,42 +70,43 @@ import { ui } from '@/lib/ui/design';
             <strong class="text-brand-200">automáticamente desde el propio archivo</strong> (sin formularios).
           </p>
           <p id="claim-status-note" class="hidden text-sm text-brand-200/80">
-            Si tu rango no es de liderazgo, tu solicitud quedará en revisión para un moderador.
+            Tu rango en este archivo no es de liderazgo: no se reclamará ninguna hermandad.
+            Solo un SV generado por un maestro (isGM) habilita el registro automático del portal.
           </p>
           <p id="claim-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
         </div>
 
         <!-- Cifras del procesamiento -->
         <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="hermandad" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-guilds">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Hermandades</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Hermandades</p>
           </div>
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="personaje" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-characters">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Personajes</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Personajes</p>
           </div>
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="espadas" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-bands">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Bandas</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Bandas</p>
           </div>
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="pergamino" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-rules">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Reglas</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Reglas</p>
           </div>
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="estrella" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-objectives">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Objetivos</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Metas</p>
           </div>
-          <div class="bg-brand-900/50 border border-brand-600/30 rounded-md p-4 text-center">
+          <div class={`${ui.surf.row} p-4 text-center`}>
             <Icon name="ciudadela" size="lg" class="mx-auto mb-1" />
             <p class="text-3xl font-bold text-brand-300" id="stat-instances">0</p>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">Instancias</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Instancias</p>
           </div>
         </div>
 
@@ -104,11 +116,12 @@ import { ui } from '@/lib/ui/design';
         <div class="text-center">
           <a id="dash-link" href="/dashboard" aria-disabled="true"
              class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 opacity-40 pointer-events-none select-none`}>Ir a Mi dashboard →</a>
+          <p class={`${ui.text.caption} mt-2`}>Se habilita al terminar el análisis del archivo.</p>
         </div>
       </section>
 
       <!-- Error -->
-      <section id="error" class={`hidden ${ui.status.error} rounded-md p-4 sm:p-6`}>
+      <section id="error" role="alert" class={`hidden ${ui.status.error} rounded-md p-4 sm:p-6`}>
         <h2 class={`${ui.text.h2} text-red-300 mb-2`}>No se pudo procesar el archivo</h2>
         <p id="error-msg" class="text-sm text-red-200/80"></p>
       </section>
@@ -149,11 +162,10 @@ import { ui } from '@/lib/ui/design';
     statusEl.textContent = msg;
   }
 
-  function showError(msg: string, title?: string): void {
+  function showError(msg: string): void {
     errorEl.classList.remove('hidden');
     errorMsg.textContent = msg;
     resultEl.classList.add('hidden');
-    toast.error(title ?? 'No se pudo procesar el archivo', msg);
   }
 
   function clearWarnings(): void {
@@ -530,7 +542,7 @@ import { ui } from '@/lib/ui/design';
   function handleFile(file: File): Promise<void> {
     clearWarnings();
     if (file.size > 2 * 1024 * 1024) {
-      showError(`"${file.name}" supera el límite de 2 MB.`, 'Archivo demasiado grande');
+      showError(`"${file.name}" supera el límite de 2 MB.`);
       return Promise.resolve();
     }
     setStatus('Leyendo archivo…');
@@ -553,13 +565,13 @@ import { ui } from '@/lib/ui/design';
           await persistIfLoggedIn(result.data as ParsedSavedVariables);
         } catch (e) {
           const err = 'Error inesperado al parsear: ' + String(e);
-          showError(err, 'Error inesperado');
+          showError(err);
         } finally {
           resolve();
         }
       };
       reader.onerror = () => {
-        showError(`No se pudo leer "${file.name}".`, 'Lectura fallida');
+        showError(`No se pudo leer "${file.name}".`);
         resolve();
       };
       reader.readAsText(file);

@@ -238,7 +238,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       noteEl.title = noteText;
       noteRow.appendChild(noteEl);
     } else {
-      noteRow.appendChild(el('span', 'text-[10px] text-gray-600 italic', 'Sin nota: escríbela en el addon y vuelve a subir tu SV'));
+      noteRow.appendChild(el('span', 'text-[10px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir tu SV'));
     }
     const instCount = c.instances?.length ?? 0;
     if (instCount > 0) {

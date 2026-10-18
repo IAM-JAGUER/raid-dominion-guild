@@ -126,7 +126,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     // Personaje que propone: se muestra con las reglas para atribuir cada
     // regla al proponente (nunca al aprobante).
     const who = (bp.proposer?.character_name || bp.proposer?.display_name || (bp.proposer?.slug ? `@${bp.proposer.slug.replace(/^perfil-/, '').slice(0, 8)}` : null)) ?? 'cuenta';
-    const sub = el('p', 'text-[11px] text-gray-500');
+    const sub = el('p', 'text-[11px] text-gray-400');
     const stateChip = el('span', `${ui.badge} ${ui.badgeSm} mt-1 hidden`);
     const refreshState = (): void => {
       if (bp.integration_status === 'pending') {
@@ -186,7 +186,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const rulesBox = el('div', 'mt-3 border-t border-brand-600/20 pt-2.5 space-y-2');
     const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
     rulesHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas propuestas por ' + (escapeHtml(who) || 'el jugador')));
-    rulesHead.appendChild(el('span', 'text-[11px] text-gray-500 italic', 'ACTÍVALAS para publicarlas; las que dejes apagadas no salen del proponente al portal. Si apruebas sin activar, la banda se integra sin reglas.'));
+    rulesHead.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'ACTÍVALAS para publicarlas; las que dejes apagadas no salen del proponente al portal. Si apruebas sin activar, la banda se integra sin reglas.'));
     rulesBox.appendChild(rulesHead);
     const tagsWrap = el('div', 'flex flex-wrap gap-2');
     rulesBox.appendChild(tagsWrap);
@@ -205,7 +205,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const renderTags = (): void => {
       tagsWrap.innerHTML = '';
       if (proposed.length === 0) {
-        tagsWrap.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Esta banda no trae reglas propuestas: se integrará sin reglas publicadas.'));
+        tagsWrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Esta banda no trae reglas propuestas: se integrará sin reglas publicadas.'));
         return;
       }
       proposed.forEach((r) => {
@@ -219,7 +219,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
             : 'text-gray-400 bg-brand-900/60 border-gray-700/60 hover:border-gray-500/60');
         tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
         tag.appendChild(el('span', '', label));
-        const dot = el('span', 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-brand-400' : 'bg-gray-600'), '');
+        const dot = el('span', 'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-brand-400' : 'bg-gray-500'), '');
         tag.appendChild(dot);
         tag.setAttribute('aria-pressed', String(on));
         if (tag.title) tag.title = `Regla de ${who}: ${r.content ?? r.title ?? ''}`;
@@ -329,7 +329,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   input.checked = g.is_public;
   const span = document.createElement('span');
   span.className = 'text-sm text-gray-300 font-medium';
-  span.innerHTML = 'Publicar portal de la hermandad <span class="block text-xs text-gray-500 italic mt-0.5">Visible para toda la comunidad con roster, bandas y reglas de tu último análisis verificado.</span>';
+  span.innerHTML = 'Publicar portal de la hermandad <span class="block text-xs text-gray-400 italic mt-0.5">Visible para toda la comunidad con roster, bandas y reglas de tu último análisis verificado.</span>';
   label.append(input, span);
   portal.appendChild(label);
   const msg = document.createElement('p');
@@ -359,11 +359,11 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   const renderReglasTags = (): void => {
     reglasTags.innerHTML = '';
     if (!guildRulesReady) {
-      reglasTags.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Cargando reglas…'));
+      reglasTags.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Cargando reglas…'));
       return;
     }
     if (guildRules.length === 0) {
-      reglasTags.appendChild(el('p', 'text-[11px] text-gray-500 italic', 'Sin reglas asignadas: tu portal no mostrará sección de reglas.'));
+      reglasTags.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin reglas asignadas: tu portal no mostrará sección de reglas.'));
       return;
     }
     guildRules.forEach((r) => {
@@ -419,7 +419,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
     reglasAdd.classList.toggle('hidden', opts.rulesCatalog.length === 0);
     if (opts.rulesCatalog.length === 0) {
       if (!noCatalogHint) {
-        noCatalogHint = el('span', 'text-[11px] text-gray-500 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a tu portal.');
+        noCatalogHint = el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a tu portal.');
         reglasAddRow.appendChild(noCatalogHint);
       }
     } else if (noCatalogHint) {
@@ -466,7 +466,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   reglasBox.appendChild(reglasAddRow);
   reglasAddRow.appendChild(el('span', `${ui.eyebrow} shrink-0`, 'Agregar'));
   reglasAddRow.appendChild(reglasAdd);
-  reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-500 italic', 'El catálogo proviene de tu SavedVariables (re-subir el SV lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
+  reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-400 italic', 'El catálogo proviene de tu SavedVariables (re-subir el SV lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
   cardEl.appendChild(reglasBox);
 
   // Carga inicial: la selección manual del maestro. Sin selección → el

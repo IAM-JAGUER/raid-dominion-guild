@@ -93,10 +93,10 @@ export function renderBand(
       if (p.banned) badges.appendChild(el('span', 'text-[10px] text-red-300', 'baneado'));
       if (p.sanction) badges.appendChild(el('span', 'text-[10px] text-brand-300', `sanción: ${p.sanction}`));
       if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
-      if (p.notes) badges.appendChild(el('span', 'text-[10px] text-gray-500 italic', p.notes));
+      if (p.notes) badges.appendChild(el('span', 'text-[10px] text-gray-400 italic', p.notes));
       left.appendChild(badges);
       row.appendChild(left);
-      if (p.class) row.appendChild(el('span', 'text-gray-500 whitespace-nowrap', p.class));
+      if (p.class) row.appendChild(el('span', 'text-gray-400 whitespace-nowrap', p.class));
       grid.appendChild(row);
     });
     players.append(summary, grid);
@@ -112,7 +112,7 @@ export function renderBand(
       : '';
     if (channels) txt += ` · canales: ${channels}`;
     spam.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-brand-300/80', txt));
-    if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-500 italic', band.spammer.message));
+    if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-400 italic', band.spammer.message));
     cardEl.appendChild(spam);
   }
 
@@ -139,9 +139,9 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   if (p.dual) meta.appendChild(el('span', 'text-[10px] text-gray-400', `dual: ${p.dual}`));
   if (p.sanction) meta.appendChild(el('span', 'text-[10px] text-brand-300', `sanción: ${p.sanction}`));
   if (typeof p.points === 'number') meta.appendChild(el('span', 'text-[10px] text-gray-400', `${p.points} pts`));
-  if (p.class) meta.appendChild(el('span', 'text-gray-500', p.class));
+  if (p.class) meta.appendChild(el('span', 'text-gray-400', p.class));
   row.appendChild(meta);
-  if (p.notes) row.appendChild(el('p', 'mt-1 text-gray-500 italic', p.notes));
+  if (p.notes) row.appendChild(el('p', 'mt-1 text-gray-400 italic', p.notes));
   return row;
 }
 
@@ -154,7 +154,7 @@ function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number
   const enabled = channels.filter(([, v]) => v).map(([c]) => c);
   const disabled = channels.filter(([, v]) => !v).map(([c]) => c);
   if (enabled.length > 0) details.appendChild(chip(`Canales: ${enabled.join(', ')}`, '!text-brand-300 !border-brand-500/40'));
-  if (disabled.length > 0) details.appendChild(el('span', 'text-[10px] text-gray-600', `(inactivos: ${disabled.join(', ')})`));
+  if (disabled.length > 0) details.appendChild(el('span', 'text-[10px] text-gray-400', `(inactivos: ${disabled.join(', ')})`));
   box.appendChild(details);
   if (spammer.message) box.appendChild(el('p', 'mt-2 text-gray-400 italic', spammer.message));
   return box;
@@ -168,7 +168,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
   titleWrap.appendChild(bandTitle(band));
-  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-500 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
+  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
   header.appendChild(titleWrap);
 
   const meta = el('div', 'flex flex-wrap gap-2');
@@ -196,7 +196,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
     band.players.forEach((p) => grid.appendChild(renderBandPlayerRow(p)));
     cardEl.appendChild(grid);
   } else {
-    cardEl.appendChild(el('p', 'text-[11px] text-gray-600 italic mt-3', 'Sin jugadores en esta banda.'));
+    cardEl.appendChild(el('p', 'text-[11px] text-gray-400 italic mt-3', 'Sin jugadores en esta banda.'));
   }
 
   if (band.spammer) cardEl.appendChild(renderSpammer(band.spammer));
@@ -315,7 +315,7 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   ident.appendChild(nameRow);
   // Solo aparece si el líder publicó las notas: si no, ni siquiera viajan en el
   // row público (la DB las guarda aparte), así que aquí no hay nada que filtrar.
-  if (p.notes) ident.appendChild(el('p', 'text-[10px] italic text-gray-500 truncate', p.notes));
+  if (p.notes) ident.appendChild(el('p', 'text-[10px] italic text-gray-400 truncate', p.notes));
   left.appendChild(ident);
   row.appendChild(left);
 
@@ -376,7 +376,7 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
     wrap.appendChild(renderCoreSection(cfg.title, rows.length, cfg.color, CORE_ICONS[cfg.key], rows));
   });
 
-  if (!any) return el('p', 'text-sm text-gray-500 italic', 'Esta banda aún no tiene jugadores asignados.');
+  if (!any) return el('p', 'text-sm text-gray-400 italic', 'Esta banda aún no tiene jugadores asignados.');
   return wrap;
 }
 
@@ -420,14 +420,14 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
 
     const meta = el('div', 'flex flex-wrap gap-1.5');
     if (u.roles.size) meta.appendChild(el('span', 'text-[10px] text-brand-300', Array.from(u.roles).join(', ')));
-    if (u.classes.size) meta.appendChild(el('span', 'text-gray-500', Array.from(u.classes).join(', ')));
-    meta.appendChild(el('span', 'text-[10px] text-gray-500', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
+    if (u.classes.size) meta.appendChild(el('span', 'text-gray-400', Array.from(u.classes).join(', ')));
+    meta.appendChild(el('span', 'text-[10px] text-gray-400', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
     row.appendChild(meta);
     grid.appendChild(row);
   });
 
   if (unique.size === 0) {
-    return el('p', 'text-[11px] text-gray-600 italic', 'Sin jugadores en las bandas.');
+    return el('p', 'text-[11px] text-gray-400 italic', 'Sin jugadores en las bandas.');
   }
   return grid;
 }

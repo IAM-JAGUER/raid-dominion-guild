@@ -31,13 +31,16 @@ import { ui } from '@/lib/ui/design';
       <!-- Panel -->
       <div id="panel" data-rd-reveal class="hidden space-y-8">
         <header class="animate-fade-in-1">
-          <h1 class={`${ui.titleHero}`}>Moderación</h1>
-          <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
+          <div class={`relative px-6 py-5 ${ui.plaque}`}>
+            <span class={ui.cardTop} aria-hidden="true"></span>
+            <h1 class={`${ui.titleHero}`}>Moderación</h1>
+            <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
+          </div>
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
         <!-- Cola de claims -->
-        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.1s">
+        <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.1s">
           <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
             <Icon name="balanza" size="md" class="mr-2.5" />Claims pendientes
           </h2>
@@ -46,7 +49,7 @@ import { ui } from '@/lib/ui/design';
         </section>
 
         <!-- Hermandades verificadas -->
-        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.15s">
+        <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.15s">
           <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
             <Icon name="medalla" size="md" class="mr-2.5" />Hermandades verificadas
           </h2>
@@ -55,7 +58,7 @@ import { ui } from '@/lib/ui/design';
         </section>
 
         <!-- Auditoría -->
-        <section class="bg-brand-900/60 backdrop-blur-sm border border-brand-600/25 rounded-md p-4 sm:p-6 animate-fade-in-1" style="animation-delay: 0.2s">
+        <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.2s">
           <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
             <Icon name="notificaciones" size="md" class="mr-2.5" />Bitácora reciente
           </h2>
@@ -128,7 +131,7 @@ import { ui } from '@/lib/ui/design';
 
   function claimCard(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'bg-brand-800/50 border border-brand-700/40 rounded-md p-4';
+    li.className = `${ui.surf.row} p-4`;
     li.dataset.guildId = g.id;
 
     const head = document.createElement('div');
@@ -195,14 +198,14 @@ import { ui } from '@/lib/ui/design';
 
   function verifiedRow(g: StaffGuildRow): HTMLElement {
     const li = document.createElement('li');
-    li.className = 'flex flex-wrap items-center justify-between gap-3 bg-brand-800/40 border border-brand-700/30 rounded-md px-4 py-3';
+    li.className = `flex flex-wrap items-center justify-between gap-3 ${ui.surf.row} px-4 py-3`;
 
     const info = document.createElement('div');
     const name = document.createElement('p');
     name.className = 'text-sm font-bold text-white';
     name.textContent = g.name;
     const meta = document.createElement('p');
-    meta.className = 'text-xs text-gray-500 mt-0.5';
+    meta.className = 'text-xs text-gray-400 mt-0.5';
     meta.textContent = `/hermandad/${g.slug} · ${g.is_public ? 'Pública' : 'Retirada'}`;
     info.append(name, meta);
     li.appendChild(info);

@@ -61,7 +61,7 @@ export function collectRegistryGuilds(d: ParsedSavedVariables): RegistryGuildCar
 export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuildCard[]): void {
   wrap.innerHTML = '';
   if (guilds.length === 0) {
-    wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin hermandad en el registro.'));
+    wrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin hermandad en el registro.'));
     return;
   }
   guilds.forEach((g) => {
@@ -92,7 +92,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     // (0 = líder). El rango del propio usuario se marca si está disponible.
     if (g.ranks.length > 0) {
       const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
-      hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', 'Rangos:'));
+      hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', 'Rangos:'));
       g.ranks.forEach((r) => {
         const isMine = ownIndex !== undefined
           ? r.index === ownIndex
@@ -109,7 +109,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
       cardEl.appendChild(hier);
     }
     if (g.characters.length > 0) {
-      cardEl.appendChild(el('p', 'text-[11px] text-gray-500 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
+      cardEl.appendChild(el('p', 'text-[11px] text-gray-400 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
     }
     wrap.appendChild(cardEl);
   });
@@ -199,7 +199,7 @@ export function renderCharactersMerged(
   cnt.textContent = `(${byKey.size})`;
   const items = Array.from(byKey.values());
   if (items.length === 0) {
-    wrap.appendChild(el('p', 'text-[11px] text-gray-600 italic', 'Sin personajes en el registro.'));
+    wrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin personajes en el registro.'));
     return;
   }
   items.forEach((c) =>

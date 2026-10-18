@@ -174,7 +174,7 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
       b.classList.toggle('border-brand-400', active);
       b.classList.toggle('text-brand-200', active);
       b.classList.toggle('border-transparent', !active);
-      b.classList.toggle('text-gray-500', !active);
+      b.classList.toggle('text-gray-400', !active);
     });
     config.tabs.forEach((t) => {
       document.getElementById(`panel-${t.id}`)?.classList.toggle('hidden', t.id !== target);

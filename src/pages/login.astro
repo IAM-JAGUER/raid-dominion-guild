@@ -15,8 +15,9 @@ import { ui } from '@/lib/ui/design';
   <main class="relative py-16">
     <div class="max-w-md mx-auto">
       <Breadcrumb />
-      <!-- Encabezado con logo -->
-      <header class="text-center mb-8 animate-fade-in-1">
+      <!-- Encabezado con logo (placa: el texto no se disuelve sobre la imagen) -->
+      <header class={`relative text-center mb-8 px-6 py-6 animate-fade-in-1 ${ui.plaque}`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
         <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(0,191,255,0.35)]" loading="eager" decoding="async" />
         <h1 class={`${ui.titleHero}`}>
           <span id="form-title">Iniciar Sesión</span>
@@ -33,7 +34,7 @@ import { ui } from '@/lib/ui/design';
             <span class="inline-flex items-center gap-1.5"><Icon name="portal" size="sm" />Ingresar</span>
           </button>
           <button id="tab-signup" type="button" role="tab" aria-selected="false"
-            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-transparent text-gray-500 hover:text-gray-300`}>
+            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-transparent text-gray-400 hover:text-gray-300`}>
             <span class="inline-flex items-center gap-1.5"><Icon name="anadir" size="sm" />Crear cuenta</span>
           </button>
         </div>
@@ -60,7 +61,7 @@ import { ui } from '@/lib/ui/design';
               <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" aria-describedby="auth-error"
                 class={`${ui.form.input} ${ui.focusRing} pl-10 pr-11`} />
               <button type="button" id="toggle-pass" aria-label="Mostrar u ocultar contraseña" aria-pressed="false"
-                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-brand-300 ${ui.transition} ${ui.focusRing}`}>
+                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-brand-300 ${ui.transition} ${ui.focusRing}`}>
                 <Icon id="eye-open" name="visibilidad" size="md" />
                 <Icon id="eye-closed" name="bloqueo" size="md" class="hidden" />
               </button>
@@ -68,9 +69,9 @@ import { ui } from '@/lib/ui/design';
 
             <!-- Checklist de contraseña (solo registro) -->
             <ul id="pass-checklist" class="hidden mt-2 space-y-1">
-              <li data-rule="len" class="flex items-center gap-1.5 text-[11px] text-gray-500"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-600"></span>Mínimo 8 caracteres</li>
-              <li data-rule="letter" class="flex items-center gap-1.5 text-[11px] text-gray-500"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-600"></span>Al menos una letra</li>
-              <li data-rule="num" class="flex items-center gap-1.5 text-[11px] text-gray-500"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-600"></span>Al menos un número</li>
+              <li data-rule="len" class="flex items-center gap-1.5 text-[11px] text-gray-400"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Mínimo 8 caracteres</li>
+              <li data-rule="letter" class="flex items-center gap-1.5 text-[11px] text-gray-400"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Al menos una letra</li>
+              <li data-rule="num" class="flex items-center gap-1.5 text-[11px] text-gray-400"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Al menos un número</li>
             </ul>
           </div>
 
@@ -102,7 +103,7 @@ import { ui } from '@/lib/ui/design';
       </section>
 
       <p class={`${ui.text.caption} text-center mt-6`}>
-        Al crear cuenta aceptas ser parte de la comunidad RaidDominion.<br />
+        Portal comunitario del addon RaidDominion para WoW 3.3.5a.<br />
         <a href="/" class={`hover:text-brand-300 ${ui.transition}`}>← Volver al portal</a>
       </p>
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
@@ -151,7 +152,7 @@ import { ui } from '@/lib/ui/design';
     tabSignin.setAttribute('aria-selected', String(mode === 'signin'));
     tabSignup.setAttribute('aria-selected', String(mode === 'signup'));
     const on = ['border-brand-400', 'text-brand-200', 'bg-brand-900/20'];
-    const off = ['border-transparent', 'text-gray-500'];
+    const off = ['border-transparent', 'text-gray-400'];
     if (mode === 'signin') {
       tabSignin.classList.add(...on); tabSignin.classList.remove(...off);
       tabSignup.classList.remove(...on); tabSignup.classList.add(...off);
@@ -208,9 +209,9 @@ import { ui } from '@/lib/ui/design';
       const dot = li.querySelector('.rule-dot') as HTMLElement;
       const ok = rules[key];
       li.classList.toggle('text-emerald-400', ok);
-      li.classList.toggle('text-gray-500', !ok);
+      li.classList.toggle('text-gray-400', !ok);
       dot.classList.toggle('bg-emerald-400', ok);
-      dot.classList.toggle('bg-gray-600', !ok);
+      dot.classList.toggle('bg-gray-500', !ok);
     });
   });
 

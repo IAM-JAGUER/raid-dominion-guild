@@ -16,18 +16,21 @@ import { ui } from '@/lib/ui/design';
   <Navigation />
   <main class="relative py-24">
     <div class="max-w-xl mx-auto text-center">
-      <p class={`${ui.eyebrow} flex items-center justify-center`}>
-        <Icon name="brujula-alt" size="xs" class="mr-1.5" />
-        <span>Zona inexplorada</span>
-      </p>
-      <h1 class={`${ui.titleFicha} ${ui.gradientTitle} mt-3`}>404</h1>
-      <p class={`${ui.text.bodyMuted} mt-4 italic`}>
-        El pergamino que buscas se perdió en la ventisca: esta ruta no existe,
-        es privada o cambió de enlace.
-      </p>
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
-        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>Volver al portal</a>
-        <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>Ver directorio</a>
+      <div class={`relative px-6 py-8 ${ui.plaque}`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <p class={`${ui.eyebrow} flex items-center justify-center`}>
+          <Icon name="brujula-alt" size="xs" class="mr-1.5" />
+          <span>Zona inexplorada</span>
+        </p>
+        <h1 class={`${ui.titleFicha} ${ui.gradientTitle} mt-3`}>404</h1>
+        <p class={`${ui.text.bodyMuted} mt-4`}>
+          El pergamino que buscas se perdió en la ventisca: esta ruta no existe,
+          es privada o cambió de enlace.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+          <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>Volver al portal</a>
+          <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>Ver directorio</a>
+        </div>
       </div>
       <div class={`${ui.dividerFadeBoth} mt-12`} aria-hidden="true"></div>
     </div>
