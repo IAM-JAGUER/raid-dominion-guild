@@ -492,6 +492,12 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (paginador de roster)**: en el portal de hermandad, el número
+  de página de "Página [X] de Y • N miembros" es un desplegable de salto
+  directo a cualquier página (`renderRoster`, `preview.ts`), sincronizado con
+  los botones prev/next. Verificado con el roster de 101 páginas
+  (`/hermandad/colmillo-de-acero`).
+
 - **2026-10-18 (placa de encabezado)**: `ui.plaque` con la geometría y
   superficie de la ventana de contenido — diagonal sup-izq (`rd-cut` +
   `rounded-tl-md`), resto recto (antes `rounded-md` en las 4 esquinas) y

@@ -440,8 +440,9 @@ function rankBadgeClass(rank: string | undefined): string {
   return 'text-gray-300 border-gray-500/40 bg-brand-800/60';
 }
 
-// Roster en grid de fichas, paginado (estilo guild-portal): "Página X de Y •
-// N miembros" + controles prev/next. Cuando hay jerarquía de rangos (ranks) y
+// Roster en grid de fichas, paginado (estilo guild-portal): "Página [X] de Y
+// • N miembros" (X = desplegable de salto directo a cualquier página) +
+// controles prev/next. Cuando hay jerarquía de rangos (ranks) y
 // los miembros traen rankIndex, el roster se ORGANIZA por rango (0 = líder
 // arriba) con cabeceras de grupo; si no, queda plano como antes.
 export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?: GuildRank[]): void {
@@ -554,19 +555,32 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   next.setAttribute('aria-label', 'Página siguiente');
 
   const bar = el('div', 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3');
-  const info = el('p', 'text-xs text-gray-400 italic', `Página ${page} de ${totalPages} • ${members.length} miembros`);
+  // "Página [X] de Y • N miembros": el número de página es un desplegable de
+  // salto directo (ayuda de navegación en rosters largos, p. ej. 101 páginas).
+  const info = el('p', 'text-xs text-gray-400 italic');
+  const pageSel = document.createElement('select');
+  pageSel.className = 'mx-1 px-1.5 py-0.5 rounded-md bg-brand-900/40 border border-brand-600/30 text-brand-200 text-xs italic cursor-pointer hover:border-brand-500/50 focus:outline-none focus:ring-1 focus:ring-brand-500/50 transition-colors';
+  pageSel.setAttribute('aria-label', 'Ir a la página');
+  for (let i = 1; i <= totalPages; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = String(i);
+    pageSel.appendChild(opt);
+  }
+  info.append('Página ', pageSel, ` de ${totalPages} • ${members.length} miembros`);
   const controls = el('div', 'flex items-center gap-2');
   controls.append(prev, next);
   bar.append(info, controls);
 
   const update = (): void => {
     renderPage();
-    info.textContent = `Página ${page} de ${totalPages} • ${members.length} miembros`;
+    pageSel.value = String(page);
     prev.disabled = page <= 1;
     next.disabled = page >= totalPages;
   };
   prev.addEventListener('click', () => { if (page > 1) { page -= 1; update(); } });
   next.addEventListener('click', () => { if (page < totalPages) { page += 1; update(); } });
+  pageSel.addEventListener('change', () => { page = Number(pageSel.value); update(); });
 
   wrap.innerHTML = '';
   wrap.appendChild(grid);
