@@ -28,7 +28,7 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
     link.appendChild(el('p', `${ui.text.bodyMuted} italic line-clamp-2 mb-3`, g.description));
   }
 
-  // Chips: facción, servidor (enlaza al directorio de servidores), verificación y Discord
+  // Chips: facción, servidor (sin enlace), verificación y Discord
   const chips = el('div', 'flex flex-wrap gap-1.5 mb-3');
   // Solo se pinta chip si la facción es una real: el addon usa '?' como
   // marcador de desconocido y no debe verse como Alianza.
@@ -37,9 +37,7 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
     chips.appendChild(faction);
   }
   if (g.server) {
-    const serverChip = el('a', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-brand-200 hover:bg-brand-900/30 transition-colors`, g.server) as HTMLAnchorElement;
-    serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-    chips.appendChild(serverChip);
+    chips.appendChild(chip(g.server, '!text-brand-200'));
   }
   if (g.claim_status === 'verified') {
     chips.appendChild(iconChip('medalla', 'Verificada', '!text-emerald-300 !border-emerald-600/40'));
