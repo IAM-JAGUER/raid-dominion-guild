@@ -284,7 +284,11 @@ export const ui = {
     value: 'shrink-0 text-lg',
   },
   // Tira de cifras del héroe (póster): celdas separadas por hairline, con
-  // etiqueta y cifra grande (statValue). Envolver en `flex flex-wrap`.
+  // etiqueta y cifra grande (statValue). El WRAPPER decide el flujo y debe
+  // contener SOLO las celdas (si mete otro hijo antes, `first:`/`last:` no
+  // alcanzan a la primera/última): fichas → `flex flex-wrap items-center`;
+  // landing → `flex flex-wrap justify-center`, celdas `text-center` con
+  // `!px-4` (centrado simétrico) y hairline solo desde `sm`.
   statBlock: {
     cell: 'border-l border-brand-700/50 px-4 first:border-l-0 first:pl-0 last:pr-0 py-0.5',
     label: 'text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',

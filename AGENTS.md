@@ -492,6 +492,17 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (cifras de la landing)**: la placa de cifras pierde
+  "multiservidor" y "pasos" (quedan cliente WoW / gratis), con label y cifra
+  centrados en cada celda. Correcciones de alineación: el span `cardTop` sale
+  de la tira (era el primer hijo del flex y anulaba los `first:`/`last:` del
+  token → hairline fantasma + 16px de sangría en la 1ª celda), se retira el
+  `gap-x-6` (sumado al `px-4` dejaba el separador a 40/16) y las celdas usan
+  `!px-4 text-center` (simetría con el centrado); hairline solo desde `sm`
+  (sin separadores sueltos si la fila envuelve). Verificado midiendo geometría
+  real (harness iframe, dpr 1) a 390 y 1400: centros de placa/tira/celdas
+  coincidentes y paddings simétricos. Detalle en `design.md` (historial).
+
 - **2026-10-18 (paginador de roster)**: en el portal de hermandad, el número
   de página de "Página [X] de Y • N miembros" es un desplegable de salto
   directo a cualquier página (`renderRoster`, `preview.ts`), sincronizado con

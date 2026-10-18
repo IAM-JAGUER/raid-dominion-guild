@@ -48,24 +48,22 @@ import { APP_URLS } from '@/utils/constants';
     </a>
   </div>
 
-  <!-- Cifras del producto en placa (ui.statBlock) -->
-  <div class={`relative flex flex-wrap justify-center items-center gap-x-6 gap-y-4 mx-4 px-6 py-4 mb-10 animate-fade-in-1 ${ui.plaque}`} style="animation-delay: 0.7s">
+  <!-- Cifras del producto en placa (ui.statBlock). El span cardTop vive FUERA
+       de la tira: dentro seria el primer hijo del flex y los `first:`/`last:`
+       del token no alcanzarian a las celdas. Celdas centradas (label y cifra):
+       padding simetrico propio + text-center; hairline solo desde `sm` para
+       que un wrap estrecho no deje un separador suelto al inicio de fila. -->
+  <div class={`relative mx-4 max-w-2xl px-6 py-4 mb-10 animate-fade-in-1 ${ui.plaque}`} style="animation-delay: 0.7s">
     <span class={ui.cardTop} aria-hidden="true"></span>
-    <div class={ui.statBlock.cell}>
-      <p class={ui.statBlock.label}>cliente WoW</p>
-      <p class={`${ui.statValue} ${ui.statBlock.value}`}>3.3.5a</p>
-    </div>
-    <div class={ui.statBlock.cell}>
-      <p class={ui.statBlock.label}>gratis</p>
-      <p class={`${ui.statValue} ${ui.statBlock.value}`}>100%</p>
-    </div>
-    <div class={ui.statBlock.cell}>
-      <p class={ui.statBlock.label}>multiservidor</p>
-      <p class={`${ui.statValue} ${ui.statBlock.value}`}>∞</p>
-    </div>
-    <div class={ui.statBlock.cell}>
-      <p class={ui.statBlock.label}>pasos: registrar · subir · compartir</p>
-      <p class={`${ui.statValue} ${ui.statBlock.value}`}>3</p>
+    <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:gap-x-0 max-sm:[&>*]:border-l-0">
+      <div class={`${ui.statBlock.cell} !px-4 text-center`}>
+        <p class={ui.statBlock.label}>cliente WoW</p>
+        <p class={`${ui.statValue} ${ui.statBlock.value}`}>3.3.5a</p>
+      </div>
+      <div class={`${ui.statBlock.cell} !px-4 text-center`}>
+        <p class={ui.statBlock.label}>gratis</p>
+        <p class={`${ui.statValue} ${ui.statBlock.value}`}>100%</p>
+      </div>
     </div>
   </div>
 

@@ -408,6 +408,17 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
 
 ## Historial de enmiendas
 
+- **2026-10-18 (cifras de la landing)**: `ui.statBlock` en la landing queda con
+  dos celdas (cliente WoW / gratis), label y cifra centrados
+  (`text-center` + `!px-4`, que vence el `first:pl-0`/`last:pr-0` del token).
+  El `cardTop` se mueve fuera de la tira: dentro era el primer hijo del flex y
+  los `first:`/`last:` no alcanzaban a las celdas (hairline fantasma + 16px de
+  sangría en la primera; el `gap-x-6` sumado al `px-4` dejaba además el
+  separador a 40/16). Sin gap en `sm+` (simétrico 16/16) y sin hairlines en
+  móvil (wrap seguro). Verificado midiendo geometría real en iframe (dpr 1) a
+  390 y 1400 px: centros de placa/tira/celdas coincidentes, `border-left` 0/1px
+  y padding `2 16 2 16` en ambas celdas.
+
 - **2026-10-18 (placa = ventana)**: `ui.plaque` adopta la geometría y la
   superficie de la ventana de contenido: `rounded-tl-md rounded-tr-none
   rounded-b-none` (diagonal sup-izq por `rd-cut`, resto recto — antes
