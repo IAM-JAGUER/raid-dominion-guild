@@ -492,6 +492,13 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (placa de encabezado)**: `ui.plaque` con la geometría y
+  superficie de la ventana de contenido — diagonal sup-izq (`rd-cut` +
+  `rounded-tl-md`), resto recto (antes `rounded-md` en las 4 esquinas) y
+  SURFACE `bg-brand-900/60` (antes `bg-brand-950/80`). Cubre las 14 páginas
+  con encabezado (directorios, fichas, staff, 404, landing). Detalle en
+  `design.md` (historial).
+
 - **2026-10-18 (tiras de contexto de fichas)**: los chips de servidor/reino
   salen de los encabezados y viven en la tira de contexto tras el divisor
   final (`ui.contextStrip`: `hidden flex flex-wrap gap-2 mt-10`; el respiro

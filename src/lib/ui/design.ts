@@ -258,9 +258,11 @@ export const ui = {
   },
   // Placa de IDENTIDAD de la ficha (póster, design.md §12): superficie real
   // para la zona héroe — sobre la imagen de atmósfera, el texto suelto se
-  // disolvía en las zonas claras del fondo. Hermana del panel, sin metal:
-  // base + corte ceremonial + borde; la línea de acento (ui.cardTop) va dentro.
-  plaque: 'relative overflow-hidden rounded-md border border-brand-600/30 bg-brand-950/80 backdrop-blur-sm rd-cut',
+  // disolvía en las zonas claras del fondo. Hermana de la VENTANA DE
+  // CONTENIDO: misma geometría (diagonal sup-izq por rd-cut, resto recto) y
+  // misma superficie (SURFACE), sin metal; la línea de acento (ui.cardTop)
+  // va dentro.
+  plaque: 'relative overflow-hidden rounded-tl-md rounded-tr-none rounded-b-none border border-brand-600/30 bg-brand-900/60 backdrop-blur-sm rd-cut',
   // Superficie de FILA de dato (no card de directorio): contenedor REAL
   // (opaco + marco) para que el dato no se disuelva sobre la atmósfera de
   // página. Sustituye el patrón fantasma `bg-brand-900/40 + border-l-2`,

@@ -371,13 +371,15 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   `body` (`space-y-8 lg:space-y-10`). Prohibido volver al `mb-6`/`space-y-6`
   único que igualaba todas las distancias de la página.
 - **Placa de identidad** (`ui.plaque`): la zona héroe lleva superficie REAL
-  (base opaca + borde + corte `rd-cut` + línea de acento `ui.cardTop`). El
-  texto suelto sobre la imagen de atmósfera se disolvía en las zonas claras
-  del fondo — la decisión previa de "hero sin caja" (portal de hermandad)
-  era de la época del velo 0.75-0.9; con la capa única y el velo 0.3 dejó de
-  sostenerse. Es hermana del panel, sin metal. Desde 2026-10-17 la cabecera
-  de los 5 directorios (`PageHeader`) también es placa con medallón de
-  identidad (`iconTileLg` + `Icon` `xl`).
+  (borde + corte `rd-cut` + línea de acento `ui.cardTop`). El texto suelto
+  sobre la imagen de atmósfera se disolvía en las zonas claras del fondo —
+  la decisión previa de "hero sin caja" (portal de hermandad) era de la
+  época del velo 0.75-0.9; con la capa única y el velo 0.3 dejó de
+  sostenerse. Desde 2026-10-18 es hermana de la VENTANA DE CONTENIDO: misma
+  geometría (`rounded-tl-md` + diagonal por `rd-cut`, resto recto) y misma
+  superficie (`SURFACE`: `bg-brand-900/60` + blur + borde), sin metal. Desde
+  2026-10-17 la cabecera de los 5 directorios (`PageHeader`) también es
+  placa con medallón de identidad (`iconTileLg` + `Icon` `xl`).
 - **Medallón héroe** (`ui.iconTileHero` + `ui.icon.hero` +
   `.rd-medallion-hero`): el arte del sprite a tamaño protagonista con halo
   del color de contexto (`--rd-hero-tint`: color de clase en fichas de
@@ -405,6 +407,15 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-18 (placa = ventana)**: `ui.plaque` adopta la geometría y la
+  superficie de la ventana de contenido: `rounded-tl-md rounded-tr-none
+  rounded-b-none` (diagonal sup-izq por `rd-cut`, resto recto — antes
+  `rounded-md` redondeaba las 4 esquinas) y `bg-brand-950/80` →
+  `bg-brand-900/60` (SURFACE, con blur y borde intactos). Aplica a las 14
+  páginas con encabezado (directorios vía `PageHeader`, fichas, staff, 404,
+  landing). Verificado con capturas headless en directorio, ficha, login y
+  landing.
 
 - **2026-10-18 (tiras de contexto)**: nuevo token `ui.contextStrip`
   (`hidden flex flex-wrap gap-2 mt-10`): chips de servidor/reino tras el
