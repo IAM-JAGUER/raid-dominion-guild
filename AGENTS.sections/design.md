@@ -107,15 +107,11 @@ UI MMORPG clásica", no una copia.
   `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
   contenido con la imagen de fondo a **opacidad plena** y UN ÚNICO velo de
   contraste por página (`.rd-atmosphere__veil`, **0.3** por defecto; SOLO se
-  monta si hay imagen) más su canvas de partículas. Fondo e intensidad por tipo de página:
-  `GameLoginBg`+`snow` en la landing, `GameLoginBg` en los directorios
-  (bandas `ember`, hermandades `banner`, servidores `frost`, personajes y
-  jugadores `arcane`), `characterBg`+`arcane` en las fichas de
-  personaje/jugador, `bandsBg`+`ember` en la ficha de banda,
-  `guildBg`+`banner` en el portal de hermandad, `serverBg`+`frost` en la
-  ficha de servidor, `GameLoginBg`+`frost` en login y `404Bg`+`frost` en la
-  404. Las secciones de usuario/staff (upload, dashboard, admin, moderación)
-  van **sin fondo de imagen** (solo `.rd-bg` + partículas `arcane`), y la
+  monta si hay imagen) más su canvas de partículas. **Fondo único
+  (2026-10-17):** `GameLoginBg` en TODAS las páginas — default de `background`
+  en `Layout`; ninguna página pasa imagen propia. La partícula sí varía por
+  sección (`snow` en la landing, `frost` en login/servidores/404, `ember` en
+  bandas, `banner` en hermandades, `arcane` en el resto), y la
   sección de la Guía del Addon del index conserva su textura `addonBg` al
   14% dentro de la card (es superficie de card, no capa de página). Reglas: el markup/engine son contratos únicos (jamás montar
   canvas suelto en una página); el motor pausa con `visibilitychange` y se
@@ -143,9 +139,9 @@ UI MMORPG clásica", no una copia.
   JS con transición corta (`[data-fit]`); el canvas usa `ResizeObserver`
   inmediato y CONSERVA su campo al cambiar de tamaño (solo reescala
   posiciones: sin bitmap estirado ni re-aleatorización) — frallas.md
-  F016/F018. Las páginas pasan
-  `background`/`particles` a `Layout` (o `DetailShell`), nunca estilos de
-  fondo propios. **Apilado:** el contenido del body vive dentro de un wrapper
+  F016/F018. El fondo es
+  default único de `Layout`; las páginas solo pasan `particles` (o afinan
+  `veil`), nunca imagen ni estilos de fondo propios. **Apilado:** el contenido del body vive dentro de un wrapper
   `relative isolate` (Layout); sin ese contexto, el fondo del body
   (posicionado) tapa la capa `z -1`.
 - **Materiales**: `.rd-metal` (paneles forjados, `ui.panel`/`ui.sectionHead`),
@@ -359,6 +355,12 @@ Los textos del SavedVariables pueden traer markup del cliente WoW
   degradan a etiqueta limpia (sin tooltip), decisión 2026-10-17.
 
 ## Historial de enmiendas
+
+- **2026-10-17 (fondo único)**: `GameLoginBg` pasa a ser el fondo de TODAS
+  las páginas vía default de `background` en `Layout`; se eliminan
+  `characterBg`/`guildBg`/`bandsBg`/`serverBg` (archivos incluidos) y las
+  secciones de usuario/staff dejan de ir sin imagen. `404Bg.jpg` se conserva
+  en disco sin uso. Las páginas ya no pasan `background` (solo `particles`).
 
 - **2026-10-17 (enlaces del juego)**: nuevo §11; parseo único de markup de
   chat en `src/lib/wowLink.ts`, render con widget perezoso de Wowhead en

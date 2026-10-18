@@ -269,3 +269,21 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
 - **Detección**: `SELECT id, name, slug FROM raiddominion_bands WHERE
   name ~ '\|c[0-9a-fA-F]{8}|\|H';` — cualquier fila con markup o slug con
   `hachievement` es un caso de esta falla.
+
+## F024: Archivos huérfanos del sandbox se cuelan al `dist/` local
+- **Estado**: mitigada (2026-10-17)
+- **Error**: `scripts/verifica.sh` sincroniza con `rsync --files-from` (lista
+  de `git ls-files`): borrar un archivo del worktree (p. ej. una imagen de
+  `public/images/`) no lo elimina de `~/rd-build/public/` porque `--delete`
+  con `--files-from` no purga hermanos fuera de la lista. `astro build` copia
+  ese `public/` completo → el `dist/` local resucita fondos muertos (p. ej.
+  `bandsBg.jpg`) y el sync final los trae de vuelta al worktree. Además, si la
+  eliminación no está staged, rsync falla con
+  `link_stat "...": No such file or directory` porque `git ls-files` sigue
+  devolviendo la ruta borrada.
+- **Solución**: stagear la eliminación (`git add`/`git rm`) y limpiar a mano
+  los huérfanos de `~/rd-build/public/` antes de re-verificar:
+  `rm ~/rd-build/public/images/<archivo>`. No afecta al deploy de Netlify
+  (build limpio desde el repo).
+- **Detección**: `ls dist/images/` muestra archivos que no existen en
+  `public/images/`.

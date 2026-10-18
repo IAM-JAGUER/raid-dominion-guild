@@ -11,15 +11,17 @@ import "@/styles/icons.css";
 interface Props {
   title: string;
   description?: string;
-  // Atmósfera opcional de la página (imagen + partículas). La fuente única
+  // Atmósfera de la página (imagen + partículas). La fuente única
   // del markup/engine vive en PageAtmosphere + src/lib/ui/particles.ts.
+  // El fondo es GameLoginBg en TODO el portal (default); las páginas solo
+  // afinan `particles`/`veil`.
   background?: string;
   particles?: ParticleVariant;
   // Intensidad del velo oscuro sobre la imagen (0..1).
   veil?: number;
 }
 
-const { title, description, background, particles, veil } = Astro.props;
+const { title, description, background = '/images/GameLoginBg.jpg', particles, veil } = Astro.props;
 
 // En dev el pipeline cliente no expone VITE_* en import.meta.env;
 // se pasan por SSR al cliente vía window.__RD_ENV__ (ver src/lib/supabase.ts)
