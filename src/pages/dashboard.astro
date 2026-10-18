@@ -22,6 +22,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       <!-- Encabezado del espacio personal: mobile-first, alineado a la izquierda,
            compacto (avatar + identidad + acciones en una fila; badges debajo) -->
       <header class="mb-8 animate-fade-in-1">
+        <div class={`relative px-4 sm:px-6 py-5 ${ui.plaque}`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
         <div class="flex items-start gap-4">
           <div
             id="avatar"
@@ -81,6 +83,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             >…</span
           >
         </div>
+        </div>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       </header>
 
@@ -88,7 +91,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
            navegación con ←/→/Home/End; activación automática al enfocar) -->
       <nav
         id="tab-bar"
-        class="flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        class="flex flex-nowrap items-center gap-1 rd-tabbar relative mb-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style="animation-delay: 0.15s"
         role="tablist"
         aria-label="Secciones del panel"
@@ -102,7 +105,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         id="panel-registro"
         role="tabpanel"
         aria-labelledby="tab-registro"
-        class="hidden space-y-6"
+        class="hidden space-y-8"
       >
         <!-- Estado vacío -->
         <EmptyState
@@ -133,7 +136,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           </div>
         </EmptyState>
 
-        <div id="registro-main" data-rd-reveal class="hidden space-y-6">
+        <div id="registro-main" data-rd-reveal class="hidden space-y-8">
           <!-- Ventana: cabecera + visor contiguos (sin gap ni radio en la junta,
                esquina inferior cuadrada) -->
           <div>
@@ -162,25 +165,25 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     class="flex flex-wrap gap-2 mt-3"
                     aria-label="Indicadores del registro"
                   >
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Personajes <strong
                         id="hdr-registro-chars"
                         class={`${ui.statValue} text-sm`}>0</strong
                       >
                     </span>
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Hermandades <strong
                         id="hdr-registro-guilds"
                         class={`${ui.statValue} text-sm`}>0</strong
                       >
                     </span>
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Bandas <strong
                         id="hdr-registro-bands"
                         class={`${ui.statValue} text-sm`}>0</strong
                       >
                     </span>
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Reglas <strong
                         id="hdr-registro-rules"
                         class={`${ui.statValue} text-sm`}>0</strong
@@ -196,7 +199,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     <div class="flex items-center justify-between gap-2">
                       <label
                         for="sv-select"
-                        class="block text-[11px] font-black uppercase tracking-widest text-gray-500"
+                        class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
                         >Registro</label
                       >
                       <span
@@ -309,7 +312,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 <h4 class={ui.subTitle}>
                   Personajes del registro <span
                     id="cnt-viewer-chars"
-                    class="text-gray-500"></span>
+                    class="text-gray-400"></span>
                 </h4>
                 <div
                   id="viewer-characters"
@@ -374,13 +377,13 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   class="flex flex-wrap gap-2 mt-3"
                   aria-label="Indicadores de personajes"
                 >
-                  <span class="${ui.badgeStat}">
+                  <span class={ui.badgeStat}>
                     Personajes <strong
                       id="hdr-chars-total"
                       class={`${ui.statValue} text-sm`}>0</strong
                     >
                   </span>
-                  <span class="${ui.badgeStat}">
+                  <span class={ui.badgeStat}>
                     Públicos <strong
                       id="hdr-chars-public"
                       class={`${ui.statValue} text-sm`}>0</strong
@@ -395,7 +398,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                 >
                   <p
-                    class="block text-[11px] font-black uppercase tracking-widest text-gray-500"
+                    class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
                   >
                     ¿Falta algún personaje?
                   </p>
@@ -458,8 +461,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     >
                   </div>
                   <p id="character-main-hint" class={ui.form.helperText}>
-                    Solo puedes elegir entre los personajes detectados en tu
-                    SavedVariables.
+                    Solo puedes elegir entre tus personajes públicos.
                   </p>
                 </div>
               </div>
@@ -570,13 +572,13 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   class="flex flex-wrap gap-2 mt-3"
                   aria-label="Indicadores de la banda seleccionada"
                 >
-                  <span class="${ui.badgeStat}">
+                  <span class={ui.badgeStat}>
                     Jugadores <strong
                       id="hdr-band-players"
                       class={`${ui.statValue} text-sm`}>0</strong
                     >
                   </span>
-                  <span class="${ui.badgeStat}">
+                  <span class={ui.badgeStat}>
                     Reglas <strong
                       id="hdr-band-rules"
                       class={`${ui.statValue} text-sm`}>0</strong
@@ -594,7 +596,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                   <div class="flex items-center justify-between gap-2">
                     <label
                       for="band-select"
-                      class="block text-[11px] font-black uppercase tracking-widest text-gray-500"
+                      class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
                       >Bandas</label
                     >
                     <span
@@ -638,9 +640,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               class="hidden text-xs text-brand-100/90 bg-brand-950/30 border-l-2 border-brand-500/60 px-4 py-3 rounded-md"
             >
             </div>
+            <p id="bands-status" class="text-sm text-gray-400" aria-live="polite">
+            </p>
           </div>
-          <p id="bands-status" class="text-sm text-gray-400" aria-live="polite">
-          </p>
         </section>
 
         <!-- ── Mi Hermandad ────────────────────────────────────────────────── -->
@@ -648,7 +650,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           id="panel-hermandad"
           role="tabpanel"
           aria-labelledby="tab-hermandad"
-          class="hidden space-y-6"
+          class="hidden space-y-8"
         >
           <!-- Sin hermandad aún: solo vía SV (registry.guild.isGM) -->
           <EmptyState
@@ -671,16 +673,16 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >1</span
                   ><span
-                    >Sube un SavedVariables donde el addon te reporte como
-                    Maestro o con dos o más personajes registrados.</span>
+                    >Sube un SavedVariables generado por el personaje que dirige
+                    tu hermandad: el addon lo marca como maestro (isGM).</span>
                 </li>
                 <li class="flex gap-3">
                   <span
                     class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >2</span
                   ><span
-                    >Reclama la hermandad desde Registro: tu rol de Maestro se
-                    asigna verificado por el addon.</span>
+                    >El portal reclama tu hermandad de forma automática al
+                    analizar ese archivo; revisa la pestaña Registro.</span>
                 </li>
                 <li class="flex gap-3">
                   <span
@@ -724,19 +726,19 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     class="flex flex-wrap gap-2 mt-3"
                     aria-label="Indicadores de la hermandad seleccionada"
                   >
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Integrantes <strong
                         id="hdr-guild-members"
                         class={`${ui.statValue} text-sm`}>0</strong
                       >
                     </span>
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Bandas integradas <strong
                         id="hdr-guild-bands"
                         class={`${ui.statValue} text-sm`}>0</strong
                       >
                     </span>
-                    <span class="${ui.badgeStat}">
+                    <span class={ui.badgeStat}>
                       Reglas <strong
                         id="hdr-guild-rules"
                         class={`${ui.statValue} text-sm`}>0</strong
@@ -755,7 +757,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     <div class="flex items-center justify-between gap-2">
                       <label
                         for="guild-select"
-                        class="block text-[11px] font-black uppercase tracking-widest text-gray-500"
+                        class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
                         >Hermandad</label
                       >
                       <span
@@ -802,7 +804,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           id="panel-cuenta"
           role="region"
           aria-label="Configuración de cuenta, seguridad y zona de peligro"
-          class="hidden space-y-6"
+          class="hidden space-y-8"
         >
           <!-- Sección 1: Seguridad (ventana numerada y colapsable) -->
           <details
@@ -1383,7 +1385,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
           text = "✓ integrada · privada";
           cls = "text-emerald-300 bg-emerald-950/30 border-emerald-600/40";
         } else if (st === "pending") {
-          text = "⏳ propuesta pendiente";
+          text = "propuesta pendiente";
           cls = "text-brand-300 bg-brand-950/30 border-brand-600/40";
         } else if (st === "rejected") {
           text = "✗ propuesta rechazada";
@@ -1459,7 +1461,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
             ? "✓ verificada"
             : guild.claim_status === "rejected"
               ? "✗ rechazada"
-              : "⏳ en revisión";
+              : "en revisión";
           claimEl.className =
             chipBase +
             (verified
@@ -1578,7 +1580,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         b.classList.toggle("border-brand-400", active);
         b.classList.toggle("text-brand-200", active);
         b.classList.toggle("border-transparent", !active);
-        b.classList.toggle("text-gray-500", !active);
+        b.classList.toggle("text-gray-400", !active);
       });
       PANELS.forEach((p) => {
         document
@@ -1615,7 +1617,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         b.setAttribute("aria-selected", "false");
         b.tabIndex = -1;
         b.classList.remove("border-brand-400", "text-brand-200");
-        b.classList.add("border-transparent", "text-gray-500");
+        b.classList.add("border-transparent", "text-gray-400");
       });
       PANELS.forEach((p) =>
         document.getElementById(`panel-${p}`)?.classList.add("hidden"),

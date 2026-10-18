@@ -75,7 +75,7 @@ export const ui = {
   badgeMd: 'px-2.5 py-1 text-[10px]',
   // Chip de cifra clave-valor (stat del header/visor): etiqueta + valor.
   badgeStat:
-    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[10px] font-black uppercase tracking-widest text-gray-500',
+    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[10px] font-black uppercase tracking-widest text-gray-400',
   // Superficie de color del badge de rol (única fuente; la consumen
   // dashboard, admin y perfiles). El layout lo aporta ui.badge + ui.badgeMd.
   badgeRole: {
@@ -147,7 +147,7 @@ export const ui = {
     input:
       'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-400 transition-colors',
     inputError: '!border-red-500/70 focus:!border-red-500 focus:!ring-red-500/30',
-    helperText: 'mt-1.5 text-[11px] text-gray-500 italic',
+    helperText: 'mt-1.5 text-[11px] text-gray-400 italic',
     errorText: 'mt-1.5 text-[11px] text-red-300',
   },
 
