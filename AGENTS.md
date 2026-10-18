@@ -492,6 +492,20 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (divisores)**: todos los divisores (`ui.divider`,
+  `dividerFadeBoth`, `dividerFadeLeft`) y el separador inferior de las tab
+  bars comparten ahora un sistema único en material.css: el trazo hairline
+  (`border-image` anti-subpixel) con un **bloom helado de dos capas que
+  respira** — la línea también late (opacidad del elemento) y el halo flota
+  en vaivén espectral (solo opacity/transform, cero impacto en layout; sin
+  partículas — la ventisca de puntos se retiró a pedido). El legacy
+  `.rd-divider` (rombo ❖ sin uso) es la nueva base de `ui.divider`. Con
+  `prefers-reduced-motion` se atenúa (respiración lenta de opacidad pura,
+  sin traslación), no se congela. Verificado con píxeles (valle vs pico:
+  línea 82→195; bloom simétrico; sin partículas) y CSSOM (branch animado con
+  opacidad/transform a media animación) en landing, portal de hermandad y
+  directorio (1400/390). Detalle en `design.md` (historial).
+
 - **2026-10-18 (cifras de la landing)**: la placa de cifras pierde
   "multiservidor" y "pasos" (quedan cliente WoW / gratis), con label y cifra
   centrados en cada celda. Correcciones de alineación: el span `cardTop` sale

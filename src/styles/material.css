@@ -327,23 +327,9 @@
   text-transform: uppercase;
 }
 
-/* Divisor forjado ornamental */
-.rd-divider {
-  position: relative;
-  height: 1px;
-  margin: var(--space-md) 0;
-  background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.55) 30%, rgba(0, 191, 255, 0.55) 70%, transparent);
-}
-.rd-divider::before {
-  content: "❖";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--accent-secondary);
-  font-size: 11px;
-  text-shadow: 0 0 6px rgba(0, 191, 255, 0.6);
-}
+/* Divisor: el trazo vive en border-image (anti-subpixel) y el efecto
+   ceremonial de neón + nieve pulsante en sus pseudos — ver «Sistema de
+   divisores» en la sección de separadores hairline. */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER 04 · INTERACCIÓN · ESTADOS
@@ -441,22 +427,139 @@
   background-image: linear-gradient(180deg, rgba(0, 191, 255, 0.12), rgba(0, 191, 255, 0) 55%);
 }
 
-/* ── Separadores hairline anti-subpixel ────────────────────────────────────
+/* ── Sistema de divisores: hairline anti-subpixel + halo de neón ──────────
    Las líneas de 1px con background-image caen en posiciones fraccionarias de
    píxel y Chrome las descarta en el primer paint (solo se ven al abrir
    DevTools, que fuerza un repaint). Pintarlas como border-image las rasteriza
-   siempre a 1px exacto, sin flicker ni desaparición intermitente. */
+   siempre a 1px exacto, sin flicker ni desaparición intermitente.
+
+   Sobre el trazo, el efecto ceremonial (neón helado que respira) vive en el
+   ::before: un bloom de DOS capas (núcleo de 6px + resplandor de altura
+   completa, la envolvente `--rd-divider-env` dos veces) con blur suave, que
+   pulsa (breathe: opacidad) y se mece en un vaivén espectral (drift:
+   traslación con deriva vertical e hinchazón scaleY). La LÍNEA también
+   respira: el propio elemento anima opacidad (compuesto, sin layout) y se
+   multiplica con el halo — pulso profundo y perceptible. Delays negativos:
+   ningún latido queda en fase consigo mismo ni con otro de la página. Solo se
+   animan opacity/transform (pseudos pointer-events:none). El envelope del
+   halo sigue el del trazo de cada variante. El separador inferior de
+   `.rd-tabbar` (bajo las pestañas) comparte el sistema. Con
+   `prefers-reduced-motion: reduce` se ATENÚA, no se congela (mismo criterio
+   que las partículas: un estado congelado se percibe roto): sin deriva (cero
+   traslación) pero con respiración lenta de opacidad pura. */
+.rd-divider,
+.rd-divider-both,
+.rd-divider-left {
+  position: relative;
+  animation: rd-divider-breathe 6s ease-in-out -2.7s infinite;
+}
+.rd-divider,
+.rd-divider-both {
+  --rd-divider-env: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.7) 30%, rgba(0, 191, 255, 0.7) 70%, transparent);
+}
+.rd-divider-left {
+  --rd-divider-env: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.5), rgba(0, 191, 255, 0.85));
+}
+.rd-divider {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.7) 30%, rgba(0, 191, 255, 0.7) 70%, transparent) 1 / 1 / 0 stretch;
+}
 .rd-divider-both {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.4), transparent) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.6), transparent) 1 / 1 / 0 stretch;
 }
 .rd-divider-left {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.4), rgba(0, 191, 255, 0.6)) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.6), rgba(0, 191, 255, 0.85)) 1 / 1 / 0 stretch;
 }
-/* Tab-bar: misma técnica, en el ::after inferior. Fade a la DERECHA: el borde
-   nace sólido a la izquierda (visible bajo la primera pestaña) y se desvanece
-   hacia la derecha — es parte del diseño de la barra, no un divisor aparte. */
+/* Bloom helado: núcleo + resplandor; respira (opacidad) y flota (vaivén con
+   deriva vertical e hinchazón scaleY) */
+.rd-divider::before,
+.rd-divider-both::before,
+.rd-divider-left::before,
+.rd-tabbar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  pointer-events: none;
+  filter: blur(5px);
+  opacity: 0.55;
+  background-image: var(--rd-divider-env), var(--rd-divider-env);
+  background-size: 100% 6px, 100% 100%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  animation:
+    rd-divider-breathe 6s ease-in-out -1.2s infinite,
+    rd-divider-drift 14s ease-in-out -3.4s infinite alternate;
+}
+.rd-divider::before,
+.rd-divider-both::before,
+.rd-divider-left::before {
+  top: calc(50% - 9px);
+}
+/* Tab-bar: la hairline propia (fade a la DERECHA) queda como ::after; el halo
+   se posa SOBRE ella. Vive DENTRO del borde inferior (bottom: 0): la barra es
+   scroller horizontal (overflow-x-auto ⇒ overflow-y computed auto) y un
+   pseudo que sobresalga se recortaría y añadiría scroll vertical. El núcleo
+   del bloom va en el filo (position 100%: emana HACIA ARRIBA desde la línea)
+   y el vaivén es más corto (drift-soft ±6px) para que el extremo sólido de su
+   fade no se despegue del borde. */
+.rd-tabbar {
+  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.45), transparent);
+}
+.rd-tabbar::before {
+  bottom: 0;
+  height: 14px;
+  background-position: 50% 100%;
+  animation-name: rd-divider-breathe, rd-divider-drift-soft;
+  animation-delay: -4.6s, -9.1s;
+}
+@keyframes rd-divider-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+@keyframes rd-divider-breathe-slow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+@keyframes rd-divider-drift {
+  from {
+    transform: translate(-15px, 1px) scaleY(0.85);
+  }
+  50% {
+    transform: translate(0, -1.5px) scaleY(1.2);
+  }
+  to {
+    transform: translate(15px, 1px) scaleY(0.85);
+  }
+}
+@keyframes rd-divider-drift-soft {
+  from {
+    transform: translate(-6px, 1px) scaleY(0.9);
+  }
+  50% {
+    transform: translate(0, -1px) scaleY(1.15);
+  }
+  to {
+    transform: translate(6px, 1px) scaleY(0.9);
+  }
+}
+/* Tab-bar (hairline): la técnica del trazo, en el ::after inferior. Fade a la
+   DERECHA: el borde nace sólido a la izquierda (visible bajo la primera
+   pestaña) y se desvanece hacia la derecha — es parte del diseño de la barra,
+   no un divisor aparte. Late con el halo (mismo breathe, delay propio). */
 .rd-tabbar::after {
   content: "";
   position: absolute;
@@ -467,6 +570,7 @@
   border-top: 1px solid transparent;
   border-image: linear-gradient(90deg, rgba(0, 191, 255, 0.7), rgba(0, 160, 220, 0.3), transparent) 1 / 1 / 0 stretch;
   pointer-events: none;
+  animation: rd-divider-breathe 6s ease-in-out -2.1s infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -528,6 +632,22 @@
   }
   .rd-glow {
     animation: none;
+  }
+  /* Divisores/tab-bar: se ATENÚAN, no se congelan (mismo criterio que las
+     partículas: un estado congelado se percibe roto). Sin deriva — cero
+     traslación/escala — solo respiración lenta de opacidad pura (segura para
+     movimiento reducido). Línea y halo con delays distintos: latido vivo. */
+  .rd-divider::before,
+  .rd-divider-both::before,
+  .rd-divider-left::before,
+  .rd-tabbar::before {
+    animation: rd-divider-breathe-slow 11s ease-in-out -2.3s infinite;
+  }
+  .rd-divider,
+  .rd-divider-both,
+  .rd-divider-left,
+  .rd-tabbar::after {
+    animation: rd-divider-breathe-slow 11s ease-in-out -5.2s infinite;
   }
   .rd-btn,
   .rd-nav-item,

@@ -159,6 +159,26 @@ UI MMORPG clásica", no una copia.
   NO es border-radius.
 - **Títulos ceremoniales**: `ui.ornament` (`rd-title rd-ornament`) añade
   doble línea + diamante bajo títulos TIER 1/2.
+- **Divisores (2026-10-18)**: sistema único en material.css — el trazo
+  hairline (`border-image` anti-subpixel) lleva un **bloom helado de dos
+  capas** (`::before`: núcleo de 6px + resplandor de altura completa, la
+  envolvente `--rd-divider-env` dos veces) con blur suave; además la LÍNEA
+  late: el propio elemento anima opacidad (compuesto, sin layout). Pulso
+  profundo y perceptible: breathe 6s (0.3→0.95) sobre línea y halo, más un
+  vaivén espectral (drift 14s con deriva vertical e hinchazón `scaleY`).
+  Delays negativos: ningún latido queda en fase consigo mismo ni con otro de
+  la página. Sin partículas (la ventisca de puntos de la primera versión se
+  retiró el mismo día; el pulso se reforzó tras revisión). Solo
+  opacity/transform (pseudos `pointer-events:none`, cero impacto en layout).
+  El envelope del halo sigue el del trazo de cada variante; el efecto vive en
+  `.rd-divider` (landing), `.rd-divider-both` y `.rd-divider-left`, y el
+  separador inferior de las tab bars (`.rd-tabbar`, dashboard/portal/fichas)
+  comparte el sistema sobre su hairline fade-derecha (late con delay propio;
+  halo DENTRO del borde — la barra es scroller `overflow-x-auto` y un pseudo
+  que sobresalga se recorta). Con `prefers-reduced-motion: reduce` se
+  ATENÚA, no se congela (mismo criterio que las partículas: un estado
+  congelado se percibe roto): sin deriva (cero traslación/escala), solo
+  respiración lenta de opacidad pura (11s, 0.4→0.8).
 - **Reglas**: el material va vía tokens (`design.ts`), nunca literales sueltos.
   Las cards de enlace siguen usando `rd-card rd-lift` para el hover con peso.
   Respetar `prefers-reduced-motion` (ya incluido).
@@ -407,6 +427,28 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-18 (divisores)**: los tres divisores (`ui.divider`,
+  `dividerFadeBoth`, `dividerFadeLeft`) y el separador inferior de las tab
+  bars (`.rd-tabbar`, dashboard/portal/fichas) comparten un mismo sistema:
+  trazo `border-image` anti-subpixel + bloom helado de dos capas que respira
+  y flota (breathe 6s 0.3→0.95 sobre línea Y halo; drift 14s con deriva
+  vertical e hinchazón `scaleY`; delays negativos; sin partículas — la
+  ventisca de puntos de la primera versión se retiró a pedido el mismo día).
+  El legacy `.rd-divider` (rombo ❖, sin uso) se reescribe como base de
+  `ui.divider` (envelope plateau simétrico; antes gradiente Tailwind con fade
+  a la derecha y, por ser `background-image`, sujeto a la caída de 1px
+  subpíxel que el `border-image` ya documentaba). En el tab bar el halo vive
+  DENTRO del borde inferior (la barra es scroller `overflow-x-auto` ⇒
+  `overflow-y` computed `auto`: un pseudo que sobresalga se recorta y añade
+  scroll vertical) y usa `drift-soft` (±6px). Con `reduce` se ATENÚA (sin
+  deriva ni escala; respiración lenta de opacidad pura a 11s), no se congela
+  — mismo criterio que las partículas. Verificado por píxeles (perfil de
+  bloom simétrico valle/pico — línea 82→195 y aura 53→152 en la landing;
+  hairline del tab bar 145→213; sin partículas; envelope fade-derecha) en
+  landing, portal de hermandad y directorio, a 1400 y 390 px, y por CSSOM
+  (nombres/duraciones reales, opacidad y transform a media animación —
+  `scaleY` incluido — y cero traslación con `reduce`).
 
 - **2026-10-18 (cifras de la landing)**: `ui.statBlock` en la landing queda con
   dos celdas (cliente WoW / gratis), label y cifra centrados

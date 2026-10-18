@@ -300,13 +300,16 @@ export const ui = {
     md: '',
     lg: '!p-5 sm:!p-7',
   },
-  // Separador interno sutil (contenido de cards).
-  divider: 'h-px w-full bg-gradient-to-r from-brand-500/40 via-brand-600/20 to-transparent',
+  // Separador ceremonial: trazo hairline con bloom de neón que respira —
+  // la línea y el halo laten (efecto en material.css, «Sistema de
+  // divisores»). Uso actual: landing (index.astro); card.ts lo expone como
+  // separador interno.
+  divider: 'rd-divider w-full',
   // Versiones del separador desvanecido para la página (excepto index):
   //   dividerFadeBoth — debajo del ENCABEZADO de la página, se desvanece a ambos lados.
   //   dividerFadeLeft — tras el contenido principal, se desvanece hacia la izquierda.
-  // El borde inferior de la navegación de tabs es parte del diseño de la barra
-  // (rd-tabbar::after en material.css, fade a la derecha); no usa token.
+  // El borde inferior de la navegación de tabs (rd-tabbar, material.css)
+  // comparte el halo del sistema sobre su propia hairline fade-derecha; no usa token.
   dividerFadeBoth: 'rd-divider-both w-full',
   dividerFadeLeft: 'rd-divider-left w-full',
   // Tira de CONTEXTO de una ficha (chips de servidor/reino tras el divisor
