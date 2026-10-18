@@ -490,6 +490,13 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-17 (directorios)**: cabecera de los 5 directorios a placa de
+  identidad con medallón (`PageHeader` gana prop `icon` + `ui.plaque`;
+  `DirectoryPage` pasa `panelIcon` y `/bandas` `espadas`); captions de
+  directorio a `gray-400` (AA, F011), placeholders, contador de filtros y
+  `ui.text.caption` incluidos; `cardLink` con `focusRing`; grillas
+  `gap-5 sm:gap-6` y divisor unificado. Detalle en `design.md` (historial).
+
 - **2026-10-17 (póster de fichas)**: sistema de diseño "póster" (§12 de
   `design.md`): placa de identidad en el héroe (`ui.plaque` — el texto suelto
   se disolvía sobre la imagen), medallón héroe del sprite con halo de color

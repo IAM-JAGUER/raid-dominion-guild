@@ -87,7 +87,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     nameWrap.appendChild(nm);
     // Subtítulo: el personaje principal declarado, SOLO si es público y difiere.
     if (principalPublic && p.character_name !== name) {
-      nameWrap.appendChild(el('p', 'text-[11px] text-gray-500 truncate', `Principal: ${p.character_name}`));
+      nameWrap.appendChild(el('p', 'text-[11px] text-gray-400 truncate', `Principal: ${p.character_name}`));
     }
     head.appendChild(nameWrap);
     if (gmVisible) {
@@ -101,7 +101,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     chips.appendChild(chip('Perfil público'));
     // Marca distintiva para perfiles sin nombre: handle único + aviso sutil.
     if (fromHandle) {
-      chips.appendChild(chip(handleFromSlug(p.slug), 'text-gray-500 bg-brand-900/60 border-gray-600/40'));
+      chips.appendChild(chip(handleFromSlug(p.slug), 'text-gray-400 bg-brand-900/60 border-gray-600/40'));
       chips.appendChild(chip('sin nombre', 'text-brand-400 bg-brand-950/30 border-brand-600/40'));
     } else if (nameless) {
       chips.appendChild(chip('sin nombre', 'text-brand-400 bg-brand-950/30 border-brand-600/40'));
@@ -110,7 +110,7 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     if (gmVisible) chips.appendChild(chip('Maestro', 'text-fuchsia-300 bg-fuchsia-950/30 border-fuchsia-600/40'));
     link.appendChild(chips);
 
-    const foot = el('p', 'text-xs text-gray-500 mt-4 flex items-center justify-between');
+    const foot = el('p', 'text-xs text-gray-400 mt-4 flex items-center justify-between');
     foot.appendChild(el('span', 'text-brand-300/80 group-hover:text-brand-200 transition-colors', 'Ver perfil →'));
     link.appendChild(foot);
     return link;

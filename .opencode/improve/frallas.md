@@ -93,6 +93,15 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   texto normal. `ui.text.caption` y `ui.filter.result` aún usan `gray-500`:
   el barrido de captions (a `brand-200/70` ≈6.3:1 o `gray-400`) queda como
   trabajo pendiente de este ciclo.
+- **Actualización 2026-10-17 (directorios)**: barrido aplicado — `ui.text.caption`,
+  `ui.filter.result`, `placeholder:*` de `ui.form.input` y los literales de
+  cards de directorio (`cards.ts`, `bandasPanel.ts`, `servidores`,
+  `jugadores`) pasan a `gray-400` (AA). Quedan ~76 usos de `gray-500` en
+  dashboard (`src/lib/ui/dashboard/*`, `dashboard.astro`, `upload.astro`,
+  `admin.astro`, `moderate.astro`, `login.astro`), fichas/views
+  (`BandView`, `RealmView`, `JugadorProfile`), `tabs.ts`, `preview.ts`,
+  `Navigation.astro` y secciones de landing — cubiertos por los checkboxes
+  pendientes de la auditoría póster (priorities.md P1).
 - **Detección**: manual — pendiente incorporar a `verifica.sh` o CI
 
 ## F012: Migración aplicada sin registrar en el ledger

@@ -104,7 +104,7 @@ export const ui = {
     h3: 'text-base font-bold',
     body: 'text-sm text-gray-300',
     bodyMuted: 'text-sm text-gray-400',
-    caption: 'text-xs text-gray-500',
+    caption: 'text-xs text-gray-400',
   },
   // H1 de PÁGINA con gradiente de marca: título hero con degradado ámbar y
   // tracking amplio (directorios, upload, login, admin, moderate). ÚNICA
@@ -145,7 +145,7 @@ export const ui = {
   form: {
     label: 'block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5',
     input:
-      'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-500 transition-colors',
+      'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-400 transition-colors',
     inputError: '!border-red-500/70 focus:!border-red-500 focus:!ring-red-500/30',
     helperText: 'mt-1.5 text-[11px] text-gray-500 italic',
     errorText: 'mt-1.5 text-[11px] text-red-300',
@@ -163,8 +163,9 @@ export const ui = {
     searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
     // Embudo temático que marca el inicio de la zona de facetas.
     facetLead: 'self-center mr-1 opacity-90',
-    // Contador de resultados ("N bandas"): live region de la barra.
-    result: 'text-[10px] font-black uppercase tracking-widest text-gray-500 sm:text-right shrink-0',
+    // Contador de resultados ("N bandas"): live region de la barra. gray-400
+    // (6.7:1 sobre la superficie de marca) — gray-500 no pasa AA (F011).
+    result: 'text-[10px] font-black uppercase tracking-widest text-gray-400 sm:text-right shrink-0',
     // Contenedor de filas de facetas (una fila por faceta, con wrap).
     facets: 'mt-3 space-y-2',
     row: 'flex flex-wrap gap-1.5',

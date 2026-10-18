@@ -31,9 +31,10 @@ export function card(cls = ''): HTMLElement {
   return node('div', `${ui.card} relative overflow-hidden ${cls}`.trim());
 }
 
-// Card enlace: superficie de card + hover de marca + línea de acento.
+// Card enlace: superficie de card + hover de marca + línea de acento +
+// foco de teclado visible (ui.focusRing).
 export function cardLink(href: string, cls = ''): HTMLAnchorElement {
-  const a = node('a', `${ui.card} ${ui.cardHover} relative overflow-hidden block ${cls}`.trim()) as HTMLAnchorElement;
+  const a = node('a', `${ui.card} ${ui.cardHover} ${ui.focusRing} relative overflow-hidden block ${cls}`.trim()) as HTMLAnchorElement;
   a.href = href;
   a.appendChild(cardTop());
   return a;

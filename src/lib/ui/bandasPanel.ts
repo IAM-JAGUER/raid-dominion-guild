@@ -122,11 +122,11 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     const title = day === -1 ? 'Sin día fijado' : WEEKDAY_LABELS[day];
     head.appendChild(iconEl('calendario', { size: 'xs', cls: 'self-center' }));
     head.appendChild(el('h3', `${ui.subTitle} !mb-0`, title));
-    head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-500', `· ${bands.length} banda${bands.length === 1 ? '' : 's'}`));
+    head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', `· ${bands.length} banda${bands.length === 1 ? '' : 's'}`));
     section.appendChild(head);
 
     // En columna de día: cards apiladas; en full-width: grilla de cards.
-    const grid = el('div', fullWidth ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5' : 'grid grid-cols-1 gap-4');
+    const grid = el('div', fullWidth ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6' : 'grid grid-cols-1 gap-4');
     bands.forEach((item) => grid.appendChild(renderCard(item)));
     section.appendChild(grid);
     return section;

@@ -89,7 +89,10 @@ Toda card de la plataforma usa la misma superficie (`ui.card`, que comparte
 En render JS usa los helpers de `src/lib/ui/card.ts` (`cardLink`, `card`,
 `cardTop`, `iconTile`, `eyebrow`, `stat`, `cardTitle`, `cardRow`, `divider`)
 como fuente única del literal (R5). No escribir `bg-brand-900/60` + borde de
-marca sueltos fuera de ese helper.
+marca sueltos fuera de ese helper. `cardLink` añade `ui.focusRing` (foco de
+teclado visible y ceremonial, 2026-10-17) y los textos secundarios de card
+usan `gray-400` (6.7:1 AA) — `gray-500` sobre la superficie de marca no pasa
+AA (F011, `frallas.md`).
 
 ## 3b. Materiales y dirección de arte (2026-08-30)
 
@@ -370,7 +373,9 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   texto suelto sobre la imagen de atmósfera se disolvía en las zonas claras
   del fondo — la decisión previa de "hero sin caja" (portal de hermandad)
   era de la época del velo 0.75-0.9; con la capa única y el velo 0.3 dejó de
-  sostenerse. Es hermana del panel, sin metal.
+  sostenerse. Es hermana del panel, sin metal. Desde 2026-10-17 la cabecera
+  de los 5 directorios (`PageHeader`) también es placa con medallón de
+  identidad (`iconTileLg` + `Icon` `xl`).
 - **Medallón héroe** (`ui.iconTileHero` + `ui.icon.hero` +
   `.rd-medallion-hero`): el arte del sprite a tamaño protagonista con halo
   del color de contexto (`--rd-hero-tint`: color de clase en fichas de
@@ -398,6 +403,16 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-17 (directorios)**: cabecera de los 5 directorios a placa de
+  identidad (`PageHeader` con `ui.plaque` + `ui.zone.hero` + medallón
+  `iconTileLg`/`xl`) con prop `icon` alimentada por `panelIcon` (DirectoryPage)
+  y `espadas` (bandas). Barrido F011 en directorios: `ui.filter.result`,
+  `ui.text.caption` y placeholders del formulario pasan a `gray-400`, y los
+  literales `gray-500`/`gray-600` de cards (`cards.ts`, `bandasPanel.ts`,
+  `servidores`, `jugadores`) a `gray-400`; `cardLink` gana `ui.focusRing`.
+  Espaciado: divisor único `mt-6 mb-10` (fuera overrides `mt-6 mb-8`) y
+  grillas de cards `gap-5 sm:gap-6`.
 
 - **2026-10-17 (fondo único)**: `GameLoginBg` pasa a ser el fondo de TODAS
   las páginas vía default de `background` en `Layout`; se eliminan

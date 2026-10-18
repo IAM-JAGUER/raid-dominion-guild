@@ -1,20 +1,32 @@
 ---
-// Cabecera de página tipo directorio: eyebrow + h1 hero con gradiente de
-// marca (ui.titleHero) + descripción. ÚNICA fuente del patrón de cabecera de
-// los 5 directorios (ver AGENTS.sections/pagina-map.md §2).
+// Cabecera de página tipo directorio: placa de identidad (ui.plaque) con
+// medallón del icono temático + eyebrow + h1 hero + descripción. ÚNICA
+// fuente del patrón de cabecera de los 5 directorios (ver
+// AGENTS.sections/pagina-map.md §2). La placa da superficie REAL al texto:
+// suelto sobre la atmósfera se disolvía (design.md §12).
 interface Props {
   eyebrow?: string;
   title: string;
   intro?: string;
   // Clases extra del h1 (p. ej. `tracking-wider` heredado de titleHero).
   titleCls?: string;
+  // Icono temático del medallón de identidad (contrato src/lib/ui/icons.ts).
+  icon?: IconName;
 }
 
-const { eyebrow, title, intro, titleCls = '' } = Astro.props;
+const { eyebrow, title, intro, titleCls = '', icon } = Astro.props;
 
 import { ui } from '@/lib/ui/design';
+import Icon from '@/components/ui/Icon.astro';
+import type { IconName } from '@/lib/ui/icons';
 ---
-<header class="text-center mb-10 animate-fade-in-1">
+<header class={`${ui.plaque} ${ui.zone.hero} max-w-3xl mx-auto text-center px-6 py-8 sm:py-10 animate-fade-in-1`}>
+  <span class={ui.cardTop} aria-hidden="true"></span>
+  {icon && (
+    <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`}>
+      <Icon name={icon} size="xl" />
+    </div>
+  )}
   {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
   <h1 class={`${ui.text.hero} ${ui.titleHero} ${titleCls}`}>{title}</h1>
   {intro && <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>{intro}</p>}

@@ -60,7 +60,7 @@ const {
 ---
 <Breadcrumb />
 
-<PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} />
+<PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} icon={panelIcon} />
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 
 <!-- Lista asíncrona estándar (src/lib/ui/list.ts): los ítems viven en la
@@ -71,7 +71,7 @@ const {
 <div data-rd-list-frame>
   <PanelWindow title={panelTitle} icon={panelIcon}>
     <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>
-    <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label={gridLabel}>
+    <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" aria-label={gridLabel}>
       <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
     </section>
   </PanelWindow>

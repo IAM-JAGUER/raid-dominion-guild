@@ -83,8 +83,10 @@ densidad donde deberían ser protagonistas, listas con `gap-1`):
 - [ ] Dashboard (pestañas, cards de personaje/bandas/registries, `space-y-6`)
 - [ ] Upload (dropzone, pasos, preview)
 - [ ] Admin / Moderación (listados → `ui.surf.row` donde haya filas fantasma)
-- [ ] Directorios (`/hermandades`, `/bandas`, `/personajes`, `/jugadores`):
-      las cards ya tienen marco; revisar captions y densidad de listas
+- [x] Directorios (`/hermandades`, `/bandas`, `/personajes`, `/jugadores`,
+      `/servidores`) — COMPLETADO 2026-10-17: cabecera a placa con medallón
+      (`PageHeader` + `icon`), captions a `gray-400` (F011), grillas
+      `gap-5 sm:gap-6`, divisor unificado y `cardLink` con `focusRing`.
 - [ ] Landing, 404 y login: solo si hay disolución real sobre el fondo
 - [ ] Paneles Metas/Instancias/Notas de la ficha de personaje: sin datos
       reales en la DB todavía (verificado 2026-10-17) — revisar visualmente
