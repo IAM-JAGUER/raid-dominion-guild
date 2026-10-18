@@ -406,6 +406,18 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
 
 ## Historial de enmiendas
 
+- **2026-10-18 (tiras de contexto)**: nuevo token `ui.contextStrip`
+  (`hidden flex flex-wrap gap-2 mt-10`): chips de servidor/reino tras el
+  separador final de las fichas (personaje, jugador, reino y portal de
+  hermandad) — liberan el encabezado y cierran la página con el mismo respiro
+  divisor→contenido que el directorio (2.5rem). Fuente única de los chips:
+  `serverRealmLinks()` (`card.ts`, icono de servidor/vientos en vez de
+  prefijos de texto); cada vista desoculta la tira solo cuando hay datos (la
+  fila del helper siempre existe). Se eliminan los `space-y-10` de `#profile`
+  y `space-y-8` de `#portal`: su selector (0,3,0) pisaba el `mt-12` del
+  divisor y añadía margen fantasma a la tira. Verificado con capturas
+  headless en las 4 rutas.
+
 - **2026-10-17 (auditoría general)**: fondo de página al 45% de opacidad
   (`--rd-img-opacity` en `.rd-atmosphere__image`) para legibilidad global;
   `prefers-reduced-motion` neutraliza los `animation-delay` inline

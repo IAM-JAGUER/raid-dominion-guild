@@ -10,6 +10,7 @@
 import { ui } from '@/lib/ui/design';
 import { iconEl, type IconName, type IconSize } from '@/lib/ui/icons';
 import { itemQualityColor } from '@/lib/ui/itemQuality';
+import { slugify } from '@/lib/routes';
 
 function node(tag: string, cls: string, text?: string): HTMLElement {
   const n = document.createElement(tag);
@@ -97,6 +98,40 @@ export function arrowIcon(): HTMLElement {
 }
 
 // ── Póster: piezas de ficha (design.md §12, 2026-10-17) ───────────────────
+
+// Enlaces de contexto de una ficha (servidor realmlist + reino → jerarquía
+// del directorio). Fila de badges que va DESPUÉS del separador final, en la
+// tira de contexto que libera el encabezado (patrón del portal de hermandad).
+// Fuente única de los chips de jugador y personaje.
+export interface ServerRealmRef {
+  server: string | null;
+  realm: string | null;
+}
+
+export function serverRealmLinks(c: ServerRealmRef): HTMLElement {
+  const row = node('div', 'flex flex-wrap gap-2');
+  if (c.server) {
+    const s = node('a', `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`) as HTMLAnchorElement;
+    s.href = `/servidor/${encodeURIComponent(c.server)}`;
+    s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
+    s.appendChild(document.createTextNode(c.server));
+    row.appendChild(s);
+  }
+  if (c.realm) {
+    const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
+    const r = node(
+      c.server ? 'a' : 'span',
+      c.server ? `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all` : cls
+    );
+    if (c.server) {
+      (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
+    }
+    r.appendChild(iconEl('vientos', { size: 'sm', cls: 'shrink-0' }));
+    r.appendChild(document.createTextNode(c.realm));
+    row.appendChild(r);
+  }
+  return row;
+}
 
 // Medallón héroe de ficha: el sprite a tamaño protagonista (hero) sobre el
 // medallón, con halo del color de contexto (`tint`: color de clase o acento

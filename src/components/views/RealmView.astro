@@ -18,10 +18,7 @@ import Icon from '@/components/ui/Icon.astro';
         </div>
         <div class="flex-1 min-w-0">
           <p class={`${ui.eyebrow} mb-2`}>Reino</p>
-          <div class="flex flex-wrap items-end gap-3">
-            <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-            <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-brand-950/70 border-brand-600/40 text-brand-200 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`}></a>
-          </div>
+          <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
           <div class="flex flex-wrap items-center mt-5" aria-label="Indicadores del reino">
             <div class={ui.statBlock.cell}>
               <p class={ui.statBlock.label}>Hermandades</p>
@@ -66,6 +63,10 @@ import Icon from '@/components/ui/Icon.astro';
     </PanelWindow>
   </div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+  <!-- Contexto del reino (servidor realmlist): va DESPUÉS del separador
+       final para liberar el encabezado. Mismo formato de chips que las
+       fichas de jugador/personaje (contrato serverRealmLinks). -->
+  <div id="rv-context" class={ui.contextStrip}></div>
 </section>
 
 <script>
@@ -79,6 +80,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { resolveBandOwners, mergeDirectoryBands } from '@/lib/bandListing';
   import { REINO_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { renderGuildCard, renderCharacterCard, renderBandCard } from '@/lib/ui/cards';
+  import { serverRealmLinks } from '@/lib/ui/card';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
 
   interface ProfileLight { id: string; slug: string | null; display_name: string | null; character_name: string | null }
@@ -130,9 +132,9 @@ import Icon from '@/components/ui/Icon.astro';
     (document.getElementById('rv-realm') as HTMLElement).textContent = realm;
     setBreadcrumb(realm);
 
-    const chip = document.getElementById('rv-server-chip') as HTMLAnchorElement;
-    chip.href = `/servidor/${encodeURIComponent(server)}`;
-    chip.textContent = `Servidor: ${server}`;
+    const ctx = document.getElementById('rv-context') as HTMLElement;
+    ctx.appendChild(serverRealmLinks({ server, realm: null }));
+    ctx.classList.remove('hidden');
 
     // Indicadores del reino (cifras públicas).
     (document.getElementById('rv-stat-guilds') as HTMLElement).textContent = String(realmGuilds.length);

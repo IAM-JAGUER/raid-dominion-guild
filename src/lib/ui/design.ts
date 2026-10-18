@@ -303,6 +303,11 @@ export const ui = {
   // (rd-tabbar::after en material.css, fade a la derecha); no usa token.
   dividerFadeBoth: 'rd-divider-both w-full',
   dividerFadeLeft: 'rd-divider-left w-full',
+  // Tira de CONTEXTO de una ficha (chips de servidor/reino tras el divisor
+  // final): cierra la página sin tocar el encabezado. El respiro bajo el
+  // divisor sigue la relación divisor→contenido del directorio (mb-10).
+  // `hidden` inicial: cada vista la desoculta solo cuando aporta datos.
+  contextStrip: 'hidden flex flex-wrap gap-2 mt-10',
 
   // ── Materiales y ornamentación (2026-08-30, material.css) ───────────────
   // Corte diagonal único en la esquina superior izquierda (clip-path, no

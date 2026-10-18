@@ -24,8 +24,11 @@ import { ui } from '@/lib/ui/design';
       <a id="not-found-cta" href="/jugadores" class={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest`}>Ver jugadores</a>
     </div>
 
-    <!-- Ficha del personaje -->
-    <div id="profile" data-rd-reveal class="hidden space-y-10">
+    <!-- Ficha del personaje. Ritmo de zonas póster: header (zone.hero),
+         nav (zone.tabs) y paneles (zone.body) llevan su propio compás; sin
+         `space-y` aquí, que pisaba el `mt-12` del divisor y separaba la tira
+         de contexto (#jugador-context) del separador. -->
+    <div id="profile" data-rd-reveal class="hidden">
       <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
         <div class={`${ui.plaque} p-5 sm:p-7`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
@@ -44,9 +47,6 @@ import { ui } from '@/lib/ui/design';
                 <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}><Icon name="estrella" size="sm" class="self-center" />Maestro de hermandad</span>
               </div>
               <p id="profile-ref" class="hidden text-sm text-gray-400 mt-3"></p>
-              <!-- Contexto del jugador (servidor/reino): cierra la zona de
-                   identidad, con contenedor real (antes tira fantasma al final). -->
-              <div id="jugador-context" class="hidden flex flex-wrap gap-2 mt-3"></div>
             </div>
           </div>
         </div>
@@ -82,6 +82,9 @@ import { ui } from '@/lib/ui/design';
       </div>
 
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+      <!-- Contexto del jugador (servidor/reino): va DESPUÉS del separador
+           final para liberar el encabezado. -->
+      <div id="jugador-context" class={ui.contextStrip}></div>
     </div>
 
   </div>
@@ -90,15 +93,14 @@ import { ui } from '@/lib/ui/design';
 <script>
   import { supabase } from '@/lib/supabase';
   import { getPublicProfileBySlug, getPublicGuildsForPlayer, getPublicCharactersByUser, getPublicBandsForCharacter, ensureMyCharacterSlugs, type PublicBandSummary } from '@/lib/api';
-  import { slugify, RESERVED } from '@/lib/routes';
+  import { RESERVED } from '@/lib/routes';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName } from '@/lib/ui/playerNames';
   import type { CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
   import { ui } from '@/lib/ui/design';
-  import { card, cardTop, iconTileEl } from '@/lib/ui/card';
+  import { card, cardTop, iconTileEl, serverRealmLinks } from '@/lib/ui/card';
   import { el, chip, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
-  import { iconEl } from '@/lib/ui/icons';
   import { classColor } from '@/lib/ui/classColors';
   import { renderCharacterCard, renderGuildCard, renderBandCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
@@ -187,13 +189,14 @@ import { ui } from '@/lib/ui/design';
     const chipsEl = document.getElementById('chips') as HTMLElement;
     const ctxEl = document.getElementById('jugador-context') as HTMLElement;
     if (main) {
-      // Servidor/reino viven en la tira de contexto al final del contenido,
-      // no en el encabezado; los chips de clase/cifras/hermandad sí quedan
-      // junto al nombre.
-      ctxEl.appendChild(serverRealmLinks(main));
+      // Servidor/reino viven en la tira de contexto tras el separador final
+      // (#jugador-context), no en el encabezado; los chips de clase/cifras/
+      // hermandad sí quedan junto al nombre. Sin datos no se desoculta (la
+      // fila del helper siempre existe, vacía).
+      if (main.server || main.realm) ctxEl.appendChild(serverRealmLinks(main));
       chipsEl.appendChild(characterChips(main));
     }
-    if (p.realm && !main?.realm) ctxEl.appendChild(chip(p.realm, '', 'md'));
+    if (p.realm && !main?.realm) ctxEl.appendChild(serverRealmLinks({ server: null, realm: p.realm }));
     if (ctxEl.children.length > 0) ctxEl.classList.remove('hidden');
 
     // La insignia de maestro solo aplica si hay un personaje maestro PÚBLICO
@@ -355,33 +358,6 @@ import { ui } from '@/lib/ui/design';
         c.sv_is_gm ? '!border-fuchsia-500/40' : '!border-brand-600/30'
       );
       row.appendChild(gchip);
-    }
-    return row;
-  }
-
-  // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
-  function serverRealmLinks(c: CharacterRow): HTMLElement {
-    const row = el('div', 'flex flex-wrap gap-2');
-    if (c.server) {
-      const s = document.createElement('a');
-      s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
-      s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
-      s.appendChild(document.createTextNode(c.server));
-      row.appendChild(s);
-    }
-    if (c.realm) {
-      const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
-      if (c.server) {
-        (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
-        r.className = `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
-      } else {
-        r.className = cls;
-      }
-      r.appendChild(iconEl('vientos', { size: 'sm', cls: 'shrink-0' }));
-      r.appendChild(document.createTextNode(c.realm));
-      row.appendChild(r);
     }
     return row;
   }

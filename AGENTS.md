@@ -492,6 +492,16 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (tiras de contexto de fichas)**: los chips de servidor/reino
+  salen de los encabezados y viven en la tira de contexto tras el divisor
+  final (`ui.contextStrip`: `hidden flex flex-wrap gap-2 mt-10`; el respiro
+  divisor→tira sigue la relación divisor→contenido del directorio) en
+  personaje, jugador, reino y portal de hermandad, con formato único
+  (`serverRealmLinks` en `card.ts`) y guard de tira vacía. Se eliminan los
+  `space-y` de `#profile` y `#portal`: su selector (0,3,0) pisaba el `mt-12`
+  del divisor y añadía margen fantasma a la tira. Verificado con capturas
+  headless en las 4 rutas. Detalle en `design.md` (historial).
+
 - **2026-10-17 (auditoría general)**: fondo de página al **45%**
   (`--rd-img-opacity` en `.rd-atmosphere__image`; velo 0.3 intacto) y
   `prefers-reduced-motion` neutraliza delays inline. Póster extendido a

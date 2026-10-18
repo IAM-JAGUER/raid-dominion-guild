@@ -22,7 +22,6 @@ import Icon from '@/components/ui/Icon.astro';
           <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
           <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
           <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
-          <div id="pv-context" class="hidden flex flex-wrap gap-2 mt-3"></div>
         </div>
       </div>
     </div>
@@ -65,18 +64,21 @@ import Icon from '@/components/ui/Icon.astro';
   </div>
 
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+  <!-- Contexto del personaje (servidor/reino): va DESPUÉS del separador
+       final para liberar el encabezado. -->
+  <div id="pv-context" class={ui.contextStrip}></div>
 </section>
 
 <script>
   import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, getPublicAccountNames, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
-  import { currentSection, currentSlug, showNotFound, showView, slugify } from '@/lib/routes';
+  import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { itemQualityColor, itemQualityCountLabel, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import { applyWowhead } from '@/lib/ui/wowhead';
-  import { card, cardTop, iconTileEl, itemRow, statCell } from '@/lib/ui/card';
+  import { card, cardTop, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
   import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
   import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
@@ -97,33 +99,6 @@ import Icon from '@/components/ui/Icon.astro';
         render(res.result.character, res.result.profile);
       }
     }
-  }
-
-  // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
-  function serverRealmLinks(c: CharacterRow): HTMLElement {
-    const row = el('div', 'flex flex-wrap gap-2');
-    if (c.server) {
-      const s = document.createElement('a');
-      s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
-      s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
-      s.appendChild(document.createTextNode(c.server));
-      row.appendChild(s);
-    }
-    if (c.realm) {
-      const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
-      if (c.server) {
-        (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
-        r.className = `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
-      } else {
-        r.className = cls;
-      }
-      r.appendChild(iconEl('vientos', { size: 'sm', cls: 'shrink-0' }));
-      r.appendChild(document.createTextNode(c.realm));
-      row.appendChild(r);
-    }
-    return row;
   }
 
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
@@ -167,11 +142,14 @@ import Icon from '@/components/ui/Icon.astro';
       ));
     }
 
-    // Servidor/reino cierran la zona de identidad (contenedor real: dejan de
-    // ser una tira fantasma sobre la imagen).
+    // Servidor/reino viven en la tira de contexto tras el separador final
+    // (#pv-context), no en el encabezado. Sin datos no se desoculta (la fila
+    // del helper siempre existe, vacía).
     const ctx = document.getElementById('pv-context') as HTMLElement;
-    ctx.appendChild(serverRealmLinks(c));
-    if (ctx.children.length > 0) ctx.classList.remove('hidden');
+    if (c.server || c.realm) {
+      ctx.appendChild(serverRealmLinks(c));
+      ctx.classList.remove('hidden');
+    }
 
     const links = document.getElementById('pv-links') as HTMLElement;
     // Nombres públicos + ¿hay un personaje maestro PÚBLICO?

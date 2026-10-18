@@ -34,11 +34,14 @@ import { ui } from '@/lib/ui/design';
         <a href="/hermandades" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Ver directorio</a>
       </div>
 
-      <!-- Portal -->
-      <div id="portal" data-rd-reveal class="hidden space-y-8">
+      <!-- Portal. Ritmo de zonas póster: cada hijo trae su margen (header
+           zone.hero, banner mb-8); sin `space-y` aquí, que pisaba el `mt-12`
+           del divisor y separaba la tira de contexto (#guild-context) del
+           separador. -->
+      <div id="portal" data-rd-reveal class="hidden">
 
         <!-- Vista previa privada (owner) -->
-        <div id="preview-banner" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-4 flex items-start gap-3`}>
+        <div id="preview-banner" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-4 flex items-start gap-3 mb-8`}>
           <div class={`${ui.iconTile} ${ui.iconTileMd}`} aria-hidden="true">
             <Icon name="visibilidad" size="md" />
           </div>
@@ -181,7 +184,7 @@ import { ui } from '@/lib/ui/design';
         <!-- Contexto del portal (servidor/reino): van DESPUÉS del separador
              final para liberar el encabezado; se rellenan solo con los chips
              de servidor y reino (la atribución ★ y la facción quedan arriba). -->
-        <div id="guild-context" class="hidden flex flex-wrap gap-2"></div>
+        <div id="guild-context" class={ui.contextStrip}></div>
       </div>
     </div>
   </main>
@@ -191,9 +194,10 @@ import { ui } from '@/lib/ui/design';
   import { getPublicGuildBySlug, getGuildSnapshot, getGuildRules, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
   import type { ContentItem } from '@/types/parser';
-  import { slugify, RESERVED, currentSlug } from '@/lib/routes';
+  import { RESERVED, currentSlug } from '@/lib/routes';
   import { renderParsedSections, renderRoster, el } from '@/lib/ui/preview';
   import { renderBandCard } from '@/lib/ui/cards';
+  import { serverRealmLinks } from '@/lib/ui/card';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners } from '@/lib/bandListing';
   import { classIconEl } from '@/lib/ui/classIcon';
@@ -241,28 +245,13 @@ import { ui } from '@/lib/ui/design';
 
       const metaEl = document.getElementById('guild-meta') as HTMLElement;
       // Servidor/reino del portal: viven en la tira de contexto al final del
-      // contenido (#guild-context), no en el encabezado.
+      // contenido (#guild-context), no en el encabezado. Mismo formato de
+      // chips que las fichas de jugador/personaje (contrato serverRealmLinks).
       const ctxEl = document.getElementById('guild-context') as HTMLElement;
-      if (g.server) {
-        const serverChip = document.createElement('a');
-        serverChip.href = `/servidor/${encodeURIComponent(g.server)}`;
-        serverChip.className = `${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-brand-950/60 to-brand-950/30 border-brand-600/40 text-brand-200 hover:from-brand-900/70 hover:to-brand-900/40 hover:border-brand-400/60 hover:text-brand-100 transition-all`;
-        serverChip.textContent = g.server;
-        ctxEl.appendChild(serverChip);
+      if (g.server || g.realm) {
+        ctxEl.appendChild(serverRealmLinks({ server: g.server, realm: g.realm }));
+        ctxEl.classList.remove('hidden');
       }
-      if (g.realm) {
-        const realmChip = document.createElement(g.server ? 'a' : 'span');
-        const cls = `${ui.badge} ${ui.badgeMd} text-gray-200 bg-gradient-to-b from-brand-800/80 to-brand-900/80 border-brand-600/30`;
-        if (g.server) {
-          (realmChip as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(g.server)}/reino/${encodeURIComponent(slugify(g.realm))}`;
-          realmChip.className = `${cls} hover:from-gray-700/80 hover:to-brand-800/60 hover:border-brand-400/50 hover:text-gray-100 transition-all`;
-        } else {
-          realmChip.className = cls;
-        }
-        realmChip.textContent = g.realm;
-        ctxEl.appendChild(realmChip);
-      }
-      if (ctxEl.children.length > 0) ctxEl.classList.remove('hidden');
       if (g.faction) metaEl.appendChild(metaChip(g.faction === 'Horde' ? 'Horda' : 'Alianza', 'facciones'));
 
       // Atribución de la hermandad: el chip ★ se muestra SOLO cuando el
