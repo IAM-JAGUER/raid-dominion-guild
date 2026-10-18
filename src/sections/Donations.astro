@@ -25,12 +25,12 @@ const accounts = [
 ]
 ---
 
-<section class="mt-8 mb-8 flex flex-col flex-wrap lg:flex-row overflow-hidden py-6">
+<section class="mt-8 mb-8 py-6">
   <SectionHeader title="¡Apóyanos!" subtitle="Tu contribución nos ayuda a seguir mejorando" />
   <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {accounts.map((account) => (
       <div
-        class={`group relative overflow-hidden ${ui.card} ${ui.cardHover} p-5 flex flex-col`}
+        class={`group relative overflow-hidden ${ui.card} ${account.link ? ui.cardHover : ''} p-5 flex flex-col`}
       >
         <span class={ui.cardTop} aria-hidden="true"></span>
         <h3 class={`text-lg sm:text-xl font-black italic mb-4 text-center ${ui.gradientTitle}`}>{account.name}</h3>

@@ -1,20 +1,23 @@
 ---
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { APP_URLS } from '@/utils/constants';
 ---
 
 <section class="flex flex-col justify-center items-center relative py-16">
-  <!-- Lore Text -->
-  <div class="text-center mt-8 mb-8 max-w-2xl px-4">
-    <h1 class={`${ui.gradientTitle} ${ui.ornament} text-md md:text-lg font-black italic animate-fade-in-1`}>
-      Addon de World of Warcraft 3.3.5a
+  <!-- Placa de identidad: el título no se disuelve sobre la imagen -->
+  <div class={`relative mt-8 mb-8 max-w-2xl px-6 py-5 text-center ${ui.plaque} animate-fade-in-1`}>
+    <span class={ui.cardTop} aria-hidden="true"></span>
+    <p class={ui.eyebrow}>Addon de World of Warcraft 3.3.5a</p>
+    <h1 class={`${ui.gradientTitle} ${ui.ornament} mt-2 text-3xl md:text-4xl font-black italic`}>
+      RaidDominion
     </h1>
   </div>
 
   <!-- Logo limpio: sin marco ni sombra -->
   <div class="relative mb-8 animate-fade-in-1" style="animation-delay: 0.3s">
     <img
-      src="gallery/logo.png"
+      src="/logo.png"
       alt="Raid Dominion"
       width="280"
       height="280"
@@ -35,7 +38,7 @@ import { ui } from '@/lib/ui/design';
       </a>
     </div>
     <a
-      href="https://github.com/IAM-DEV88/RaidDominion/archive/refs/heads/main.zip"
+      href={APP_URLS.DOWNLOAD}
       target="_blank"
       rel="noopener noreferrer"
       class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.lg}`}
@@ -45,23 +48,24 @@ import { ui } from '@/lib/ui/design';
     </a>
   </div>
 
-  <!-- Franja de stats: cifras reales del producto (ui.statValue) -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 w-full max-w-3xl mx-auto px-4 mb-10 animate-fade-in-1" style="animation-delay: 0.7s">
-    <div class="text-center">
-      <p class={`${ui.statValue} text-2xl`}>3.3.5a</p>
-      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">cliente WoW</p>
+  <!-- Cifras del producto en placa (ui.statBlock) -->
+  <div class={`relative flex flex-wrap justify-center items-center gap-x-6 gap-y-4 mx-4 px-6 py-4 mb-10 animate-fade-in-1 ${ui.plaque}`} style="animation-delay: 0.7s">
+    <span class={ui.cardTop} aria-hidden="true"></span>
+    <div class={ui.statBlock.cell}>
+      <p class={ui.statBlock.label}>cliente WoW</p>
+      <p class={`${ui.statValue} ${ui.statBlock.value}`}>3.3.5a</p>
     </div>
-    <div class="text-center">
-      <p class={`${ui.statValue} text-2xl`}>100%</p>
-      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">gratis</p>
+    <div class={ui.statBlock.cell}>
+      <p class={ui.statBlock.label}>gratis</p>
+      <p class={`${ui.statValue} ${ui.statBlock.value}`}>100%</p>
     </div>
-    <div class="text-center">
-      <p class={`${ui.statValue} text-2xl`}>∞</p>
-      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">multiservidor</p>
+    <div class={ui.statBlock.cell}>
+      <p class={ui.statBlock.label}>multiservidor</p>
+      <p class={`${ui.statValue} ${ui.statBlock.value}`}>∞</p>
     </div>
-    <div class="text-center">
-      <p class={`${ui.statValue} text-2xl`}>3</p>
-      <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">pasos: registrar · subir · compartir</p>
+    <div class={ui.statBlock.cell}>
+      <p class={ui.statBlock.label}>pasos: registrar · subir · compartir</p>
+      <p class={`${ui.statValue} ${ui.statBlock.value}`}>3</p>
     </div>
   </div>
 
@@ -69,7 +73,7 @@ import { ui } from '@/lib/ui/design';
   <div class="flex justify-center mb-12 animate-fade-in-1" style="animation-delay: 0.8s">
     <a
       href="/login"
-      class={`border border-gray-700 ${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.md}`}
+      class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}
     >
       <Icon name="perfil-alt" size="md" />
       Iniciar Sesión

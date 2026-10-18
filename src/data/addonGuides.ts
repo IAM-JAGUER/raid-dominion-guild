@@ -134,7 +134,7 @@ export const guides: Guide[] = [
         content: [
           'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, metas de equipo y moneda, nota, instancias guardadas, bandas y hermandad).',
           'Registra el personaje que usas en raid y repite el paso por cada uno que quieras incluir.',
-          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Los datos nuevos (metas, nota e instancias) aparecen en tu [ficha de personaje](/personajes) según lo que decidas publicar.',
+          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Los datos nuevos (metas, nota e instancias) aparecen en tu [dashboard](/dashboard) según lo que decidas publicar.',
           'Re-subir tu ficha mantiene todo al día sin volver a configurar nada.',
         ],
       },
@@ -349,7 +349,7 @@ export const guides: Guide[] = [
         title: 'Spammer de banda',
         content: [
           'Compone el mensaje de reclutamiento de una banda: prefijo, nombre, sufijo, duración (60 s por defecto) y composición por roles (tanque, healer, melee, ranged).',
-          'Configura el separador del mensaje (//, |, ;, ", " o ") y los canales (RAID activado por defecto); incluye vista previa y contador (máx. 255 caracteres).',
+          'Configura el separador del mensaje (//, |, ; o comas) y los canales (RAID activado por defecto); incluye vista previa y contador (máx. 255 caracteres).',
           'El spammer vive EN BANDA: se abre desde el submenú Bandas > Spamear banda y recluta mientras raidias. Requiere al menos una [banda registrada](#guide-bandas-jugadores).',
           'Inicia o detiene el bucle de spam.',
         ],
@@ -416,7 +416,7 @@ export const guides: Guide[] = [
         title: 'Sorteo con dados',
         content: [
           'Arrastra un ítem de la bolsa o haz clic con uno en el cursor.',
-          'Tira dados (Main/Dual/Enchant) con límite de tiempo y elige ganador al hacer clic en un dado.',
+          'Tira dados (Principal/Dual/Encantamiento) con límite de tiempo y elige ganador al hacer clic en un dado.',
           'Si hay empate en el dado más alto, puedes desempatar: solo tiran los empatados.',
         ],
       },
