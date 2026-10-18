@@ -77,17 +77,28 @@ héroe + tira de cifras + filas con contenedor (`ui.surf.row`/`ui.item`) +
 ritmo de zonas (`ui.zone`). Aplicado y verificado en la ficha de personaje y
 en los encabezados de jugador/banda/servidor/reino/portal de hermandad.
 Pendiente por página (patrones a buscar: filas sin contenedor, captions
-`text-gray-500` sobre imagen — ~90 usos, F011 —, iconos en tamaño de
-densidad donde deberían ser protagonistas, listas con `gap-1`):
+`text-gray-500` sobre imagen — F011, ya CERRADA 2026-10-17 —, iconos en
+tamaño de densidad donde deberían ser protagonistas, listas con `gap-1`):
 
-- [ ] Dashboard (pestañas, cards de personaje/bandas/registries, `space-y-6`)
-- [ ] Upload (dropzone, pasos, preview)
-- [ ] Admin / Moderación (listados → `ui.surf.row` donde haya filas fantasma)
 - [x] Directorios (`/hermandades`, `/bandas`, `/personajes`, `/jugadores`,
       `/servidores`) — COMPLETADO 2026-10-17: cabecera a placa con medallón
       (`PageHeader` + `icon`), captions a `gray-400` (F011), grillas
       `gap-5 sm:gap-6`, divisor unificado y `cardLink` con `focusRing`.
-- [ ] Landing, 404 y login: solo si hay disolución real sobre el fondo
+- [x] Dashboard — COMPLETADO 2026-10-17 (auditoría general): héroe en placa,
+      ritmo `space-y-8`, F011, chips `badgeStat` reparados (bug de
+      interpolación ×11), copys de estado vacío/hint, `#bands-status` dentro
+      del cuerpo de la sección. Refactor de las pestañas a `createTabBar`
+      queda FUERA de alcance (riesgo de comportamiento).
+- [x] Upload — COMPLETADO 2026-10-17: héroe en placa, dropzone/claim/cifras
+      a `ui.panel`/`ui.surf.row`, pista de origen del SV (`/rd` → Registrar),
+      errores sin toast duplicado, CTA con nota de habilitación.
+- [x] Admin / Moderación — COMPLETADO 2026-10-17: héroes en placa,
+      superficies fantasma → `ui.panel`, filas → `ui.surf.row`, `aria-label`
+      en la búsqueda, estado vacío con filtro activo, F011.
+- [x] Landing, 404 y login — COMPLETADO 2026-10-17: sí había disolución
+      real; h1 de la landing (antes `text-md` inexistente) y franja de stats
+      en placa (`ui.statBlock`), 404/login/moderador/admin con placa; primer
+      plano del portal pendiente como ronda de conversión dedicada.
 - [ ] Paneles Metas/Instancias/Notas de la ficha de personaje: sin datos
       reales en la DB todavía (verificado 2026-10-17) — revisar visualmente
       cuando exista un SV que las exporte

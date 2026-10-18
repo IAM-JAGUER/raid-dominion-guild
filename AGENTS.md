@@ -490,6 +490,21 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-17 (auditoría general)**: fondo de página al **45%**
+  (`--rd-img-opacity` en `.rd-atmosphere__image`; velo 0.3 intacto) y
+  `prefers-reduced-motion` neutraliza delays inline. Póster extendido a
+  staff (`login`, `upload`, `dashboard`, `admin`, `moderado`, `404` → placa
+  + medallón) y a la landing (`GrandLogo`: h1 roto por `text-md` inexistente
+  → escala hero en placa de marca; stats a `ui.statBlock`). Barrido F011
+  COMPLETO (≈50 literales → `gray-400`; solo restos no textuales); fix del
+  bug `class="${ui.badgeStat}"` (literal) ×11 del dashboard; superficies
+  fantasma → `ui.panel`/`ui.surf.row` (upload/admin/moderado); código muerto
+  borrado (`NewsSection`, `YoutubeBanner`, `RaidSection` + `raids.json`);
+  copys corregidos contra el flujo real (claim sin moderador inexistente,
+  pasos de hermandad, origen del SV, canal de pruebas) y Footer 2026.
+  Fuera de alcance: refactor de tab bars a `createTabBar`, sección de
+  conversión de la landing. Detalle en `design.md` (historial).
+
 - **2026-10-17 (directorios)**: cabecera de los 5 directorios a placa de
   identidad con medallón (`PageHeader` gana prop `icon` + `ui.plaque`;
   `DirectoryPage` pasa `panelIcon` y `/bandas` `espadas`); captions de

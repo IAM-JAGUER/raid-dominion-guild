@@ -76,7 +76,8 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
 - **Detección**: QA §7 (gate mínimo) / revisión completa de `@ui-ux`
 
 ## F011: Contraste insuficiente en texto secundario
-- **Estado**: vigente — tokens calibrados, sweep pendiente (2026-08-30)
+- **Estado**: cerrada (2026-10-17) — barrido completo de texto; solo restan
+  `gray-500/600` no textuales (bordes/dots/chevron, 1.4.11 ≥3:1)
 - **Error**: `text-gray-400`/`text-amber-200` sobre fondo `#111` sin
   verificar WCAG AA
 - **Solución**: Auditar con herramienta de contraste; consolidar en
@@ -96,12 +97,16 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
 - **Actualización 2026-10-17 (directorios)**: barrido aplicado — `ui.text.caption`,
   `ui.filter.result`, `placeholder:*` de `ui.form.input` y los literales de
   cards de directorio (`cards.ts`, `bandasPanel.ts`, `servidores`,
-  `jugadores`) pasan a `gray-400` (AA). Quedan ~76 usos de `gray-500` en
-  dashboard (`src/lib/ui/dashboard/*`, `dashboard.astro`, `upload.astro`,
-  `admin.astro`, `moderate.astro`, `login.astro`), fichas/views
-  (`BandView`, `RealmView`, `JugadorProfile`), `tabs.ts`, `preview.ts`,
-  `Navigation.astro` y secciones de landing — cubiertos por los checkboxes
-  pendientes de la auditoría póster (priorities.md P1).
+  `jugadores`) pasan a `gray-400` (AA).
+- **Resolución 2026-10-17 (auditoría general)**: barrido COMPLETO de
+  `text-gray-500`/`text-gray-600` (≈50 literales) a `gray-400` en
+  `login`, `upload`, `dashboard` (+ módulos `ui/dashboard/bands|guilds|visitor`),
+  `admin`, `moderate`, `tabs.ts` (tab inactiva), `preview.ts`, `cards.ts`,
+  `Navigation.astro`, `JugadorProfile`, `BandView`/`RealmView` y tokens
+  (`ui.form.helperText`, `ui.badgeStat`). Solo quedan `gray-500/600` en
+  elementos NO textuales (bordes `border-gray-600`, puntos de estado y el
+  chevron del nav), donde aplica 1.4.11 (3:1) y pasan. `F011` queda
+  cerrada para texto.
 - **Detección**: manual — pendiente incorporar a `verifica.sh` o CI
 
 ## F012: Migración aplicada sin registrar en el ledger

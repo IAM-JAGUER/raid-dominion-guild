@@ -108,7 +108,9 @@ UI MMORPG clásica", no una copia.
   a `background.png`.
 - **Atmósfera de página (2026-10-16)**: `.rd-atmosphere*` (material.css) +
   `PageAtmosphere.astro` + `src/lib/ui/particles.ts` — capa fija bajo el
-  contenido con la imagen de fondo a **opacidad plena** y UN ÚNICO velo de
+  contenido con la imagen de fondo al **45%** (`--rd-img-opacity`, afinable
+  por página; el degradado de marca `.rd-bg` se integra debajo y el texto
+  respira) y UN ÚNICO velo de
   contraste por página (`.rd-atmosphere__veil`, **0.3** por defecto; SOLO se
   monta si hay imagen) más su canvas de partículas. **Fondo único
   (2026-10-17):** `GameLoginBg` en TODAS las páginas — default de `background`
@@ -403,6 +405,24 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-17 (auditoría general)**: fondo de página al 45% de opacidad
+  (`--rd-img-opacity` en `.rd-atmosphere__image`) para legibilidad global;
+  `prefers-reduced-motion` neutraliza los `animation-delay` inline
+  (`!important`) y cubre `animate-blurred-fade-in`. Póster aplicado a los
+  heroes de staff/login/upload/dashboard/admin/moderado/404 (placa +
+  medallón) y a la landing (`GrandLogo`: h1 de `text-md` inexistente a
+  `text-3xl/4xl` en placa con marca, franja de stats a `ui.statBlock`).
+  Barrido F011 completo: tokens (`helperText`, `badgeStat`, tabs inactivas)
+  y literales de login/upload/dashboard/admin/moderate, módulos
+  `ui/dashboard/*` y `preview.ts`. Superficies fantasma
+  (`bg-brand-900/60 border-brand-600/25`) → `ui.panel`/`ui.surf.row` en
+  upload/admin/moderate; fix del bug `class="${ui.badgeStat}"` (literal, no
+  interpolado) ×11 en dashboard; código muerto eliminado (`NewsSection`,
+  `YoutubeBanner`, `RaidSection` + `data/raids.json`); copys corregidos
+  (claim sin "revisión de moderador" inexistente, pasos de hermandad,
+  hint de personajes, origen del SV, canal de pruebas del admin, Footer
+  2026, guías).
 
 - **2026-10-17 (directorios)**: cabecera de los 5 directorios a placa de
   identidad (`PageHeader` con `ui.plaque` + `ui.zone.hero` + medallón
