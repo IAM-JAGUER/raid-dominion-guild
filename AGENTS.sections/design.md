@@ -154,9 +154,25 @@ UI MMORPG clásica", no una copia.
   `.rd-parchment` (misiones/citas), `.rd-btn` (botones que se hunden),
   `.rd-progress` (barras vivas), `.rd-glow` (pulso mágico), `.rd-active`
   (borde energético de selección), `.rd-nav-item` (barra de habilidades).
-- **Esquinas**: cortes geométricos con `clip-path` (`.rd-cut`, `.rd-cut-sm`,
-  `.rd-cut-both` vía `ui.cut`/`ui.cutSm`) para contenedores ceremoniales —
-  NO es border-radius.
+- **Esquinas**: corte diagonal sup-izq con `clip-path` (`.rd-cut` vía
+  `ui.cut`; `.rd-cut-t` vía `ui.cutTop` en cabeceras de panel contiguo) para
+  contenedores ceremoniales — NO es border-radius. El filo lleva un **bisel
+  helado** (`::after`: línea de luz pegada al clip + resplandor cian hacia
+  dentro) que respira (`rd-seam-breathe`, 7s; familia del sistema de
+  divisores, compás y portadora propios). Detalle fino: el pseudo se ancla al
+  **border-box** (`top/left: -1px`) porque el absoluto se posa en el padding
+  box y el `border` de 1px lo corría respecto al `clip-path` (que referencia
+  el border box); en los combos con `rd-metal` (que ya usan `::after` para la
+  costura) el bisel se integra a esa costura — juntos laten — y compensa el
+  desfase en sus stops.
+- **Contenedores vivos (2026-10-18)**: las **costuras** superiores (`.rd-metal::after`
+  — paneles `ui.panel`, `sectionHead`/`sectionBody`, y los combos con corte)
+  respiran con la misma familia (`rd-seam-breathe`, delays propios): el
+  contenedor de contenido nunca queda inerte. Cards regulares (`rd-card`)
+  quedan FUERA a propósito: decenas por directorio latiendo a la vez sería
+  ruido y coste de composición — su vida es el hover (`rd-lift`) y la línea
+  de acento estática. Con `reduce` costuras y biseles usan `rd-seam-breathe-slow`
+  (opacidad pura, sin traslación).
 - **Títulos ceremoniales**: `ui.ornament` (`rd-title rd-ornament`) añade
   doble línea + diamante bajo títulos TIER 1/2.
 - **Divisores (2026-10-18)**: sistema único en material.css — el trazo
@@ -427,6 +443,29 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-18 (contenedores vivos)**: encabezados y contenedores de
+  contenido de todas las páginas ganan luz viva — mismo lenguaje del sistema
+  de divisores, portadoras propias. (1) **Bisel helado** en el corte diagonal
+  sup-izq de TODOS los encabezados (placas `ui.plaque` y cabeceras de panel
+  `ui.cutTop`): línea blanca-helada pegada al filo + resplandor cian, con
+  respiración `rd-seam-breathe` 7s (delays −3.7s placa / −5.4s combo).
+  Implementado como `::after` en `.rd-cut:not(.rd-metal)` (ancla border-box:
+  `top/left: -1px` — el absoluto se posaba en el padding box y el border de
+  1px lo corría del `clip-path`; verificado por píxeles que el filo vuelve a
+  ceñirse) y como capas integradas en la costura de `.rd-metal.rd-cut(-t)`
+  (stops compensados −1.41px en p por el mismo desfase). (2) **Costuras de
+  panel que respiran** (`.rd-metal::after`, 7s/−2.8s): paneles, cabeceras y
+  cuerpos de todas las páginas. Cards regulares fuera a propósito (decenas
+  por directorio = ruido; su vida es el hover). Con `reduce`, costuras y
+  biseles usan `rd-seam-breathe-slow` (12s, 0.55↔0.9, opacidad pura — sin
+  traslación), a tono con la política de atenuar. Verificado por CSSOM
+  (ambos branches, delays y capas por combo) y píxeles (perfil R/B por `p`:
+  filo AA en 8.5px, línea llena ~9-10px, bloom hasta ~13px; consistente en
+  placa de portal, PageHeader de directorio, placa de upload, head combo,
+  móvil 390; costura de panel presente). De paso se corrigió la doc de
+  «Esquinas»: `.rd-cut-sm`/`.rd-cut-both`/`ui.cutSm` no existían (drift
+  documental).
 
 - **2026-10-18 (divisores)**: los tres divisores (`ui.divider`,
   `dividerFadeBoth`, `dividerFadeLeft`) y el separador inferior de las tab

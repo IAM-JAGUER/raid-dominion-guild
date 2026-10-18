@@ -38,8 +38,9 @@ export const ui = {
   // Contenedor de navegación de ancho completo (Navigation, Footer):
   // conserva su propio max-w-7xl por estar anclado al borde.
   containerNav: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
-  // Materiales (src/styles/material.css): rd-metal forja paneles, rd-card
-  // da piedra/energía a las cards, rd-cut bisela esquinas (clip-path).
+  // Materiales (src/styles/material.css): rd-metal forja paneles (su costura
+  // superior respira), rd-card da piedra/energía a las cards, rd-cut bisela
+  // esquinas (clip-path) con bisel helado.
   panel: `${SURFACE} rd-metal rounded-md`,
   panelHover: 'hover:border-brand-500/50 transition-all duration-300',
   // Ventana estilo terminal del dashboard: cabecera + cuerpo contiguos, sin
@@ -259,9 +260,9 @@ export const ui = {
   // Placa de IDENTIDAD de la ficha (póster, design.md §12): superficie real
   // para la zona héroe — sobre la imagen de atmósfera, el texto suelto se
   // disolvía en las zonas claras del fondo. Hermana de la VENTANA DE
-  // CONTENIDO: misma geometría (diagonal sup-izq por rd-cut, resto recto) y
-  // misma superficie (SURFACE), sin metal; la línea de acento (ui.cardTop)
-  // va dentro.
+  // CONTENIDO: misma geometría (diagonal sup-izq por rd-cut con bisel helado
+  // que respira, resto recto) y misma superficie (SURFACE), sin metal; la
+  // línea de acento (ui.cardTop) va dentro.
   plaque: 'relative overflow-hidden rounded-tl-md rounded-tr-none rounded-b-none border border-brand-600/30 bg-brand-900/60 backdrop-blur-sm rd-cut',
   // Superficie de FILA de dato (no card de directorio): contenedor REAL
   // (opaco + marco) para que el dato no se disuelva sobre la atmósfera de
@@ -321,7 +322,8 @@ export const ui = {
   // ── Materiales y ornamentación (2026-08-30, material.css) ───────────────
   // Corte diagonal único en la esquina superior izquierda (clip-path, no
   // border-radius) para contenedores ceremoniales (paneles destacados, marcos
-  // de misión); el resto de bordes quedan rectos (rounded-md base).
+  // de misión); el resto de bordes quedan rectos (rounded-md base). El corte
+  // lleva el bisel helado que respira (rd-seam-breathe, material.css).
   cut: 'rd-cut',
   // Corte sup-izq de la cabecera de un panel contiguo (modelo dashboard).
   cutTop: 'rd-cut-t',

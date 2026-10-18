@@ -492,6 +492,17 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (contenedores vivos)**: encabezados y contenedores de
+  contenido de todas las páginas suman luz viva (misma familia del pulso de
+  divisores, portadoras propias): **bisel helado** en el corte diagonal
+  sup-izq de todos los encabezados (placas `ui.plaque` y cabeceras de panel
+  `ui.cutTop` — línea pegada al filo + resplandor, respirando) y **costuras
+  de panel que respiran** (`.rd-metal::after` en paneles/cabeceras/cuerpos).
+  Cards regulares quedan fuera a propósito (su vida es el hover). Con
+  `prefers-reduced-motion` todo respira lento en opacidad pura (sin
+  traslación). Verificado por CSSOM y píxeles (filos y costuras en portal,
+  directorio, upload y móvil). Detalle en `design.md` (historial).
+
 - **2026-10-18 (divisores)**: todos los divisores (`ui.divider`,
   `dividerFadeBoth`, `dividerFadeLeft`) y el separador inferior de las tab
   bars comparten ahora un sistema único en material.css: el trazo hairline
