@@ -196,8 +196,10 @@ npm run preview     # previsualizar build
 
 - **Acceso LAN (celular)**: el dev server escucha en `0.0.0.0` (`host: true` en
   `astro.config.mjs`). WSL2 NAT requiere port proxy manual: `~/.local/bin/wsl-portforward`
-  se ejecuta una vez por sesión de WSL (via `.bashrc`) y crea un `netsh interface portproxy`
-  de `192.168.1.101:4321 → WSL_IP:4321`. Firewall restringido a `192.168.1.0/24`.
+  se ejecuta una vez por sesión de WSL (via `.bashrc`), **detecta la IP de LAN
+  de Windows dinámicamente** (la del Wi-Fi cambia por DHCP; no hardcodear) y crea
+  un `netsh interface portproxy` de `WIN_IP:4321 → WSL_IP:4321`. Firewall
+  restringido a `192.168.1.0/24`. Desde el celular: `http://WIN_IP:4321/`.
 - Deploy Netlify (Node 20). Redirects SPA en `netlify.toml` si se añaden rutas.
 - Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 - ⚠️ El proyecto reside en `/mnt/d/` (DrvFs/WSL2): `astro check` puede tardar;
