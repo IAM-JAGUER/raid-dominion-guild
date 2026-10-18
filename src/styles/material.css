@@ -91,6 +91,10 @@
 .rd-atmosphere__image {
   position: absolute;
   inset: 0;
+  /* Opacidad del fondo (2026-10-17): 45% por defecto — el gradiente de
+     marca (.rd-bg) se integra debajo y el texto respira sobre la imagen
+     sin perder atmósfera. Afinable con --rd-img-opacity. */
+  opacity: var(--rd-img-opacity, 0.45);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -515,9 +519,12 @@
 @media (prefers-reduced-motion: reduce) {
   .rd-enter,
   .animate-fade-in-1,
-  .rd-enter-card {
+  .rd-enter-card,
+  .animate-blurred-fade-in {
     animation-duration: 0.3s;
-    animation-delay: 0s;
+    /* !important: las animaciones de la landing llevan el delay inline
+       (style="animation-delay: …") que de otro modo gana a esta regla. */
+    animation-delay: 0s !important;
   }
   .rd-glow {
     animation: none;
