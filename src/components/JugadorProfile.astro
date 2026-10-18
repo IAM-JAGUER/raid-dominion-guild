@@ -61,8 +61,8 @@ import { ui } from '@/lib/ui/design';
         <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
           <h3 id="main-title" class={ui.subTitle}></h3>
           <div id="main-card"></div>
-          <div id="characters-section" data-rd-reveal class="hidden">
-            <h3 class={`${ui.subTitle} mb-2`}>Otros personajes de la cuenta</h3>
+          <div id="characters-section" data-rd-reveal class="hidden mt-6">
+            <h3 class={ui.subTitle}>Otros personajes de la cuenta</h3>
             <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
           </div>
         </PanelWindow>
