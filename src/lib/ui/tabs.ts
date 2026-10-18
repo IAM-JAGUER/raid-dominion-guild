@@ -152,9 +152,11 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     btn.setAttribute('aria-controls', `panel-${t.id}`);
     btn.className = tabBtnCls;
     // Icono temático decorativo + label (el nombre accesible es el texto).
+    // Tamaño de densidad `md` (20px): las pestañas marcan jerarquía con el
+    // arte, no con viñetas diminutas (design.md §10/§12).
     if (t.icon) {
       btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
-      btn.appendChild(iconEl(t.icon, { size: 'sm' }));
+      btn.appendChild(iconEl(t.icon, { size: 'md' }));
     }
     btn.appendChild(document.createTextNode(t.label));
     bar.appendChild(btn);

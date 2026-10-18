@@ -26,31 +26,38 @@ import { ui } from '@/lib/ui/design';
 
     <!-- Ficha del personaje -->
     <div id="profile" data-rd-reveal class="hidden space-y-10">
-      <header class="animate-fade-in-1">
-        <p class={`${ui.eyebrow} mb-2 flex items-center`}>
-          <Icon name="perfil" size="xs" class="mr-1.5" />
-          <span>Jugador</span>
-        </p>
-        <div class="flex flex-col sm:flex-row items-start gap-5">
-          <div id="avatar" class={`${ui.iconTile} w-24 h-24 overflow-hidden shadow-lg`}></div>
-          <div class="flex-1 min-w-0 text-left">
-            <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
-            <div id="chips" class="flex flex-wrap justify-start gap-2 mt-3"></div>
-            <div class="flex flex-wrap justify-start gap-2 mt-3">
-              <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}><Icon name="estrella" size="xs" class="self-center" />Maestro de hermandad</span>
+      <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
+        <div class={`${ui.plaque} p-5 sm:p-7`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+            <!-- Medallón héroe: arte nativo del sprite con halo del color de
+                 clase del personaje principal. La clase va en su chip con la
+                 miniatura JPG a 20px (el asset es de 18px). -->
+            <div id="avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+              <Icon name="personaje" size="hero" />
             </div>
-            <p id="profile-ref" class="hidden text-xs text-gray-500 mt-2"></p>
+            <div class="flex-1 min-w-0 text-left">
+              <p class={`${ui.eyebrow} mb-2`}>Jugador</p>
+              <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
+              <div id="chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
+              <div class="flex flex-wrap justify-start gap-2 mt-3">
+                <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}><Icon name="estrella" size="sm" class="self-center" />Maestro de hermandad</span>
+              </div>
+              <p id="profile-ref" class="hidden text-sm text-gray-400 mt-3"></p>
+              <!-- Contexto del jugador (servidor/reino): cierra la zona de
+                   identidad, con contenedor real (antes tira fantasma al final). -->
+              <div id="jugador-context" class="hidden flex flex-wrap gap-2 mt-3"></div>
+            </div>
           </div>
         </div>
-        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       </header>
 
       <!-- Navegación entre paneles (modelo dashboard): solo las secciones con
            contenido generan pestaña (initAvailableTabs). -->
-      <nav id="profile-tab-bar" role="tablist" aria-label="Secciones del perfil" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
+      <nav id="profile-tab-bar" role="tablist" aria-label="Secciones del perfil" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
       <!-- Paneles ventana (modelo dashboard): Personajes, Bandas, Hermandades -->
-      <div id="profile-panels" class="space-y-6">
+      <div id="profile-panels" class={ui.zone.body}>
         <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
           <h3 id="main-title" class={ui.subTitle}></h3>
           <div id="main-card"></div>
@@ -75,9 +82,6 @@ import { ui } from '@/lib/ui/design';
       </div>
 
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
-      <!-- Contexto del jugador (servidor/reino): van DESPUÉS del separador
-           final para liberar el encabezado; se rellenan con serverRealmLinks. -->
-      <div id="jugador-context" class="hidden flex flex-wrap gap-2"></div>
     </div>
 
   </div>
@@ -94,6 +98,8 @@ import { ui } from '@/lib/ui/design';
   import { ui } from '@/lib/ui/design';
   import { card, cardTop, iconTileEl } from '@/lib/ui/card';
   import { el, chip, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { iconEl } from '@/lib/ui/icons';
+  import { classColor } from '@/lib/ui/classColors';
   import { renderCharacterCard, renderGuildCard, renderBandCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
@@ -169,7 +175,13 @@ import { ui } from '@/lib/ui/design';
     document.title = `${displayName} - RaidDominion`;
     setBreadcrumb(displayName);
 
-    (document.getElementById('avatar') as HTMLElement).replaceChildren(classIconEl(main?.class ?? chars[0]?.class, main?.class_file ?? chars[0]?.class_file, 'w-full h-full object-cover'));
+    // Halo del medallón héroe con el color de clase del personaje principal.
+    const avatar = document.getElementById('avatar') as HTMLElement;
+    const tint = classColor(main?.class ?? chars[0]?.class, main?.class_file ?? chars[0]?.class_file);
+    if (tint) {
+      avatar.style.setProperty('--rd-hero-tint', tint);
+      avatar.style.borderColor = tint;
+    }
     (document.getElementById('display-name') as HTMLElement).textContent = displayName;
 
     const chipsEl = document.getElementById('chips') as HTMLElement;
@@ -311,7 +323,15 @@ import { ui } from '@/lib/ui/design';
   // Chips del encabezado (junto al nombre visible): clase/cifras/hermandad.
   function characterChips(c: CharacterRow): HTMLElement {
     const row = el('div', 'flex flex-wrap gap-1.5');
-    if (c.class) row.appendChild(chip(c.class, '', 'md'));
+    if (c.class) {
+      // Chip de clase con la miniatura JPG a 20px (el asset es de 18px:
+      // nítido a este tamaño; el chip nombra la clase → imagen decorativa).
+      const clsChip = chip(c.class, '', 'md');
+      const clsImg = classIconEl(c.class, c.class_file, 'w-5 h-5 rounded-[3px] border border-brand-600/30 object-cover shrink-0');
+      clsImg.alt = '';
+      clsChip.insertBefore(clsImg, clsChip.firstChild);
+      row.appendChild(clsChip);
+    }
     if (typeof c.level === 'number') row.appendChild(statChip('Nivel', String(c.level)));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
       const il = statChip('ilvl', String(c.avg_ilvl));
@@ -341,24 +361,26 @@ import { ui } from '@/lib/ui/design';
 
   // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
   function serverRealmLinks(c: CharacterRow): HTMLElement {
-    const row = el('div', 'flex flex-wrap gap-1.5');
+    const row = el('div', 'flex flex-wrap gap-2');
     if (c.server) {
       const s = document.createElement('a');
       s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/40 border-brand-600/30 hover:bg-brand-900/40 transition-all`;
-      s.textContent = c.server;
+      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
+      s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
+      s.appendChild(document.createTextNode(c.server));
       row.appendChild(s);
     }
     if (c.realm) {
       const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-800/60 border-brand-600/20`;
+      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
       if (c.server) {
         (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
-        r.className = `${cls} hover:bg-brand-800/80 transition-all`;
+        r.className = `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
       } else {
         r.className = cls;
       }
-      r.textContent = c.realm;
+      r.appendChild(iconEl('vientos', { size: 'sm', cls: 'shrink-0' }));
+      r.appendChild(document.createTextNode(c.realm));
       row.appendChild(r);
     }
     return row;

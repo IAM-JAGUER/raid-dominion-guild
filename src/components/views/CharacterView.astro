@@ -6,44 +6,51 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-personaje" class="hidden">
-  <header class="animate-fade-in-1 mb-6">
-    <p class={`${ui.eyebrow} mb-2 flex items-center`}>
-      <Icon name="personaje" size="xs" class="mr-1.5" />
-      <span>Personaje</span>
-    </p>
-    <div class="flex flex-col sm:flex-row items-start gap-5">
-      <div id="pv-avatar" class={`${ui.iconTile} w-24 h-24 overflow-hidden shadow-lg`}></div>
-      <div class="flex-1 min-w-0 text-left">
-        <h1 id="pv-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
-        <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-3"></div>
-        <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
+  <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
+    <div class={`${ui.plaque} p-5 sm:p-7`}>
+      <span class={ui.cardTop} aria-hidden="true"></span>
+      <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+        <!-- Medallón héroe: arte NATIVO del sprite (nítido hasta 80px) con halo
+             del color de clase. La clase como tal vive en su chip, con la
+             miniatura JPG a 20px (el asset es de 18px: a 96px se veía borroso). -->
+        <div id="pv-avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+          <Icon name="personaje" size="hero" />
+        </div>
+        <div class="flex-1 min-w-0 text-left">
+          <p class={`${ui.eyebrow} mb-2`}>Personaje</p>
+          <h1 id="pv-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
+          <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
+          <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
+          <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
+          <div id="pv-context" class="hidden flex flex-wrap gap-2 mt-3"></div>
+        </div>
       </div>
     </div>
-    <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
   </header>
 
   <!-- Navegación entre paneles (modelo dashboard): solo las secciones con
        contenido generan pestaña (initAvailableTabs). -->
-  <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
+  <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
-  <div id="pv-panels" class="space-y-6">
-    <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
-      <div id="pv-equip-list" class="grid grid-cols-1 gap-1"></div>
+  <div id="pv-panels" class={ui.zone.body}>
+    <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
+      <div slot="head" id="pv-equip-summary" class="hidden mt-4"></div>
+      <div id="pv-equip-list"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-metas" title="Metas" icon="estrella" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+    <PanelWindow id="panel-metas" title="Metas" icon="estrella" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
       <div id="pv-metas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-notas" title="Notas" icon="nota" role="tabpanel" ariaLabelledby="tab-notas" hidden>
+    <PanelWindow id="panel-notas" title="Notas" icon="nota" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
       <div id="pv-notas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-instancias" title="Instancias" icon="ciudadela" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
-      <div id="pv-instancias" class="grid grid-cols-1 gap-1"></div>
+    <PanelWindow id="panel-instancias" title="Instancias" icon="ciudadela" pad="lg" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
+      <div id="pv-instancias"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Barra de filtros estándar (buscador + chips de día) del motor
              src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
@@ -52,17 +59,12 @@ import Icon from '@/components/ui/Icon.astro';
       <div id="pv-bandas" class="space-y-8"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
+    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
       <div id="pv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
     </PanelWindow>
   </div>
 
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
-  <!-- Servidor/reino viven en la tira de contexto DESPUÉS del separador final,
-       no en el encabezado (mismo criterio que /jugador). Como #view-personaje no
-       tiene space-y (a diferencia de #profile/#portal), el margen superior va
-       aquí explícitamente (mt-10 = space-y-10 de /jugador). -->
-  <div id="pv-context" class="hidden mt-10 flex flex-wrap gap-2"></div>
 </section>
 
 <script>
@@ -72,10 +74,10 @@ import Icon from '@/components/ui/Icon.astro';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
-  import { itemQualityColor, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
+  import { itemQualityColor, itemQualityCountLabel, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import { applyWowhead } from '@/lib/ui/wowhead';
-  import { card, cardTop, iconTileEl } from '@/lib/ui/card';
-  import { chip, el, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { card, cardTop, iconTileEl, itemRow, statCell } from '@/lib/ui/card';
+  import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
   import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
@@ -99,24 +101,26 @@ import Icon from '@/components/ui/Icon.astro';
 
   // Enlaces de contexto: servidor (realmlist) y reino → jerarquía del directorio.
   function serverRealmLinks(c: CharacterRow): HTMLElement {
-    const row = el('div', 'flex flex-wrap gap-1.5');
+    const row = el('div', 'flex flex-wrap gap-2');
     if (c.server) {
       const s = document.createElement('a');
       s.href = `/servidor/${encodeURIComponent(c.server)}`;
-      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/40 border-brand-600/30 hover:bg-brand-900/40 transition-all`;
-      s.textContent = c.server;
+      s.className = `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
+      s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
+      s.appendChild(document.createTextNode(c.server));
       row.appendChild(s);
     }
     if (c.realm) {
       const r = document.createElement(c.server ? 'a' : 'span');
-      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-800/60 border-brand-600/20`;
+      const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
       if (c.server) {
         (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;
-        r.className = `${cls} hover:bg-brand-800/80 transition-all`;
+        r.className = `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`;
       } else {
         r.className = cls;
       }
-      r.textContent = c.realm;
+      r.appendChild(iconEl('vientos', { size: 'sm', cls: 'shrink-0' }));
+      r.appendChild(document.createTextNode(c.realm));
       row.appendChild(r);
     }
     return row;
@@ -124,14 +128,35 @@ import Icon from '@/components/ui/Icon.astro';
 
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
     document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
-    (document.getElementById('pv-avatar') as HTMLElement).replaceChildren(classIconEl(c.class, c.class_file, 'w-full h-full object-cover'));
     (document.getElementById('pv-name') as HTMLElement).textContent = c.name;
     setBreadcrumb(c.name);
 
+    // Halo del medallón héroe con el color de clase (el arte no se recolorea).
+    const avatar = document.getElementById('pv-avatar') as HTMLElement;
+    const tint = classColor(c.class, c.class_file);
+    if (tint) {
+      avatar.style.setProperty('--rd-hero-tint', tint);
+      avatar.style.borderColor = tint;
+    }
+
+    // Tira de cifras del póster: las magnitudes del personaje en grande.
+    const stats = document.getElementById('pv-stats') as HTMLElement;
+    if (typeof c.level === 'number') stats.appendChild(statCell('Nivel', c.level));
+    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) stats.appendChild(statCell('ilvl medio', c.avg_ilvl));
+    const pieces = (c.equipment ?? []).length;
+    if (pieces > 0) stats.appendChild(statCell('Piezas', pieces));
+
     const chips = document.getElementById('pv-chips') as HTMLElement;
-    if (c.class) chips.appendChild(chip(c.class, '', 'md'));
-    if (typeof c.level === 'number') chips.appendChild(statChip('Nivel', String(c.level)));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) chips.appendChild(statChip('ilvl', String(c.avg_ilvl), '!text-brand-300 !border-brand-500/40'));
+    if (c.class) {
+      // La clase lleva su miniatura JPG a 20px (el asset es de 18px: nítido
+      // a este tamaño; a 96px se veía borroso). El chip nombra la clase, la
+      // imagen es decorativa.
+      const clsChip = chip(c.class, '', 'md');
+      const clsImg = classIconEl(c.class, c.class_file, 'w-5 h-5 rounded-[3px] border border-brand-600/30 object-cover shrink-0');
+      clsImg.alt = '';
+      clsChip.insertBefore(clsImg, clsChip.firstChild);
+      chips.appendChild(clsChip);
+    }
     if (c.member_verified) chips.appendChild(iconChip('validado', 'Validado', '!text-emerald-300 !border-emerald-600/40', 'md'));
     if (c.sv_guild_name) {
       chips.appendChild(iconChip(
@@ -142,8 +167,8 @@ import Icon from '@/components/ui/Icon.astro';
       ));
     }
 
-    // Servidor/reino al final del contenido (tira de contexto), liberando el
-    // encabezado para clase/cifras/hermandad.
+    // Servidor/reino cierran la zona de identidad (contenedor real: dejan de
+    // ser una tira fantasma sobre la imagen).
     const ctx = document.getElementById('pv-context') as HTMLElement;
     ctx.appendChild(serverRealmLinks(c));
     if (ctx.children.length > 0) ctx.classList.remove('hidden');
@@ -174,6 +199,14 @@ import Icon from '@/components/ui/Icon.astro';
     const equip = equipmentList(c);
     if (equip) {
       (document.getElementById('pv-equip-list') as HTMLElement).appendChild(equip);
+      // Resumen de calidades en la cabecera del panel (dimensión que el héroe
+      // no muestra: cuántas épicas/legendarias lleva puestas).
+      const summary = qualitySummary(c);
+      if (summary) {
+        const box = document.getElementById('pv-equip-summary') as HTMLElement;
+        box.appendChild(summary);
+        box.classList.remove('hidden');
+      }
       available.push('equipamiento');
     }
 
@@ -282,46 +315,59 @@ import Icon from '@/components/ui/Icon.astro';
     emit();
   }
 
-  // Lista de equipamiento del panel (filas slot · ítem · ilvl).
+  // Panel "Equipamiento": grilla de tarjetas de ítem (póster, design.md §12).
+  // Cada pieza: el slot como etiqueta, el NOMBRE del objeto como protagonista
+  // (color de calidad del juego) y el ilvl como cifra; el enlace abre la
+  // búsqueda del objeto en UltimoWoW (el SV no guarda itemID del equipo).
   function equipmentList(c: CharacterRow): HTMLElement | null {
     const eq = c.equipment ?? [];
     if (eq.length === 0) return null;
-    const list = el('div', 'grid grid-cols-1 gap-1');
+    const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     [...eq].sort((a, b) => a.slot - b.slot).forEach((piece) => {
-      const qc = itemQualityColor(piece.quality);
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
-      row.style.borderColor = qc;
-      row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(piece.slot)));
-      const nm = el('a', 'text-xs truncate hover:underline');
-      nm.style.color = qc;
-      nm.textContent = piece.name;
-      nm.setAttribute('href', wowItemUrl(piece.name));
-      nm.setAttribute('target', '_blank');
-      nm.setAttribute('rel', 'noopener noreferrer');
-      nm.setAttribute('title', `Ver "${piece.name}" en UltimoWoW`);
-      row.appendChild(nm);
-      row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `i${piece.ilvl}`));
-      list.appendChild(row);
+      list.appendChild(itemRow({
+        slot: equipmentSlotLabel(piece.slot),
+        name: piece.name,
+        quality: piece.quality,
+        value: `i${piece.ilvl}`,
+        href: wowItemUrl(piece.name),
+        hrefTitle: `Ver "${piece.name}" en UltimoWoW`,
+      }));
     });
     return list;
+  }
+
+  // Resumen de calidades del equipo (cabecera del panel): "4 épicas · 12 raras".
+  function qualitySummary(c: CharacterRow): HTMLElement | null {
+    const counts = new Map<number, number>();
+    (c.equipment ?? []).forEach((piece) => {
+      if (typeof piece.quality === 'number') {
+        counts.set(piece.quality, (counts.get(piece.quality) ?? 0) + 1);
+      }
+    });
+    if (counts.size === 0) return null;
+    const row = el('div', 'flex flex-wrap items-center gap-2');
+    Array.from(counts.entries())
+      .sort((a, b) => b[0] - a[0])
+      .forEach(([quality, n]) => {
+        const badge = el('span', `${ui.badge} ${ui.badgeSm} bg-brand-950/60 border-brand-700/40 text-gray-300`);
+        const dot = el('span', 'w-2 h-2 rounded-full shrink-0');
+        dot.style.backgroundColor = itemQualityColor(quality);
+        badge.appendChild(dot);
+        badge.appendChild(document.createTextNode(itemQualityCountLabel(quality, n)));
+        row.appendChild(badge);
+      });
+    return row;
   }
 
   // Panel "Metas": lo que el personaje publica para la comunidad (equipo que
   // busca y monedas que persigue). Devuelve null si no hay metas (los SV
   // anteriores a 3.0.1 no las traen) y entonces la pestaña no se genera.
+  // Usa el MISMO lenguaje de ítem que Equipamiento (design.md §12).
   function objectivesPanel(c: CharacterRow): HTMLElement | null {
     const equipment = [...(c.objectives?.equipment ?? [])].sort((a, b) => a.slot - b.slot);
     const currencies = [...(c.objectives?.currencies ?? [])];
     if (equipment.length === 0 && currencies.length === 0) return null;
 
-    // Fila de meta: check a la izquierda, contenido al centro, cifra a la
-    // derecha. Mismo esqueleto que equipmentList para que se lean como una lista.
-    const goalRow = (done: boolean): HTMLElement => {
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
-      row.style.borderColor = done ? '#34d399' : '#0C74A8';
-      row.appendChild(iconEl(done ? 'correcto' : 'reloj', { size: 'xs', cls: 'shrink-0' }));
-      return row;
-    };
     const pendingOf = <T extends { done: boolean } | { reached: boolean }>(list: T[]): number => {
       let n = 0;
       list.forEach((g) => {
@@ -331,53 +377,57 @@ import Icon from '@/components/ui/Icon.astro';
       return list.length - n;
     };
 
-    const wrap = el('div', 'space-y-6');
+    // Sub-cabecera de bloque: eyebrow + contador enmarcado (la etiqueta ya no
+    // flota sola sobre la atmósfera).
+    const sectionHead = (label: string, pending: number, total: number): HTMLElement => {
+      const head = el('div', 'flex items-center justify-between gap-3 mb-3');
+      head.appendChild(el('p', ui.eyebrow, label));
+      head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-950/60 border-brand-700/40 text-gray-300`, `faltan ${pending} de ${total}`));
+      return head;
+    };
+
+    const wrap = el('div', 'space-y-8');
 
     if (equipment.length > 0) {
-      const list = el('div', 'grid grid-cols-1 gap-1');
+      const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
       equipment.forEach((goal) => {
-        const row = goalRow(goal.done);
-        row.appendChild(el('span', 'text-[9px] text-gray-500 uppercase shrink-0 w-12', equipmentSlotLabel(goal.slot)));
-        const qc = itemQualityColor(goal.quality);
-        const nm = el('a', `text-xs truncate hover:underline ${goal.done ? 'line-through opacity-60' : ''}`) as HTMLAnchorElement;
-        nm.style.color = qc;
-        nm.textContent = goal.name;
+        const row = itemRow({
+          slot: equipmentSlotLabel(goal.slot),
+          name: goal.name,
+          quality: goal.quality,
+          value: typeof goal.ilvl === 'number' ? `i${goal.ilvl}` : undefined,
+          done: goal.done,
+          leading: iconEl(goal.done ? 'correcto' : 'reloj', { size: 'md', cls: 'shrink-0' }),
+          href: wowItemUrl(goal.name),
+          hrefTitle: `Ver "${goal.name}" en UltimoWoW`,
+        }) as HTMLAnchorElement;
         // Con itemID del SV, tooltip rico del widget de Wowhead; sin él (SVs
         // que no exportan metas con id), búsqueda por nombre en UltimoWoW.
-        const linked =
-          typeof goal.itemID === 'number' &&
-          applyWowhead(nm, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
-        if (!linked) {
-          nm.setAttribute('href', wowItemUrl(goal.name));
-          nm.setAttribute('target', '_blank');
-          nm.setAttribute('rel', 'noopener noreferrer');
-          nm.setAttribute('title', `Ver "${goal.name}" en UltimoWoW`);
+        if (typeof goal.itemID === 'number') {
+          row.removeAttribute('title');
+          applyWowhead(row, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
         }
-        row.appendChild(nm);
-        if (typeof goal.ilvl === 'number') row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `i${goal.ilvl}`));
         list.appendChild(row);
       });
       const section = el('div', '');
-      section.appendChild(el('p', `${ui.eyebrow} mb-2`, `Equipo buscado · faltan ${pendingOf(equipment)} de ${equipment.length}`));
+      section.appendChild(sectionHead('Equipo buscado', pendingOf(equipment), equipment.length));
       section.appendChild(list);
       wrap.appendChild(section);
     }
 
     if (currencies.length > 0) {
-      const list = el('div', 'grid grid-cols-1 gap-1');
+      const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
       currencies.forEach((goal) => {
-        const row = goalRow(goal.reached);
-        const nm = el('span', `text-xs truncate ${goal.reached ? 'line-through opacity-60' : ''}`, goal.name);
-        row.appendChild(nm);
-        if (goal.reached) {
-          row.appendChild(iconEl('correcto', { size: 'xs', cls: 'shrink-0' }));
-        } else {
-          row.appendChild(el('span', `text-xs shrink-0 ${ui.statValue}`, `${goal.target}`));
-        }
-        list.appendChild(row);
+        list.appendChild(itemRow({
+          name: goal.name,
+          done: goal.reached,
+          rail: '#0C74A8',
+          leading: iconEl(goal.reached ? 'correcto' : 'medalla', { size: 'md', cls: 'shrink-0' }),
+          value: goal.reached ? undefined : `${goal.target}`,
+        }));
       });
       const section = el('div', '');
-      section.appendChild(el('p', `${ui.eyebrow} mb-2`, `Monedas · faltan ${pendingOf(currencies)} de ${currencies.length}`));
+      section.appendChild(sectionHead('Monedas', pendingOf(currencies), currencies.length));
       section.appendChild(list);
       wrap.appendChild(section);
     }
@@ -392,9 +442,10 @@ import Icon from '@/components/ui/Icon.astro';
     const note = (c.note ?? '').trim();
     if (!note) return null;
     const wrap = el('div', '');
-    wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, 'Nota del jugador'));
-    // La nota es multilínea por diseño (el addon la permite): se respeta.
-    wrap.appendChild(el('p', 'text-xs text-gray-300 leading-relaxed whitespace-pre-line rounded-md px-3 py-2 bg-brand-900/40 border-l-2 border-brand-600/40', note));
+    wrap.appendChild(el('p', `${ui.eyebrow} mb-3`, 'Nota del jugador'));
+    // Superficie real (pergamino) en vez de línea translúcida: la nota es
+    // contenido, no metadata.
+    wrap.appendChild(el('p', `${ui.surf.row} rd-parchment p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-line`, note));
     return wrap;
   }
 
@@ -427,31 +478,28 @@ import Icon from '@/components/ui/Icon.astro';
     });
 
     const wrap = el('div', '');
-    wrap.appendChild(el('p', `${ui.eyebrow} mb-2`, `Instancias guardadas · ${instances.length}`));
-    const list = el('div', 'grid grid-cols-1 gap-1');
+    wrap.appendChild(el('p', `${ui.eyebrow} mb-3`, `Instancias guardadas · ${instances.length}`));
+    const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     instances.forEach((instance) => {
-      const row = el('div', 'flex items-center gap-2 rounded-md px-2 py-1 bg-brand-900/40 border-l-2 hover:bg-brand-800/50 transition-colors');
-      row.style.borderColor = '#0C74A8';
-      row.appendChild(iconEl('ciudadela', { size: 'xs', cls: 'shrink-0' }));
-      row.appendChild(el('span', 'text-xs truncate flex-1 text-gray-200', instance.name));
-      if (instance.difficulty) {
-        const diff = el('span', `${ui.badge} ${ui.badgeSm} shrink-0 text-brand-200 bg-brand-950/40 border-brand-600/30`);
-        diff.appendChild(iconEl('fuego', { size: 'xs' }));
-        diff.appendChild(document.createTextNode(instance.difficulty));
-        row.appendChild(diff);
-      }
-      if (instance.extended) {
-        row.appendChild(el('span', `${ui.text.caption} shrink-0`, 'extendido'));
-      } else if (typeof instance.resetAt === 'number' && instance.resetAt > 0) {
+      const slot = [instance.difficulty, instance.extended ? 'extendido' : ''].filter(Boolean).join(' · ');
+      let valueEl: HTMLElement | undefined;
+      if (!instance.extended && typeof instance.resetAt === 'number' && instance.resetAt > 0) {
         const remaining = instance.resetAt - now;
-        // Ya venció: el reinicio ocurrió desde el último registro.
-        const meta = remaining <= 0
-          ? el('span', 'text-xs shrink-0 font-bold text-emerald-400', 'reiniciado')
-          : el('span', `text-xs shrink-0 font-bold ${ui.statValue}`, `reinicia en ${formatRemaining(remaining)}`);
-        meta.title = 'Cuenta atrás estimada según el último registro del addon';
-        row.appendChild(meta);
+        if (remaining <= 0) {
+          // Ya venció: el reinicio ocurrió desde el último registro.
+          valueEl = el('span', 'shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-300', 'Reiniciado');
+        } else {
+          valueEl = el('span', `${ui.statValue} ${ui.item.value}`, formatRemaining(remaining));
+          valueEl.title = 'Cuenta atrás estimada según el último registro del addon';
+        }
       }
-      list.appendChild(row);
+      list.appendChild(itemRow({
+        slot: slot || undefined,
+        name: instance.name,
+        leading: iconEl('ciudadela', { size: 'md', cls: 'shrink-0' }),
+        rail: '#0C74A8',
+        valueEl,
+      }));
     });
     wrap.appendChild(list);
     return wrap;
@@ -478,7 +526,7 @@ import Icon from '@/components/ui/Icon.astro';
       parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-gray-300`, p)));
       cardEl.appendChild(chips);
     }
-    cardEl.appendChild(el('p', 'text-xs text-gray-500 mt-4', 'Ver banda →'));
+    cardEl.appendChild(el('p', 'text-xs text-gray-400 mt-4', 'Sin ficha pública'));
     return cardEl;
   }
 </script>

@@ -106,7 +106,7 @@ export function isIconName(value: string): value is IconName {
 }
 
 // Tamaños (clases CSS de src/styles/icons.css; espejo de ui.icon).
-export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'hero';
 
 export const ICON_SIZE_CLASS: Record<IconSize, string> = {
   xs: 'rd-ico-xs',
@@ -114,6 +114,7 @@ export const ICON_SIZE_CLASS: Record<IconSize, string> = {
   md: 'rd-ico-md',
   lg: 'rd-ico-lg',
   xl: 'rd-ico-xl',
+  hero: 'rd-ico-hero',
 };
 
 export interface IconElOptions {

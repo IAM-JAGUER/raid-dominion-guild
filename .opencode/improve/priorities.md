@@ -71,6 +71,25 @@ secciones COMPLETADO (2026-08-30)**: nuevo bloque de tokens de card
 `src/lib/ui/card.ts`; aplicado a directorios, portal, fichas, roster/core,
 dashboard y landing (ver `AGENTS.sections/design.md` §3).
 
+### 🟡 P1 — Auditoría de diseño póster por página (2026-10-17)
+Adoptado el sistema "póster" (design.md §12): placa de identidad + medallón
+héroe + tira de cifras + filas con contenedor (`ui.surf.row`/`ui.item`) +
+ritmo de zonas (`ui.zone`). Aplicado y verificado en la ficha de personaje y
+en los encabezados de jugador/banda/servidor/reino/portal de hermandad.
+Pendiente por página (patrones a buscar: filas sin contenedor, captions
+`text-gray-500` sobre imagen — ~90 usos, F011 —, iconos en tamaño de
+densidad donde deberían ser protagonistas, listas con `gap-1`):
+
+- [ ] Dashboard (pestañas, cards de personaje/bandas/registries, `space-y-6`)
+- [ ] Upload (dropzone, pasos, preview)
+- [ ] Admin / Moderación (listados → `ui.surf.row` donde haya filas fantasma)
+- [ ] Directorios (`/hermandades`, `/bandas`, `/personajes`, `/jugadores`):
+      las cards ya tienen marco; revisar captions y densidad de listas
+- [ ] Landing, 404 y login: solo si hay disolución real sobre el fondo
+- [ ] Paneles Metas/Instancias/Notas de la ficha de personaje: sin datos
+      reales en la DB todavía (verificado 2026-10-17) — revisar visualmente
+      cuando exista un SV que las exporte
+
 ### 🟢 P2 — Ledger de migraciones aplicadas manualmente (COMPLETADO, 2026-08-30)
 `.opencode/improve/ciclos.json` registra las 40 migraciones de
 `supabase/migrations/` en `migraciones_aplicadas` (todas confirmadas por el

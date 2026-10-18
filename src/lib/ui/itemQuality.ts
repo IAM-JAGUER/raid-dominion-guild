@@ -17,6 +17,41 @@ export function itemQualityColor(quality?: number | null): string {
   return ITEM_QUALITY_COLORS[quality] ?? '#ffffff';
 }
 
+// Nombre de calidad en plural para resúmenes de equipo ("4 épicas", "12 raras").
+const ITEM_QUALITY_LABELS_PLURAL: Record<number, string> = {
+  0: 'pobres',
+  1: 'comunes',
+  2: 'poco comunes',
+  3: 'raros',
+  4: 'épicos',
+  5: 'legendarios',
+  6: 'artefactos',
+  7: 'reliquias',
+};
+
+// Nombre de calidad en singular y minúscula ("1 épico").
+const ITEM_QUALITY_LABELS: Record<number, string> = {
+  0: 'pobre',
+  1: 'común',
+  2: 'poco común',
+  3: 'raro',
+  4: 'épico',
+  5: 'legendario',
+  6: 'artefacto',
+  7: 'reliquia',
+};
+
+export function itemQualityLabelPlural(quality?: number | null): string {
+  if (quality === null || quality === undefined) return '';
+  return ITEM_QUALITY_LABELS_PLURAL[quality] ?? '';
+}
+
+// Etiqueta de recuento con concordancia: "1 épico" / "4 épicos".
+export function itemQualityCountLabel(quality: number, count: number): string {
+  const label = count === 1 ? ITEM_QUALITY_LABELS[quality] : ITEM_QUALITY_LABELS_PLURAL[quality];
+  return `${count} ${label ?? ''}`.trim();
+}
+
 // El SV no guarda item ID, solo slot/nombre/ilvl/calidad. Se enlaza el objeto
 // a UltimoWoW 3.3.5a por nombre vía búsqueda (?search=), apostrofado/normalizado.
 export function wowItemUrl(name: string): string {

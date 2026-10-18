@@ -252,6 +252,30 @@
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 5px);
 }
 
+/* MEDALLÓN HÉROE (fichas, póster): el arte del sprite se muestra a tamaño
+   protagonista enmarcado por un halo del color de contexto (`--rd-hero-tint`:
+   color de clase o acento de la zona). El halo NO recolorea el arte (§10):
+   solo lo ilumina por fuera. */
+.rd-medallion-hero {
+  box-shadow:
+    var(--shadow-inner),
+    0 0 34px -6px var(--rd-hero-tint, rgba(0, 191, 255, 0.55)),
+    0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+/* RIEL DE CALIDAD (fila de ítem, design.md §12): barra izquierda de 3px con
+   el color de calidad del juego (`--rd-q`), integrada al marco de la fila
+   (el anfitrión debe ser `relative overflow-hidden`). */
+.rd-quality-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--rd-q, var(--accent-primary));
+  box-shadow: 0 0 12px -2px var(--rd-q, var(--accent-primary));
+}
+
 /* ── ESQUINAS · corte diagonal único en la esquina superior izquierda ─────
    Los contenedores grandes llevan solo la esquina sup-izq biselada; el resto
    de bordes quedan rectos (rounded-md base). */

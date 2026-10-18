@@ -7,14 +7,21 @@ import { ui } from '@/lib/ui/design';
 import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-servidor" class="hidden">
-  <header class="animate-fade-in-1 mb-6">
-    <p class={`${ui.eyebrow} mb-1 flex items-center`}>
-      <Icon name="servidor" size="xs" class="mr-1.5" />
-      <span>Servidor (realmlist)</span>
-    </p>
-    <h1 id="sv-server" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-    <p id="sv-summary" class={`${ui.text.bodyMuted} italic mt-3`}></p>
-    <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+  <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
+    <div class={`${ui.plaque} p-5 sm:p-7`}>
+      <span class={ui.cardTop} aria-hidden="true"></span>
+      <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+        <!-- Medallón héroe (póster): arte nativo del sprite a tamaño protagonista. -->
+        <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+          <Icon name="servidor" size="hero" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class={`${ui.eyebrow} mb-2`}>Servidor (realmlist)</p>
+          <h1 id="sv-server" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
+          <p id="sv-summary" class={`${ui.text.body} italic mt-3 max-w-3xl`}></p>
+        </div>
+      </div>
+    </div>
   </header>
   <div id="sv-body" class="space-y-6"></div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>

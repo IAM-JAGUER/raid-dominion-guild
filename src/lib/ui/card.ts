@@ -9,6 +9,7 @@
  */
 import { ui } from '@/lib/ui/design';
 import { iconEl, type IconName, type IconSize } from '@/lib/ui/icons';
+import { itemQualityColor } from '@/lib/ui/itemQuality';
 
 function node(tag: string, cls: string, text?: string): HTMLElement {
   const n = document.createElement(tag);
@@ -92,4 +93,81 @@ export function arrowIcon(): HTMLElement {
   svg.innerHTML = '<path d="M17 8l4 4m0 0l-4 4m4-4H3"/>';
   span.appendChild(svg);
   return span;
+}
+
+// ── Póster: piezas de ficha (design.md §12, 2026-10-17) ───────────────────
+
+// Medallón héroe de ficha: el sprite a tamaño protagonista (hero) sobre el
+// medallón, con halo del color de contexto (`tint`: color de clase o acento
+// de la zona). El halo ilumina por fuera; el arte no se recolorea (§10).
+export function heroMedallion(name: IconName, tint?: string | null): HTMLElement {
+  const tile = node('div', `${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`);
+  if (tint) {
+    tile.style.setProperty('--rd-hero-tint', tint);
+    tile.style.borderColor = tint;
+  }
+  tile.appendChild(iconEl(name, { size: 'hero' }));
+  return tile;
+}
+
+// Celda de la tira de cifras del héroe: etiqueta + valor grande (statValue).
+export function statCell(label: string, value: string | number): HTMLElement {
+  const cell = node('div', ui.statBlock.cell);
+  cell.appendChild(node('p', ui.statBlock.label, label));
+  cell.appendChild(node('p', `${ui.statValue} ${ui.statBlock.value}`, String(value)));
+  return cell;
+}
+
+export interface ItemRowOptions {
+  // Etiqueta superior (slot del equipo, tipo de meta…).
+  slot?: string;
+  // Contenido protagonista de la fila.
+  name: string;
+  // Calidad del juego (0-7): pinta el nombre y el riel con su color.
+  quality?: number | null;
+  // Cifra a la derecha (ilvl, objetivo, cuenta atrás).
+  value?: string;
+  // Cifra como nodo propio (estados que no son statValue, p. ej. «Reiniciado»).
+  valueEl?: HTMLElement;
+  // Marcador inicial (check/reloj/icono de tipo).
+  leading?: HTMLElement;
+  // Enlace externo (ficha del ítem): abre en pestaña nueva.
+  href?: string;
+  hrefTitle?: string;
+  // Estado completado: nombre tachado y atenuado.
+  done?: boolean;
+  // Color del riel cuando no hay calidad (acento de la zona).
+  rail?: string;
+}
+
+// Fila de ÍTEM/meta (design.md §12): slot como etiqueta, nombre como
+// protagonista (color de calidad vía `--rd-q`) y cifra a la derecha. Siempre
+// con contenedor real — sustituye el patrón fantasma que se disolvía sobre
+// la atmósfera (bg-brand-900/40 + border-l-2).
+export function itemRow(o: ItemRowOptions): HTMLElement {
+  const row = node(o.href ? 'a' : 'div', `${ui.item.row} ${ui.item.rowHover}`);
+  if (o.href) {
+    const a = row as HTMLAnchorElement;
+    a.href = o.href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    if (o.hrefTitle) a.title = o.hrefTitle;
+  }
+  const qc = o.quality !== null && o.quality !== undefined
+    ? itemQualityColor(o.quality)
+    : (o.rail ?? null);
+  if (qc) row.style.setProperty('--rd-q', qc);
+  const rail = node('span', 'rd-quality-rail');
+  rail.setAttribute('aria-hidden', 'true');
+  row.appendChild(rail);
+  if (o.leading) row.appendChild(o.leading);
+  const content = node('div', 'min-w-0 flex-1');
+  if (o.slot) content.appendChild(node('p', ui.item.slot, o.slot));
+  const name = node('p', `${ui.item.name}${o.done ? ' line-through opacity-60' : ''}`, o.name);
+  if (o.quality !== null && o.quality !== undefined) name.style.color = itemQualityColor(o.quality);
+  content.appendChild(name);
+  row.appendChild(content);
+  if (o.valueEl) row.appendChild(o.valueEl);
+  else if (o.value) row.appendChild(node('span', `${ui.statValue} ${ui.item.value}`, o.value));
+  return row;
 }

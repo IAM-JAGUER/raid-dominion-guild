@@ -114,7 +114,7 @@ export const ui = {
   // H1 de FICHA/VISTA (personaje, servidor, reino, banda, jugador, portal de
   // hermandad): tamaño grande en itálico, SIN color (lo aporta ui.gradientTitle
   // o un literal de gradiente propio de la vista). Solo base tipográfica.
-  titleFicha: 'text-3xl md:text-5xl font-black italic leading-[1.3]',
+  titleFicha: 'text-3xl sm:text-4xl md:text-5xl font-black italic leading-[1.3]',
 
   // ── Estado semántico (design.md R6, F006) ───────────────────────────────
   // SUPERFICIE DE COLOR de mensajes error/éxito/advertencia/info. El layout
@@ -188,6 +188,9 @@ export const ui = {
     md: 'rd-ico-md',
     lg: 'rd-ico-lg',
     xl: 'rd-ico-xl',
+    // Tamaño PROTAGONISTA (póster): cabeceras de ficha y medallones héroe.
+    // El sprite es arte nativo de 96px: hasta 80px se mantiene nítido.
+    hero: 'rd-ico-hero',
   },
 
   // ── Loading / feedback async (design.md §6, F010) ───────────────────────
@@ -238,6 +241,58 @@ export const ui = {
   // md = medallón de card/lista; lg = medallón de estado vacío/héroe.
   iconTileMd: 'w-10 h-10 sm:w-12 sm:h-12',
   iconTileLg: 'w-12 h-12 sm:w-14 sm:h-14',
+  // Medallón HÉROE de ficha (póster): protagonista de la zona de identidad.
+  // Se compone con ui.iconTile + ui.icon.hero y el halo .rd-medallion-hero
+  // (material.css), tintado por contexto con `--rd-hero-tint`.
+  iconTileHero: 'w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28',
+
+  // ── Póster: zonas, superficies y jerarquía (2026-10-17, design.md §12) ──
+  // Ritmo de zonas de una ficha: el héroe respira, las pestañas y el cuerpo
+  // tienen su propio compás (4/8/12/16/24/32). Sustituye el `mb-6` único
+  // que igualaba todas las distancias.
+  zone: {
+    hero: 'mb-8 lg:mb-10',
+    tabs: 'mb-8',
+    body: 'space-y-8 lg:space-y-10',
+  },
+  // Placa de IDENTIDAD de la ficha (póster, design.md §12): superficie real
+  // para la zona héroe — sobre la imagen de atmósfera, el texto suelto se
+  // disolvía en las zonas claras del fondo. Hermana del panel, sin metal:
+  // base + corte ceremonial + borde; la línea de acento (ui.cardTop) va dentro.
+  plaque: 'relative overflow-hidden rounded-md border border-brand-600/30 bg-brand-950/80 backdrop-blur-sm rd-cut',
+  // Superficie de FILA de dato (no card de directorio): contenedor REAL
+  // (opaco + marco) para que el dato no se disuelva sobre la atmósfera de
+  // página. Sustituye el patrón fantasma `bg-brand-900/40 + border-l-2`,
+  // que dejaba las listas como texto flotando sobre la imagen.
+  surf: {
+    row: 'relative overflow-hidden rounded-md border border-brand-700/50 bg-brand-950/80',
+    rowHover: 'hover:border-brand-500/60 hover:bg-brand-950 transition-colors',
+  },
+  // Lenguaje del ÍTEM de equipo/meta (design.md §12): el slot es la
+  // etiqueta, el NOMBRE es el protagonista (una talla sobre el texto de
+  // contenido y en el color de calidad del juego vía `--rd-q`) y la cifra
+  // va a la derecha como statValue. El riel de calidad lo pinta
+  // `.rd-quality-rail` (material.css).
+  item: {
+    row: 'relative overflow-hidden flex items-center gap-3 rounded-md border border-brand-700/50 bg-brand-950/80 pl-4 pr-3 py-2.5',
+    rowHover: 'hover:border-brand-500/60 hover:bg-brand-950 transition-colors',
+    slot: 'text-[10px] font-black uppercase tracking-[0.16em] text-gray-400',
+    name: 'text-sm sm:text-base font-bold leading-snug line-clamp-2 text-gray-100',
+    value: 'shrink-0 text-lg',
+  },
+  // Tira de cifras del héroe (póster): celdas separadas por hairline, con
+  // etiqueta y cifra grande (statValue). Envolver en `flex flex-wrap`.
+  statBlock: {
+    cell: 'border-l border-brand-700/50 px-4 first:border-l-0 first:pl-0 last:pr-0 py-0.5',
+    label: 'text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',
+    value: 'text-xl sm:text-3xl',
+  },
+  // Padding ampliable del cuerpo/cabecera de un PanelWindow protagonista
+  // (prop `pad="lg"`): overrides explícitos sobre el padding del token.
+  panelPad: {
+    md: '',
+    lg: '!p-5 sm:!p-7',
+  },
   // Separador interno sutil (contenido de cards).
   divider: 'h-px w-full bg-gradient-to-r from-brand-500/40 via-brand-600/20 to-transparent',
   // Versiones del separador desvanecido para la página (excepto index):

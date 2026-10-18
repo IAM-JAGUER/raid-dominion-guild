@@ -308,16 +308,18 @@ spans/backgrounds de icono a mano**: usa `Icon.astro` (template) o `iconEl`
 - **CSS**: `src/styles/icons.css` — `.rd-ico` escala el sprite con
   `--rd-ico` (tamaño) y `--rd-ico-col/-row` (celda). Excepción documentada a
   la regla de cascada de material.css: aquí `background-image` ES contenido.
-- **Tamaños**: `ui.icon.xs…xl` (14/16/20/24/32px) = `ICON_SIZE_CLASS`.
-  Default de `Icon.astro`/`iconEl`: `sm` (16px); en medallones y cabeceras
-  se usa `lg`/`xl`.
-- **Escala de prominencia (responsiva)**: SOLO los dos tamaños mayores crecen
-  en pantallas grandes — `lg` 24→28px y `xl` 32→40px desde `sm`, y `xl`
-  →44px desde `lg` (media queries en `icons.css`). Los medallones acompañan
-  con `ui.iconTileMd` (40→48px) y `ui.iconTileLg` (48→56px). `md/sm/xs` son
-  tamaño de DENSIDAD (nav, tabs, chips, filtros, toasts, botones) y **no
-  escalan nunca**: agrandarlos rompe el ritmo de las barras y el balance de
-  los controles.
+- **Tamaños**: `ui.icon.xs…hero` (14/16/20/24/40/48px base) =
+  `ICON_SIZE_CLASS`. Default de `Icon.astro`/`iconEl`: `sm` (16px); en
+  medallones y cabeceras se usa `lg`/`xl`, y las cabeceras de ficha y los
+  medallones héroe usan `hero` (§12).
+- **Escala de prominencia (responsiva)**: SOLO los tres tamaños mayores crecen
+  en pantallas grandes — `lg` 24→28px, `xl` 40→48→56px y `hero` 48→64→80px
+  (media queries en `icons.css`). Los medallones acompañan con
+  `ui.iconTileMd` (40→48px), `ui.iconTileLg` (48→56px) y `ui.iconTileHero`
+  (80→96→112px). `md/sm/xs` son tamaño de DENSIDAD (nav, tabs, chips,
+  filtros, toasts, botones) y **no escalan nunca**: agrandarlos rompe el
+  ritmo de las barras y el balance de los controles. `hero` se mantiene
+  ≤80px: el sprite es arte nativo de 96px y hasta ahí es nítido.
 - **Color**: el arte va a color; PROHIBIDO recolorear con `text-*` o
   `opacity` para “teñir”. La jerarquía se logra por tamaño y por el
   medallón (`ui.iconTile`), no por color.
@@ -354,6 +356,47 @@ Los textos del SavedVariables pueden traer markup del cliente WoW
   limpios que vienen de la DB NO conservan id → en páginas públicas se
   degradan a etiqueta limpia (sin tooltip), decisión 2026-10-17.
 
+## 12. Póster: zonas, jerarquía y escala (2026-10-17)
+
+Las fichas públicas (personaje, jugador, banda, servidor, reino, portal de
+hermandad) siguen una composición de **póster**: zona de identidad, compás de
+pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
+
+- **Zonas y ritmo** (`ui.zone`): `hero` (`mb-8 lg:mb-10`), `tabs` (`mb-8`) y
+  `body` (`space-y-8 lg:space-y-10`). Prohibido volver al `mb-6`/`space-y-6`
+  único que igualaba todas las distancias de la página.
+- **Placa de identidad** (`ui.plaque`): la zona héroe lleva superficie REAL
+  (base opaca + borde + corte `rd-cut` + línea de acento `ui.cardTop`). El
+  texto suelto sobre la imagen de atmósfera se disolvía en las zonas claras
+  del fondo — la decisión previa de "hero sin caja" (portal de hermandad)
+  era de la época del velo 0.75-0.9; con la capa única y el velo 0.3 dejó de
+  sostenerse. Es hermana del panel, sin metal.
+- **Medallón héroe** (`ui.iconTileHero` + `ui.icon.hero` +
+  `.rd-medallion-hero`): el arte del sprite a tamaño protagonista con halo
+  del color de contexto (`--rd-hero-tint`: color de clase en fichas de
+  personaje/jugador; acento de marca en el resto). El halo ilumina por
+  fuera; el arte no se recolorea (§10).
+- **Tira de cifras** (`ui.statBlock`): las magnitudes de la identidad en
+  grande (etiqueta + `ui.statValue`), separadas por hairline. Sustituye los
+  chips de cifra pequeños en los héroes (Nivel/ilvl/Piezas, contadores de
+  reino).
+- **Filas con contenedor** (`ui.surf.row`): toda fila de dato dentro de un
+  panel lleva marco real (base opaca + borde). El patrón fantasma
+  `bg-brand-900/40 + border-l-2` (texto flotando sobre la atmósfera) queda
+  prohibido en listas.
+- **Lenguaje del ítem** (`ui.item`): slot como etiqueta (eyebrow legible,
+  sin recorte), NOMBRE como protagonista (una talla sobre el texto de
+  contenido, en el color de calidad del juego vía `--rd-q` +
+  `.rd-quality-rail`) y cifra como `ui.statValue`. Fuente única del render:
+  `itemRow()` de `src/lib/ui/card.ts`; Equipamiento y Metas comparten el
+  MISMO componente (y `statCell()`/`heroMedallion()` el resto del póster).
+- **Arte de clase**: los JPG de clase son de 18px (`frallas.md` F023): a
+  96px se veían borrosos. La clase va como miniatura a 20px en su chip; el
+  protagonismo visual es del medallón del sprite (arte nativo de 96px).
+- **PanelWindow**: prop `pad="lg"` (`ui.panelPad.lg`) para paneles
+  protagonistas de ficha; el ícono de cabecera usa `lg` y las pestañas
+  (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
+
 ## Historial de enmiendas
 
 - **2026-10-17 (fondo único)**: `GameLoginBg` pasa a ser el fondo de TODAS
@@ -361,6 +404,17 @@ Los textos del SavedVariables pueden traer markup del cliente WoW
   `characterBg`/`guildBg`/`bandsBg`/`serverBg` (archivos incluidos) y las
   secciones de usuario/staff dejan de ir sin imagen. `404Bg.jpg` se conserva
   en disco sin uso. Las páginas ya no pasan `background` (solo `particles`).
+
+- **2026-10-17 (póster de fichas)**: nuevo §12 — placa de identidad
+  (`ui.plaque`), medallón héroe (`ui.iconTileHero`/`ui.icon.hero` +
+  `.rd-medallion-hero` con `--rd-hero-tint`), tira de cifras
+  (`ui.statBlock`), filas con contenedor (`ui.surf.row`) y lenguaje del ítem
+  (`ui.item` + `.rd-quality-rail` + `itemRow()`), ritmo de zonas
+  (`ui.zone`). Escala de iconos ampliada (§10): `xl` 40→48→56px y tier
+  nuevo `hero` 48→64→80px; `md/sm/xs` siguen siendo densidad. El héroe de
+  las 6 fichas pasa de texto suelto a placa (la disolución sobre las zonas
+  claras del fondo era el síntoma) y el avatar de clase (JPG de 18px a 96px,
+  F023) se sustituye por medallón del sprite + miniatura de clase a 20px.
 
 - **2026-10-17 (enlaces del juego)**: nuevo §11; parseo único de markup de
   chat en `src/lib/wowLink.ts`, render con widget perezoso de Wowhead en

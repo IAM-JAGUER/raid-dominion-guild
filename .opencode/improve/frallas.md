@@ -270,6 +270,20 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   name ~ '\|c[0-9a-fA-F]{8}|\|H';` — cualquier fila con markup o slug con
   `hachievement` es un caso de esta falla.
 
+## F023: Iconos de clase de 18px renderizados a 96px (avatares borrosos)
+- **Estado**: mitigada (2026-10-17)
+- **Error**: los avatares de las fichas de personaje/jugador se veían
+  borrosos. Los assets `public/images/classes/class-*.jpg` son JPG de
+  **18×18** (Pícaro 36×36) y el avatar los mostraba a `w-24 h-24` (96px):
+  ampliación de 5.3× (el "arte" es una mancha).
+- **Solución**: el héroe usa el medallón del sprite (`personaje`, arte nativo
+  de 96px, nítido hasta 80px) con halo del color de clase
+  (`--rd-hero-tint`); la clase va como miniatura de 20px en su chip. Si algún
+  día se consiguen iconos de clase de 64px+, se puede reevaluar el avatar
+  grande.
+- **Detección**: comparar `file public/images/classes/*` (18×18) contra el
+  tamaño renderizado de `#pv-avatar`/`#avatar` (96px+) en las fichas.
+
 ## F024: Archivos huérfanos del sandbox se cuelan al `dist/` local
 - **Estado**: mitigada (2026-10-17)
 - **Error**: `scripts/verifica.sh` sincroniza con `rsync --files-from` (lista

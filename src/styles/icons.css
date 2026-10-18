@@ -37,18 +37,22 @@
 .rd-ico-sm { --rd-ico: 1rem; }
 .rd-ico-md { --rd-ico: 1.25rem; }
 .rd-ico-lg { --rd-ico: 1.5rem; }
-.rd-ico-xl { --rd-ico: 2rem; }
+.rd-ico-xl { --rd-ico: 2.5rem; }
+.rd-ico-hero { --rd-ico: 3rem; }
 
-/* Escala de PROMINENCIA (design.md §10): solo los dos tamaños mayores crecen
+/* Escala de PROMINENCIA (design.md §10): solo los tres tamaños mayores crecen
    en pantallas grandes para dar jerarquía a los iconos protagonistas
    (medallones, estados vacíos/heros, dropzone). md/sm/xs son tamaño de
-   densidad (nav, tabs, chips, botones) y NO escalan nunca. */
+   densidad (nav, tabs, chips, botones) y NO escalan nunca. El tier `hero`
+   se mantiene ≤ 80px: el sprite es arte nativo de 96px y hasta ahí es nítido. */
 @media (min-width: 640px) {
   .rd-ico-lg { --rd-ico: 1.75rem; }
-  .rd-ico-xl { --rd-ico: 2.5rem; }
+  .rd-ico-xl { --rd-ico: 3rem; }
+  .rd-ico-hero { --rd-ico: 4rem; }
 }
 @media (min-width: 1024px) {
-  .rd-ico-xl { --rd-ico: 2.75rem; }
+  .rd-ico-xl { --rd-ico: 3.5rem; }
+  .rd-ico-hero { --rd-ico: 5rem; }
 }
 
 /* `hidden` sobre un icono debe ganar SIEMPRE: .rd-ico fija display y la

@@ -490,6 +490,18 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-17 (póster de fichas)**: sistema de diseño "póster" (§12 de
+  `design.md`): placa de identidad en el héroe (`ui.plaque` — el texto suelto
+  se disolvía sobre la imagen), medallón héroe del sprite con halo de color
+  de clase, tira de cifras (`ui.statBlock`), filas de dato con contenedor
+  (`ui.surf.row`) y lenguaje del ítem (`ui.item` + `itemRow()`: el nombre es
+  el protagonista, en color de calidad). Aplicado a la ficha de personaje
+  (equipo en grilla de 2 columnas, metas/instancias/notas con superficie) y a
+  los encabezados de jugador/banda/servidor/reino/portal de hermandad. La
+  escala de iconos gana el tier `hero` (48→80px) y `xl` crece a 40→56px; el
+  avatar de clase (JPG de 18px a 96px, `frallas.md` F023) se sustituye por
+  medallón del sprite + miniatura de clase a 20px.
+
 - **2026-10-17 (enlaces del juego)**: el parser ahora limpia el markup de
   chat de WoW en los textos del SV (`src/lib/wowLink.ts`; p. ej.
   `bands[].name` = enlace del logro: `|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`

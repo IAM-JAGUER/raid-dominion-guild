@@ -8,37 +8,44 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-reino" class="hidden">
-  <header class="animate-fade-in-1 mb-6">
-    <p class={`${ui.eyebrow} mb-1 flex items-center`}>
-      <Icon name="vientos" size="xs" class="mr-1.5" />
-      <span>Reino</span>
-    </p>
-    <div class="flex flex-wrap items-end gap-3">
-      <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-      <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-brand-950/60 to-brand-950/30 border-brand-600/40 text-brand-200 hover:from-brand-900/70 hover:to-brand-900/40 hover:border-brand-400/60 hover:text-brand-100 transition-all`}></a>
+  <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
+    <div class={`${ui.plaque} p-5 sm:p-7`}>
+      <span class={ui.cardTop} aria-hidden="true"></span>
+      <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+        <!-- Medallón héroe (póster): arte nativo del sprite a tamaño protagonista. -->
+        <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+          <Icon name="vientos" size="hero" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class={`${ui.eyebrow} mb-2`}>Reino</p>
+          <div class="flex flex-wrap items-end gap-3">
+            <h1 id="rv-realm" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
+            <a id="rv-server-chip" href="#" class={`${ui.badge} ${ui.badgeMd} bg-brand-950/70 border-brand-600/40 text-brand-200 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`}></a>
+          </div>
+          <div class="flex flex-wrap items-center mt-5" aria-label="Indicadores del reino">
+            <div class={ui.statBlock.cell}>
+              <p class={ui.statBlock.label}>Hermandades</p>
+              <p id="rv-stat-guilds" class={`${ui.statValue} ${ui.statBlock.value}`}>0</p>
+            </div>
+            <div class={ui.statBlock.cell}>
+              <p class={ui.statBlock.label}>Personajes</p>
+              <p id="rv-stat-chars" class={`${ui.statValue} ${ui.statBlock.value}`}>0</p>
+            </div>
+            <div class={ui.statBlock.cell}>
+              <p class={ui.statBlock.label}>Bandas</p>
+              <p id="rv-stat-bands" class={`${ui.statValue} ${ui.statBlock.value}`}>0</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-wrap gap-2 mt-4" aria-label="Indicadores del reino">
-      <span class="${ui.badgeStat}">
-        <Icon name="hermandad" size="xs" class="self-center" />
-        Hermandades <strong id="rv-stat-guilds" class={`${ui.statValue} text-sm`}>0</strong>
-      </span>
-      <span class="${ui.badgeStat}">
-        <Icon name="personaje" size="xs" class="self-center" />
-        Personajes <strong id="rv-stat-chars" class={`${ui.statValue} text-sm`}>0</strong>
-      </span>
-      <span class="${ui.badgeStat}">
-        <Icon name="espadas" size="xs" class="self-center" />
-        Bandas <strong id="rv-stat-bands" class={`${ui.statValue} text-sm`}>0</strong>
-      </span>
-    </div>
-    <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
   </header>
 
   <!-- Navegación entre paneles (modelo dashboard): Bandas solo si hay bandas
        públicas del reino (initAvailableTabs). -->
-  <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class="hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mb-6 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></nav>
+  <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
-  <div id="rv-panels" class="space-y-6">
+  <div id="rv-panels" class={ui.zone.body}>
     <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
       <p id="rv-guilds-empty" class="hidden text-sm text-gray-500 italic">Sin hermandades públicas en este reino.</p>
       <div id="rv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>

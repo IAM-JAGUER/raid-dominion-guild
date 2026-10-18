@@ -45,25 +45,31 @@ import { ui } from '@/lib/ui/design';
           <p class="text-sm text-gray-300 mt-1.5"><span class="font-bold text-brand-200">Vista previa privada.</span> Solo tú puedes ver este portal. Publícalo desde tu dashboard para que aparezca en el directorio.</p>
         </div>
 
-        <!-- Hero (sin caja: sin padding, borde ni fondo, tipografía limpia) -->
-        <header class="animate-fade-in-1">
-          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-1 flex items-center">
-                <Icon name="portal-circular" size="xs" class="mr-1.5" />
-                <span>Portal de hermandad</span>
-              </p>
-              <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle}`}></h1>
-            </div>
-            <div class="flex items-center gap-2">
-              <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}><Icon name="medalla" size="xs" class="self-center" />Verificada</span>
-              <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest"><Icon name="discord" size="sm" />Discord</a>
+        <!-- Hero: placa de identidad (póster) con medallón héroe -->
+        <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
+          <div class={`${ui.plaque} p-5 sm:p-7`}>
+            <span class={ui.cardTop} aria-hidden="true"></span>
+            <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+              <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+                <Icon name="estandarte" size="hero" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <div>
+                    <p class={`${ui.eyebrow} mb-2`}>Portal de hermandad</p>
+                    <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle}`}></h1>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}><Icon name="medalla" size="xs" class="self-center" />Verificada</span>
+                    <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest"><Icon name="discord" size="sm" />Discord</a>
+                  </div>
+                </div>
+                <p id="guild-description" class={`${ui.text.body} max-w-3xl leading-relaxed mt-3`}></p>
+                <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
+                <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
+              </div>
             </div>
           </div>
-          <p id="guild-description" class={`${ui.text.body} max-w-3xl leading-relaxed`}></p>
-          <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
-          <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
-          <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
         </header>
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
