@@ -8,6 +8,7 @@ import { wowLinkEl } from '@/lib/ui/wowhead';
 import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
+import { createPaginator } from '@/lib/ui/paginator';
 import { iconEl, type IconName } from '@/lib/ui/icons';
 
 export { el };
@@ -490,102 +491,73 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   }
 
   const PAGE_SIZE = 9; // grid 3×3, como el roster de guild-portal
-  const totalPages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
-  let page = 1;
 
   const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3');
 
-  const renderPage = (): void => {
-    grid.innerHTML = '';
-    const start = (page - 1) * PAGE_SIZE;
-    entries.slice(start, start + PAGE_SIZE).forEach(({ m, groupStart, groupLabel }) => {
-      if (groupStart && groupLabel) {
-        const hdr = el('div', 'col-span-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-300 border-b border-brand-600/20 pb-1 mt-1');
-        hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0', ''));
-        hdr.appendChild(el('span', '', groupLabel));
-        grid.appendChild(hdr);
-      }
-      const color = classColor(m.class);
-      // Toda la tarjeta es el enlace a /personaje/:slug (cuando existe): el
-      // nombre queda como texto plano, sin subrayado ni icono de enlace.
-      let cardEl: HTMLElement;
-      if (m.slug) {
-        cardEl = cardLink(`/personaje/${m.slug}`, 'p-4 pl-5 flex flex-col justify-center gap-2 group');
-      } else {
-        cardEl = card('p-4 pl-5 flex flex-col justify-center gap-2');
-        cardEl.appendChild(cardTop());
-      }
-      const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
-      accent.style.backgroundColor = color;
-      cardEl.appendChild(accent);
+  // Paginación vía módulo reutilizable (paginator.ts): barra
+  // "Página [X] de Y • N miembros" (X = desplegable de salto directo) +
+  // prev/next. El paginator renderiza en `grid` y aporta la barra solo
+  // cuando hay más de una página (antes inline aquí, mismo markup).
+  const paginator = createPaginator({
+    pageSize: PAGE_SIZE,
+    totalItems: entries.length,
+    summary: `${members.length} miembros`,
+    renderPage: (page) => {
+      grid.innerHTML = '';
+      const start = (page - 1) * PAGE_SIZE;
+      entries.slice(start, start + PAGE_SIZE).forEach(({ m, groupStart, groupLabel }) => {
+        if (groupStart && groupLabel) {
+          const hdr = el('div', 'col-span-full flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-300 border-b border-brand-600/20 pb-1 mt-1');
+          hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0', ''));
+          hdr.appendChild(el('span', '', groupLabel));
+          grid.appendChild(hdr);
+        }
+        const color = classColor(m.class);
+        // Toda la tarjeta es el enlace a /personaje/:slug (cuando existe): el
+        // nombre queda como texto plano, sin subrayado ni icono de enlace.
+        let cardEl: HTMLElement;
+        if (m.slug) {
+          cardEl = cardLink(`/personaje/${m.slug}`, 'p-4 pl-5 flex flex-col justify-center gap-2 group');
+        } else {
+          cardEl = card('p-4 pl-5 flex flex-col justify-center gap-2');
+          cardEl.appendChild(cardTop());
+        }
+        const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
+        accent.style.backgroundColor = color;
+        cardEl.appendChild(accent);
 
-      const row = el('div', 'flex items-center justify-between gap-2');
-      const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
-      nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
-      const name = el('span', 'font-black italic leading-[1.3] text-sm');
-      name.style.color = color;
-      name.textContent = m.name;
-      nameWrap.appendChild(name);
-      row.appendChild(nameWrap);
-      if (m.rank) {
-        row.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${rankBadgeClass(m.rank)}`, m.rank));
-      }
-      cardEl.appendChild(row);
+        const row = el('div', 'flex items-center justify-between gap-2');
+        const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
+        nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+        const name = el('span', 'font-black italic leading-[1.3] text-sm');
+        name.style.color = color;
+        name.textContent = m.name;
+        nameWrap.appendChild(name);
+        row.appendChild(nameWrap);
+        if (m.rank) {
+          row.appendChild(el('span', `shrink-0 ${ui.badge} ${ui.badgeSm} ${rankBadgeClass(m.rank)}`, m.rank));
+        }
+        cardEl.appendChild(row);
 
-      // La clase NO se repite como badge de texto: la ficha ya la comunica con
-      // el ícono de clase y el acento/color de clase (decisión 2026-09-01).
-      // La fila de nota solo se monta si hay contenido: un div vacío + gap-2
-      // del contenedor descentra la fila (justify-center centra fila+gap+0).
-      if (m.publicNote) {
-        const meta = el('div', 'flex flex-wrap gap-1.5');
-        meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
-        cardEl.appendChild(meta);
-      }
+        // La clase NO se repite como badge de texto: la ficha ya la comunica con
+        // el ícono de clase y el acento/color de clase (decisión 2026-09-01).
+        // La fila de nota solo se monta si hay contenido: un div vacío + gap-2
+        // del contenedor descentra la fila (justify-center centra fila+gap+0).
+        if (m.publicNote) {
+          const meta = el('div', 'flex flex-wrap gap-1.5');
+          meta.appendChild(el('span', 'text-[10px] text-gray-400 italic truncate', m.publicNote));
+          cardEl.appendChild(meta);
+        }
 
-      grid.appendChild(cardEl);
-    });
-  };
-
-  const btnCls = 'w-8 h-8 flex items-center justify-center rounded-md border border-brand-600/30 bg-brand-900/20 text-brand-200 hover:bg-brand-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200';
-  const prev = el('button', btnCls) as HTMLButtonElement;
-  prev.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
-  prev.setAttribute('aria-label', 'Página anterior');
-  const next = el('button', btnCls) as HTMLButtonElement;
-  next.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
-  next.setAttribute('aria-label', 'Página siguiente');
-
-  const bar = el('div', 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3');
-  // "Página [X] de Y • N miembros": el número de página es un desplegable de
-  // salto directo (ayuda de navegación en rosters largos, p. ej. 101 páginas).
-  const info = el('p', 'text-xs text-gray-400 italic');
-  const pageSel = document.createElement('select');
-  pageSel.className = 'mx-1 px-1.5 py-0.5 rounded-md bg-brand-900/40 border border-brand-600/30 text-brand-200 text-xs italic cursor-pointer hover:border-brand-500/50 focus:outline-none focus:ring-1 focus:ring-brand-500/50 transition-colors';
-  pageSel.setAttribute('aria-label', 'Ir a la página');
-  for (let i = 1; i <= totalPages; i++) {
-    const opt = document.createElement('option');
-    opt.value = String(i);
-    opt.textContent = String(i);
-    pageSel.appendChild(opt);
-  }
-  info.append('Página ', pageSel, ` de ${totalPages} • ${members.length} miembros`);
-  const controls = el('div', 'flex items-center gap-2');
-  controls.append(prev, next);
-  bar.append(info, controls);
-
-  const update = (): void => {
-    renderPage();
-    pageSel.value = String(page);
-    prev.disabled = page <= 1;
-    next.disabled = page >= totalPages;
-  };
-  prev.addEventListener('click', () => { if (page > 1) { page -= 1; update(); } });
-  next.addEventListener('click', () => { if (page < totalPages) { page += 1; update(); } });
-  pageSel.addEventListener('change', () => { page = Number(pageSel.value); update(); });
+        grid.appendChild(cardEl);
+      });
+    },
+  });
 
   wrap.innerHTML = '';
   wrap.appendChild(grid);
-  if (totalPages > 1) wrap.appendChild(bar);
-  update();
+  if (paginator.bar) wrap.appendChild(paginator.bar);
+  paginator.update();
 }
 
 // Renderiza bandas (con fallback a Core), reglas y roster dentro de contenedores.

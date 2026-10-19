@@ -180,6 +180,23 @@ export const ui = {
     count: 'text-[9px] font-bold opacity-60',
   },
 
+  // ── Paginador reutilizable (2026-10-19, paginator.ts) ──────────────────
+  // Barra "Página [X] de Y • N ítems": el número de página es un desplegable
+  // de salto directo + controles prev/next. ÚNICA fuente de estas clases
+  // (antes literales del roster en preview.ts).
+  pager: {
+    // Barra inferior: info a la izquierda, controles a la derecha; en móvil
+    // se apila en columna centrada.
+    bar: 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3',
+    // Texto del contador ("Página [sel] de Y • N ítems").
+    info: 'text-xs text-gray-400 italic',
+    // Desplegable de salto directo a cualquier página.
+    select:
+      'mx-1 px-1.5 py-0.5 rounded-md bg-brand-900/40 border border-brand-600/30 text-brand-200 text-xs italic cursor-pointer hover:border-brand-500/50 focus:outline-none focus:ring-1 focus:ring-brand-500/50 transition-colors',
+    // Botón cuadrado prev/next (flecha SVG interna).
+    btn: 'w-8 h-8 flex items-center justify-center rounded-md border border-brand-600/30 bg-brand-900/20 text-brand-200 hover:bg-brand-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200',
+  },
+
   // ── Sistema de iconos (2026-10-16, icons.css) ───────────────────────────
   // Clases de tamaño del sprite temático (65 iconos, contrato en
   // src/lib/ui/icons.ts). El componente es Icon.astro / iconEl; estas clases

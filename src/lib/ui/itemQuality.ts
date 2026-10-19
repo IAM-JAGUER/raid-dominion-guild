@@ -46,6 +46,12 @@ export function itemQualityLabelPlural(quality?: number | null): string {
   return ITEM_QUALITY_LABELS_PLURAL[quality] ?? '';
 }
 
+// Nombre de calidad en singular y minúscula ("épico"), para chips de filtro.
+export function itemQualityLabel(quality?: number | null): string {
+  if (quality === null || quality === undefined) return '';
+  return ITEM_QUALITY_LABELS[quality] ?? '';
+}
+
 // Etiqueta de recuento con concordancia: "1 épico" / "4 épicos".
 export function itemQualityCountLabel(quality: number, count: number): string {
   const label = count === 1 ? ITEM_QUALITY_LABELS[quality] : ITEM_QUALITY_LABELS_PLURAL[quality];

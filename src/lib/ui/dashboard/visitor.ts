@@ -10,7 +10,7 @@ import { configChip } from '@/lib/ui/dashboard/chips';
 import { resolveRankName } from '@/lib/ui/ranks';
 import { ui } from '@/lib/ui/design';
 import { card, cardTop } from '@/lib/ui/card';
-import { renderCharacterCard, type CharacterCardInput } from '@/lib/ui/cards';
+import type { CharacterCardInput } from '@/lib/ui/cards';
 import type { ParsedSavedVariables, RegistryGuild } from '@/types/parser';
 
 // Clave normalizada de personaje (name-reino en minúsculas) para deduplicar la
@@ -124,15 +124,18 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
 // personajes del archivo que NO están entre ellos se marcan como "No
 // registrado · otra cuenta" (p. ej. tras subir un SV de otra cuenta). Con
 // `undefined` (sin referencia) no se marca nada; con array vacío se marca todo.
-export function renderCharactersMerged(
+// Entrada del visor de personajes del registro: card normalizada + marca de
+// "no registrado en esta cuenta" (derivada del cruce con las fichas propias).
+export interface MergedRegistryCharacter {
+  character: CharacterCardInput;
+  unregistered: boolean;
+}
+
+export function collectMergedCharacters(
   d: ParsedSavedVariables,
   slugs?: Map<string, string>,
   owned?: Array<{ name: string; realm?: string | null }>,
-): void {
-  const wrap = document.getElementById('viewer-characters') as HTMLElement;
-  const cnt = document.getElementById('cnt-viewer-chars') as HTMLElement;
-  wrap.innerHTML = '';
-
+): MergedRegistryCharacter[] {
   const isOwned = (name: string, realm?: string | null): boolean => {
     if (owned === undefined) return true;
     if (owned.length === 0) return false;
@@ -196,15 +199,8 @@ export function renderCharactersMerged(
     });
   }
 
-  cnt.textContent = `(${byKey.size})`;
-  const items = Array.from(byKey.values());
-  if (items.length === 0) {
-    wrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin personajes en el registro.'));
-    return;
-  }
-  items.forEach((c) =>
-    wrap.appendChild(
-      renderCharacterCard(c, { forcePlain: true, unregistered: !isOwned(c.name, c.realm) }),
-    ),
-  );
+  return Array.from(byKey.values()).map((character) => ({
+    character,
+    unregistered: !isOwned(character.name, character.realm),
+  }));
 }

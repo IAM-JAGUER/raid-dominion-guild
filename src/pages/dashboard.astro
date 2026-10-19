@@ -314,11 +314,14 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                     id="cnt-viewer-chars"
                     class="text-gray-400"></span>
                 </h4>
+                <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+                <div id="viewer-chars-filtro" class="mt-3"></div>
                 <div
                   id="viewer-characters"
                   class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2"
                 >
                 </div>
+                <div id="viewer-chars-pager" class="mt-3"></div>
               </div>
 
               <!-- Hermandades en el registro -->
@@ -326,7 +329,9 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
                 class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4"
               >
                 <h4 class={ui.subTitle}>Hermandades en el registro</h4>
+                <div id="viewer-guilds-filtro" class="mt-3"></div>
                 <div id="viewer-guilds" class="mt-2 space-y-2"></div>
+                <div id="viewer-guilds-pager" class="mt-3"></div>
               </div>
             </div>
           </div>
@@ -508,11 +513,14 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               </p>
             </div>
 
+            <!-- Motor único de filtros (src/lib/ui/filterBar.ts) + paginador. -->
+            <div id="characters-filtro" class="mb-4"></div>
             <div
               id="characters-list"
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
             >
             </div>
+            <div id="characters-pager" class="mt-3"></div>
             <p
               id="characters-onboarding"
               data-rd-reveal
@@ -1192,15 +1200,20 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     } from "@/lib/ui/tabs";
     import { isVisitor } from "@/lib/roles";
     import { ui } from "@/lib/ui/design";
+    import { el } from "@/lib/ui/dom";
     import { iconEl } from "@/lib/ui/icons";
     import { toast } from "@/lib/ui/toast";
     import { renderCharacterCard } from "@/lib/ui/cards";
+    import { createFilterBar, type Facet } from "@/lib/ui/filterBar";
+    import { createPaginator, PAGE_SIZE_GRID, PAGE_SIZE_LIST } from "@/lib/ui/paginator";
     import { svLabel } from "@/lib/ui/dashboard/format";
     import {
+      collectMergedCharacters,
       collectRegistryGuilds,
       renderRegistryGuildCards,
       characterListKey,
-      renderCharactersMerged,
+      type MergedRegistryCharacter,
+      type RegistryGuildCard,
     } from "@/lib/ui/dashboard/visitor";
     import {
       bandPlayerCount,
@@ -1931,37 +1944,113 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         onboardingEl.classList.add("hidden");
       }
 
-      items.forEach((c, i) =>
-        listEl.appendChild(
-          renderCharacterCard(
-            { ...c, note: myNotes.get(c.id) ?? null },
-            {
-              number: i + 1,
-              canPublish: canPublishContent(),
-              hideStats: true,
-              setVisibility: async (visible) => {
-                const res = await setCharacterVisibility(c.id, visible);
-                if (res.ok) {
-                  // Refresco del selector de personaje principal e indicadores.
-                  populateMainCharacterSelect();
-                  refreshHdrCharacters();
-                }
-                return res;
-              },
-              // Publicación de la nota privada (vive en su tabla; la card
-              // muestra el texto y el interruptor).
-              setNotesPublic: async (visible) => {
-                const res = await setCharacterNotesPublic(c.id, visible);
-                if (res.ok) {
-                  c.notes_public = visible;
-                  refreshHdrCharacters();
-                }
-                return res;
-              },
+      // Buscador + chips (clase, reino, público, validado, con nota) +
+      // paginador. La numeración es GLOBAL sobre la lista filtrada
+      // (page*PAGE_SIZE + idx + 1), no se reinicia por página.
+      const filterEl = document.getElementById("characters-filtro") as HTMLElement;
+      const pagerEl = document.getElementById("characters-pager") as HTMLElement | null;
+      filterEl.innerHTML = "";
+      if (pagerEl) pagerEl.textContent = "";
+      const facets: Array<Facet<(typeof items)[number]>> = [
+        {
+          id: "clase",
+          label: "Filtrar personajes por clase",
+          getValues: (c) => (c.class ? [c.class] : []),
+        },
+        {
+          id: "reino",
+          label: "Filtrar personajes por reino",
+          getValues: (c) => [(c.realm ?? "").trim()].filter(Boolean),
+        },
+        {
+          kind: "flag",
+          id: "publico",
+          label: "Filtrar personajes públicos",
+          getFlag: (c) => c.is_public,
+          chipLabel: "Público",
+          icon: "visibilidad",
+        },
+        {
+          kind: "flag",
+          id: "validado",
+          label: "Filtrar personajes validados",
+          getFlag: (c) => c.member_verified,
+          chipLabel: "Validado",
+          icon: "validado",
+        },
+        {
+          kind: "flag",
+          id: "nota",
+          label: "Filtrar personajes con nota",
+          getFlag: (c) => myNotes.has(c.id),
+          chipLabel: "Con nota",
+          icon: "nota",
+        },
+      ];
+
+      createFilterBar({
+        mount: filterEl,
+        items,
+        getSearchText: (c) => `${c.name} ${c.realm ?? ""} ${c.class ?? ""} ${c.sv_guild_name ?? ""}`,
+        searchPlaceholder: "Buscar personaje…",
+        searchLabel: "Buscar personajes por nombre, clase o reino",
+        facets,
+        resultNoun: (n) => `${n} personaje${n === 1 ? "" : "s"}`,
+        onChange: (filtered, state) => {
+          if (pagerEl) pagerEl.textContent = "";
+          if (filtered.length === 0) {
+            listEl.innerHTML = "";
+            const msg = state.query.trim()
+              ? `Ningún personaje coincide con "${state.query.trim()}".`
+              : "No hay personajes que coincidan con los filtros.";
+            listEl.appendChild(el("p", `${ui.text.bodyMuted} italic col-span-full`, msg));
+            return;
+          }
+          const paginator = createPaginator({
+            pageSize: PAGE_SIZE_GRID,
+            totalItems: filtered.length,
+            summary: `${filtered.length} personaje${filtered.length === 1 ? "" : "s"}`,
+            renderPage: (page) => {
+              listEl.innerHTML = "";
+              const start = (page - 1) * PAGE_SIZE_GRID;
+              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((c, idx) => {
+                listEl.appendChild(
+                  renderCharacterCard(
+                    { ...c, note: myNotes.get(c.id) ?? null },
+                    {
+                      number: start + idx + 1,
+                      canPublish: canPublishContent(),
+                      hideStats: true,
+                      setVisibility: async (visible) => {
+                        const res = await setCharacterVisibility(c.id, visible);
+                        if (res.ok) {
+                          c.is_public = visible;
+                          // Refresco del selector de personaje principal e indicadores.
+                          populateMainCharacterSelect();
+                          refreshHdrCharacters();
+                        }
+                        return res;
+                      },
+                      // Publicación de la nota privada (vive en su tabla; la card
+                      // muestra el texto y el interruptor).
+                      setNotesPublic: async (visible) => {
+                        const res = await setCharacterNotesPublic(c.id, visible);
+                        if (res.ok) {
+                          c.notes_public = visible;
+                          refreshHdrCharacters();
+                        }
+                        return res;
+                      },
+                    },
+                  ),
+                );
+              });
             },
-          ),
-        ),
-      );
+          });
+          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
+          paginator.update();
+        },
+      });
     }
 
     // ── Mi Registro: historial + visor del snapshot seleccionado ────────────
@@ -2069,7 +2158,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         const key = characterListKey(mc.name, mc.realm);
         if (mc.slug) slugByKey.set(key, mc.slug);
       });
-      renderCharactersMerged(d, slugByKey, myCharacters);
+      renderRegistryCharacters(collectMergedCharacters(d, slugByKey, myCharacters));
 
       const leadsAnywhere =
         d.registryGuild?.isGM === true ||
@@ -2077,15 +2166,186 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       updateClaimBanner(leadsAnywhere);
     }
 
+    // Personajes del registro: buscador + chips (clase, reino, maestro, otra
+    // cuenta, con ficha) + paginador sobre la lista fusionada del snapshot.
+    function renderRegistryCharacters(entries: MergedRegistryCharacter[]): void {
+      const wrap = document.getElementById("viewer-characters") as HTMLElement;
+      const cnt = document.getElementById("cnt-viewer-chars") as HTMLElement;
+      const filterEl = document.getElementById("viewer-chars-filtro") as HTMLElement;
+      const pagerEl = document.getElementById("viewer-chars-pager") as HTMLElement | null;
+      cnt.textContent = `(${entries.length})`;
+      filterEl.innerHTML = "";
+      if (pagerEl) pagerEl.textContent = "";
+      if (entries.length === 0) {
+        wrap.innerHTML = "";
+        wrap.appendChild(el("p", "text-[11px] text-gray-400 italic", "Sin personajes en el registro."));
+        return;
+      }
+
+      const facets: Array<Facet<MergedRegistryCharacter>> = [
+        {
+          id: "clase",
+          label: "Filtrar personajes del registro por clase",
+          getValues: (e) => (e.character.class ? [e.character.class] : []),
+        },
+        {
+          id: "reino",
+          label: "Filtrar personajes del registro por reino",
+          getValues: (e) => [(e.character.realm ?? "").trim()].filter(Boolean),
+        },
+        {
+          kind: "flag",
+          id: "gm",
+          label: "Filtrar personajes maestros de hermandad",
+          getFlag: (e) => !!e.character.sv_is_gm,
+          chipLabel: "Maestro",
+          icon: "estrella",
+        },
+        {
+          kind: "flag",
+          id: "otra",
+          label: "Filtrar personajes de otra cuenta",
+          getFlag: (e) => e.unregistered,
+          chipLabel: "Otra cuenta",
+          icon: "bloqueo",
+        },
+        {
+          kind: "flag",
+          id: "ficha",
+          label: "Filtrar personajes con ficha pública",
+          getFlag: (e) => !!e.character.slug,
+          chipLabel: "Con ficha",
+          icon: "enlace",
+        },
+      ];
+
+      createFilterBar<MergedRegistryCharacter>({
+        mount: filterEl,
+        items: entries,
+        getSearchText: (e) => `${e.character.name} ${e.character.realm ?? ""} ${e.character.class ?? ""}`,
+        searchPlaceholder: "Buscar personaje del registro…",
+        searchLabel: "Buscar personajes del registro por nombre, clase o reino",
+        facets,
+        resultNoun: (n) => `${n} personaje${n === 1 ? "" : "s"}`,
+        onChange: (filtered, state) => {
+          if (pagerEl) pagerEl.textContent = "";
+          if (filtered.length === 0) {
+            wrap.innerHTML = "";
+            const msg = state.query.trim()
+              ? `Ningún personaje coincide con "${state.query.trim()}".`
+              : "No hay personajes que coincidan con los filtros.";
+            wrap.appendChild(el("p", `${ui.text.bodyMuted} italic col-span-full`, msg));
+            return;
+          }
+          const paginator = createPaginator({
+            pageSize: PAGE_SIZE_GRID,
+            totalItems: filtered.length,
+            summary: `${filtered.length} personaje${filtered.length === 1 ? "" : "s"}`,
+            renderPage: (page) => {
+              wrap.innerHTML = "";
+              const start = (page - 1) * PAGE_SIZE_GRID;
+              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((entry) => {
+                wrap.appendChild(renderCharacterCard(entry.character, { forcePlain: true, unregistered: entry.unregistered }));
+              });
+            },
+          });
+          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
+          paginator.update();
+        },
+      });
+    }
+
     // Hermandades del registro (registry.*.guild): capa fina que conecta el
     // estado del closure (snapshotGmGuilds/updateClaimBanner) con los renderers
     // puros de visitor.ts (collectRegistryGuilds + renderRegistryGuildCards).
     function renderGuilds(d: ParsedSavedVariables): void {
       const wrap = document.getElementById("viewer-guilds") as HTMLElement;
+      const filterEl = document.getElementById("viewer-guilds-filtro") as HTMLElement;
+      const pagerEl = document.getElementById("viewer-guilds-pager") as HTMLElement | null;
       const guilds = collectRegistryGuilds(d);
       snapshotGmGuilds = guilds.filter((g) => g.isGM).map((g) => g.name);
       updateClaimBanner();
-      renderRegistryGuildCards(wrap, guilds);
+      filterEl.innerHTML = "";
+      if (pagerEl) pagerEl.textContent = "";
+      if (guilds.length === 0) {
+        renderRegistryGuildCards(wrap, []);
+        return;
+      }
+
+      // Tamaño de hermandad en tramos (dimensión legible en chips).
+      const sizeBucket = (g: { numMembers?: number }): string | null => {
+        if (typeof g.numMembers !== "number") return null;
+        if (g.numMembers <= 10) return "1-10";
+        if (g.numMembers <= 25) return "11-25";
+        return "26+";
+      };
+      const facets: Array<Facet<RegistryGuildCard>> = [
+        {
+          kind: "flag",
+          id: "gm",
+          label: "Filtrar hermandades donde eres maestro",
+          getFlag: (g) => g.isGM,
+          chipLabel: "Maestro",
+          icon: "estrella",
+        },
+        {
+          id: "rango",
+          label: "Filtrar hermandades por tu rango",
+          getValues: (g) => [(g.ownRank ?? "").trim()].filter(Boolean),
+          minValues: 1,
+        },
+        {
+          id: "tamano",
+          label: "Filtrar hermandades por tamaño",
+          getValues: (g) => {
+            const b = sizeBucket(g);
+            return b ? [b] : [];
+          },
+          labelOf: (v) => `${v} miembros`,
+          order: () => ["1-10", "11-25", "26+"],
+          minValues: 1,
+        },
+        {
+          kind: "flag",
+          id: "personajes",
+          label: "Filtrar hermandades con personajes en el registro",
+          getFlag: (g) => g.characters.length > 0,
+          chipLabel: "Con personajes",
+          icon: "personaje",
+        },
+      ];
+
+      createFilterBar({
+        mount: filterEl,
+        items: guilds,
+        getSearchText: (g) => `${g.name} ${g.ownRank ?? ""} ${g.characters.join(" ")}`,
+        searchPlaceholder: "Buscar hermandad del registro…",
+        searchLabel: "Buscar hermandades del registro por nombre, rango o personaje",
+        facets,
+        resultNoun: (n) => `${n} hermandad${n === 1 ? "" : "es"}`,
+        onChange: (filtered, state) => {
+          if (pagerEl) pagerEl.textContent = "";
+          if (filtered.length === 0) {
+            wrap.innerHTML = "";
+            const msg = state.query.trim()
+              ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+              : "No hay hermandades que coincidan con los filtros.";
+            wrap.appendChild(el("p", `${ui.text.bodyMuted} italic`, msg));
+            return;
+          }
+          const paginator = createPaginator({
+            pageSize: PAGE_SIZE_LIST,
+            totalItems: filtered.length,
+            summary: `${filtered.length} hermandad${filtered.length === 1 ? "" : "es"}`,
+            renderPage: (page) => {
+              const start = (page - 1) * PAGE_SIZE_LIST;
+              renderRegistryGuildCards(wrap, filtered.slice(start, start + PAGE_SIZE_LIST));
+            },
+          });
+          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
+          paginator.update();
+        },
+      });
     }
 
     // Banner de reclamo: si el snapshot acredita liderazgo de alguna hermandad

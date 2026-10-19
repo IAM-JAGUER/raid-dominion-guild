@@ -63,8 +63,9 @@ Ver el archivo directamente para las clases exactas. Categorías disponibles:
 `eyebrow`/`gradientTitle`/`statValue`/`iconTile`, `form.*`
 (label/input/inputError/helperText/errorText), `filter.*` (searchRow/
 searchWrap/searchIcon/result/facets/row/chip/chipActive/chipIdle/count —
-barra de filtros de directorios), `loading.*` (skeleton/spinner/spinnerLg/
-liveText), `focusRing`, `transition`.
+barra de filtros de directorios), `pager.*` (bar/info/select/btn — barra de
+paginación "Página [X] de Y", `src/lib/ui/paginator.ts`), `loading.*`
+(skeleton/spinner/spinnerLg/liveText), `focusRing`, `transition`.
 
 **Regla de oro:** si vas a escribir un literal de Tailwind que ya existe como
 token, usa el token. Si necesitas un literal nuevo que se repetirá más de
@@ -329,6 +330,39 @@ El montaje del motor es `#filters` (`data-rd-filter-bar`) en la cabecera;
 las pestañas Bandas de perfil/personaje/reino y el portal de hermandad usan
 `bandasPanel.ts` (que consume el mismo motor) sobre sus propios contenedores.
 
+### 7b.1 Pestañas de lista (2026-10-19)
+
+El MISMO motor se monta en las pestañas que renderizan listas, cada una con
+sus facetas de contenido (nunca un buscador propio):
+
+- **Jugador**: personajes (clase, reino, ✓ Validado, ★ Maestro; solo el
+  bloque "otros personajes", la carta principal no se filtra) y hermandades
+  (facción, reino, ✓ Verificada).
+- **Personaje**: equipamiento (ranura, calidad, Épico+), metas (tipo,
+  ranura, calidad, Completada; un paginador POR SECCIONES equipo/monedas) e
+  instancias (dificultad, Extendida).
+- **Banda**: core (rol y clase, sin paginar: conserva los grupos por rol
+  colapsables) y reglas (buscador + Con contenido).
+- **Portal**: reglas (buscador + Con contenido; sin el tope de 20).
+- **Dashboard**: mis personajes (clase, reino, Público, Validado, Con nota),
+  registro de personajes (clase, reino, Maestro, Otra cuenta, Con ficha),
+  registro de hermandades (Maestro, rango, tamaño, Con personajes) y
+  propuestas de integración (estado, Con reglas).
+- **Sin filtros/paginador**: la nota y la hermandad de la ficha de personaje
+  (0/1 ítem) y la pestaña Bandas del dashboard (selector, no lista).
+
+### 7c. Paginador (2026-10-19)
+
+`src/lib/ui/paginator.ts` (`createPaginator`) es el ÚNICO paginador: barra
+`Página [X] de Y • N …` con desplegable de salto + prev/next, oculta con una
+sola página; tokens `ui.pager.*`. El roster (`preview.ts`) y todas las listas
+lo consumen; `PAGE_SIZE_GRID` (12, grillas de 3 columnas) y `PAGE_SIZE_LIST`
+(20, listas verticales) salen del mismo módulo. Para listas con secciones,
+`packSections` empaqueta secciones enteras en páginas y repite la cabecera
+con `continuation` cuando una sección se parte (días de bandas, equipo/
+monedas de metas). La barra es SIEMPRE hermana del contenedor de ítems (nunca
+dentro del grid con reveal). Los estados vacío/aviso no montan paginador.
+
 ## 8. Responsive
 
 Rango verificado: 320px–1440px sin overflow horizontal. Breakpoints:
@@ -453,6 +487,18 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-19 (filtros y paginador en pestañas)**: el buscador + facetas
+  (`createFilterBar`) deja de ser exclusivo de los directorios y Bandas: se
+  monta en TODAS las pestañas de lista (jugador, personaje, banda, reino,
+  portal y dashboard) con facetas por contenido (§7b.1). El paginador del
+  roster se extrae a `src/lib/ui/paginator.ts` (barra, desplegable de salto
+  y tokens `ui.pager.*`) y suma `packSections` para listas agrupadas
+  (días de bandas, equipo/monedas de metas); tamaños únicos
+  `PAGE_SIZE_GRID` (12) y `PAGE_SIZE_LIST` (20) (§7c). El portal de
+  hermandad deja de recortar las reglas a 20. Excluidos: ítems únicos
+  (nota/hermandad del personaje), core de banda (grupos por rol) y el
+  selector de Bandas del dashboard.
 
 - **2026-10-18 (luz espectral de contenedores)**: refinamiento del sistema
   del mismo día — (1) **chispa de vértice** en el bisel de las placas

@@ -79,6 +79,7 @@ import { ui } from '@/lib/ui/design';
           <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.15s">
             <p id="users-status" class={`${ui.loading.liveText} italic mb-3`} aria-live="polite">Cargando usuarios…</p>
             <ul id="users-list" class="space-y-3"></ul>
+            <div id="users-pager" class="mt-3"></div>
           </section>
         </div>
 
@@ -204,7 +205,9 @@ import { ui } from '@/lib/ui/design';
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { ADMIN_PANELS, ADMIN_TABS, tabFromHash, resolveAdminHash } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
+  import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
   import type { RaiddominionRole } from '@/types/database';
+
 
   const ROLE_LABELS: Record<RaiddominionRole, string> = {
     visitante: 'Visitante',
@@ -405,6 +408,8 @@ import { ui } from '@/lib/ui/design';
 
   function render(): void {
     const listEl = document.getElementById('users-list') as HTMLElement;
+    const pagerEl = document.getElementById('users-pager') as HTMLElement | null;
+    if (pagerEl) pagerEl.textContent = '';
     listEl.innerHTML = '';
     const q = searchEl.value.trim().toLowerCase();
 
@@ -418,7 +423,6 @@ import { ui } from '@/lib/ui/design';
       );
     });
 
-    filtered.forEach((u) => listEl.appendChild(userRow(u)));
     if (filtered.length === 0 && (q || activeRole)) {
       const empty = document.createElement('li');
       empty.className = `${ui.surf.row} p-4 text-sm text-gray-400 italic text-center`;
@@ -426,7 +430,23 @@ import { ui } from '@/lib/ui/design';
         ? `Sin resultados para «${searchEl.value.trim()}».`
         : 'Ningún usuario con este rol.';
       listEl.appendChild(empty);
+      return;
     }
+
+    const paginator = createPaginator({
+      pageSize: PAGE_SIZE_LIST,
+      totalItems: filtered.length,
+      summary: `${filtered.length} usuario${filtered.length === 1 ? '' : 's'}`,
+      renderPage: (page) => {
+        listEl.innerHTML = '';
+        const start = (page - 1) * PAGE_SIZE_LIST;
+        filtered.slice(start, start + PAGE_SIZE_LIST).forEach((u) => listEl.appendChild(userRow(u)));
+      },
+    });
+    if (pagerEl && paginator.bar) {
+      pagerEl.appendChild(paginator.bar);
+    }
+    paginator.update();
   }
 
   function userRow(u: AdminUserRow): HTMLElement {

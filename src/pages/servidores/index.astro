@@ -37,11 +37,15 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
   import { cardLink, iconTileEl, cardTitle } from '@/lib/ui/card';
   import { chip } from '@/lib/ui/dom';
   import { createFilterBar } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
   import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
+
+  // Ítems por página del directorio (grilla 3 columnas × 4 filas).
 
   const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
   const filtersEl = document.getElementById('filters') as HTMLElement;
+  const pagerEl = document.getElementById('pager') as HTMLElement;
 
   // El servidor es la dirección realmlist (p. ej. logon.ultimowow.com); cada
   // servidor aloja uno o varios reinos (la capa siguiente en la jerarquía).
@@ -63,12 +67,27 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
       searchLabel: 'Buscar servidores por nombre',
       resultNoun: (n) => `${n} servidor${n === 1 ? '' : 'es'}`,
       onChange: (filtered, state) => {
+        if (pagerEl) pagerEl.textContent = '';
         clearListItems(list);
         if (filtered.length === 0) {
           settleAsyncList(list, 'notice', `Ningún servidor coincide con "${state.query.trim()}".`);
+          if (pagerEl) pagerEl.textContent = '';
           return;
         }
-        filtered.forEach((s) => gridEl.appendChild(card(s)));
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} servidor${filtered.length === 1 ? '' : 'es'}`,
+          renderPage: (page) => {
+            clearListItems(list);
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((s) => gridEl.appendChild(card(s)));
+          },
+        });
+        if (pagerEl && paginator.bar) {
+          pagerEl.appendChild(paginator.bar);
+        }
+        paginator.update();
         settleAsyncList(list, 'ready');
       },
     });

@@ -165,7 +165,12 @@ import { ui } from '@/lib/ui/design';
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y Bandas. -->
             <PanelWindow title="Reglas" icon="pergamino" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+              <div slot="head">
+                <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+                <div class="mt-4" id="viewer-rules-filtro"></div>
+              </div>
               <div id="viewer-rules" class="space-y-2 [&>li]:flex [&>li]:items-start [&>li]:text-sm [&>li]:text-gray-300 [&>li]:bg-brand-800/30 [&>li]:border [&>li]:border-brand-600/15 [&>li]:rounded-md [&>li]:px-3 [&>li]:py-2.5 [&>li]:transition-colors [&>li:hover]:border-brand-500/30"></div>
+              <div id="viewer-rules-pager" class="mt-3"></div>
               <div id="reglas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 text-center`}>
                 <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
                   <Icon name="pergamino" size="xl" />
@@ -213,6 +218,8 @@ import { ui } from '@/lib/ui/design';
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
+  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
 
   function showNotFound(msg?: string): void {
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
@@ -228,6 +235,64 @@ import { ui } from '@/lib/ui/design';
     if (icon) chip.appendChild(iconEl(icon, { size: 'sm', cls: 'shrink-0' }));
     chip.appendChild(document.createTextNode(text));
     return chip;
+  }
+
+  // Panel Reglas: motor único de filtros (buscador título/contenido + chip
+  // "Con contenido") + paginador sobre TODAS las reglas publicadas.
+  function renderPortalRules(rules: ContentItem[]): void {
+    const box = document.getElementById('viewer-rules') as HTMLElement;
+    const pager = document.getElementById('viewer-rules-pager') as HTMLElement | null;
+    const facets: Array<Facet<ContentItem>> = [
+      {
+        kind: 'flag',
+        id: 'contenido',
+        label: 'Filtrar reglas con contenido',
+        getFlag: (rule) => !!rule.content?.trim(),
+        chipLabel: 'Con contenido',
+        icon: 'nota',
+      },
+    ];
+
+    createFilterBar<ContentItem>({
+      mount: document.getElementById('viewer-rules-filtro') as HTMLElement,
+      items: rules,
+      getSearchText: (rule) => `${rule.title ?? ''} ${rule.content ?? ''}`,
+      searchPlaceholder: 'Buscar regla…',
+      searchLabel: 'Buscar reglas por título o contenido',
+      facets,
+      resultNoun: (n) => `${n} regla${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          box.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ninguna regla coincide con "${state.query.trim()}".`
+            : 'No hay reglas que coincidan con los filtros.';
+          box.appendChild(el('li', `${ui.text.bodyMuted} italic`, msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_LIST,
+          totalItems: filtered.length,
+          summary: `${filtered.length} regla${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            box.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_LIST;
+            filtered.slice(start, start + PAGE_SIZE_LIST).forEach((rule) => {
+              const li = el('li', 'flex items-start text-sm text-gray-300');
+              li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
+              const inner = el('div', '');
+              inner.appendChild(el('span', 'font-bold text-brand-200', rule.title || 'Regla'));
+              if (rule.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', rule.content));
+              li.appendChild(inner);
+              box.appendChild(li);
+            });
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
   }
 
   const slug = currentSlug();
@@ -505,7 +570,7 @@ import { ui } from '@/lib/ui/design';
           applyFilters();
         }
         renderParsedSections(
-          { guild: { members }, bands: [], rules, ranks } as never,
+          { guild: { members }, bands: [], rules: [], ranks } as never,
           {
             bands: document.getElementById('viewer-bands') as HTMLElement,
             rules: document.getElementById('viewer-rules') as HTMLElement,
@@ -513,9 +578,12 @@ import { ui } from '@/lib/ui/design';
           },
         );
 
-        // Panel Reglas: placeholder si no hay reglas publicadas.
+        // Panel Reglas: buscador + chip "con contenido" + paginador (sin el
+        // tope silencioso de 20 que aplicaba renderParsedSections).
         if (rules.length === 0) {
           document.getElementById('reglas-empty')?.classList.remove('hidden');
+        } else {
+          renderPortalRules(rules);
         }
 
         // Panel Bandas: cards compactas enlazando a la vista de cada banda, con

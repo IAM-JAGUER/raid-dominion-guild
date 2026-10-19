@@ -20,7 +20,10 @@ import {
   setBandIntegration,
   setGuildRules,
   resolveRules,
+  type GuildBandProposal,
 } from '@/lib/api';
+import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
 import type { GuildRow } from '@/types/database';
 import type { ContentItem } from '@/types/parser';
 
@@ -82,6 +85,8 @@ async function loadGuildStats(g: GuildRow, opts: GuildCardOptions): Promise<void
 export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise<void> {
   const sec = body.closest<HTMLElement>('[data-prop-sec]');
   const countEl = sec?.querySelector<HTMLElement>('[data-prop-count]') ?? null;
+  const filterMount = sec?.querySelector<HTMLElement>('[data-prop-filters]') ?? null;
+  const pagerMount = sec?.querySelector<HTMLElement>('[data-prop-pager]') ?? null;
 
   const [res, rulesRes] = await Promise.all([
     getGuildBandProposals(g.id),
@@ -93,7 +98,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     return;
   }
   // Las bandas rechazadas salen de la lista (solo pendientes y aprobadas).
-  const items = (res.items ?? []).filter((bp) => bp.integration_status !== 'rejected');
+  let items = (res.items ?? []).filter((bp) => bp.integration_status !== 'rejected');
   // Selección vigente del GM por banda (claves de regla activas). Ninguna
   // regla nace activa: la autoridad ES la selección explícita del visor —
   // el GM activa/desactiva las que quiere PUBLICAR de la banda integrada
@@ -112,11 +117,15 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
 
   if (items.length === 0) {
     body.innerHTML = '<p class="text-sm text-gray-400 italic">Aún no hay bandas propuestas por tus miembros.</p>';
+    if (filterMount) filterMount.innerHTML = '';
+    if (pagerMount) pagerMount.innerHTML = '';
     return;
   }
 
-  body.innerHTML = '';
-  items.forEach((bp, i) => {
+  // Una fila se reconstruye por página (los listeners y el estado de reglas
+  // viven en `bp`, `selection` y los closures de abajo): `i` es el índice
+  // GLOBAL dentro de la lista filtrada, de ahí la numeración.
+  function buildRow(bp: GuildBandProposal, i: number): HTMLElement {
     const row = el('div', 'bg-brand-900/40 border border-brand-600/15 rounded-md px-3 py-2.5');
     const head = el('div', 'flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-2');
     const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center', String(i + 1));
@@ -267,13 +276,13 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
         if (prevStatus === 'pending') pending -= 1;
         if (status === 'rejected') {
           // Las rechazadas SALEN de la lista; las aprobadas permanecen
-          // (re-decidibles en cualquier momento).
+          // (re-decidibles en cualquier momento). Se retira del dataset y se
+          // reconstruye la lista filtrada/paginada.
           toast.success('Banda rechazada', `"${bp.name}" fue rechazada y retirada de la lista.`);
-          row.remove();
+          const idx = items.indexOf(bp);
+          if (idx >= 0) items.splice(idx, 1);
           renderCount();
-          if (body.querySelectorAll('div[data-prop-row]').length === 0) {
-            body.innerHTML = '<p class="text-sm text-gray-400 italic">Aún no hay bandas propuestas por tus miembros.</p>';
-          }
+          renderProposals();
         } else {
           toast.success('Banda aprobada', `"${bp.name}" fue aprobada e integrada al portal.`);
           refreshState();
@@ -292,8 +301,86 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     reject.addEventListener('click', () => void decide('rejected'));
     refreshState();
     row.setAttribute('data-prop-row', '');
-    body.appendChild(row);
-  });
+    return row;
+  }
+
+  // Lista filtrada + paginada: buscador (banda/proponente/reglas) + chip de
+  // estado + chip "con reglas". Al rechazar se retira del dataset y se
+  // reconstruye (renderProposals) para recalcular conteos y páginas.
+  function renderProposals(): void {
+    if (items.length === 0) {
+      body.innerHTML = '<p class="text-sm text-gray-400 italic">Aún no hay bandas propuestas por tus miembros.</p>';
+      if (filterMount) filterMount.innerHTML = '';
+      if (pagerMount) pagerMount.innerHTML = '';
+      return;
+    }
+    if (!filterMount) {
+      body.innerHTML = '';
+      items.forEach((bp, i) => body.appendChild(buildRow(bp, i)));
+      return;
+    }
+
+    filterMount.innerHTML = '';
+    if (pagerMount) pagerMount.innerHTML = '';
+    const facets: Array<Facet<GuildBandProposal>> = [
+      {
+        id: 'estado',
+        label: 'Filtrar propuestas por estado',
+        getValues: (bp) => [bp.integration_status],
+        labelOf: (v) => (v === 'approved' ? 'Aprobada' : 'Pendiente'),
+        order: () => ['pending', 'approved'],
+        minValues: 1,
+      },
+      {
+        kind: 'flag',
+        id: 'conreglas',
+        label: 'Filtrar propuestas con reglas',
+        getFlag: (bp) => Array.isArray(bp.rules) && bp.rules.length > 0,
+        chipLabel: 'Con reglas',
+        icon: 'nota',
+      },
+    ];
+
+    createFilterBar<GuildBandProposal>({
+      mount: filterMount,
+      items,
+      getSearchText: (bp) => [
+        bp.name,
+        bp.proposer?.character_name,
+        bp.proposer?.display_name,
+        ...(Array.isArray(bp.rules) ? bp.rules.map((r) => `${r.title ?? ''} ${r.content ?? ''}`) : []),
+      ].filter(Boolean).join(' '),
+      searchPlaceholder: 'Buscar propuesta, proponente o regla…',
+      searchLabel: 'Buscar propuestas por banda, proponente o regla',
+      facets,
+      resultNoun: (n) => `${n} propuesta${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pagerMount) pagerMount.innerHTML = '';
+        if (filtered.length === 0) {
+          body.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ninguna propuesta coincide con "${state.query.trim()}".`
+            : 'No hay propuestas que coincidan con los filtros.';
+          body.appendChild(el('p', 'text-sm text-gray-400 italic', msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_LIST,
+          totalItems: filtered.length,
+          summary: `${filtered.length} propuesta${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            body.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_LIST;
+            filtered.slice(start, start + PAGE_SIZE_LIST).forEach((bp, idx) => body.appendChild(buildRow(bp, start + idx)));
+          },
+        });
+        if (pagerMount && paginator.bar) pagerMount.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
+  }
+
+  renderProposals();
 }
 
 export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElement {
@@ -499,9 +586,15 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   propSec.appendChild(propHead);
   const propShell = card('p-4');
   propShell.appendChild(cardTop());
+  // Buscador + chips + paginador del listado de propuestas (motor único de
+  // filtros y paginador compartido).
+  const propFilters = el('div', 'mb-3');
+  propFilters.setAttribute('data-prop-filters', '');
   const propBody = el('div', 'space-y-2');
   propBody.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando propuestas…</p>';
-  propShell.appendChild(propBody);
+  const propPager = el('div', 'mt-3');
+  propPager.setAttribute('data-prop-pager', '');
+  propShell.append(propFilters, propBody, propPager);
   propSec.appendChild(propShell);
   cardEl.appendChild(propSec);
   void loadBandProposals(g, propBody);

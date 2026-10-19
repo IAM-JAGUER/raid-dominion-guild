@@ -66,10 +66,17 @@ import { ui } from '@/lib/ui/design';
       <div id="profile-panels" class={ui.zone.body}>
         <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
           <h3 id="main-title" class={ui.subTitle}></h3>
+          <!-- Filtros/paginador cuando la cuenta no tiene principal declarado
+               (todos los personajes van en la tarjeta principal). -->
+          <div id="personajes-main-filtro" class="mt-4"></div>
           <div id="main-card"></div>
+          <div id="personajes-main-pager" class="mt-3"></div>
           <div id="characters-section" data-rd-reveal class="hidden mt-6">
             <h3 class={ui.subTitle}>Otros personajes de la cuenta</h3>
+            <!-- Motor único de filtros (src/lib/ui/filterBar.ts) + paginador. -->
+            <div id="personajes-filtro" class="mb-4"></div>
             <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            <div id="personajes-pager" class="mt-3"></div>
           </div>
         </PanelWindow>
 
@@ -83,7 +90,12 @@ import { ui } from '@/lib/ui/design';
         </PanelWindow>
 
         <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+          <div slot="head">
+            <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+            <div class="mt-4" id="hermandades-filtro"></div>
+          </div>
           <div id="hermandades-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          <div id="hermandades-pager" class="mt-3"></div>
         </PanelWindow>
       </div>
 
@@ -103,8 +115,10 @@ import { ui } from '@/lib/ui/design';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { safePlayerName } from '@/lib/ui/playerNames';
   import type { CharacterRow } from '@/lib/api';
-  import type { ProfileRow } from '@/types/database';
+  import type { GuildRow, ProfileRow } from '@/types/database';
   import { ui } from '@/lib/ui/design';
+  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
   import { card, cardTop, iconTileEl, serverRealmLinks } from '@/lib/ui/card';
   import { el, chip, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
   import { classColor } from '@/lib/ui/classColors';
@@ -230,11 +244,18 @@ import { ui } from '@/lib/ui/design';
       void renderAccountCharacters(p.id, main.id, profiles);
     } else if (chars.length > 0) {
       // Sin principal fijado ("Ninguno"): todos los personajes públicos se
-      // muestran en igualdad, sin destacar a ninguno como "el principal".
+      // muestran en igualdad, sin destacar a ninguno como "el principal", con
+      // el mismo buscador/facetas/paginador que "Otros personajes".
       const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3');
-      chars.forEach((c) => grid.appendChild(renderCharacterCard(c, { profiles })));
       mainCard.appendChild(grid);
       mainTitle.textContent = 'Personajes';
+      mountCharacterList(
+        chars,
+        grid,
+        document.getElementById('personajes-main-filtro') as HTMLElement,
+        document.getElementById('personajes-main-pager') as HTMLElement | null,
+        profiles,
+      );
     } else {
       // Perfil público sin personajes publicados: ficha vacía informativa.
       const emptyCard = card('p-6 sm:p-8 text-center');
@@ -298,10 +319,70 @@ import { ui } from '@/lib/ui/design';
   // Panel "Hermandades": hermandades públicas donde el jugador es maestro.
   async function renderPlayerGuilds(ownerId: string, available: string[]): Promise<void> {
     const res = await getPublicGuildsForPlayer(ownerId);
+    const guilds = res.ok ? (res.guilds ?? []) : [];
+    if (guilds.length === 0) return;
+
     const list = document.getElementById('hermandades-list') as HTMLElement;
-    // Card estándar del directorio /hermandades (renderGuildCard).
-    (res.ok ? (res.guilds ?? []) : []).forEach((g) => list.appendChild(renderGuildCard(g)));
-    if (list.children.length > 0) available.push('hermandades');
+    const pager = document.getElementById('hermandades-pager') as HTMLElement | null;
+    const facets: Array<Facet<GuildRow>> = [
+      {
+        id: 'faccion',
+        label: 'Filtrar por facción',
+        // Solo facciones reales: el addon usa '?' como marcador de desconocido.
+        getValues: (g) => (g.faction === 'Horde' || g.faction === 'Alliance' ? [g.faction] : []),
+        labelOf: (v) => (v === 'Horde' ? 'Horda' : 'Alianza'),
+        order: () => ['Horde', 'Alliance'],
+      },
+      {
+        id: 'reino',
+        label: 'Filtrar por reino',
+        getValues: (g) => [(g.realm ?? '').trim()].filter(Boolean),
+      },
+      {
+        kind: 'flag',
+        id: 'verified',
+        label: 'Filtrar hermandades verificadas',
+        getFlag: (g) => g.claim_status === 'verified',
+        chipLabel: 'Verificada',
+        icon: 'medalla',
+      },
+    ];
+
+    // Card estándar del directorio /hermandades (renderGuildCard), buscador +
+    // facetas (facción/reino/verificada) + paginador (PAGE_SIZE_GRID).
+    createFilterBar<GuildRow>({
+      mount: document.getElementById('hermandades-filtro') as HTMLElement,
+      items: guilds,
+      getSearchText: (g) => `${g.name} ${g.realm ?? ''} ${g.server ?? ''} ${g.description ?? ''}`,
+      searchPlaceholder: 'Buscar por nombre, reino o descripción…',
+      searchLabel: 'Buscar hermandades por nombre, reino o descripción',
+      facets,
+      resultNoun: (n) => `${n} hermandad${n === 1 ? '' : 'es'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          list.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+            : 'No hay hermandades que coincidan con los filtros.';
+          list.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} hermandad${filtered.length === 1 ? '' : 'es'}`,
+          renderPage: (page) => {
+            list.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((g) => list.appendChild(renderGuildCard(g)));
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
+    available.push('hermandades');
   }
 
   function bandRow(b: PublicBandSummary, owner?: OwnerRef): HTMLElement {
@@ -389,14 +470,91 @@ import { ui } from '@/lib/ui/design';
     const others = chars.filter((c) => c.id !== currentCharId);
     if (others.length === 0) return;
 
-    // Cards compactas de una sola línea (renderCharacterCard ya enlaza).
-    const grid = document.getElementById('characters-grid') as HTMLElement;
+    // Slugs resueltos ANTES de filtrar (mutación única sobre el array fuente).
     others.forEach((c) => {
       if (slugMap.has(c.id)) c.slug = slugMap.get(c.id)!;
-      grid.appendChild(renderCharacterCard(c, { profiles }));
     });
-    if (grid.children.length > 0) {
-      document.getElementById('characters-section')?.classList.remove('hidden');
-    }
+
+    const grid = document.getElementById('characters-grid') as HTMLElement;
+    const pager = document.getElementById('personajes-pager') as HTMLElement | null;
+    mountCharacterList(others, grid, document.getElementById('personajes-filtro') as HTMLElement, pager, profiles);
+
+    document.getElementById('characters-section')?.classList.remove('hidden');
+  }
+
+  // Buscador + clase/reino/validado/maestro + paginador compartido por las dos
+  // variantes del panel Personajes (con principal → "otros"; sin principal →
+  // todos). La carta principal (cuando existe) no participa del filtro.
+  function mountCharacterList(
+    items: CharacterRow[],
+    grid: HTMLElement,
+    filterEl: HTMLElement,
+    pager: HTMLElement | null,
+    profiles: Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>,
+  ): void {
+    filterEl.innerHTML = '';
+    if (pager) pager.textContent = '';
+    const facets: Array<Facet<CharacterRow>> = [
+      {
+        id: 'clase',
+        label: 'Filtrar personajes por clase',
+        getValues: (c) => (c.class ? [c.class] : []),
+        labelOf: (v) => v,
+      },
+      {
+        id: 'reino',
+        label: 'Filtrar personajes por reino',
+        getValues: (c) => [(c.realm ?? '').trim()].filter(Boolean),
+      },
+      {
+        kind: 'flag',
+        id: 'validado',
+        label: 'Filtrar personajes validados',
+        getFlag: (c) => !!c.member_verified,
+        chipLabel: 'Validado',
+        icon: 'validado',
+      },
+      {
+        kind: 'flag',
+        id: 'gm',
+        label: 'Filtrar personajes maestros de hermandad',
+        getFlag: (c) => !!c.sv_is_gm,
+        chipLabel: 'Maestro',
+        icon: 'estrella',
+      },
+    ];
+
+    createFilterBar<CharacterRow>({
+      mount: filterEl,
+      items,
+      getSearchText: (c) => `${c.name} ${c.realm ?? ''} ${c.class ?? ''} ${c.sv_guild_name ?? ''}`,
+      searchPlaceholder: 'Buscar personaje…',
+      searchLabel: 'Buscar personajes por nombre, clase o reino',
+      facets,
+      resultNoun: (n) => `${n} personaje${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          grid.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ningún personaje coincide con "${state.query.trim()}".`
+            : 'No hay personajes que coincidan con los filtros.';
+          grid.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} personaje${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            grid.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((c) => grid.appendChild(renderCharacterCard(c, { profiles })));
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
   }
 </script>

@@ -2,7 +2,8 @@
  * Panel "Bandas" reutilizable (modelo del directorio /bandas): buscador +
  * filtro por día (y tipo, opcional) en el encabezado con el MOTOR ÚNICO
  * `src/lib/ui/filterBar.ts`; contenido agrupado por día (lunes → domingo, por
- * hora) en grilla responsive de hasta 3 columnas de día.
+ * hora) en grilla responsive de hasta 3 columnas de día, PAGINADO en bloques
+ * de hasta 12 bandas con el paginador compartido (`src/lib/ui/paginator.ts`).
  * ÚNICA fuente del modelo; /bandas y las pestañas Bandas de perfil, personaje,
  * reino y portal de hermandad pasan por aquí. Nada de esto toca el dashboard.
  */
@@ -12,6 +13,7 @@ import { el } from '@/lib/ui/dom';
 import { createFilterBar, type Facet, type FilterBarState } from '@/lib/ui/filterBar';
 import { iconEl } from '@/lib/ui/icons';
 import { settleAsyncList, type AsyncList } from '@/lib/ui/list';
+import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
 
 // Tipo de banda para el filtro: personal (sin hermandad) o de hermandad.
 export type BandType = 'personal' | 'guild';
@@ -84,7 +86,10 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
 
   // Contenido del cuerpo: los días (lunes → domingo, y "Sin día fijado") en
   // grilla responsive de hasta 3 días por fila (1 en móvil, 2 desde sm,
-  // 3 desde lg). Con un solo día visible ocupa toda la fila (full-width).
+  // 3 desde lg) y PAGINADO en bloques de hasta PAGE_SIZE_GRID bandas. Una página
+  // puede contener el final de un día y el inicio del siguiente; un día que no
+  // cabe entero se reparte en varias páginas (la rebanada que prosigue un día
+  // se marca `continuation` y su cabecera lo indica).
   function renderContent(filtered: T[], state: FilterBarState): void {
     content.innerHTML = '';
     if (filtered.length === 0) {
@@ -106,23 +111,50 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     const groupsShown = selectedDay === null ? groups : groups.filter((g) => String(g.day) === selectedDay);
     const undatedShown = selectedDay === null ? undated : [];
 
+    // Secciones visibles en orden (días 0-6 y "Sin día fijado" = -1 al final).
+    const sections = groupsShown.map((g) => ({ key: String(g.day), header: g.day, items: g.bands }));
+    if (undatedShown.length > 0) sections.push({ key: '-1', header: -1, items: undatedShown });
+    // Empaquetado por secciones (paginator.ts): una página puede contener el
+    // final de un día y el inicio del siguiente; un día que no cabe entero se
+    // reparte y repite su cabecera con "(continuación)".
+    const pages = packSections(sections, PAGE_SIZE_GRID);
+
     const grid = el('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start');
-    const totalShown = groupsShown.length + (undatedShown.length > 0 ? 1 : 0);
-    groupsShown.forEach((g) => grid.appendChild(daySection(g.day, g.bands, totalShown === 1)));
-    if (undatedShown.length > 0) grid.appendChild(daySection(-1, undatedShown, totalShown === 1));
+
+    // Barra hermana del grid: el módulo solo la entrega con más de una página
+    // (con una sola página no se monta) y se descarta entera al vaciar el
+    // contenido en los estados de aviso (empty/notice).
+    const paginator = createPaginator({
+      pageSize: PAGE_SIZE_GRID,
+      totalItems: filtered.length,
+      pageCount: pages.length,
+      summary: `${filtered.length} banda${filtered.length === 1 ? '' : 's'}`,
+      renderPage: (pageNo) => {
+        grid.innerHTML = '';
+        const slices = pages[pageNo - 1] ?? [];
+        // fullWidth solo cuando la página muestra UNA sección (un día).
+        const fullWidth = slices.length === 1;
+        slices.forEach((s) => grid.appendChild(daySection(s.header, s.items, s.total, s.continuation, fullWidth)));
+      },
+    });
+
     content.appendChild(grid);
+    if (paginator.bar) content.appendChild(paginator.bar);
+    paginator.update();
 
     if (list) settleAsyncList(list, 'ready');
   }
 
-  function daySection(day: number, bands: T[], fullWidth: boolean): HTMLElement {
-    // fullWidth → el día ocupa las 3 columnas (vista de un solo día).
+  function daySection(day: number, bands: T[], total: number, continuation: boolean, fullWidth: boolean): HTMLElement {
+    // fullWidth → la sección ocupa las 3 columnas (página de un solo día).
     const section = el('section', fullWidth ? 'sm:col-span-2 lg:col-span-3' : '');
     const head = el('div', 'flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-3');
     const title = day === -1 ? 'Sin día fijado' : WEEKDAY_LABELS[day];
     head.appendChild(iconEl('calendario', { size: 'xs', cls: 'self-center' }));
     head.appendChild(el('h3', `${ui.subTitle} !mb-0`, title));
-    head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', `· ${bands.length} banda${bands.length === 1 ? '' : 's'}`));
+    // El conteo conserva el TOTAL del día (no el de la rebanada); la rebanada
+    // que prosigue un día partido por la paginación lo advierte.
+    head.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', `· ${total} banda${total === 1 ? '' : 's'}${continuation ? ' (continuación)' : ''}`));
     section.appendChild(head);
 
     // En columna de día: cards apiladas; en full-width: grilla de cards.

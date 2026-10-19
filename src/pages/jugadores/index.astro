@@ -43,11 +43,15 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
   import { chip, el } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
   import { createFilterBar } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
   import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
+
+  // Ítems por página del directorio (grilla 3 columnas × 4 filas).
 
   const list = resolveAsyncList();
   const gridEl = document.getElementById('grid') as HTMLElement;
   const filtersEl = document.getElementById('filters') as HTMLElement;
+  const pagerEl = document.getElementById('pager') as HTMLElement;
 
   // Presentación resuelta UNA vez por jugador (card + facetas comparten la
   // misma derivación de nombre visible, maestro público y perfil sin nombre).
@@ -158,14 +162,30 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
       ],
       resultNoun: (n) => `${n} jugador${n === 1 ? '' : 'es'}`,
       onChange: (filtered, state) => {
-        clearListItems(list);
+        // La barra del paginador se descarta entera en los estados de aviso.
+        pagerEl.textContent = '';
         if (filtered.length === 0) {
+          clearListItems(list);
           settleAsyncList(list, 'notice', state.query.trim()
             ? `Ningún jugador coincide con "${state.query.trim()}".`
             : 'Sin resultados con los filtros aplicados.');
           return;
         }
-        filtered.forEach((it) => gridEl.appendChild(card(it)));
+        // Paginación (paginator.ts): 12 por página; la barra se monta en #pager
+        // solo cuando hay más de una página. El render de cada página limpia los
+        // ítems previos (el bloque de carga se conserva hasta el ready).
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} jugador${filtered.length === 1 ? '' : 'es'}`,
+          renderPage: (page) => {
+            clearListItems(list);
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((it) => gridEl.appendChild(card(it)));
+          },
+        });
+        if (paginator.bar) pagerEl.appendChild(paginator.bar);
+        paginator.update();
         settleAsyncList(list, 'ready');
       },
     });

@@ -3,9 +3,9 @@
 // Auto-gate: ["servidor", server, "reino", realm] — 4 segmentos.
 // Muestra guilds y personajes públicos de ese reino en ese servidor, con chip
 // del servidor (realmlist) que enlaza a /servidor/:server.
-import { ui } from '@/lib/ui/design';
-import PanelWindow from '@/components/ui/PanelWindow.astro';
-import Icon from '@/components/ui/Icon.astro';
+  import { ui } from '@/lib/ui/design';
+  import PanelWindow from '@/components/ui/PanelWindow.astro';
+  import Icon from '@/components/ui/Icon.astro';
 ---
 <section id="view-reino" class="hidden">
   <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
@@ -50,13 +50,23 @@ import Icon from '@/components/ui/Icon.astro';
 
   <div id="rv-panels" class={ui.zone.body}>
     <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+      <div slot="head">
+        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+        <div class="mt-4" id="rv-guilds-filtro"></div>
+      </div>
       <p id="rv-guilds-empty" class="hidden text-sm text-gray-400 italic">Sin hermandades públicas en este reino.</p>
       <div id="rv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div id="rv-guilds-pager" class="mt-3"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
+      <div slot="head">
+        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+        <div class="mt-4" id="rv-chars-filtro"></div>
+      </div>
       <p id="rv-chars-empty" class="hidden text-sm text-gray-400 italic">Sin personajes públicos en este reino.</p>
       <div id="rv-chars" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div id="rv-chars-pager" class="mt-3"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
@@ -82,12 +92,15 @@ import Icon from '@/components/ui/Icon.astro';
   } from '@/lib/api';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
   import { supabase } from '@/lib/supabase';
-  import { setBreadcrumb } from '@/lib/ui/dom';
+  import { el, setBreadcrumb } from '@/lib/ui/dom';
   import { resolveBandOwners, mergeDirectoryBands } from '@/lib/bandListing';
   import { REINO_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { renderGuildCard, renderCharacterCard, renderBandCard } from '@/lib/ui/cards';
   import { serverRealmLinks } from '@/lib/ui/card';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
+  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+  import { ui } from '@/lib/ui/design';
 
   interface ProfileLight { id: string; slug: string | null; display_name: string | null; character_name: string | null }
 
@@ -148,29 +161,138 @@ import Icon from '@/components/ui/Icon.astro';
 
     // Hermandades (modelo del directorio).
     const guildsEl = document.getElementById('rv-guilds') as HTMLElement;
+    const guildsPager = document.getElementById('rv-guilds-pager') as HTMLElement | null;
     if (realmGuilds.length === 0) {
       document.getElementById('rv-guilds-empty')?.classList.remove('hidden');
+      if (guildsPager) guildsPager.textContent = '';
+    } else {
+      const facets: Array<Facet<(typeof realmGuilds)[number]>> = [
+        {
+          id: 'faccion',
+          label: 'Filtrar hermandades por facción',
+          getValues: (g) => (g.faction === 'Horde' || g.faction === 'Alliance' ? [g.faction] : []),
+          labelOf: (v) => (v === 'Horde' ? 'Horda' : 'Alianza'),
+          order: () => ['Horde', 'Alliance'],
+        },
+        {
+          kind: 'flag',
+          id: 'verificada',
+          label: 'Filtrar hermandades verificadas',
+          getFlag: (g) => g.claim_status === 'verified',
+          chipLabel: 'Verificada',
+          icon: 'medalla',
+        },
+      ];
+      createFilterBar({
+        mount: document.getElementById('rv-guilds-filtro') as HTMLElement,
+        items: realmGuilds,
+        getSearchText: (g) => `${g.name} ${g.description ?? ''} ${g.faction ?? ''}`,
+        searchPlaceholder: 'Buscar hermandad…',
+        searchLabel: 'Buscar hermandades por nombre o descripción',
+        facets,
+        resultNoun: (n) => `${n} hermandad${n === 1 ? '' : 'es'}`,
+        onChange: (filtered, state) => {
+          if (guildsPager) guildsPager.textContent = '';
+          if (filtered.length === 0) {
+            guildsEl.innerHTML = '';
+            const msg = state.query.trim()
+              ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+              : 'No hay hermandades que coincidan con los filtros.';
+            guildsEl.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+            return;
+          }
+          const gPaginator = createPaginator({
+            pageSize: PAGE_SIZE_GRID,
+            totalItems: filtered.length,
+            summary: `${filtered.length} hermandad${filtered.length === 1 ? '' : 'es'}`,
+            renderPage: (page) => {
+              guildsEl.innerHTML = '';
+              const start = (page - 1) * PAGE_SIZE_GRID;
+              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((g) => guildsEl.appendChild(renderGuildCard(g)));
+            },
+          });
+          if (guildsPager && gPaginator.bar) guildsPager.appendChild(gPaginator.bar);
+          gPaginator.update();
+        },
+      });
     }
-    realmGuilds.forEach((g) => guildsEl.appendChild(renderGuildCard(g)));
 
     // Personajes (modelo del directorio; resolución de dueños en batch).
     const charsEl = document.getElementById('rv-chars') as HTMLElement;
+    const charsPager = document.getElementById('rv-chars-pager') as HTMLElement | null;
     if (realmChars.length === 0) {
       document.getElementById('rv-chars-empty')?.classList.remove('hidden');
+      if (charsPager) charsPager.textContent = '';
+    } else {
+      const charIds = realmChars.map((c) => c.user_id);
+      const [profRes, namesRes] = await Promise.all([
+        supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name').in('id', charIds),
+        getPublicAccountNames(charIds),
+      ]);
+      const profiles = new Map<string, ProfileLight>();
+      if (!profRes.error) {
+        (profRes.data as ProfileLight[]).forEach((p) => profiles.set(p.id, p));
+      }
+      const accountNames = new Map<string, PublicAccountNames>();
+      namesRes.forEach((v, k) => accountNames.set(k, v));
+
+      const facets: Array<Facet<CharacterRow>> = [
+        {
+          id: 'clase',
+          label: 'Filtrar personajes por clase',
+          getValues: (c) => (c.class ? [c.class] : []),
+        },
+        {
+          kind: 'flag',
+          id: 'validado',
+          label: 'Filtrar personajes validados',
+          getFlag: (c) => !!c.member_verified,
+          chipLabel: 'Validado',
+          icon: 'validado',
+        },
+        {
+          kind: 'flag',
+          id: 'gm',
+          label: 'Filtrar personajes maestros de hermandad',
+          getFlag: (c) => !!c.sv_is_gm,
+          chipLabel: 'Maestro',
+          icon: 'estrella',
+        },
+      ];
+      // Vista acotada a este reino: sin chip de reino (hideRealm), conserva servidor.
+      createFilterBar<CharacterRow>({
+        mount: document.getElementById('rv-chars-filtro') as HTMLElement,
+        items: realmChars,
+        getSearchText: (c) => `${c.name} ${c.class ?? ''} ${c.sv_guild_name ?? ''}`,
+        searchPlaceholder: 'Buscar personaje…',
+        searchLabel: 'Buscar personajes por nombre, clase o hermandad',
+        facets,
+        resultNoun: (n) => `${n} personaje${n === 1 ? '' : 's'}`,
+        onChange: (filtered, state) => {
+          if (charsPager) charsPager.textContent = '';
+          if (filtered.length === 0) {
+            charsEl.innerHTML = '';
+            const msg = state.query.trim()
+              ? `Ningún personaje coincide con "${state.query.trim()}".`
+              : 'No hay personajes que coincidan con los filtros.';
+            charsEl.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+            return;
+          }
+          const cPaginator = createPaginator({
+            pageSize: PAGE_SIZE_GRID,
+            totalItems: filtered.length,
+            summary: `${filtered.length} personaje${filtered.length === 1 ? '' : 's'}`,
+            renderPage: (page) => {
+              charsEl.innerHTML = '';
+              const start = (page - 1) * PAGE_SIZE_GRID;
+              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((c: CharacterRow) => charsEl.appendChild(renderCharacterCard(c, { profiles, names: accountNames, hideRealm: true })));
+            },
+          });
+          if (charsPager && cPaginator.bar) charsPager.appendChild(cPaginator.bar);
+          cPaginator.update();
+        },
+      });
     }
-    const charIds = realmChars.map((c) => c.user_id);
-    const [profRes, namesRes] = await Promise.all([
-      supabase.from('raiddominion_profiles').select('id, slug, display_name, character_name').in('id', charIds),
-      getPublicAccountNames(charIds),
-    ]);
-    const profiles = new Map<string, ProfileLight>();
-    if (!profRes.error) {
-      (profRes.data as ProfileLight[]).forEach((p) => profiles.set(p.id, p));
-    }
-    const accountNames = new Map<string, PublicAccountNames>();
-    namesRes.forEach((v, k) => accountNames.set(k, v));
-    // Vista acotada a este reino: sin chip de reino (hideRealm), conserva servidor.
-    realmChars.slice(0, 200).forEach((c: CharacterRow) => charsEl.appendChild(renderCharacterCard(c, { profiles, names: accountNames, hideRealm: true })));
 
     // Bandas públicas del reino (capa solo por reino, como las guilds) con
     // fusión de bandas integradas (mismo criterio que el directorio /bandas).

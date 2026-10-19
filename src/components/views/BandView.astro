@@ -42,43 +42,10 @@ import Icon from '@/components/ui/Icon.astro';
          roster del core. -->
     <PanelWindow title="Core" icon="jugadores">
       <div slot="head">
-        <details id="bv-filtro-roles" class={`${ui.disclosure} mt-4 hidden`}>
-          <summary class={ui.disclosureSummary}>
-            <span class="inline-flex items-center gap-2">
-              <Icon name="escudo" size="xs" />
-              Roles
-            </span>
-            <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
-          </summary>
-          <div class={ui.disclosureBody}>
-            <div id="bv-stats-roles" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
-          </div>
-        </details>
-        <details id="bv-filtro-clases" class={`${ui.disclosure} mt-4 hidden`}>
-          <summary class={ui.disclosureSummary}>
-            <span class="inline-flex items-center gap-2">
-              <Icon name="personaje" size="xs" />
-              Clases
-            </span>
-            <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
-          </summary>
-          <div class={ui.disclosureBody}>
-            <div id="bv-stats-classes" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
-          </div>
-        </details>
-        <div id="bv-search-wrap" class="hidden mt-4">
-          <div class="relative">
-            <Icon name="buscar" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              id="bv-search"
-              type="search"
-              autocomplete="off"
-              class={`${ui.form.input} ${ui.focusRing} pl-9 pr-3`}
-              placeholder="Buscar jugador por nombre…"
-              aria-label="Buscar jugador por nombre"
-            />
-          </div>
-        </div>
+        <!-- Motor único de filtros (src/lib/ui/filterBar.ts): buscador por
+             nombre + chips de rol y clase. Sin paginador: el core agrupa por
+             rol en secciones colapsables. -->
+        <div class="mt-4" id="bv-core-filtro"></div>
       </div>
       <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center ${ui.surf.row} p-4`}>
         Ningún jugador coincide con estos filtros.
@@ -89,7 +56,12 @@ import Icon from '@/components/ui/Icon.astro';
 
   <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
     <PanelWindow title="Reglas" icon="pergamino">
+      <div slot="head">
+        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+        <div class="mt-4" id="bv-rules-filtro"></div>
+      </div>
       <div id="bv-rules"></div>
+      <div id="bv-rules-pager" class="mt-3"></div>
     </PanelWindow>
   </div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
@@ -107,6 +79,8 @@ import Icon from '@/components/ui/Icon.astro';
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
+  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -191,143 +165,57 @@ import Icon from '@/components/ui/Icon.astro';
       }
       const mergedOpts = { sourceNames: merged.sourceNames, slugMap };
 
-      // Filtros del core (mismo patrón que el roster de hermandad): chips de
-      // rol + chips de clase + buscador por nombre. Todos filtran players y
-      // re-renderizan el core con renderBandCore, conservando los badges de
-      // integración de cada jugador (puede haber varios) y los enlaces a ficha
-      // pública.
-      const state: { cls?: string; role?: string; query: string } = { query: '' };
-      const rolesBox = document.getElementById('bv-stats-roles') as HTMLElement;
-      const rolesFilter = document.getElementById('bv-filtro-roles') as HTMLElement;
-      const classesBox = document.getElementById('bv-stats-classes') as HTMLElement;
-      const classesFilter = document.getElementById('bv-filtro-clases') as HTMLElement;
-      const searchWrap = document.getElementById('bv-search-wrap') as HTMLElement;
-      const searchInput = document.getElementById('bv-search') as HTMLInputElement;
+      // Filtros del core con el MOTOR ÚNICO (src/lib/ui/filterBar.ts):
+      // buscador por nombre + chips de rol y clase (con iconos de clase). Sin
+      // paginador: renderBandCore agrupa por rol en secciones colapsables.
       const emptyFilter = document.getElementById('bv-empty-filter') as HTMLElement;
-
-      // Icono temático por grupo de rol del core.
-      const ROLE_ICONS: Record<'tank' | 'healer' | 'melee' | 'rango', IconName> = {
-        tank: 'escudo',
-        healer: 'sanacion',
-        melee: 'espadas',
-        rango: 'arma',
-      };
-      const roleChip = (o: { label: string; count: number; group: 'tank' | 'healer' | 'melee' | 'rango'; active: boolean }): HTMLButtonElement => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ' +
-          (o.active
-            ? 'text-brand-200 border-brand-500/60 bg-gradient-to-b from-brand-900/40 to-brand-950/40 ring-2 ring-brand-400/60'
-            : 'text-gray-200 bg-gradient-to-b from-brand-800/80 to-brand-900/80 border-brand-600/25 hover:border-brand-500/40 hover:from-gray-700/70');
-        btn.setAttribute('aria-pressed', String(o.active));
-        btn.setAttribute('data-role-key', o.group);
-        const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
-        nameRow.appendChild(iconEl(ROLE_ICONS[o.group], { size: 'xs', cls: 'shrink-0' }));
-        nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
-        btn.appendChild(nameRow);
-        btn.appendChild(el('span', `${ui.statValue} text-[11px]`, String(o.count)));
-        return btn;
-      };
-
-      const renderRoleChips = (): void => {
-        rolesBox.innerHTML = '';
-        const byRole = new Map<'tank' | 'healer' | 'melee' | 'rango', number>();
-        players.forEach((p) => {
-          const g = coreRoleGroup(p);
-          byRole.set(g, (byRole.get(g) ?? 0) + 1);
-        });
-        const chips = (Object.keys(CORE_ROLE_LABELS) as Array<'tank' | 'healer' | 'melee' | 'rango'>)
-          .filter((g) => (byRole.get(g) ?? 0) > 0)
-          .map((g) => roleChip({
-            label: CORE_ROLE_LABELS[g], count: byRole.get(g)!, group: g, active: state.role === g,
-          }));
-        chips.forEach((c) => rolesBox.appendChild(c));
-        rolesFilter.classList.toggle('hidden', chips.length === 0);
-      };
-
-      const classChip = (o: { label: string; count: number; cls?: string; active: boolean }): HTMLButtonElement => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const key = o.cls ? o.cls.toLowerCase() : '__none__';
-        btn.className = 'w-full min-w-0 rounded-md px-3 py-2 border text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ' +
-          (o.active
-            ? 'text-brand-200 border-brand-500/60 bg-gradient-to-b from-brand-900/40 to-brand-950/40 ring-2 ring-brand-400/60'
-            : 'text-gray-200 bg-gradient-to-b from-brand-800/80 to-brand-900/80 border-brand-600/25 hover:border-brand-500/40 hover:from-gray-700/70');
-        btn.setAttribute('aria-pressed', String(o.active));
-        btn.setAttribute('data-class-key', key);
-        const nameRow = el('div', 'flex items-center gap-1.5 mb-1 min-w-0');
-        nameRow.appendChild(classIconEl(o.cls, undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'));
-        nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
-        btn.appendChild(nameRow);
-        btn.appendChild(el('span', `${ui.statValue} text-[11px]`, String(o.count)));
-        return btn;
-      };
-
-      const renderChips = (): void => {
-        classesBox.innerHTML = '';
-        const byClass = new Map<string, { label: string; cls?: string; count: number }>();
-        players.forEach((p) => {
-          const cls = (p.class || '').trim();
-          const key = cls ? cls.toLowerCase() : '__none__';
-          const cur = byClass.get(key) ?? { label: cls || 'Sin dato', cls: cls || undefined, count: 0 };
-          cur.count += 1;
-          byClass.set(key, cur);
-        });
-        const chips = Array.from(byClass.values())
-          .sort((a, b) => b.count - a.count)
-          .map((c) => classChip({
-            label: c.label, count: c.count, cls: c.cls,
-            active: state.cls === (c.cls ? c.cls.toLowerCase() : '__none__'),
-          }));
-        chips.forEach((c) => classesBox.appendChild(c));
-        classesFilter.classList.toggle('hidden', chips.length === 0);
-      };
-
-      const applyFilters = (): void => {
-        const q = state.query.trim().toLowerCase();
-        const filtered = players.filter((p) => {
-          if (state.role !== undefined && coreRoleGroup(p) !== state.role) return false;
-          if (state.cls !== undefined) {
+      const classLabels = new Map<string, string>();
+      players.forEach((p) => {
+        const cls = (p.class || '').trim();
+        const key = cls ? cls.toLowerCase() : '__none__';
+        if (!classLabels.has(key)) classLabels.set(key, cls || 'Sin dato');
+      });
+      const facets: Array<Facet<MergePlayer>> = [
+        {
+          id: 'rol',
+          label: 'Filtrar core por rol',
+          getValues: (p) => [coreRoleGroup(p)],
+          labelOf: (v) => CORE_ROLE_LABELS[v as keyof typeof CORE_ROLE_LABELS] ?? v,
+          order: () => ['tank', 'healer', 'melee', 'rango'],
+          minValues: 1,
+        },
+        {
+          id: 'clase',
+          label: 'Filtrar core por clase',
+          getValues: (p) => {
             const cls = (p.class || '').trim();
-            if (cls.toLowerCase() !== state.cls) return false;
+            return [cls ? cls.toLowerCase() : '__none__'];
+          },
+          labelOf: (v) => classLabels.get(v) ?? v,
+          iconOf: (v) => v === '__none__'
+            ? iconEl('personaje', { size: 'xs' })
+            : classIconEl(classLabels.get(v), undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'),
+          minValues: 1,
+        },
+      ];
+      createFilterBar<MergePlayer>({
+        mount: document.getElementById('bv-core-filtro') as HTMLElement,
+        items: players,
+        getSearchText: (p) => p.name ?? '',
+        searchPlaceholder: 'Buscar jugador por nombre…',
+        searchLabel: 'Buscar jugador por nombre',
+        facets,
+        resultNoun: (n) => `${n} jugador${n === 1 ? '' : 'es'}`,
+        onChange: (filtered) => {
+          coreBox.innerHTML = '';
+          if (filtered.length === 0) {
+            emptyFilter.classList.remove('hidden');
+            return;
           }
-          if (q && !(p.name || '').toLowerCase().includes(q)) return false;
-          return true;
-        });
-        coreBox.innerHTML = '';
-        if (filtered.length === 0) {
-          emptyFilter.classList.remove('hidden');
-        } else {
           emptyFilter.classList.add('hidden');
           coreBox.appendChild(renderBandCore(filtered, mergedOpts));
-        }
-      };
-
-      classesBox.addEventListener('click', (e) => {
-        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-class-key]');
-        if (!btn) return;
-        const k = btn.dataset.classKey ?? '';
-        state.cls = state.cls === k ? undefined : k;
-        renderChips();
-        applyFilters();
+        },
       });
-      rolesBox.addEventListener('click', (e) => {
-        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-role-key]');
-        if (!btn) return;
-        const k = btn.dataset.roleKey ?? '';
-        state.role = state.role === k ? undefined : k;
-        renderRoleChips();
-        applyFilters();
-      });
-      searchInput.addEventListener('input', () => {
-        state.query = searchInput.value;
-        applyFilters();
-      });
-
-      searchWrap.classList.remove('hidden');
-      renderRoleChips();
-      renderChips();
-      applyFilters();
     }
 
     // Reglas. SIEMPRE que la banda está INTEGRADA (guild_id + is_rank_integrated)
@@ -375,19 +263,61 @@ import Icon from '@/components/ui/Icon.astro';
       rules = union;
     }
     const rulesBox = document.getElementById('bv-rules') as HTMLElement;
+    const rulesPager = document.getElementById('bv-rules-pager') as HTMLElement | null;
     if (rules.length === 0) {
       rulesBox.appendChild(emptyState('Esta banda aún no publica reglas.'));
     } else {
-      const list = el('ul', 'space-y-3');
-      rules.forEach((rule) => {
-        const li = el('li', 'text-sm text-gray-300 leading-relaxed border-l-2 border-brand-600/20 pl-3');
-        if (rule.title) {
-          li.appendChild(el('span', 'font-bold text-brand-200', `${rule.title}: `));
-        }
-        li.appendChild(document.createTextNode(rule.content || ''));
-        list.appendChild(li);
+      const facets: Array<Facet<BandRule>> = [
+        {
+          kind: 'flag',
+          id: 'contenido',
+          label: 'Filtrar reglas con contenido',
+          getFlag: (rule) => !!rule.content?.trim(),
+          chipLabel: 'Con contenido',
+          icon: 'nota',
+        },
+      ];
+      createFilterBar<BandRule>({
+        mount: document.getElementById('bv-rules-filtro') as HTMLElement,
+        items: rules,
+        getSearchText: (rule) => `${rule.title ?? ''} ${rule.content ?? ''}`,
+        searchPlaceholder: 'Buscar regla…',
+        searchLabel: 'Buscar reglas por título o contenido',
+        facets,
+        resultNoun: (n) => `${n} regla${n === 1 ? '' : 's'}`,
+        onChange: (filtered, state) => {
+          if (rulesPager) rulesPager.textContent = '';
+          if (filtered.length === 0) {
+            rulesBox.innerHTML = '';
+            const msg = state.query.trim()
+              ? `Ninguna regla coincide con "${state.query.trim()}".`
+              : 'No hay reglas que coincidan con los filtros.';
+            rulesBox.appendChild(emptyState(msg));
+            return;
+          }
+          const paginator = createPaginator({
+            pageSize: PAGE_SIZE_LIST,
+            totalItems: filtered.length,
+            summary: `${filtered.length} regla${filtered.length === 1 ? '' : 's'}`,
+            renderPage: (page) => {
+              rulesBox.innerHTML = '';
+              const list = el('ul', 'space-y-3');
+              const start = (page - 1) * PAGE_SIZE_LIST;
+              filtered.slice(start, start + PAGE_SIZE_LIST).forEach((rule) => {
+                const li = el('li', 'text-sm text-gray-300 leading-relaxed border-l-2 border-brand-600/20 pl-3');
+                if (rule.title) {
+                  li.appendChild(el('span', 'font-bold text-brand-200', `${rule.title}: `));
+                }
+                li.appendChild(document.createTextNode(rule.content || ''));
+                list.appendChild(li);
+              });
+              rulesBox.appendChild(list);
+            },
+          });
+          if (rulesPager && paginator.bar) rulesPager.appendChild(paginator.bar);
+          paginator.update();
+        },
       });
-      rulesBox.appendChild(list);
     }
 
     // Conteos del encabezado (chips de Core/Reglas): grupo segmentado unificado

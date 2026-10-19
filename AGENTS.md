@@ -492,6 +492,13 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-19 (filtros y paginador en pestañas)**: buscador+facetas
+  (`createFilterBar`) y paginador (`createPaginator` / `packSections`) en
+  todas las pestañas de lista del portal y del dashboard; extraído el
+  paginador del roster a `src/lib/ui/paginator.ts` (tokens `ui.pager.*`,
+  `PAGE_SIZE_GRID`/`PAGE_SIZE_LIST`); portal Reglas sin tope de 20. Detalle
+  en `design.md` §7b.1/§7c y su historial.
+
 - **2026-10-18 (luz espectral de contenedores)**: las placas de encabezado
   ganan la **chispa de vértice** que ya tenían las cabeceras de panel
   (destello radial del corte) y AMBAS estructuras (encabezados de página y

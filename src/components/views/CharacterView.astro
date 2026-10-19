@@ -39,12 +39,21 @@ import Icon from '@/components/ui/Icon.astro';
 
   <div id="pv-panels" class={ui.zone.body}>
     <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
-      <div slot="head" id="pv-equip-summary" class="hidden mt-4"></div>
-      <div id="pv-equip-list"></div>
+      <div slot="head">
+        <div id="pv-equip-summary" class="hidden mt-4"></div>
+        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+        <div class="mt-4" id="pv-equip-filtro"></div>
+      </div>
+      <div id="pv-equip-list" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+      <div id="pv-equip-pager" class="mt-3"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-metas" title="Metas" icon="estrella" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+      <div slot="head">
+        <div class="mt-4" id="pv-metas-filtro"></div>
+      </div>
       <div id="pv-metas"></div>
+      <div id="pv-metas-pager" class="mt-3"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-notas" title="Notas" icon="nota" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
@@ -52,7 +61,11 @@ import Icon from '@/components/ui/Icon.astro';
     </PanelWindow>
 
     <PanelWindow id="panel-instancias" title="Instancias" icon="ciudadela" pad="lg" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
+      <div slot="head">
+        <div class="mt-4" id="pv-instancias-filtro"></div>
+      </div>
       <div id="pv-instancias"></div>
+      <div id="pv-instancias-pager" class="mt-3"></div>
     </PanelWindow>
 
     <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
@@ -82,7 +95,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
-  import { itemQualityColor, itemQualityCountLabel, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
+  import { itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
   import { applyWowhead } from '@/lib/ui/wowhead';
   import { card, cardTop, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
   import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
@@ -92,6 +105,16 @@ import Icon from '@/components/ui/Icon.astro';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
   import { PERSONAJE_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
+  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
+  import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import type { CharacterInstance, CurrencyObjective, EquipmentObjective, EquipmentPiece } from '@/types/parser';
+
+  type MetaItem =
+    | { kind: 'equipment'; goal: EquipmentObjective }
+    | { kind: 'currency'; goal: CurrencyObjective };
+
+  const isMetaDone = (item: MetaItem): boolean =>
+    item.kind === 'equipment' ? item.goal.done : item.goal.reached;
 
   if (currentSection() === 'personaje') {
     const slug = currentSlug();
@@ -180,9 +203,7 @@ import Icon from '@/components/ui/Icon.astro';
     // Hermandad. Cada panel con contenido agrega su pestaña (initAvailableTabs).
     const available: string[] = [];
 
-    const equip = equipmentList(c);
-    if (equip) {
-      (document.getElementById('pv-equip-list') as HTMLElement).appendChild(equip);
+    if ((c.equipment ?? []).length > 0) {
       // Resumen de calidades en la cabecera del panel (dimensión que el héroe
       // no muestra: cuántas épicas/legendarias lleva puestas).
       const summary = qualitySummary(c);
@@ -191,12 +212,13 @@ import Icon from '@/components/ui/Icon.astro';
         box.appendChild(summary);
         box.classList.remove('hidden');
       }
+      renderEquipment(c);
       available.push('equipamiento');
     }
 
-    const metas = objectivesPanel(c);
-    if (metas) {
-      (document.getElementById('pv-metas') as HTMLElement).appendChild(metas);
+    const metaCount = (c.objectives?.equipment?.length ?? 0) + (c.objectives?.currencies?.length ?? 0);
+    if (metaCount > 0) {
+      renderObjectives(c);
       available.push('metas');
     }
 
@@ -206,9 +228,8 @@ import Icon from '@/components/ui/Icon.astro';
       available.push('notas');
     }
 
-    const instancias = instancesPanel(c);
-    if (instancias) {
-      (document.getElementById('pv-instancias') as HTMLElement).appendChild(instancias);
+    if ((c.instances ?? []).length > 0) {
+      renderInstances(c);
       available.push('instancias');
     }
 
@@ -299,25 +320,87 @@ import Icon from '@/components/ui/Icon.astro';
     emit();
   }
 
-  // Panel "Equipamiento": grilla de tarjetas de ítem (póster, design.md §12).
-  // Cada pieza: el slot como etiqueta, el NOMBRE del objeto como protagonista
-  // (color de calidad del juego) y el ilvl como cifra; el enlace abre la
-  // búsqueda del objeto en UltimoWoW (el SV no guarda itemID del equipo).
-  function equipmentList(c: CharacterRow): HTMLElement | null {
-    const eq = c.equipment ?? [];
-    if (eq.length === 0) return null;
-    const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-    [...eq].sort((a, b) => a.slot - b.slot).forEach((piece) => {
-      list.appendChild(itemRow({
-        slot: equipmentSlotLabel(piece.slot),
-        name: piece.name,
-        quality: piece.quality,
-        value: `i${piece.ilvl}`,
-        href: wowItemUrl(piece.name),
-        hrefTitle: `Ver "${piece.name}" en UltimoWoW`,
-      }));
+  // Panel "Equipamiento": grilla de tarjetas de ítem (póster, design.md §12)
+  // con buscador + chips (ranura/calidad/épico+) y paginador. Cada pieza: el
+  // slot como etiqueta, el NOMBRE del objeto como protagonista (color de
+  // calidad) y el ilvl como cifra; el enlace abre UltimoWoW (el SV no guarda
+  // itemID del equipo).
+  function equipmentPieceRow(piece: EquipmentPiece): HTMLElement {
+    return itemRow({
+      slot: equipmentSlotLabel(piece.slot),
+      name: piece.name,
+      quality: piece.quality,
+      value: `i${piece.ilvl}`,
+      href: wowItemUrl(piece.name),
+      hrefTitle: `Ver "${piece.name}" en UltimoWoW`,
     });
-    return list;
+  }
+
+  function renderEquipment(c: CharacterRow): void {
+    const equipment = [...(c.equipment ?? [])].sort((a, b) => a.slot - b.slot);
+    const list = document.getElementById('pv-equip-list') as HTMLElement;
+    const pager = document.getElementById('pv-equip-pager') as HTMLElement | null;
+
+    const facets: Array<Facet<EquipmentPiece>> = [
+      {
+        id: 'ranura',
+        label: 'Filtrar equipamiento por ranura',
+        getValues: (piece) => [String(piece.slot)],
+        labelOf: (v) => equipmentSlotLabel(Number(v)),
+        order: (values) => [...values].sort((a, b) => Number(a) - Number(b)),
+        // Dimensión núcleo: cada pieza tiene UNA ranura; la fila se muestra
+        // aunque todas caigan en la misma.
+        minValues: 1,
+      },
+      {
+        id: 'calidad',
+        label: 'Filtrar equipamiento por calidad',
+        getValues: (piece) => [String(piece.quality)],
+        labelOf: (v) => itemQualityLabel(Number(v)),
+        order: (values) => [...values].sort((a, b) => Number(b) - Number(a)),
+      },
+      {
+        kind: 'flag',
+        id: 'epico',
+        label: 'Filtrar equipamiento épico o superior',
+        getFlag: (piece) => piece.quality >= 4,
+        chipLabel: 'Épico+',
+        icon: 'medalla',
+      },
+    ];
+
+    createFilterBar<EquipmentPiece>({
+      mount: document.getElementById('pv-equip-filtro') as HTMLElement,
+      items: equipment,
+      getSearchText: (piece) => `${piece.name} ${equipmentSlotLabel(piece.slot)}`,
+      searchPlaceholder: 'Buscar objeto o ranura…',
+      searchLabel: 'Buscar equipamiento por nombre o ranura',
+      facets,
+      resultNoun: (n) => `${n} pieza${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          list.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ningún objeto coincide con "${state.query.trim()}".`
+            : 'No hay objetos que coincidan con los filtros.';
+          list.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} pieza${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            list.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((piece) => list.appendChild(equipmentPieceRow(piece)));
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
   }
 
   // Resumen de calidades del equipo (cabecera del panel): "4 épicas · 12 raras".
@@ -344,79 +427,148 @@ import Icon from '@/components/ui/Icon.astro';
   }
 
   // Panel "Metas": lo que el personaje publica para la comunidad (equipo que
-  // busca y monedas que persigue). Devuelve null si no hay metas (los SV
-  // anteriores a 3.0.1 no las traen) y entonces la pestaña no se genera.
+  // busca y monedas que persigue). Buscador + chips (tipo/ranura/calidad/
+  // completada) y UN paginador por secciones: equipo y monedas viajan como
+  // bloques, con su cabecera repetida si un bloque se parte entre páginas.
   // Usa el MISMO lenguaje de ítem que Equipamiento (design.md §12).
-  function objectivesPanel(c: CharacterRow): HTMLElement | null {
+  function metaRow(item: MetaItem): HTMLElement {
+    if (item.kind === 'currency') {
+      const goal = item.goal;
+      return itemRow({
+        name: goal.name,
+        done: goal.reached,
+        rail: '#0C74A8',
+        leading: iconEl(goal.reached ? 'correcto' : 'medalla', { size: 'md', cls: 'shrink-0' }),
+        value: goal.reached ? undefined : `${goal.target}`,
+      });
+    }
+    const goal = item.goal;
+    const row = itemRow({
+      slot: equipmentSlotLabel(goal.slot),
+      name: goal.name,
+      quality: goal.quality,
+      value: typeof goal.ilvl === 'number' ? `i${goal.ilvl}` : undefined,
+      done: goal.done,
+      leading: iconEl(goal.done ? 'correcto' : 'reloj', { size: 'md', cls: 'shrink-0' }),
+      href: wowItemUrl(goal.name),
+      hrefTitle: `Ver "${goal.name}" en UltimoWoW`,
+    }) as HTMLAnchorElement;
+    // Con itemID del SV, tooltip rico del widget de Wowhead; sin él (SVs
+    // que no exportan metas con id), búsqueda por nombre en UltimoWoW.
+    if (typeof goal.itemID === 'number') {
+      row.removeAttribute('title');
+      applyWowhead(row, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
+    }
+    return row;
+  }
+
+  function renderObjectives(c: CharacterRow): void {
     const equipment = [...(c.objectives?.equipment ?? [])].sort((a, b) => a.slot - b.slot);
     const currencies = [...(c.objectives?.currencies ?? [])];
-    if (equipment.length === 0 && currencies.length === 0) return null;
+    const items: MetaItem[] = [
+      ...equipment.map((goal) => ({ kind: 'equipment' as const, goal })),
+      ...currencies.map((goal) => ({ kind: 'currency' as const, goal })),
+    ];
 
-    const pendingOf = <T extends { done: boolean } | { reached: boolean }>(list: T[]): number => {
-      let n = 0;
-      list.forEach((g) => {
-        const flag = 'done' in g ? g.done : (g as { reached: boolean }).reached;
-        if (flag) n += 1;
-      });
-      return list.length - n;
-    };
+    const container = document.getElementById('pv-metas') as HTMLElement;
+    const pager = document.getElementById('pv-metas-pager') as HTMLElement | null;
 
-    // Sub-cabecera de bloque: eyebrow + contador enmarcado (la etiqueta ya no
-    // flota sola sobre la atmósfera).
-    const sectionHead = (label: string, pending: number, total: number): HTMLElement => {
+    // Sub-cabecera de bloque: eyebrow + contador enmarcado. `total`/`pending`
+    // son del bloque COMPLETO (no de la rebanada de la página).
+    const sectionHead = (label: string, pending: number, total: number, continuation: boolean): HTMLElement => {
       const head = el('div', 'flex items-center justify-between gap-3 mb-3');
-      head.appendChild(el('p', ui.eyebrow, label));
+      head.appendChild(el('p', ui.eyebrow, `${label}${continuation ? ' (continuación)' : ''}`));
       head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-950/60 border-brand-700/40 text-gray-300`, `faltan ${pending} de ${total}`));
       return head;
     };
+    const pendingOf = (list: MetaItem[]): number => list.filter((item) => !isMetaDone(item)).length;
 
-    const wrap = el('div', 'space-y-8');
+    const facets: Array<Facet<MetaItem>> = [
+      {
+        id: 'tipo',
+        label: 'Filtrar metas por tipo',
+        getValues: (item) => [item.kind],
+        labelOf: (v) => (v === 'equipment' ? 'Equipo' : 'Monedas'),
+        order: () => ['equipment', 'currency'],
+      },
+      {
+        id: 'ranura',
+        label: 'Filtrar metas de equipo por ranura',
+        getValues: (item) => (item.kind === 'equipment' ? [String(item.goal.slot)] : []),
+        labelOf: (v) => equipmentSlotLabel(Number(v)),
+        order: (values) => [...values].sort((a, b) => Number(a) - Number(b)),
+      },
+      {
+        id: 'calidad',
+        label: 'Filtrar metas de equipo por calidad',
+        getValues: (item) => (item.kind === 'equipment' && typeof item.goal.quality === 'number' ? [String(item.goal.quality)] : []),
+        labelOf: (v) => itemQualityLabel(Number(v)),
+        order: (values) => [...values].sort((a, b) => Number(b) - Number(a)),
+      },
+      {
+        kind: 'flag',
+        id: 'completada',
+        label: 'Filtrar metas completadas',
+        getFlag: isMetaDone,
+        chipLabel: 'Completada',
+        icon: 'correcto',
+      },
+    ];
 
-    if (equipment.length > 0) {
-      const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-      equipment.forEach((goal) => {
-        const row = itemRow({
-          slot: equipmentSlotLabel(goal.slot),
-          name: goal.name,
-          quality: goal.quality,
-          value: typeof goal.ilvl === 'number' ? `i${goal.ilvl}` : undefined,
-          done: goal.done,
-          leading: iconEl(goal.done ? 'correcto' : 'reloj', { size: 'md', cls: 'shrink-0' }),
-          href: wowItemUrl(goal.name),
-          hrefTitle: `Ver "${goal.name}" en UltimoWoW`,
-        }) as HTMLAnchorElement;
-        // Con itemID del SV, tooltip rico del widget de Wowhead; sin él (SVs
-        // que no exportan metas con id), búsqueda por nombre en UltimoWoW.
-        if (typeof goal.itemID === 'number') {
-          row.removeAttribute('title');
-          applyWowhead(row, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
+    createFilterBar<MetaItem>({
+      mount: document.getElementById('pv-metas-filtro') as HTMLElement,
+      items,
+      getSearchText: (item) => item.goal.name,
+      searchPlaceholder: 'Buscar meta…',
+      searchLabel: 'Buscar metas por nombre',
+      facets,
+      resultNoun: (n) => `${n} meta${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          container.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ninguna meta coincide con "${state.query.trim()}".`
+            : 'No hay metas que coincidan con los filtros.';
+          container.appendChild(el('p', `${ui.text.bodyMuted} italic`, msg));
+          return;
         }
-        list.appendChild(row);
-      });
-      const section = el('div', '');
-      section.appendChild(sectionHead('Equipo buscado', pendingOf(equipment), equipment.length));
-      section.appendChild(list);
-      wrap.appendChild(section);
-    }
 
-    if (currencies.length > 0) {
-      const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-      currencies.forEach((goal) => {
-        list.appendChild(itemRow({
-          name: goal.name,
-          done: goal.reached,
-          rail: '#0C74A8',
-          leading: iconEl(goal.reached ? 'correcto' : 'medalla', { size: 'md', cls: 'shrink-0' }),
-          value: goal.reached ? undefined : `${goal.target}`,
-        }));
-      });
-      const section = el('div', '');
-      section.appendChild(sectionHead('Monedas', pendingOf(currencies), currencies.length));
-      section.appendChild(list);
-      wrap.appendChild(section);
-    }
+        const filteredEquipment = filtered.filter((item) => item.kind === 'equipment');
+        const filteredCurrencies = filtered.filter((item) => item.kind === 'currency');
+        const sections: Array<{ key: string; header: { label: string; kind: 'equipment' | 'currency' }; items: MetaItem[] }> = [];
+        if (filteredEquipment.length > 0) {
+          sections.push({ key: 'equipment', header: { label: 'Equipo buscado', kind: 'equipment' as const }, items: filteredEquipment });
+        }
+        if (filteredCurrencies.length > 0) {
+          sections.push({ key: 'currency', header: { label: 'Monedas', kind: 'currency' as const }, items: filteredCurrencies });
+        }
+        const pages = packSections(sections, PAGE_SIZE_GRID);
 
-    return wrap;
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          pageCount: pages.length,
+          summary: `${filtered.length} meta${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            container.innerHTML = '';
+            const wrap = el('div', 'space-y-8');
+            (pages[page - 1] ?? []).forEach((slice) => {
+              const full = slice.header.kind === 'equipment' ? filteredEquipment : filteredCurrencies;
+              const section = el('div', '');
+              section.appendChild(sectionHead(slice.header.label, pendingOf(full), full.length, slice.continuation));
+              const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
+              slice.items.forEach((item) => grid.appendChild(metaRow(item)));
+              section.appendChild(grid);
+              wrap.appendChild(section);
+            });
+            container.appendChild(wrap);
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
+    });
   }
 
   // Panel "Notas": la nota del personaje SOLO llega por la vista pública cuando
@@ -446,12 +598,34 @@ import Icon from '@/components/ui/Icon.astro';
     return `${Math.max(1, mins)}m`;
   }
 
-  // Panel "Instancias": snapshot de los lockouts guardados (addon 3.1.0).
+  // Panel "Instancias": snapshot de los lockouts guardados (addon 3.1.0) con
+  // buscador + chips (dificultad/extendida) y paginador.
   // `resetAt` es una época absoluta capturada al pulsar "Registrar": la cuenta
   // atrás es una ESTIMACIÓN según ese registro (se indica en el title).
-  function instancesPanel(c: CharacterRow): HTMLElement | null {
+  function instanceRow(instance: CharacterInstance, now: number): HTMLElement {
+    const slot = [instance.difficulty, instance.extended ? 'extendido' : ''].filter(Boolean).join(' · ');
+    let valueEl: HTMLElement | undefined;
+    if (!instance.extended && typeof instance.resetAt === 'number' && instance.resetAt > 0) {
+      const remaining = instance.resetAt - now;
+      if (remaining <= 0) {
+        // Ya venció: el reinicio ocurrió desde el último registro.
+        valueEl = el('span', 'shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-300', 'Reiniciado');
+      } else {
+        valueEl = el('span', `${ui.statValue} ${ui.item.value}`, formatRemaining(remaining));
+        valueEl.title = 'Cuenta atrás estimada según el último registro del addon';
+      }
+    }
+    return itemRow({
+      slot: slot || undefined,
+      name: instance.name,
+      leading: iconEl('ciudadela', { size: 'md', cls: 'shrink-0' }),
+      rail: '#0C74A8',
+      valueEl,
+    });
+  }
+
+  function renderInstances(c: CharacterRow): void {
     const instances = [...(c.instances ?? [])];
-    if (instances.length === 0) return null;
     const now = Date.now() / 1000;
     // Con reloj primero, por reinicio más próximo (mismo orden que el addon).
     instances.sort((a, b) => {
@@ -461,32 +635,59 @@ import Icon from '@/components/ui/Icon.astro';
       return a.name.localeCompare(b.name);
     });
 
-    const wrap = el('div', '');
-    wrap.appendChild(el('p', `${ui.eyebrow} mb-3`, `Instancias guardadas · ${instances.length}`));
-    const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-    instances.forEach((instance) => {
-      const slot = [instance.difficulty, instance.extended ? 'extendido' : ''].filter(Boolean).join(' · ');
-      let valueEl: HTMLElement | undefined;
-      if (!instance.extended && typeof instance.resetAt === 'number' && instance.resetAt > 0) {
-        const remaining = instance.resetAt - now;
-        if (remaining <= 0) {
-          // Ya venció: el reinicio ocurrió desde el último registro.
-          valueEl = el('span', 'shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-300', 'Reiniciado');
-        } else {
-          valueEl = el('span', `${ui.statValue} ${ui.item.value}`, formatRemaining(remaining));
-          valueEl.title = 'Cuenta atrás estimada según el último registro del addon';
+    const container = document.getElementById('pv-instancias') as HTMLElement;
+    const pager = document.getElementById('pv-instancias-pager') as HTMLElement | null;
+    const facets: Array<Facet<CharacterInstance>> = [
+      {
+        id: 'dificultad',
+        label: 'Filtrar instancias por dificultad',
+        getValues: (instance) => (instance.difficulty ? [instance.difficulty] : []),
+      },
+      {
+        kind: 'flag',
+        id: 'extendida',
+        label: 'Filtrar instancias extendidas',
+        getFlag: (instance) => !!instance.extended,
+        chipLabel: 'Extendida',
+        icon: 'calendario',
+      },
+    ];
+
+    createFilterBar<CharacterInstance>({
+      mount: document.getElementById('pv-instancias-filtro') as HTMLElement,
+      items: instances,
+      getSearchText: (instance) => `${instance.name} ${instance.difficulty ?? ''}`,
+      searchPlaceholder: 'Buscar instancia…',
+      searchLabel: 'Buscar instancias por nombre o dificultad',
+      facets,
+      resultNoun: (n) => `${n} instancia${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pager) pager.textContent = '';
+        if (filtered.length === 0) {
+          container.innerHTML = '';
+          const msg = state.query.trim()
+            ? `Ninguna instancia coincide con "${state.query.trim()}".`
+            : 'No hay instancias que coincidan con los filtros.';
+          container.appendChild(el('p', `${ui.text.bodyMuted} italic`, msg));
+          return;
         }
-      }
-      list.appendChild(itemRow({
-        slot: slot || undefined,
-        name: instance.name,
-        leading: iconEl('ciudadela', { size: 'md', cls: 'shrink-0' }),
-        rail: '#0C74A8',
-        valueEl,
-      }));
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} instancia${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            container.innerHTML = '';
+            container.appendChild(el('p', `${ui.eyebrow} mb-3`, `Instancias guardadas · ${filtered.length}`));
+            const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((instance) => list.appendChild(instanceRow(instance, now)));
+            container.appendChild(list);
+          },
+        });
+        if (pager && paginator.bar) pager.appendChild(paginator.bar);
+        paginator.update();
+      },
     });
-    wrap.appendChild(list);
-    return wrap;
   }
 
   // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
