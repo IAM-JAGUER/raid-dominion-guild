@@ -27,9 +27,15 @@ import Icon from '@/components/ui/Icon.astro';
     </div>
   </header>
 
+  <!-- Esqueleto de página (modelo dashboard): separador central + separador
+       izquierdo. Con 2+ paneles el separador izquierdo lo aporta la barra de
+       tabs (rd-tabbar); con 0/1 paneles se muestra el divisor de respaldo. -->
+  <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+  <div id="pv-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+
   <!-- Navegación entre paneles (modelo dashboard): solo las secciones con
        contenido generan pestaña (initAvailableTabs). -->
-  <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
+  <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
   <div id="pv-panels" class={ui.zone.body}>
     <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
@@ -243,7 +249,7 @@ import Icon from '@/components/ui/Icon.astro';
       }
     }
 
-    initAvailableTabs({ barId: 'pv-tab-bar', tabs: PERSONAJE_TABS, available });
+    initAvailableTabs({ barId: 'pv-tab-bar', tabs: PERSONAJE_TABS, available, leftSepId: 'pv-left-sep' });
 
     wireParticleTheme(c);
 

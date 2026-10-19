@@ -29,7 +29,7 @@ import { ui } from '@/lib/ui/design';
       </div>
 
       <!-- Panel -->
-      <div id="panel" data-rd-reveal class="hidden space-y-8">
+      <div id="panel" data-rd-reveal class="hidden">
         <header class="animate-fade-in-1">
           <div class={`relative px-6 py-5 ${ui.plaque}`}>
             <span class={ui.cardTop} aria-hidden="true"></span>
@@ -38,7 +38,9 @@ import { ui } from '@/lib/ui/design';
           </div>
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+        <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
+        <div class="space-y-8">
         <!-- Cola de claims -->
         <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.1s">
           <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
@@ -65,6 +67,7 @@ import { ui } from '@/lib/ui/design';
           <p id="audit-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="audit-list" class="space-y-2"></ul>
         </section>
+        </div>
       </div>
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>

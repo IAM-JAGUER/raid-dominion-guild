@@ -75,9 +75,15 @@ import { ui } from '@/lib/ui/design';
           </div>
         </header>
 
+        <!-- Esqueleto de página (modelo dashboard): separador central +
+             separador izquierdo (la barra de tabs lo aporta cuando hay paneles;
+             si el portal no tiene contenido, se muestra el divisor de respaldo). -->
+        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+        <div id="portal-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" data-rd-reveal class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 rd-tabbar relative animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
@@ -311,6 +317,9 @@ import { ui } from '@/lib/ui/design';
       const hasSnapshotContent = (!!snapshot && snapshot.members.length > 0) || (manualRules?.length ?? 0) > 0;
       if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
+        // Sin barra de pestañas, el separador izquierdo del esqueleto lo
+        // aporta el divisor de respaldo.
+        document.getElementById('portal-left-sep')?.classList.remove('hidden');
       } else {
         // Pestañas Miembros / Bandas / Reglas: los conteos viven como badges
         // de la barra (reemplazan al antiguo strip de métricas). Los paneles

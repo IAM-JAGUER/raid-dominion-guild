@@ -1192,6 +1192,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     } from "@/lib/ui/tabs";
     import { isVisitor } from "@/lib/roles";
     import { ui } from "@/lib/ui/design";
+    import { iconEl } from "@/lib/ui/icons";
     import { toast } from "@/lib/ui/toast";
     import { renderCharacterCard } from "@/lib/ui/cards";
     import { svLabel } from "@/lib/ui/dashboard/format";
@@ -1561,7 +1562,13 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       // Contrato de barra: todas las pestañas alineadas a la izquierda; el
       // scroll horizontal (oculto) deja ver el resto en pantallas estrechas.
       btn.className = tabBtnCls;
-      btn.textContent = t.label;
+      // Icono temático de la pestaña (contrato src/lib/ui/icons.ts): toda tab
+      // de navegación lleva icono, igual que createTabBar.
+      if (t.icon) {
+        btn.classList.add("inline-flex", "items-center", "gap-1.5");
+        btn.appendChild(iconEl(t.icon, { size: "md" }));
+      }
+      btn.appendChild(document.createTextNode(t.label));
       tabBar.appendChild(btn);
       return btn;
     });

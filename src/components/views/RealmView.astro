@@ -38,9 +38,15 @@ import Icon from '@/components/ui/Icon.astro';
     </div>
   </header>
 
+  <!-- Esqueleto de página (modelo dashboard): separador central + separador
+       izquierdo (la barra de tabs lo aporta con 2+ paneles; si queda oculta,
+       se muestra el divisor de respaldo). -->
+  <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+  <div id="rv-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+
   <!-- Navegación entre paneles (modelo dashboard): Bandas solo si hay bandas
        públicas del reino (initAvailableTabs). -->
-  <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
+  <nav id="rv-tab-bar" role="tablist" aria-label="Secciones del reino" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
   <div id="rv-panels" class={ui.zone.body}>
     <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
@@ -194,7 +200,7 @@ import Icon from '@/components/ui/Icon.astro';
       if (merged.length > 0) available.push('bandas');
     }
 
-    initAvailableTabs({ barId: 'rv-tab-bar', tabs: REINO_TABS, available });
+    initAvailableTabs({ barId: 'rv-tab-bar', tabs: REINO_TABS, available, leftSepId: 'rv-left-sep' });
 
     showView('view-reino');
   }

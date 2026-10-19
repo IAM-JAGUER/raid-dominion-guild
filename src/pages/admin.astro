@@ -39,8 +39,9 @@ import { ui } from '@/lib/ui/design';
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
-        <!-- Pestañas de sección (Usuarios · Discord) -->
-        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class="flex items-center gap-1 border-b border-gray-700/60 mb-8 animate-fade-in-1"></div>
+        <!-- Pestañas de sección (Usuarios · Discord): barra del esqueleto de
+             página (rd-tabbar) con su separador interno izquierdo. -->
+        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class="flex flex-nowrap items-center gap-1 rd-tabbar relative mb-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
 
         <!-- Vista: Discord (mercadeo automático) -->
         <div id="view-discord" data-rd-reveal class="hidden space-y-8">
@@ -270,7 +271,13 @@ import { ui } from '@/lib/ui/design';
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-controls', t.id === 'discord' ? 'view-discord' : 'view-list');
       btn.className = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
-      btn.textContent = t.label;
+      // Icono temático de la pestaña (contrato src/lib/ui/icons.ts): toda tab
+      // de navegación lleva icono, igual que createTabBar.
+      if (t.icon) {
+        btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
+        btn.appendChild(iconEl(t.icon, { size: 'md' }));
+      }
+      btn.appendChild(document.createTextNode(t.label));
       btn.addEventListener('click', () => {
         window.history.replaceState(null, '', t.href);
         route();

@@ -52,9 +52,15 @@ import { ui } from '@/lib/ui/design';
         </div>
       </header>
 
+      <!-- Esqueleto de página (modelo dashboard): separador central + separador
+           izquierdo (la barra de tabs lo aporta con 2+ paneles; si queda oculta,
+           se muestra el divisor de respaldo). -->
+      <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+      <div id="jugador-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+
       <!-- Navegación entre paneles (modelo dashboard): solo las secciones con
            contenido generan pestaña (initAvailableTabs). -->
-      <nav id="profile-tab-bar" role="tablist" aria-label="Secciones del perfil" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
+      <nav id="profile-tab-bar" role="tablist" aria-label="Secciones del perfil" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
 
       <!-- Paneles ventana (modelo dashboard): Personajes, Bandas, Hermandades -->
       <div id="profile-panels" class={ui.zone.body}>
@@ -241,7 +247,7 @@ import { ui } from '@/lib/ui/design';
 
     await renderPlayerBands(chars, available);
     await renderPlayerGuilds(p.id, available);
-    initAvailableTabs({ barId: 'profile-tab-bar', tabs: JUGADOR_TABS, available });
+    initAvailableTabs({ barId: 'profile-tab-bar', tabs: JUGADOR_TABS, available, leftSepId: 'jugador-left-sep' });
 
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
     document.getElementById('profile')?.classList.remove('hidden');

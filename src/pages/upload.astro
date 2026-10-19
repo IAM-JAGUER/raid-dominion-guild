@@ -16,7 +16,7 @@ import { ui } from '@/lib/ui/design';
     <div class="max-w-4xl mx-auto">
       <Breadcrumb />
       <!-- Header (placa: el texto no se disuelve sobre la imagen) -->
-      <header class="text-center mb-12 animate-fade-in-1">
+      <header class="text-center animate-fade-in-1">
         <div class={`relative mx-auto max-w-2xl px-6 py-6 ${ui.plaque}`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
           <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 shadow-lg shadow-brand-900/20`}>
@@ -30,7 +30,8 @@ import { ui } from '@/lib/ui/design';
           </p>
         </div>
       </header>
-      <div class={`${ui.dividerFadeBoth} mt-6 mb-10`} aria-hidden="true"></div>
+      <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+      <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
       <!-- Dropzone -->
       <section class={`${ui.panel} p-4 sm:p-6 md:p-8 mb-8`}>

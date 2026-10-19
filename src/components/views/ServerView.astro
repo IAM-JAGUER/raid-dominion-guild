@@ -23,6 +23,12 @@ import Icon from '@/components/ui/Icon.astro';
       </div>
     </div>
   </header>
+
+  <!-- Esqueleto de página (modelo dashboard): separador central + separador
+       izquierdo (esta vista no tiene barra de tabs). -->
+  <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+  <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+
   <div id="sv-body" class="space-y-6"></div>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
 </section>

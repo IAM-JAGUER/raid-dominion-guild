@@ -1,6 +1,7 @@
 ---
 // Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
 // hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeBoth +
+// dividerFadeRight (separador izquierdo, la página no tiene tabs) +
 // PanelWindow (cabecera con la barra de filtros estándar) + lista asíncrona
 // + dividerFadeLeft. Cada página conserva solo su <script> (card() + fetch +
 // facetas) y monta la barra sobre #filters con src/lib/ui/filterBar.ts.
@@ -39,7 +40,7 @@ interface Props {
   gridLabel: string;
   // Config del estado vacío (toggle #empty).
   empty: EmptyConfig;
-  // Clases del divisor tras el header (por defecto `mt-6 mb-10`).
+  // Clases del separador CENTRAL tras el header (por defecto `mt-6`).
   dividerCls?: string;
   // Clases extra del h1 (p. ej. `rd-title rd-ornament`).
   heroTitleCls?: string;
@@ -54,7 +55,7 @@ const {
   loadingText,
   gridLabel,
   empty,
-  dividerCls = 'mt-6 mb-10',
+  dividerCls = 'mt-6',
   heroTitleCls = '',
 } = Astro.props;
 ---
@@ -62,6 +63,7 @@ const {
 
 <PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} icon={panelIcon} />
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
+<div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
 <!-- Lista asíncrona estándar (src/lib/ui/list.ts): los ítems viven en la
      grilla del cuerpo del panel; el bloque de carga es su único hijo mientras

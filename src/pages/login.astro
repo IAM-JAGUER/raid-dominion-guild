@@ -16,7 +16,7 @@ import { ui } from '@/lib/ui/design';
     <div class="max-w-md mx-auto">
       <Breadcrumb />
       <!-- Encabezado con logo (placa: el texto no se disuelve sobre la imagen) -->
-      <header class={`relative text-center mb-8 px-6 py-6 animate-fade-in-1 ${ui.plaque}`}>
+      <header class={`relative text-center px-6 py-6 animate-fade-in-1 ${ui.plaque}`}>
         <span class={ui.cardTop} aria-hidden="true"></span>
         <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(0,191,255,0.35)]" loading="eager" decoding="async" />
         <h1 class={`${ui.titleHero}`}>
@@ -24,7 +24,8 @@ import { ui } from '@/lib/ui/design';
         </h1>
         <p class={`${ui.text.bodyMuted} mt-2 italic`}>Tu espacio en la comunidad de RaidDominion.</p>
       </header>
-      <div class={`${ui.dividerFadeBoth} mt-6 mb-8`} aria-hidden="true"></div>
+      <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
+      <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
       <section class={`${ui.panel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
         <!-- Alternancia de modo -->

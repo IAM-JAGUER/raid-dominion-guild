@@ -16,8 +16,9 @@ export interface TabDef {
   label: string;
   // Enlace directo del tab (dashboard → /dashboard#<id>).
   href: string;
-  // Icono temático de la pestaña (opcional; contrato src/lib/ui/icons.ts).
-  icon?: IconName;
+  // Icono temático de la pestaña (OBLIGATORIO: toda tab de navegación lleva
+  // icono; contrato único src/lib/ui/icons.ts).
+  icon: IconName;
 }
 
 // Pestañas del dashboard de usuario (orden de la barra superior).
@@ -224,8 +225,15 @@ export function initAvailableTabs(config: {
   barId: string;
   tabs: TabDef[];
   available: string[];
+  // Separador izquierdo de respaldo: se muestra cuando la barra queda oculta
+  // (0/1 paneles). Con 2+ paneles la hairline interna de `rd-tabbar` ya hace
+  // de separador izquierdo y este divisor se oculta.
+  leftSepId?: string;
 }): void {
   const shown = config.tabs.filter((t) => config.available.includes(t.id));
+  const leftSep = config.leftSepId ? document.getElementById(config.leftSepId) : null;
+  const hasBar = shown.length > 1;
+  leftSep?.classList.toggle('hidden', hasBar);
   if (shown.length === 0) return;
   if (shown.length === 1) {
     document.getElementById(`panel-${shown[0].id}`)?.classList.remove('hidden');

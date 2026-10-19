@@ -567,7 +567,8 @@
    traslación) pero con respiración lenta de opacidad pura. */
 .rd-divider,
 .rd-divider-both,
-.rd-divider-left {
+.rd-divider-left,
+.rd-divider-right {
   position: relative;
   animation: rd-divider-breathe 6s ease-in-out -2.7s infinite;
 }
@@ -577,6 +578,12 @@
 }
 .rd-divider-left {
   --rd-divider-env: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.5), rgba(0, 191, 255, 0.85));
+}
+/* Espejo del anterior: nace sólido a la IZQUIERDA y se desvanece a la derecha
+   (misma dirección que la hairline interna de `.rd-tabbar`). Es el separador
+   izquierdo del esqueleto cuando la página no tiene barra de pestañas. */
+.rd-divider-right {
+  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.5), transparent);
 }
 .rd-divider {
   border-top: 1px solid transparent;
@@ -590,11 +597,16 @@
   border-top: 1px solid transparent;
   border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.6), rgba(0, 191, 255, 0.85)) 1 / 1 / 0 stretch;
 }
+.rd-divider-right {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.6), transparent) 1 / 1 / 0 stretch;
+}
 /* Bloom helado: núcleo + resplandor; respira (opacidad) y flota (vaivén con
    deriva vertical e hinchazón scaleY) */
 .rd-divider::before,
 .rd-divider-both::before,
 .rd-divider-left::before,
+.rd-divider-right::before,
 .rd-tabbar::before {
   content: "";
   position: absolute;
@@ -614,7 +626,8 @@
 }
 .rd-divider::before,
 .rd-divider-both::before,
-.rd-divider-left::before {
+.rd-divider-left::before,
+.rd-divider-right::before {
   top: calc(50% - 9px);
 }
 /* Tab-bar: la hairline propia (fade a la DERECHA) queda como ::after; el halo
@@ -758,12 +771,14 @@
   .rd-divider::before,
   .rd-divider-both::before,
   .rd-divider-left::before,
+  .rd-divider-right::before,
   .rd-tabbar::before {
     animation: rd-divider-breathe-slow 11s ease-in-out -2.3s infinite;
   }
   .rd-divider,
   .rd-divider-both,
   .rd-divider-left,
+  .rd-divider-right,
   .rd-tabbar::after {
     animation: rd-divider-breathe-slow 11s ease-in-out -5.2s infinite;
   }

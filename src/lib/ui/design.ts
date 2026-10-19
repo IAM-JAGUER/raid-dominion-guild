@@ -308,12 +308,18 @@ export const ui = {
   // divisores»). Uso actual: landing (index.astro); card.ts lo expone como
   // separador interno.
   divider: 'rd-divider w-full',
-  // Versiones del separador desvanecido para la página (excepto index):
-  //   dividerFadeBoth — debajo del ENCABEZADO de la página, se desvanece a ambos lados.
-  //   dividerFadeLeft — tras el contenido principal, se desvanece hacia la izquierda.
+  // Separadores del ESQUELETO de página (encabezado → central →
+  // izquierdo/tabs → contenido → derecho):
+  //   dividerFadeBoth — separador CENTRAL: sólido al centro, se desvanece a ambos lados.
+  //   dividerFadeRight — separador IZQUIERDO: sólido a la izquierda, se
+  //     desvanece a la derecha (misma dirección que la hairline interna de
+  //     `rd-tabbar`; sustituye a la barra de tabs cuando no hay tabs).
+  //   dividerFadeLeft — separador DERECHO: sólido a la derecha, se desvanece
+  //     a la izquierda; cierra el contenido principal.
   // El borde inferior de la navegación de tabs (rd-tabbar, material.css)
   // comparte el halo del sistema sobre su propia hairline fade-derecha; no usa token.
   dividerFadeBoth: 'rd-divider-both w-full',
+  dividerFadeRight: 'rd-divider-right w-full',
   dividerFadeLeft: 'rd-divider-left w-full',
   // Tira de CONTEXTO de una ficha (chips de servidor/reino tras el divisor
   // final): cierra la página sin tocar el encabezado. El respiro bajo el

@@ -17,22 +17,28 @@ import { ui } from '@/lib/ui/design';
 		<div class={ui.container}>
 			<!-- Contenido principal -->
 			<div class="relative">
-				<!-- Sección Inicio -->
+				<!-- Sección Inicio (encabezado de la página) -->
 				<section id="inicio" class="scroll-mt-16">
 					<GrandLogo></GrandLogo>
 				</section>
 
-				<div class={`${ui.divider} my-8`} aria-hidden="true"></div>
+				<!-- Esqueleto de página (modelo dashboard): separador central +
+				     separador izquierdo (la landing no tiene barra de tabs). -->
+				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
+				<div class={`${ui.dividerFadeRight} my-8`} aria-hidden="true"></div>
 
 				<!-- Sección Addon -->
 				<AddonSection />
 
-				<div class={`${ui.divider} my-8`} aria-hidden="true"></div>
+				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 
 				<!-- Sección Donaciones -->
 				<section id="donaciones" class="scroll-mt-16">
 					<Donations></Donations>
 				</section>
+
+				<!-- Separador derecho: cierra el contenido principal. -->
+				<div class={`${ui.dividerFadeLeft} my-8`} aria-hidden="true"></div>
 			</div>
 		</div>
 	</main>
