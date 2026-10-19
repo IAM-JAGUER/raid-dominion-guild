@@ -1,0 +1,68 @@
+---
+import { ui } from '@/lib/ui/design';
+
+interface Props {
+  videoId: string;
+  title: string;
+}
+
+const { videoId, title } = Astro.props;
+const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+const thumbUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+---
+
+<!-- Fachada clic-para-reproducir: sin JS el enlace abre YouTube; con JS el
+     iframe (youtube-nocookie) se inyecta en el clic y reproduce aquí mismo. -->
+<div
+  class={`video-embed group ${ui.video.frame}`}
+  data-video-id={videoId}
+  data-video-title={title}
+>
+  <a
+    href={watchUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="video-embed__facade absolute inset-0 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400"
+    aria-label={`Reproducir video: ${title}`}
+  >
+    <img
+      src={thumbUrl}
+      alt=""
+      width="480"
+      height="360"
+      loading="lazy"
+      decoding="async"
+      class={ui.video.thumb}
+    />
+    <span class={`${ui.video.veil} absolute inset-0`} aria-hidden="true"></span>
+    <span class="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+      <span class={ui.video.play}>
+        <svg class="h-6 w-6 translate-x-0.5 sm:h-7 sm:w-7" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </span>
+    </span>
+  </a>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.video-embed').forEach((wrap) => {
+    const facade = wrap.querySelector<HTMLAnchorElement>('.video-embed__facade');
+    const videoId = wrap.dataset.videoId;
+    if (!facade || !videoId) return;
+
+    facade.addEventListener('click', (event) => {
+      event.preventDefault();
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0`;
+      iframe.title = wrap.dataset.videoTitle ?? 'Video de YouTube';
+      iframe.className = 'absolute inset-0 h-full w-full';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      wrap.replaceChildren(iframe);
+      iframe.focus();
+    });
+  });
+</script>

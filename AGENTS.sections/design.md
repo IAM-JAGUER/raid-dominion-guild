@@ -363,6 +363,16 @@ con `continuation` cuando una sección se parte (días de bandas, equipo/
 monedas de metas). La barra es SIEMPRE hermana del contenedor de ítems (nunca
 dentro del grid con reveal). Los estados vacío/aviso no montan paginador.
 
+### 7d. Video embebido (2026-10-19)
+
+`src/components/shared/VideoEmbed.astro` es la fachada única para videos de
+YouTube: miniatura 16:9 + play centrado; el `<a>` abre el video como fallback
+sin JS y, con JS, el clic inyecta un iframe de `youtube-nocookie.com`
+(`autoplay=1&rel=0`) en el mismo marco. Nada de YouTube se carga hasta el
+clic (rendimiento/privacidad); el play es un control circular de marca
+(`ui.video.*`), no el rojo de YouTube. El video del addon vive en
+`ADDON_VIDEO` (`src/utils/constants.ts`) y se monta en `AddonSection`.
+
 ## 8. Responsive
 
 Rango verificado: 320px–1440px sin overflow horizontal. Breakpoints:
@@ -487,6 +497,12 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-19 (video del addon)**: la tarjeta "ADDON WOW 3.3.5A" de la
+  landing deja de ser un enlace al canal y monta el video de presentación
+  (`VideoEmbed.astro`, §7d): fachada con miniatura 16:9 y play, iframe
+  `youtube-nocookie` al clic, fallback al `watch` sin JS. Tokens `ui.video.*`;
+  el hover con escala sale de la card (un reproductor no debe ampliarse).
 
 - **2026-10-19 (filtros y paginador en pestañas)**: el buscador + facetas
   (`createFilterBar`) deja de ser exclusivo de los directorios y Bandas: se

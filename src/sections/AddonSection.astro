@@ -3,8 +3,9 @@ import ImageComponent from "@/components/shared/ImageComponent.astro";
 import AddonGuidesGrid from "@/components/features/addon/AddonGuidesGrid.astro";
 import SectionHeader from '@/components/ui/SectionHeader.astro';
 import Icon from '@/components/ui/Icon.astro';
-import YoutubeIcon from "@/components/shared/icons/YoutubeIcon.astro";
+import VideoEmbed from '@/components/shared/VideoEmbed.astro';
 import { ui } from '@/lib/ui/design';
+import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
 ---
 
 <section id="addon" class="scroll-mt-16 py-8">
@@ -30,8 +31,8 @@ import { ui } from '@/lib/ui/design';
 
           <!-- Guías del Addon -->
           <AddonGuidesGrid />
-          <div class="mt-10 w-full max-w-lg mx-auto">
-            <article class="animate-blurred-fade-in rounded-md overflow-hidden border border-brand-600/30 bg-gradient-to-br from-brand-900 to-brand-800 transform transition-all duration-300 hover:scale-[1.01] hover:shadow-brand-500/20">
+          <div id="addon-video" class="mt-10 w-full max-w-lg mx-auto scroll-mt-16">
+            <article class="animate-blurred-fade-in rounded-md overflow-hidden border border-brand-600/30 bg-gradient-to-br from-brand-900 to-brand-800">
               <!-- Header -->
               <div class="bg-gradient-to-r from-brand-600/80 to-brand-800/80 px-6 py-2">
                 <h2 class="text-center text-sm font-bold text-white tracking-wider">
@@ -39,26 +40,23 @@ import { ui } from '@/lib/ui/design';
                 </h2>
               </div>
 
-              <!-- YouTube Button -->
-              <a
-                href="https://www.youtube.com/@IAM-GAMECODE"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="group flex flex-col items-center justify-center px-8 py-10 bg-gradient-to-br from-brand-800 to-brand-900 hover:from-brand-900/30 hover:to-brand-800/20 transition-all duration-300"
-              >
-                <div class="relative">
-                  <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-brand-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
-                  <div class="relative p-4 bg-gradient-to-br from-red-600 to-red-700 rounded-full text-white group-hover:from-red-700 group-hover:to-red-800 transition-colors duration-300">
-                    <YoutubeIcon class="w-8 h-8" />
-                  </div>
-                </div>
-                <span class="mt-4 text-lg font-semibold text-brand-300 group-hover:text-brand-200 transition-colors duration-300">
-                  Tutorial en YouTube
-                </span>
-                <p class="mt-1 text-xs text-gray-400 text-center max-w-xs">
-                  Aprende a aprovechar al máximo el addon con nuestros tutoriales
+              <!-- Video del addon (se reproduce aquí mismo al hacer clic) -->
+              <div class="p-3 sm:p-4">
+                <VideoEmbed videoId={ADDON_VIDEO.id} title={ADDON_VIDEO.title} />
+                <p class="mt-3 text-xs text-gray-400 text-center max-w-sm mx-auto italic">
+                  Aprende a aprovechar al máximo el addon con nuestros tutoriales.
                 </p>
-              </a>
+                <p class="mt-1.5 text-center">
+                  <a
+                    href={APP_URLS.YOUTUBE}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[10px] font-black uppercase tracking-widest text-brand-300 hover:text-brand-200 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                  >
+                    Ver más videos en YouTube →
+                  </a>
+                </p>
+              </div>
 
               <!-- Discord Button -->
               <a

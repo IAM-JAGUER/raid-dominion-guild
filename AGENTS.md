@@ -492,6 +492,11 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-19 (video del addon)**: la landing incrusta el video de
+  presentación en la tarjeta "ADDON WOW 3.3.5A" mediante `VideoEmbed.astro`
+  (fachada clic-para-reproducir + iframe `youtube-nocookie`, fallback al
+  `watch`); dato único en `ADDON_VIDEO`. Detalle en `design.md` §7d.
+
 - **2026-10-19 (filtros y paginador en pestañas)**: buscador+facetas
   (`createFilterBar`) y paginador (`createPaginator` / `packSections`) en
   todas las pestañas de lista del portal y del dashboard; extraído el

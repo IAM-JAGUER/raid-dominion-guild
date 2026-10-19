@@ -50,6 +50,12 @@ export const SOCIAL_LINKS = {
   },
 };
 
+// Video de presentación del addon (fachada embebida en la landing).
+export const ADDON_VIDEO = {
+  id: 'yen-IjWLAoY',
+  title: 'RaidDominion Tools - World of Warcraft Addon',
+} as const;
+
 // Configuración de características del addon
 export const ADDON_FEATURES = [
   'Gestión avanzada de bandas',

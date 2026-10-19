@@ -197,6 +197,17 @@ export const ui = {
     btn: 'w-8 h-8 flex items-center justify-center rounded-md border border-brand-600/30 bg-brand-900/20 text-brand-200 hover:bg-brand-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200',
   },
 
+  // ── Video embebido (2026-10-19, VideoEmbed.astro) ──────────────────────
+  // Fachada clic-para-reproducir: miniatura 16:9 + botón de play; el iframe
+  // (youtube-nocookie) se inyecta al hacer clic. El play es un control
+  // circular sin texto (R1); el acento es de marca, no rojo de YouTube.
+  video: {
+    frame: 'relative w-full aspect-video overflow-hidden rounded-md border border-brand-600/30 bg-brand-950/70',
+    thumb: 'absolute inset-0 h-full w-full object-cover',
+    veil: 'bg-brand-950/30 group-hover:bg-brand-950/10 group-focus-within:bg-brand-950/10 transition-all duration-300',
+    play: 'flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full border border-brand-300/40 bg-gradient-to-br from-brand-400 to-brand-600 text-brand-950 shadow-lg shadow-brand-950/70 motion-safe:group-hover:scale-105 transition-all duration-300',
+  },
+
   // ── Sistema de iconos (2026-10-16, icons.css) ───────────────────────────
   // Clases de tamaño del sprite temático (65 iconos, contrato en
   // src/lib/ui/icons.ts). El componente es Icon.astro / iconEl; estas clases
