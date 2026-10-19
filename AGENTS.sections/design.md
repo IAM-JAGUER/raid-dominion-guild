@@ -158,21 +158,31 @@ UI MMORPG clásica", no una copia.
   `ui.cut`; `.rd-cut-t` vía `ui.cutTop` en cabeceras de panel contiguo) para
   contenedores ceremoniales — NO es border-radius. El filo lleva un **bisel
   helado** (`::after`: línea de luz pegada al clip + resplandor cian hacia
-  dentro) que respira (`rd-seam-breathe`, 7s; familia del sistema de
-  divisores, compás y portadora propios). Detalle fino: el pseudo se ancla al
-  **border-box** (`top/left: -1px`) porque el absoluto se posa en el padding
-  box y el `border` de 1px lo corría respecto al `clip-path` (que referencia
-  el border box); en los combos con `rd-metal` (que ya usan `::after` para la
-  costura) el bisel se integra a esa costura — juntos laten — y compensa el
-  desfase en sus stops.
+  dentro) y una **chispa de vértice** (destello radial `circle at 5px 5px`
+  r11 α.4 — la MISMA receta del remache de `rd-metal`, para que las placas de
+  encabezado emparejen con las cabeceras de panel), todo respirando
+  (`rd-seam-breathe`, 7s; familia del sistema de divisores, compás y
+  portadora propios). Detalle fino: el pseudo se ancla al **border-box**
+  (`top/left: -1px`) porque el absoluto se posa en el padding box y el
+  `border` de 1px lo corría respecto al `clip-path` (que referencia el border
+  box); en los combos con `rd-metal` (que ya usan `::after` para la costura)
+  el bisel se integra a esa costura — juntos laten — y compensa el desfase
+  en sus stops.
 - **Contenedores vivos (2026-10-18)**: las **costuras** superiores (`.rd-metal::after`
   — paneles `ui.panel`, `sectionHead`/`sectionBody`, y los combos con corte)
-  respiran con la misma familia (`rd-seam-breathe`, delays propios): el
-  contenedor de contenido nunca queda inerte. Cards regulares (`rd-card`)
-  quedan FUERA a propósito: decenas por directorio latiendo a la vez sería
-  ruido y coste de composición — su vida es el hover (`rd-lift`) y la línea
-  de acento estática. Con `reduce` costuras y biseles usan `rd-seam-breathe-slow`
-  (opacidad pura, sin traslación).
+  y las **bandas espectrales** del borde superior llevan la misma luz:
+  bloom cian que **respira** (opacidad) y **vaga en vaivén espectral** sobre
+  el borde. Ambas estructuras la llevan: placas de encabezado (banda propia
+  en su `::before` libre: `radial-gradient(90% 320% at 50% 0%)` 10px, vaivén
+  por `transform` ±18px — compuesto) y cabeceras/paneles de metal (banda
+  integrada a la costura; en los combos el vaivén usa `background-position`
+  POR CAPA: el bisel queda clavado en la esquina y solo costura+banda vagan).
+  Delays propios por portadora (breathe −1.4/−2.8/−5.4s; sway/shift 13s).
+  Cards regulares (`rd-card`) quedan FUERA a propósito: decenas por
+  directorio latiendo a la vez sería ruido y coste de composición — su vida
+  es el hover (`rd-lift`) y la línea de acento estática. Con `reduce` bandas,
+  costuras y biseles usan `rd-seam-breathe-slow` (opacidad pura; el vaivén
+  se retira por ser traslación).
 - **Títulos ceremoniales**: `ui.ornament` (`rd-title rd-ornament`) añade
   doble línea + diamante bajo títulos TIER 1/2.
 - **Divisores (2026-10-18)**: sistema único en material.css — el trazo
@@ -443,6 +453,24 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-18 (luz espectral de contenedores)**: refinamiento del sistema
+  del mismo día — (1) **chispa de vértice** en el bisel de las placas
+  (destello radial idéntico al remache de `rd-metal`: `circle at 5px 5px`
+  r11 α.4), que empareja los encabezados de página con las cabeceras de panel
+  del contenido; (2) **banda espectral** que vaga por el borde superior de
+  AMBAS estructuras: placas (::before libre, bloom 10px + vaivén por
+  `transform` ±18px, compuesto) y metal (banda integrada a su costura —
+  `rd-metal::after` crece a 8px con bloom; en combos el vaivén usa
+  `background-position` por capa con el bisel clavado). Keyframes nuevos
+  `rd-spectral-sway` (transform, 13s) y `rd-spectral-shift` (posiciones por
+  capa, 13s); con `reduce` todo conserva SOLO la respiración lenta (el
+  vaivén se retira por ser traslación). Verificado por CSSOM (reduce: sin
+  transform/posiciones animadas; anim: sway mid-cycle `translate(-1.4px)` en
+  placa y `background-position 8.2px` en capas de costura+banda del combo con
+  el bisel en `0 0`) y píxeles (contra capturas previas: banda +25/35 B
+  bajo el borde decayendo ~8px en placa, panel llano y head combo; chispa
+  +20 B en el resplandor del vértice; móvil 390 consistente).
 
 - **2026-10-18 (contenedores vivos)**: encabezados y contenedores de
   contenido de todas las páginas ganan luz viva — mismo lenguaje del sistema

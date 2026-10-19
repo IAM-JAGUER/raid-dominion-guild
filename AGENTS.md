@@ -492,6 +492,16 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-18 (luz espectral de contenedores)**: las placas de encabezado
+  ganan la **chispa de vértice** que ya tenían las cabeceras de panel
+  (destello radial del corte) y AMBAS estructuras (encabezados de página y
+  títulos de contenido) llevan ahora una **banda espectral** que respira y
+  vaga por el borde superior (vaivén ±18px; en combos de metal el vaivén es
+  por capa con el bisel clavado en la esquina). Con `prefers-reduced-motion`
+  todo conserva solo la respiración lenta (el vaivén se retira). Verificado
+  por CSSOM (ambos branches) y píxeles (banda y chispa visibles en placa,
+  panel y head; móvil 390). Detalle en `design.md` (historial).
+
 - **2026-10-18 (contenedores vivos)**: encabezados y contenedores de
   contenido de todas las páginas suman luz viva (misma familia del pulso de
   divisores, portadoras propias): **bisel helado** en el corte diagonal

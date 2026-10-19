@@ -178,18 +178,26 @@
     linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
 }
 .rd-metal::after {
-  /* costura de forja superior: línea de luz de energía, con respiración lenta
-     (misma familia que el sistema de divisores; compás propio) */
+  /* Costura de forja superior (línea de energía) + BANDA ESPECTRAL que vaga
+     por el borde: el bloom de la banda es la misma luz que la de las placas
+     (ambas estructuras). Respira y se mece en vaivén (compás propio). */
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent);
+  height: 8px;
+  background-image:
+    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent),
+    radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+  background-size: 100% 1px, 100% 100%;
+  background-position: 0 0, 0 0;
+  background-repeat: no-repeat;
   opacity: 0.7;
   pointer-events: none;
-  animation: rd-seam-breathe 7s ease-in-out -2.8s infinite;
+  animation:
+    rd-seam-breathe 7s ease-in-out -2.8s infinite,
+    rd-spectral-sway 13s ease-in-out -4.4s infinite alternate;
 }
 
 /* Cuerpos contiguos (sectionBody): sin costura propia (no duplica el head) */
@@ -285,9 +293,10 @@
 /* ── ESQUINAS · corte diagonal único en la esquina superior izquierda ─────
    Los contenedores grandes llevan solo la esquina sup-izq biselada; el resto
    de bordes quedan rectos (rounded-md base). El corte lleva un BISEL HELADO
-   (línea de luz + resplandor sobre la diagonal) que respira lento — misma
-   familia que el sistema de divisores, con compás y portadora propios (el
-   filo de la esquina, no una línea completa). Sin `position: relative` el
+   (línea de luz + resplandor sobre la diagonal) con su CHISPA de vértice
+   (el destello radial de las cabeceras de panel), y el borde superior de la
+   estructura una BANDA ESPECTRAL que vaga — misma familia que el sistema de
+   divisores, con compás y portadora propios. Sin `position: relative` el
    bisel no tendría caja propia: se declara aquí para los contenedores. */
 .rd-cut {
   position: relative;
@@ -298,13 +307,15 @@
   position: relative;
   clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
 }
-/* Bisel helado sobre la diagonal (x+y=12): la línea va pegada al filo
-   (los stops anteriores al clip quedan recortados; solo se ve el filo
-   interior de ~1px) y el resplandor se desvanece hacia el interior. El
-   pseudo se ancla al BORDER box (top/left −1px): los absolutos se posan en
-   el padding box y el `border` de 1px los corría respecto al `clip-path`
-   (que referencia el border box) — sin la corrección la línea quedaba
-   ~2px adentro. */
+/* Bisel helado sobre la diagonal (x+y=12) + CHISPA de esquina: la línea va
+   pegada al filo (los stops anteriores al clip quedan recortados; solo se ve
+   el filo interior de ~1px), el resplandor se desvanece hacia el interior y
+   el destello radial del vértice replica la chispa de las cabeceras de panel
+   (remache de rd-metal: mismo centro efectivo, mismo color/radio). El pseudo
+   se ancla al BORDER box (top/left −1px): los absolutos se posan en el
+   padding box y el `border` de 1px los corría respecto al `clip-path` (que
+   referencia el border box) — sin la corrección la línea quedaba ~2px
+   adentro. */
 .rd-cut:not(.rd-metal)::after,
 .rd-cut-t:not(.rd-metal)::after {
   content: "";
@@ -316,26 +327,52 @@
   pointer-events: none;
   background-image:
     linear-gradient(135deg, rgba(215, 240, 255, 0.95) 0 9.6px, rgba(215, 240, 255, 0) 9.8px),
-    linear-gradient(135deg, rgba(0, 191, 255, 0.42) 0 10.4px, rgba(0, 191, 255, 0) 13.5px);
+    linear-gradient(135deg, rgba(0, 191, 255, 0.42) 0 10.4px, rgba(0, 191, 255, 0) 13.5px),
+    radial-gradient(circle at 5px 5px, rgba(0, 191, 255, 0.4), rgba(0, 191, 255, 0) 11px);
   animation: rd-seam-breathe 7s ease-in-out -3.7s infinite;
 }
+/* BANDA ESPECTRAL de la placa: bloom que vaga por el borde superior (misma
+   luz que la de las costuras de panel), meciéndose en vaivén. El pseudo
+   ::before está libre en los contenedores sin material (placas); los combos
+   con rd-metal la llevan integrada a su costura (abajo). */
+.rd-cut:not(.rd-metal):not(.rd-card):not(.rd-stone):not(.rd-parchment)::before,
+.rd-cut-t:not(.rd-metal):not(.rd-card):not(.rd-stone):not(.rd-parchment)::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  height: 10px;
+  pointer-events: none;
+  background-image: radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  animation:
+    rd-seam-breathe 7s ease-in-out -1.4s infinite,
+    rd-spectral-sway 13s ease-in-out -6.2s infinite alternate;
+}
 /* Paneles de METAL con corte: su ::after ya es la costura superior — se
-   re-declara con el bisel integrado (caja de 16px + costura de 1px) y ambos
-   respiran juntos (una sola luz de contorno). Aquí el pseudo NO se puede
-   anclar al border box (movería la costura), así que el bisel compensa el
-   desfase del borde (1px por eje ⇒ −1.41px en p ⇒ −2px en x+y) en sus
-   stops: la línea vuelve a ceñirse al filo del clip. */
+   re-declara con el bisel integrado (caja de 16px + costura de 1px + banda
+   espectral) y todo respira junto (una sola luz de contorno). El bisel
+   compensa el desfase del borde (1px por eje ⇒ −1.41px en p ⇒ −2px en x+y)
+   en sus stops: la línea vuelve a ceñirse al filo del clip. El vaivén usa
+   background-position por capa: el bisel queda clavado en la esquina y solo
+   la costura y la banda vagan (el pseudo NO se puede anclar al border box
+   porque movería la costura, ni transformar porque arrastraría el bisel). */
 .rd-metal.rd-cut::after,
 .rd-metal.rd-cut-t::after {
   height: 16px;
   background-image:
     linear-gradient(135deg, rgba(215, 240, 255, 0.95) 0 8.2px, rgba(215, 240, 255, 0) 8.4px),
     linear-gradient(135deg, rgba(0, 191, 255, 0.42) 0 9px, rgba(0, 191, 255, 0) 12.1px),
-    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent);
-  background-size: 16px 16px, 16px 16px, 100% 1px;
-  background-position: 0 0;
+    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent),
+    radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+  background-size: 16px 16px, 16px 16px, 100% 1px, 100% 100%;
+  background-position: 0 0, 0 0, 0 0, 0 0;
   background-repeat: no-repeat;
-  animation: rd-seam-breathe 7s ease-in-out -5.4s infinite;
+  animation:
+    rd-seam-breathe 7s ease-in-out -5.4s infinite,
+    rd-spectral-shift 13s ease-in-out -8.3s infinite alternate;
 }
 @keyframes rd-seam-breathe {
   0%,
@@ -353,6 +390,22 @@
   }
   50% {
     opacity: 0.9;
+  }
+}
+@keyframes rd-spectral-sway {
+  from {
+    transform: translate(-18px, 0.5px);
+  }
+  to {
+    transform: translate(18px, -0.5px);
+  }
+}
+@keyframes rd-spectral-shift {
+  from {
+    background-position: 0 0, 0 0, -18px 0, -18px 0;
+  }
+  to {
+    background-position: 0 0, 0 0, 18px 0, 18px 0;
   }
 }
 
@@ -714,14 +767,17 @@
   .rd-tabbar::after {
     animation: rd-divider-breathe-slow 11s ease-in-out -5.2s infinite;
   }
-  /* Costuras de panel y biseles de esquina: respiración lenta y suave
-     (opacidad pura). Se listan los combos porque su especificidad vencería
-     a un selector simple. */
+  /* Costuras, bandas espectrales y biseles de esquina: respiración lenta y
+     suave (opacidad pura; el vaivén espectral se retira: es traslación).
+     Se listan los combos porque su especificidad vencería a un selector
+     simple. */
   .rd-metal::after,
   .rd-metal.rd-cut::after,
   .rd-metal.rd-cut-t::after,
   .rd-cut:not(.rd-metal)::after,
-  .rd-cut-t:not(.rd-metal)::after {
+  .rd-cut-t:not(.rd-metal)::after,
+  .rd-cut:not(.rd-metal):not(.rd-card):not(.rd-stone):not(.rd-parchment)::before,
+  .rd-cut-t:not(.rd-metal):not(.rd-card):not(.rd-stone):not(.rd-parchment)::before {
     animation: rd-seam-breathe-slow 12s ease-in-out -4.2s infinite;
   }
   .rd-btn,
