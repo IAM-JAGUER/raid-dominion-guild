@@ -492,6 +492,11 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-19 (ficha de servidor)**: `/servidor/:server` estandariza su
+  lista de Reinos en una ventana `PanelWindow` con la barra de filtros
+  (`createFilterBar`, buscador) y el paginador único; era la única ficha que
+  quedó fuera del barrido de listas.
+
 - **2026-10-19 (video del addon)**: la landing incrusta el video de
   presentación en la tarjeta "ADDON WOW 3.3.5A" mediante `VideoEmbed.astro`
   (fachada clic-para-reproducir + iframe `youtube-nocookie`, fallback al

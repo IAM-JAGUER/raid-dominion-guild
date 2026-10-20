@@ -5,6 +5,7 @@
 // uno enlazando a su vista anidada /servidor/:server/reino/:realm.
 import { ui } from '@/lib/ui/design';
 import Icon from '@/components/ui/Icon.astro';
+import PanelWindow from '@/components/ui/PanelWindow.astro';
 ---
 <section id="view-servidor" class="hidden">
   <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
@@ -29,7 +30,11 @@ import Icon from '@/components/ui/Icon.astro';
   <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
   <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
-  <div id="sv-body" class="space-y-6"></div>
+  <PanelWindow title="Reinos" icon="vientos">
+    <div slot="head" class="mt-4" id="sv-realms-filtro"></div>
+    <div id="sv-realms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <div id="sv-realms-pager" class="mt-3"></div>
+  </PanelWindow>
   <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
 </section>
 
@@ -39,6 +44,8 @@ import Icon from '@/components/ui/Icon.astro';
   import { cardLink, cardTitle, iconTileEl } from '@/lib/ui/card';
   import { ui } from '@/lib/ui/design';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
+  import { createFilterBar } from '@/lib/ui/filterBar';
+  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
 
   const seg = currentSegments();
   if (seg[0]?.toLowerCase() === 'servidor' && seg.length === 2) {
@@ -65,21 +72,55 @@ import Icon from '@/components/ui/Icon.astro';
     (document.getElementById('sv-summary') as HTMLElement).textContent =
       'Servidor con hermandades y personajes públicos de la comunidad RaidDominion.';
 
-    const body = document.getElementById('sv-body') as HTMLElement;
+    realms.sort((a, b) => a.localeCompare(b));
 
-    const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-4');
+    const realmsEl = document.getElementById('sv-realms') as HTMLElement;
+    const pagerEl = document.getElementById('sv-realms-pager') as HTMLElement | null;
 
-    realms.sort((a, b) => a.localeCompare(b)).forEach((realm) => {
-      const cardEl = cardLink(`/servidor/${encodeURIComponent(server)}/reino/${encodeURIComponent(slugify(realm))}`, 'p-5');
-      const head = el('div', 'flex items-center gap-3 mb-2');
-      head.appendChild(iconTileEl('vientos'));
-      head.appendChild(cardTitle(realm, 'text-xl', 'truncate min-w-0'));
-      cardEl.appendChild(head);
-      cardEl.appendChild(el('p', `${ui.text.bodyMuted} mt-2`, 'Hermandades y personajes públicos →'));
-      grid.appendChild(cardEl);
+    createFilterBar({
+      mount: document.getElementById('sv-realms-filtro') as HTMLElement,
+      items: realms,
+      getSearchText: (realm) => realm,
+      searchPlaceholder: 'Buscar reino…',
+      searchLabel: 'Buscar reinos por nombre',
+      resultNoun: (n) => `${n} reino${n === 1 ? '' : 's'}`,
+      onChange: (filtered, state) => {
+        if (pagerEl) pagerEl.textContent = '';
+        realmsEl.innerHTML = '';
+        if (filtered.length === 0) {
+          const msg = state.query.trim()
+            ? `Ningún reino coincide con "${state.query.trim()}".`
+            : 'No hay reinos que coincidan con los filtros.';
+          realmsEl.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
+          return;
+        }
+        const paginator = createPaginator({
+          pageSize: PAGE_SIZE_GRID,
+          totalItems: filtered.length,
+          summary: `${filtered.length} reino${filtered.length === 1 ? '' : 's'}`,
+          renderPage: (page) => {
+            realmsEl.innerHTML = '';
+            const start = (page - 1) * PAGE_SIZE_GRID;
+            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((realm) => {
+              realmsEl.appendChild(realmCard(server, realm));
+            });
+          },
+        });
+        if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
+        paginator.update();
+      },
     });
 
-    body.appendChild(grid);
     showView('view-servidor');
+  }
+
+  function realmCard(server: string, realm: string): HTMLElement {
+    const cardEl = cardLink(`/servidor/${encodeURIComponent(server)}/reino/${encodeURIComponent(slugify(realm))}`, 'p-5');
+    const head = el('div', 'flex items-center gap-3 mb-2');
+    head.appendChild(iconTileEl('vientos'));
+    head.appendChild(cardTitle(realm, 'text-xl', 'truncate min-w-0'));
+    cardEl.appendChild(head);
+    cardEl.appendChild(el('p', `${ui.text.bodyMuted} mt-2`, 'Hermandades y personajes públicos →'));
+    return cardEl;
   }
 </script>

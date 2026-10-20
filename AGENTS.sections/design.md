@@ -343,6 +343,8 @@ sus facetas de contenido (nunca un buscador propio):
   instancias (dificultad, Extendida).
 - **Banda**: core (rol y clase, sin paginar: conserva los grupos por rol
   colapsables) y reglas (buscador + Con contenido).
+- **Servidor**: reinos (solo buscador + contador, una sola dimensión de dato
+  como el directorio `/servidores`).
 - **Portal**: reglas (buscador + Con contenido; sin el tope de 20).
 - **Dashboard**: mis personajes (clase, reino, Público, Validado, Con nota),
   registro de personajes (clase, reino, Maestro, Otra cuenta, Con ficha),

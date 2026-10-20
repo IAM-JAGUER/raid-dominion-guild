@@ -47,6 +47,9 @@ facetas de día/tipo.
   `dividerFadeRight`) → **tab-bar** (`rd-tabbar` + `src/lib/ui/tabs.ts`) →
   **paneles ventana** (`PanelWindow`) → `dividerFadeLeft`; script con
   render + `showView`/`showNotFound`.
+- `ServerView` es la excepción: no tiene tab-bar (su única lista es la de
+  reinos) y renderiza una sola ventana "Reinos" con la barra estándar
+  (buscador, sin facetas) + paginador del motor único.
 
 ### D. Perfil de jugador — `src/components/JugadorProfile.astro`
 Vista tipo C **sin DetailShell**: duplica su propio `main` + `#loading` +
