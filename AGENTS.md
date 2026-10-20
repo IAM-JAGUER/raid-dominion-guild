@@ -492,6 +492,12 @@ completo, Configurados en `.env`/Netlify):
 
 ## 13. Changelog de este archivo
 
+- **2026-10-19 (core de banda)**: las placas del Core de `/banda/:slug`
+  muestran sus badges solo como icono (integración, líder, baneado, dual,
+  sanción y puntos) y el contenido cierra con un pie de leyenda fijo que
+  decodifica los seis iconos; el valor exacto queda en `title`/`sr-only`.
+  Detalle en `design.md` §7e.
+
 - **2026-10-19 (ficha de servidor)**: `/servidor/:server` estandariza su
   lista de Reinos en una ventana `PanelWindow` con la barra de filtros
   (`createFilterBar`, buscador) y el paginador único; era la única ficha que

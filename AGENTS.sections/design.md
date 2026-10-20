@@ -342,7 +342,8 @@ sus facetas de contenido (nunca un buscador propio):
   ranura, calidad, Completada; un paginador POR SECCIONES equipo/monedas) e
   instancias (dificultad, Extendida).
 - **Banda**: core (rol y clase, sin paginar: conserva los grupos por rol
-  colapsables) y reglas (buscador + Con contenido).
+  colapsables; badges solo-icono con pie de leyenda, §7e) y reglas
+  (buscador + Con contenido).
 - **Servidor**: reinos (solo buscador + contador, una sola dimensión de dato
   como el directorio `/servidores`).
 - **Portal**: reglas (buscador + Con contenido; sin el tope de 20).
@@ -374,6 +375,21 @@ sin JS y, con JS, el clic inyecta un iframe de `youtube-nocookie.com`
 clic (rendimiento/privacidad); el play es un control circular de marca
 (`ui.video.*`), no el rojo de YouTube. El video del addon vive en
 `ADDON_VIDEO` (`src/utils/constants.ts`) y se monta en `AddonSection`.
+
+### 7e. Core de banda: badges solo-icono y pie de leyenda (2026-10-19)
+
+En el tab Core de `/banda/:slug` (`renderBandCore`/`renderCorePlayer`,
+`src/lib/ui/preview.ts`) los marcadores del jugador son SOLO-ICONO:
+integración (`enlace`), líder (`corona`), baneado (`bloqueo`), dual
+(`sincronizar`), sanción (`balanza`) y puntos (`dados`). La etiqueta visible
+no va en la placa: el contenido cierra con un pie FIJO
+(`renderCoreLegend`, superficie `ui.surf.row` + rótulo «Leyenda») que
+decodifica los seis iconos, aunque ningún jugador use ese badge. El dato
+exacto (p. ej. «sanción: 2 días», «15 pts») se conserva en `title` y en un
+`sr-only` del chip: no se pierde información ni accesibilidad. Las notas
+libres del jugador siguen como texto (no son badges). El pie se re-monta
+con cada filtrado; el estado vacío del filtro no lo muestra (no hay
+contenido que cerrar).
 
 ## 8. Responsive
 
@@ -499,6 +515,12 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-19 (core de banda)**: los badges de las placas del Core pasan a
+  SOLO-ICONO (integración/líder/baneado/dual/sanción/puntos) y el contenido
+  cierra con un pie de leyenda fijo que decodifica los seis iconos (§7e).
+  El dato exacto sobrevive en `title` y `sr-only`; la nota libre sigue como
+  texto. Verificado con el core de `/banda/perfil-ef8a0aec-icc25n`.
 
 - **2026-10-19 (video del addon)**: la tarjeta "ADDON WOW 3.3.5A" de la
   landing deja de ser un enlace al canal y monta el video de presentación

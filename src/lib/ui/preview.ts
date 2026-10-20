@@ -208,8 +208,9 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
 // ── Core de banda (estilo lista de asistencia de raids de guild-portal) ─────
 // El roster de una banda se agrupa por rol (TANQUES/SANADORES/MELEE/RANGO) con
 // cabeceras de color + ícono + conteo + chevron colapsable, y un grid de
-// fichas con nombre coloreado por clase y badges (líder/baneado/sanción/
-// integración/puntos/dual). Mismo lenguaje visual que el Core de guild-portal.
+// fichas con nombre coloreado por clase y badges SOLO-ICONO (integración/
+// líder/baneado/dual/sanción/puntos): sus etiquetas se decodifican en el pie
+// de leyenda fijo del contenido (renderCoreLegend).
 
 // Icono temático por grupo de rol del core (contrato src/lib/ui/icons.ts).
 const CORE_ICONS: Record<'tank' | 'healer' | 'melee' | 'rango', IconName> = {
@@ -239,19 +240,43 @@ export function coreRoleGroup(p: { role?: string | null; class?: string | null }
   return ranged.includes(cl) ? 'rango' : 'melee';
 }
 
-function coreBadge(text: string, extra: string, icon?: IconName): HTMLElement {
+// Badge SOLO-ICONO del core: la etiqueta visible vive en el pie de leyenda
+// (renderCoreLegend). El texto completo se conserva en title (tooltip) y
+// sr-only para no perder el valor exacto (p. ej. "sanción: 2 días", "15 pts")
+// ni la accesibilidad.
+function coreBadge(label: string, extra: string, icon: IconName): HTMLElement {
   const badge = el('span', `${ui.badge} ${ui.badgeSm} ${extra}`);
-  if (icon) badge.appendChild(iconEl(icon, { size: 'xs' }));
-  badge.appendChild(document.createTextNode(text));
+  badge.title = label;
+  badge.appendChild(iconEl(icon, { size: 'xs' }));
+  badge.appendChild(el('span', 'sr-only', label));
   return badge;
 }
 
-// Cifra/estado plano del core (sin caja de badge) con icono temático.
-function coreText(text: string, cls: string, icon: IconName): HTMLElement {
-  const span = el('span', `inline-flex items-center gap-1 ${cls}`);
-  span.appendChild(iconEl(icon, { size: 'xs', cls: 'shrink-0' }));
-  span.appendChild(document.createTextNode(text));
-  return span;
+// Leyenda FIJA del pie del core: mismos iconos/etiquetas que las placas.
+const CORE_LEGEND: Array<{ icon: IconName; label: string }> = [
+  { icon: 'enlace', label: 'Integración' },
+  { icon: 'corona', label: 'Líder' },
+  { icon: 'bloqueo', label: 'Baneado' },
+  { icon: 'sincronizar', label: 'Dual' },
+  { icon: 'balanza', label: 'Sanción' },
+  { icon: 'dados', label: 'Puntos' },
+];
+
+// Pie del contenido del core: decodifica los badges solo-icono de las placas.
+// Se monta SIEMPRE (aunque ningún jugador use un badge) como cierre del panel.
+function renderCoreLegend(): HTMLElement {
+  const footer = el('footer', `${ui.surf.row} mt-2 px-4 py-3`);
+  footer.setAttribute('aria-label', 'Leyenda de iconos del core');
+  footer.appendChild(el('p', 'text-[10px] font-black uppercase tracking-widest text-brand-300/80 mb-2', 'Leyenda'));
+  const list = el('ul', 'flex flex-wrap gap-x-4 gap-y-2');
+  CORE_LEGEND.forEach(({ icon, label }) => {
+    const li = el('li', 'inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-gray-400');
+    li.appendChild(iconEl(icon, { size: 'xs', cls: 'shrink-0' }));
+    li.appendChild(document.createTextNode(label));
+    list.appendChild(li);
+  });
+  footer.appendChild(list);
+  return footer;
 }
 
 function renderCoreSection(title: string, count: number, color: string, icon: IconName, rows: HTMLElement[]): HTMLElement {
@@ -322,10 +347,12 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
 
   const right = el('div', 'flex flex-wrap justify-end gap-1.5 text-[10px]');
   // El rol principal NO se repite en la card: lo comunica la cabecera del
-  // grupo colapsable; en su lugar se muestra el dual cuando existe.
-  if (p.dual) right.appendChild(el('span', 'text-brand-300', roleLabel(p.dual) || p.dual));
-  if (p.sanction) right.appendChild(coreText(`sanción: ${p.sanction}`, 'text-brand-300', 'balanza'));
-  if (typeof p.points === 'number') right.appendChild(coreText(`${p.points} pts`, 'text-brand-200', 'dados'));
+  // grupo colapsable; en su lugar se muestra el dual cuando existe. Todos los
+  // marcadores van SOLO-ICONO; el dato exacto vive en title/sr-only y la
+  // etiqueta en el pie de leyenda.
+  if (p.dual) right.appendChild(coreBadge(`dual: ${roleLabel(p.dual) || p.dual}`, 'text-brand-300 bg-brand-950/40 border-brand-600/40', 'sincronizar'));
+  if (p.sanction) right.appendChild(coreBadge(`sanción: ${p.sanction}`, 'text-brand-300 bg-brand-950/40 border-brand-600/40', 'balanza'));
+  if (typeof p.points === 'number') right.appendChild(coreBadge(`${p.points} pts`, 'text-brand-200 bg-brand-950/40 border-brand-600/40', 'dados'));
   if (slug) right.appendChild(arrowIcon());
   row.appendChild(right);
   return row;
@@ -378,6 +405,7 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
   });
 
   if (!any) return el('p', 'text-sm text-gray-400 italic', 'Esta banda aún no tiene jugadores asignados.');
+  wrap.appendChild(renderCoreLegend());
   return wrap;
 }
 
