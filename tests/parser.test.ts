@@ -271,3 +271,79 @@ test('los campos visibles del SV se limpian de markup de chat', () => {
   assert.equal(player?.objectives?.equipment[0]?.name, 'Cinturón');
   assert.equal(player?.objectives?.currencies[0]?.name, 'Marca');
 });
+
+// ─── Monedas y metadatos del roster (tracker) ──────────────────────────────
+
+test('characters[] expone currencies/money y fechas para el tracker', () => {
+  const res = parseData(`
+    characters = {
+      ["Ana-Serena"] = {
+        name = "Ana", realm = "Serena", level = 80, version = "3.1.0",
+        firstSeen = 1700000000, lastSeen = 1700086400, money = 22098877,
+        currencies = {
+          { name = "Oro", quantity = 22098877, money = true },
+          { name = "Emblema de escarcha", quantity = 340 },
+        },
+      },
+    },
+  `);
+  const c = res.characters?.[0];
+  assert.equal(c?.name, 'Ana');
+  assert.equal(c?.money, 22098877);
+  assert.equal(c?.firstSeen, 1700000000);
+  assert.equal(c?.lastSeen, 1700086400);
+  assert.equal(c?.version, '3.1.0');
+  assert.equal(c?.currencies?.length, 2);
+  assert.deepEqual(c?.currencies?.[0], { name: 'Oro', quantity: 22098877, money: true });
+  assert.deepEqual(c?.currencies?.[1], { name: 'Emblema de escarcha', quantity: 340, money: false });
+});
+
+test('characters[] sin currencies no inventa la clave', () => {
+  const res = parseData(`
+    characters = {
+      ["Ana-Serena"] = { name = "Ana", realm = "Serena", level = 80 },
+    },
+  `);
+  assert.equal(res.characters?.[0]?.currencies, undefined);
+  assert.equal(res.characters?.[0]?.money, undefined);
+});
+
+
+test('el equipamiento conserva itemID para el tooltip de UltimoWoW', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = {
+          name = "Ana", realm = "Serena",
+          equipment = {
+            { slot = 1, name = "Corona", ilvl = 277, quality = 4, itemID = 50661 },
+            { slot = 2, name = "Sin id", ilvl = 264, quality = 4 },
+          },
+        },
+      },
+    },
+  `);
+  const gear = res.registries?.[0]?.player?.equipment ?? [];
+  assert.equal(gear[0]?.itemID, 50661);
+  assert.equal(gear[1]?.itemID, undefined);
+});
+
+test('la nota conserva tokens ricos para los enlaces del juego', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = {
+          name = "Ana", realm = "Serena",
+          note = "Llevo |cffffffff|Hitem:36895:0:0:0:0:0:0:0:80|h[PIEDRA DE ALMA]|h|r y busco grupo",
+        },
+      },
+    },
+  `);
+  const player = res.registries?.[0]?.player;
+  assert.equal(player?.note, 'Llevo PIEDRA DE ALMA y busco grupo');
+  assert.deepEqual(player?.noteRich, [
+    { type: 'text', text: 'Llevo ' },
+    { type: 'link', kind: 'item', id: 36895, label: 'PIEDRA DE ALMA', color: 'ffffff' },
+    { type: 'text', text: ' y busco grupo' },
+  ]);
+});

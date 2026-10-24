@@ -29,6 +29,82 @@
   "_nota_ledger": "LEDGER COMPLETO (2026-08-30): las 40 migraciones de supabase/migrations/ fueron confirmadas como aplicadas por el usuario (aplicación manual vía SQL Editor, sin CLI, ver AGENTS.md §8). 'migraciones_aplicadas' es ahora la fuente de verdad completa desde el origen del proyecto (frallas.md F012 resuelto). (2026-10-15) Existen migraciones posteriores sin confirmar en 'migraciones_pendientes_confirmacion'.",
   "ciclos": [
     {
+      "fecha": "2026-10-24",
+      "agente": "development",
+      "descripcion": "Tooltips de juego alineados con wow-rd: power.js de UltimoWoW, data-wowhead kind=id, itemID de equipamiento, itemID en metas y equipo de fichas pública/tracker, tokens ricos de nota (note_rich) y enlace de nombre de banda (name_link).",
+      "archivos_tocados": [
+        "supabase/migrations/20261024_game_links_tooltips.sql",
+        "src/lib/wowLink.ts",
+        "src/lib/ui/wowhead.ts",
+        "src/lib/ui/itemQuality.ts",
+        "src/lib/ui/cards.ts",
+        "src/lib/ui/preview.ts",
+        "src/lib/parser/savedVariables.ts",
+        "src/types/parser.ts",
+        "src/types/database.ts",
+        "src/lib/api.ts",
+        "src/pages/upload.astro",
+        "src/pages/dashboard.astro",
+        "src/components/views/CharacterView.astro",
+        "src/components/views/BandView.astro",
+        "src/components/JugadorProfile.astro",
+        "src/lib/ui/dashboard/trackerLogic.ts",
+        "src/lib/ui/dashboard/trackerFicha.ts",
+        "tests/wowLink.test.ts",
+        "tests/parser.test.ts",
+        "tests/trackerLogic.test.ts",
+        "AGENTS.md",
+        "AGENTS.sections/design.md",
+        "AGENTS.sections/parser.md",
+        "AGENTS.sections/supabase-tables.md",
+        ".opencode/improve/frallas.md"
+      ],
+      "migraciones_creadas": [
+        "20261024_game_links_tooltips.sql (redactada, no aplicada por el agente)"
+      ],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    },
+    {
+      "fecha": "2026-10-23",
+      "agente": "development",
+      "descripcion": "Task Tracker del dashboard: catálogo manual por cuenta, estado activo/marcado por personaje, nota local, oculto, filtros, selección masiva, ficha en línea y catálogo con deep links; parser v3.5.0 (currencies/money del roster) y sincronización privada desde la subida SV. Sin GearScore ni WTF.",
+      "archivos_tocados": [
+        "supabase/migrations/20261023_character_task_tracker.sql",
+        "src/types/parser.ts",
+        "src/lib/parser/savedVariables.ts",
+        "src/types/database.ts",
+        "src/lib/api.ts",
+        "src/pages/upload.astro",
+        "src/pages/dashboard.astro",
+        "src/lib/ui/design.ts",
+        "src/lib/ui/icons.ts",
+        "src/lib/ui/tabs.ts",
+        "src/lib/ui/dashboard/format.ts",
+        "src/lib/ui/dashboard/trackerLogic.ts",
+        "src/lib/ui/dashboard/trackerTasks.ts",
+        "src/lib/ui/dashboard/trackerCards.ts",
+        "src/lib/ui/dashboard/trackerFicha.ts",
+        "src/lib/ui/dashboard/trackerCatalog.ts",
+        "src/lib/ui/dashboard/tracker.ts",
+        "public/images/watermarks/alliance.svg",
+        "public/images/watermarks/horde.svg",
+        "tests/parser.test.ts",
+        "tests/trackerLogic.test.ts",
+        "AGENTS.md",
+        "AGENTS.sections/supabase-tables.md",
+        "AGENTS.sections/parser.md",
+        "AGENTS.sections/design.md"
+      ],
+      "migraciones_creadas": [
+        "20261023_character_task_tracker.sql (redactada, no aplicada por el agente)"
+      ],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    },
+    {
       "fecha": "2026-10-15",
       "agente": "development",
       "descripcion": "Alineación con el addon v3.1.0: nota por personaje (tabla privada raiddominion_character_notes + notes_public) e instancias guardadas (snapshot con resetAt absoluto); parser v3.3.0, tipos, API, ficha pública (orden Equipamiento·Metas·Notas·Instancias·Bandas·Hermandad), dashboard y guías del addon.",
@@ -396,21 +472,29 @@
   ],
   "migraciones_pendientes_confirmacion": [
     {
-      "archivo": "20260930_character_objectives_and_race_faction.sql",
-      "notas": "Referenciada por el código ya en uso (pestaña Metas, facción por raza); NO figuraba en el ledger al 2026-10-15. Confirmar aplicación y mover a migraciones_aplicadas."
-    },
-    {
       "archivo": "20260930_band_notes_private.sql",
       "notas": "Referenciada por el código ya en uso (toggle 'Notas públicas' de bandas, tabla raiddominion_band_notes); NO figuraba en el ledger al 2026-10-15. Confirmar aplicación y mover a migraciones_aplicadas."
     },
     {
+      "archivo": "20260930_character_objectives_and_race_faction.sql",
+      "notas": "Referenciada por el código ya en uso (pestaña Metas, facción por raza); NO figuraba en el ledger al 2026-10-15. Confirmar aplicación y mover a migraciones_aplicadas."
+    },
+    {
       "archivo": "20261015_character_notes_and_instances.sql",
       "notas": "Redactada en este ciclo (nota privada por personaje + notes_public + instances). Pendiente de aplicar manualmente por el usuario en el SQL Editor."
+    },
+    {
+      "archivo": "20261023_character_task_tracker.sql",
+      "notas": "Redactada en el ciclo 2026-10-23 (Task Tracker del dashboard). Pendiente de aplicar manualmente en el SQL Editor por el usuario. Crea raiddominion_tracker_catalog, raiddominion_character_tracker y raiddominion_character_tasks + RPCs privados."
+    },
+    {
+      "archivo": "20261024_game_links_tooltips.sql",
+      "notas": "Redactada en el ciclo 2026-10-24 (tooltips UltimoWoW, itemID de equipo, note_rich y name_link). Pendiente de aplicar manualmente en el SQL Editor por el usuario."
     }
   ],
   "resumen": {
-    "total_ciclos": 0,
-    "exitosos": 0,
+    "total_ciclos": 3,
+    "exitosos": 3,
     "fracasados": 0,
     "mejora_promedio": 0
   }

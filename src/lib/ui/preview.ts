@@ -35,7 +35,7 @@ function chip(text: string, extra = ''): HTMLElement {
 
 // Título de banda: si el SV guardó el nombre como enlace del juego (p. ej. el
 // logro de la mazmorra: `|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`), se
-// muestra la etiqueta limpia con el tooltip de Wowhead; si no, texto plano.
+// muestra la etiqueta limpia con el tooltip de UltimoWoW; si no, texto plano.
 function bandTitle(band: ParsedSavedVariables['bands'][number]): HTMLElement {
   const title = cardTitle('', 'text-base');
   if (band.nameLink) title.appendChild(wowLinkEl(band.nameLink));

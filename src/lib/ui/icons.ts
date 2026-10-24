@@ -141,3 +141,54 @@ export function iconEl(name: IconName, opts: IconElOptions = {}): HTMLElement {
   }
   return span;
 }
+
+// ── Helpers semánticos del tracker (2026-10-23) ───────────────────────────
+// Mapean datos del SV a iconos del MISMO sprite (contrato de 65). No definen
+// arte nuevo: solo eligen el glifo existente más representativo.
+
+function normIconKey(value?: string | null): string {
+  return String(value ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+/** Facción canónica a partir del nombre/token del SV. */
+export function factionKey(value?: string | null): 'alliance' | 'horde' | '' {
+  const s = normIconKey(value);
+  if (/alliance|alianza/.test(s)) return 'alliance';
+  if (/horde|horda/.test(s)) return 'horde';
+  return '';
+}
+
+/** Icono del sprite que mejor representa una raza (marca de agua). */
+export function raceIconFor(value?: string | null): IconName {
+  const s = normIconKey(value);
+  if (/noche|night/.test(s)) return 'estrella';
+  if (/enano|dwarf/.test(s)) return 'arma';
+  if (/gnomo|gnome/.test(s)) return 'engranajes';
+  if (/draenei/.test(s)) return 'cristal';
+  if (/huargen|worgen|orco|orc/.test(s)) return 'espadas';
+  if (/muerto|undead|forsaken|scourge/.test(s)) return 'energia';
+  if (/tauren/.test(s)) return 'estandarte';
+  if (/trol|troll/.test(s)) return 'medalla';
+  if (/sangre|blood/.test(s)) return 'fuego';
+  if (/goblin/.test(s)) return 'cofre';
+  if (/humano|human/.test(s)) return 'escudo';
+  return 'personaje';
+}
+
+/** Icono del sprite para una moneda según su nombre. */
+export function currencyIconFor(value?: string | null): IconName {
+  const s = normIconKey(value);
+  if (/oro|dinero|money/.test(s)) return 'medalla';
+  if (/honor/.test(s)) return 'trofeo';
+  if (/escarcha|fragmento|cristal/.test(s)) return 'cristal';
+  if (/triunfo|estrella/.test(s)) return 'estrella';
+  if (/campeon/.test(s)) return 'corona';
+  if (/conquista|justicia|valor|escudo/.test(s)) return 'escudo';
+  if (/arena|batalla/.test(s)) return 'espadas';
+  if (/emblema|sello/.test(s)) return 'medalla';
+  if (/punto/.test(s)) return 'energia';
+  return 'diamante';
+}

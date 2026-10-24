@@ -197,6 +197,66 @@ export const ui = {
     btn: 'w-8 h-8 flex items-center justify-center rounded-md border border-brand-600/30 bg-brand-900/20 text-brand-200 hover:bg-brand-800/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200',
   },
 
+  // ── Task Tracker del dashboard (2026-10-23) ────────────────────────────
+  // Adaptación del tracker de wow-rd a los tokens del portal: tarjeta
+  // colapsable, pestañas icono+contador, listas de tareas, leyenda inferior
+  // y dock de acciones masivas. Clases repetidas 2+ veces centralizadas aquí.
+  tracker: {
+    shell: 'space-y-4',
+    toolbar: 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
+    card: 'relative overflow-hidden rounded-md border bg-brand-900/40 rd-card transition-all duration-200',
+    cardSelected: 'border-brand-400/70 shadow-[0_0_0_1px_rgba(92,169,232,0.35)]',
+    cardHidden: 'opacity-60',
+    cardHeader: 'relative z-10 flex items-center gap-2 px-3 py-2.5 border-b border-brand-600/20',
+    cardCollapse:
+      'min-w-0 flex-1 flex items-center gap-2 text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
+    cardTitle: 'font-black italic text-sm truncate',
+    cardMeta: 'text-[10px] text-gray-400 uppercase tracking-widest',
+    counter:
+      'shrink-0 inline-flex items-center rounded-md border border-brand-600/30 bg-brand-950/60 px-2 py-0.5 text-[10px] font-black text-brand-200 tabular-nums',
+    body: 'relative z-10 px-3 pb-3',
+    content:
+      'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
+    contentOpen: 'grid-rows-[1fr]',
+    contentClosed: 'grid-rows-[0fr]',
+    contentInner: 'min-h-0 overflow-hidden',
+    stats: 'flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2',
+    stat: 'inline-flex items-baseline gap-1.5',
+    statLabel: 'text-[10px] font-black uppercase tracking-widest text-gray-400',
+    statValue: 'text-xs font-bold text-brand-100 tabular-nums',
+    tabs: 'flex items-center gap-1 border-b border-brand-600/20 pb-1.5 mb-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    tab: 'inline-flex items-center gap-1 shrink-0 rounded-md border border-transparent px-1.5 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+    tabActive: 'bg-brand-950/70 text-brand-200 border-brand-500/40',
+    tabCount: 'text-[9px] font-bold opacity-70 tabular-nums',
+    list: 'space-y-1 max-h-56 overflow-y-auto pr-0.5',
+    task: 'flex items-center gap-2 rounded-md border border-brand-700/30 bg-brand-950/40 px-2 py-1.5',
+    taskDone: 'opacity-70',
+    taskName: 'flex-1 min-w-0 text-[11px] text-gray-200 truncate',
+    taskDoneName: 'line-through text-gray-400',
+    switch:
+      'relative inline-flex h-4 w-7 shrink-0 cursor-pointer items-center rounded-full border border-brand-600/40 bg-brand-950 transition-colors',
+    switchOn: 'bg-brand-600/70 border-brand-400/60',
+    switchKnob: 'inline-block h-3 w-3 rounded-full bg-brand-300 transition-transform',
+    switchKnobOn: 'translate-x-3',
+    progress: 'rd-progress h-2 rounded-full',
+    progressBar: 'block h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none',
+    legend: 'flex flex-wrap items-center gap-1.5 rounded-md border border-brand-700/40 bg-brand-950/50 p-2',
+    legendBtn:
+      'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+    legendActive: 'bg-brand-900/60 text-brand-200 border-brand-500/50',
+    legendCount: 'text-[9px] font-bold opacity-70 tabular-nums',
+    dock: 'flex flex-wrap items-center gap-2 rounded-md border border-brand-500/40 bg-brand-950/90 p-2.5 shadow-lg shadow-brand-950/40',
+    select:
+      'px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
+    catalogRow:
+      'flex items-center gap-2 rounded-md border border-brand-700/30 bg-brand-950/40 px-2.5 py-2',
+    detailRow:
+      'flex items-start justify-between gap-3 border-b border-brand-700/20 py-1.5 text-xs last:border-b-0',
+    detailKey:
+      'shrink-0 text-[10px] font-black uppercase tracking-widest text-gray-400',
+    detailValue: 'min-w-0 text-right text-gray-200 break-words',
+  },
+
   // ── Video embebido (2026-10-19, VideoEmbed.astro) ──────────────────────
   // Fachada clic-para-reproducir: miniatura 16:9 + botón de play; el iframe
   // (youtube-nocookie) se inyecta al hacer clic. El play es un control

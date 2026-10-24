@@ -80,6 +80,57 @@ export const PERSONAJE_TABS: TabDef[] = [
   { id: 'hermandad', label: 'Hermandad', href: '#hermandad', icon: 'hermandad' },
 ];
 
+// Pestañas de la ficha del Task Tracker dentro de #personajes. Sustituyen
+// temporalmente la lista del tracker (fiel al tracker local wow-rd).
+export const TRACKER_FICHA_TABS: TabDef[] = [
+  { id: 'detalle', label: 'Detalle', href: '#detalle', icon: 'personaje' },
+  { id: 'tareas', label: 'Tareas', href: '#tareas', icon: 'validado' },
+  { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento', icon: 'arma' },
+  { id: 'monedas', label: 'Monedas', href: '#monedas', icon: 'cristal' },
+  { id: 'metas', label: 'Metas', href: '#metas', icon: 'estrella' },
+  { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
+  { id: 'instancias', label: 'Instancias', href: '#instancias', icon: 'ciudadela' },
+  { id: 'notas', label: 'Notas', href: '#notas', icon: 'nota' },
+];
+
+// Subvistas del tracker dentro de #personajes (hash anidado).
+export const TRACKER_SUBVIEWS = {
+  ficha: 'ficha',
+  catalogo: 'catalogo',
+} as const;
+
+// Hash de la ficha del tracker por slug (o id si aún no hay slug).
+export function trackerFichaHash(slugOrId: string): string {
+  return `#personajes/${TRACKER_SUBVIEWS.ficha}/${encodeURIComponent(slugOrId)}`;
+}
+
+// Hash del catálogo del tracker.
+export function trackerCatalogHash(): string {
+  return `#personajes/${TRACKER_SUBVIEWS.catalogo}`;
+}
+
+// Primer segmento de un hash de dashboard (#personajes/ficha/x → personajes).
+// Permite que las subvistas del tracker no rompan la pestaña activa.
+export function dashboardTabHead(hash: string): string {
+  return (tabFromHash(hash).split('/')[0] ?? '') as string;
+}
+
+// Subvista del tracker desde el hash: { view: 'ficha'|'catalogo'|'', slug }.
+export function trackerHashView(hash: string): { view: '' | 'ficha' | 'catalogo'; slug: string } {
+  const clean = tabFromHash(hash);
+  const [head, view, ...rest] = clean.split('/');
+  if (head !== 'personajes') return { view: '', slug: '' };
+  if (view === TRACKER_SUBVIEWS.catalogo) return { view: 'catalogo', slug: '' };
+  if (view === TRACKER_SUBVIEWS.ficha && rest.length > 0) {
+    try {
+      return { view: 'ficha', slug: decodeURIComponent(rest.join('/')) };
+    } catch {
+      return { view: '', slug: '' };
+    }
+  }
+  return { view: '', slug: '' };
+}
+
 // Pestañas del reino anidado (/servidor/:server/reino/:realm): Hermandades ·
 // Personajes · Bandas. Bandas solo si hay bandas públicas del reino.
 export const REINO_TABS: TabDef[] = [

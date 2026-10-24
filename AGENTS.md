@@ -99,6 +99,12 @@ visitante / member
      "Nota pública", privada por defecto) e instancias guardadas del portal
 ```
 
+- **Task Tracker** (`/dashboard#personajes`): catálogo manual por cuenta +
+  estado activo/marcado por personaje + nota LOCAL + oculto del tracker. Los
+  datos del personaje (equipo, metas, instancias, monedas, fechas) vienen de
+  las subidas SV; el portal NO lee WTF ni GearScore. Ficha en línea
+  `#personajes/ficha/<slug>` y catálogo `#personajes/catalogo`.
+
 > ⚠️ **Anti-falso-positivo (20260825):** `raiddominion_claim_from_sv` descarta
 > cualquier candidata cuyo nombre ya esté registrado por OTRO maestro. El
 > reclamo manual (`raiddominion_claim_guild`) fue ELIMINADO.
@@ -126,11 +132,11 @@ evidencia de membresía (GM v3, legacy, bandas) y helpers de roles, leer
 ## 5. Formato de SavedVariables
 
 Formato actual v3.1.0, compatible con archivos v3.0.0/v3.0.1. Parser en
-`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.4.0).
+`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.6.0).
 Los textos del SV pueden traer markup de chat (`|c…|H…|h[Etiqueta]|h|r`):
-el parser lo limpia (`src/lib/wowLink.ts`) y el render usa el widget de
-Wowhead donde hay id (`src/lib/ui/wowhead.ts`) — ver parser.md → «Markup de
-chat». Especificación completa: `AGENTS.sections/parser.md`.
+el parser lo limpia (`src/lib/wowLink.ts`) y el render usa el MISMO widget de
+UltimoWoW que el tracker local donde hay id (`src/lib/ui/wowhead.ts`) — ver
+parser.md → «Markup de chat». Especificación completa: `AGENTS.sections/parser.md`.
 
 ## 6. Organización de código
 
@@ -148,6 +154,7 @@ src/
 │   ├── routes.ts    # resolver de rutas públicas
 │   ├── ui/design.ts # tokens visuales — ver AGENTS.sections/design.md
 │   ├── ui/icons.ts  # sistema de 65 iconos (contrato único) — ver design.md §10
+│   ├── ui/dashboard/ # módulos del dashboard (registro, bandas, hermandad y tracker)
 │   └── parser/      # savedVariables.ts (parser SV)
 ├── types/           # interfaces TS
 └── utils/           # utilidades
@@ -491,6 +498,32 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-24 (tooltips de juego)**: el portal adopta el método de tooltip de
+  `wow-rd`: `power.js` de UltimoWoW, `data-wowhead="kind=id"` y URL
+  `https://wotlk.ultimowow.com/es/?kind=id` (carga perezosa). El parser
+  conserva `itemID` del equipamiento; las fichas pública y del tracker aplican
+  tooltip a equipo y metas; las filas antiguas sin `itemID` quedan como texto
+  plano (se completan al re-subir el SV).
+  Se persisten tokens ricos de la nota (`raiddominion_character_notes.note_rich`)
+  y el enlace del nombre de banda (`raiddominion_bands.name_link`); ambos usan
+  el mismo render. Parser v3.6.0: `itemID` de equipo y `noteRich`. Las filas
+  ya guardadas sin esos campos se completan al re-subir el SV. Migración `20261024_game_links_tooltips.sql`, pendiente de
+  aplicación manual. Detalle: `design.md` §11 y `parser.md`.
+
+- **2026-10-23 (Task Tracker del dashboard)**: la pestaña Personajes conserva
+  "Datos del perfil" y suma debajo el **Task Tracker** adaptado de
+  `C:\xampp\htdocs\wow-rd`: catálogo manual por cuenta, tarjetas
+  colapsables con progreso/tabs (Activas, Marcadas, Inactivas, Instancias,
+  Monedas), selección y acciones masivas, filtros/orden, leyenda interactiva,
+  ficha en línea (`#personajes/ficha/<slug>`) y catálogo
+  (`#personajes/catalogo`). Los datos del personaje salen de las subidas SV;
+  **GearScore no existe en el portal** (se usa iLvl/piezas/visto). El estado
+  privado vive en `raiddominion_tracker_catalog`,
+  `raiddominion_character_tracker` y `raiddominion_character_tasks`
+  (migración `20261023_character_task_tracker.sql`, pendiente de aplicación
+  manual). Parser v3.5.0: `characters[]` expone `currencies`/`money`. Detalle:
+  `supabase-tables.md` y `parser.md`.
 
 - **2026-10-19 (core de banda)**: las placas del Core de `/banda/:slug`
   muestran sus badges solo como icono (integración, líder, baneado, dual,

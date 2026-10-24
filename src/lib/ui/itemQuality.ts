@@ -58,13 +58,6 @@ export function itemQualityCountLabel(quality: number, count: number): string {
   return `${count} ${label ?? ''}`.trim();
 }
 
-// El SV no guarda item ID, solo slot/nombre/ilvl/calidad. Se enlaza el objeto
-// a UltimoWoW 3.3.5a por nombre vía búsqueda (?search=), apostrofado/normalizado.
-export function wowItemUrl(name: string): string {
-  const q = (name || '').trim().replace(/['"]/g, '').replace(/\s+/g, ' ');
-  return `https://wotlk.ultimowow.com/?search=${encodeURIComponent(q)}`;
-}
-
 const EQUIPMENT_SLOTS: Record<number, string> = {
   1: 'Cabeza',
   2: 'Cuello',

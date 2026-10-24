@@ -95,8 +95,8 @@ import Icon from '@/components/ui/Icon.astro';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
-  import { itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel, wowItemUrl } from '@/lib/ui/itemQuality';
-  import { applyWowhead } from '@/lib/ui/wowhead';
+  import { itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
+  import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
   import { card, cardTop, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
   import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
@@ -108,6 +108,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
   import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
   import type { CharacterInstance, CurrencyObjective, EquipmentObjective, EquipmentPiece } from '@/types/parser';
+  import type { WowLink } from '@/lib/wowLink';
 
   type MetaItem =
     | { kind: 'equipment'; goal: EquipmentObjective }
@@ -323,23 +324,42 @@ import Icon from '@/components/ui/Icon.astro';
   // Panel "Equipamiento": grilla de tarjetas de ítem (póster, design.md §12)
   // con buscador + chips (ranura/calidad/épico+) y paginador. Cada pieza: el
   // slot como etiqueta, el NOMBRE del objeto como protagonista (color de
-  // calidad) y el ilvl como cifra; el enlace abre UltimoWoW (el SV no guarda
-  // itemID del equipo).
+  // calidad) y el ilvl como cifra. Con itemID del SV se usa el MISMO tooltip
+  // de UltimoWoW que wow-rd; sin id, búsqueda por nombre como fallback.
   function equipmentPieceRow(piece: EquipmentPiece): HTMLElement {
-    return itemRow({
+    const hasId = typeof piece.itemID === 'number' && piece.itemID > 0;
+    const itemHref = hasId
+      ? wowheadUrl({ type: 'item', id: piece.itemID as number, label: piece.name, raw: piece.name }) ?? undefined
+      : undefined;
+    const row = itemRow({
       slot: equipmentSlotLabel(piece.slot),
       name: piece.name,
       quality: piece.quality,
       value: `i${piece.ilvl}`,
-      href: wowItemUrl(piece.name),
-      hrefTitle: `Ver "${piece.name}" en UltimoWoW`,
+      ...(itemHref ? { href: itemHref, hrefTitle: `Ver "${piece.name}" en UltimoWoW` } : {}),
     });
+    if (itemHref && hasId) {
+      applyWowhead(row as HTMLAnchorElement, {
+        type: 'item',
+        id: piece.itemID as number,
+        label: piece.name,
+        raw: piece.name,
+      });
+    }
+    return row;
   }
 
   function renderEquipment(c: CharacterRow): void {
     const equipment = [...(c.equipment ?? [])].sort((a, b) => a.slot - b.slot);
     const list = document.getElementById('pv-equip-list') as HTMLElement;
     const pager = document.getElementById('pv-equip-pager') as HTMLElement | null;
+    const missingIds = equipment.filter((piece) => typeof piece.itemID !== 'number').length;
+    if (missingIds > 0) {
+      list.insertAdjacentElement(
+        'beforebegin',
+        el('p', `${ui.text.caption} mb-3`, 'Algunas piezas no incluyen el ID del objeto (subida anterior); se muestran sin tooltip.'),
+      );
+    }
 
     const facets: Array<Facet<EquipmentPiece>> = [
       {
@@ -443,6 +463,10 @@ import Icon from '@/components/ui/Icon.astro';
       });
     }
     const goal = item.goal;
+    const hasId = typeof goal.itemID === 'number' && goal.itemID > 0;
+    const itemHref = hasId
+      ? wowheadUrl({ type: 'item', id: goal.itemID as number, label: goal.name, raw: goal.name }) ?? undefined
+      : undefined;
     const row = itemRow({
       slot: equipmentSlotLabel(goal.slot),
       name: goal.name,
@@ -450,14 +474,17 @@ import Icon from '@/components/ui/Icon.astro';
       value: typeof goal.ilvl === 'number' ? `i${goal.ilvl}` : undefined,
       done: goal.done,
       leading: iconEl(goal.done ? 'correcto' : 'reloj', { size: 'md', cls: 'shrink-0' }),
-      href: wowItemUrl(goal.name),
-      hrefTitle: `Ver "${goal.name}" en UltimoWoW`,
-    }) as HTMLAnchorElement;
-    // Con itemID del SV, tooltip rico del widget de Wowhead; sin él (SVs
-    // que no exportan metas con id), búsqueda por nombre en UltimoWoW.
-    if (typeof goal.itemID === 'number') {
-      row.removeAttribute('title');
-      applyWowhead(row, { type: 'item', id: goal.itemID, label: goal.name, raw: goal.name });
+      ...(itemHref ? { href: itemHref, hrefTitle: `Ver "${goal.name}" en UltimoWoW` } : {}),
+    });
+    // Con itemID del SV, tooltip de UltimoWoW; sin él, fila plana (igual que
+    // wow-rd, que no inventa un enlace de búsqueda).
+    if (itemHref && hasId) {
+      applyWowhead(row as HTMLAnchorElement, {
+        type: 'item',
+        id: goal.itemID as number,
+        label: goal.name,
+        raw: goal.name,
+      });
     }
     return row;
   }
@@ -580,8 +607,13 @@ import Icon from '@/components/ui/Icon.astro';
     const wrap = el('div', '');
     wrap.appendChild(el('p', `${ui.eyebrow} mb-3`, 'Nota del jugador'));
     // Superficie real (pergamino) en vez de línea translúcida: la nota es
-    // contenido, no metadata.
-    wrap.appendChild(el('p', `${ui.surf.row} rd-parchment p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-line`, note));
+    // contenido, no metadata. Con tokens del SV, los enlaces del juego usan
+    // el mismo tooltip de UltimoWoW que el tracker local.
+    wrap.appendChild(richTextEl(
+      c.note_rich,
+      note,
+      `${ui.surf.row} rd-parchment p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-line`,
+    ));
     return wrap;
   }
 
@@ -693,9 +725,9 @@ import Icon from '@/components/ui/Icon.astro';
   // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
   // distingue si está integrada a una hermandad. Sin slug (banda pública sin
   // ficha) se muestra una card no enlazable con el mismo modelo visual.
-  function bandCard(b: { name: string; slug?: string; schedule?: string; minGS?: number; role?: string; integrated?: boolean; guildId?: string | null; ownerId?: string }, owner?: OwnerRef): HTMLElement {
+  function bandCard(b: { name: string; nameLink?: WowLink | null; slug?: string; schedule?: string; minGS?: number; role?: string; integrated?: boolean; guildId?: string | null; ownerId?: string }, owner?: OwnerRef): HTMLElement {
     if (b.slug) {
-      return renderBandCard({ slug: b.slug, name: b.name, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null }, { integrated: b.integrated, owner });
+      return renderBandCard({ slug: b.slug, name: b.name, nameLink: b.nameLink ?? null, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null }, { integrated: b.integrated, owner });
     }
     const cardEl = card('p-5');
     cardEl.appendChild(cardTop());

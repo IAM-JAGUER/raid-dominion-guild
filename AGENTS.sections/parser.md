@@ -31,7 +31,8 @@ RaidDominionDB = {
     --      classFile, online } }  -- SIN notas pública/oficial (privacidad)
   ["characters"] = {                    -- roster de TODA la cuenta (config compartida)
     ["Nombre-Reino"] = { ["name"], ["realm"], ["faction"], ["className"], ["classFile"],
-      ["raceName"], ["level"], ["version"], ["firstSeen"], ["lastSeen"] },
+      ["raceName"], ["level"], ["version"], ["firstSeen"], ["lastSeen"],
+      ["currencies"] = { { name, quantity, money? } }, ["money"] },
   },
   ["Guild"] = {                       -- LEGACY opcional (evidencia de membresía)
     ["lastUpdate"], ["generatedBy"],
@@ -104,6 +105,20 @@ guardaban `'?'`.
 
 `characters["Nombre-Reino"].version` identifica la versión del addon y se
 actualiza al iniciar sesión. El parser la conserva en `AccountCharacter`.
+Desde el parser v3.6.0 también conserva `currencies` (`{name, quantity,
+money?}`), `money` del roster y `itemID` del equipamiento. Son la fuente de
+la pestaña Monedas, del detalle del Task Tracker y de los tooltips de equipo
+(UltimoWoW, mismo método que `wow-rd`). Los datos de monedas se sincronizan en
+`raiddominion_character_tracker` (tabla privada) al subir el SV; NO se publican
+en la ficha pública ni sustituyen al GS local de `wow-rd` (el portal no lee
+`GearScore.lua`). Las piezas guardadas antes de este cambio no tienen `itemID`:
+se muestran como texto plano y recuperan el tooltip al re-subir el SV.
+
+La nota (`player.note`) conserva su texto limpio y además `noteRich` (tokens
+`{type:'text'|'link',...}`). Los tokens se guardan en la columna privada
+`raiddominion_character_notes.note_rich` y se publican solo con `notes_public`
++ `is_public`, igual que la nota. Los nombres de banda conservan `nameLink` y
+se persisten en `raiddominion_bands.name_link` para el tooltip público.
 Snapshots sin `objectives` se aceptan por compatibilidad: la columna queda
 vacía y se muestra el aviso de re-registro. Los registros con `objectives` pero
 sin `note`/`instances` (addon 3.0.1) disparan un aviso de re-registro propio.
@@ -116,16 +131,18 @@ y el pipe escapado (`||`). Caso real: `bands[].name` es el enlace del logro
 de la mazmorra (`|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`).
 
 - **Parseo único**: `src/lib/wowLink.ts` (`stripWowMarkup`, `parseWowLink`,
-  `tokenizeWowText`, `isWowMarkup`). Módulo puro, sin DOM.
+  `tokenizeWowText`, `richTextTokens`, `normalizeWowLink`, `isWowMarkup`).
+  Módulo puro, sin DOM.
 - **Regla**: NINGÚN campo visible/persistido conserva markup — el parser lo
-  pasa por `toCleanStr` (texto visible, `[ICC25N]` → `ICC25N`). Los id del
-  enlace no se persisten.
-- **Excepción en memoria**: `Band.nameLink` conserva el enlace estructurado
-  (`{type, id, label, color}`) SOLO para el preview del upload, que muestra su
-  tooltip con el widget de Wowhead (`src/lib/ui/wowhead.ts`). A la DB viaja
-  únicamente `name` limpio.
-- **Consecuencia**: las páginas públicas que leen de la DB muestran la
-  etiqueta limpia sin tooltip rico (el id no viaja), decisión 2026-10-17.
+  pasa por `toCleanStr` (texto visible, `[ICC25N]` → `ICC25N`). Los ids viajan
+  como tokens estructurados (`name_link`, `note_rich`), nunca como markup.
+- **Enlaces persistidos**: `Band.nameLink` conserva el enlace estructurado
+  (`{type, id, label, color}`) y viaja a `raiddominion_bands.name_link`; la
+  nota conserva `noteRich` y viaja a `note_rich`. El render usa el widget de
+  UltimoWoW (`src/lib/ui/wowhead.ts`), igual que `wow-rd`.
+- **Nombres limpios**: el texto visible sigue siendo `name`/`note`; el markup
+  crudo nunca se persiste. Las filas antiguas sin `name_link`/`note_rich`
+  muestran texto limpio hasta una nueva subida.
 - **Filas ya guardadas**: si la base tiene bandas con markup en `name`, hay
   que aplicar la limpieza `20261017_bands_name_wow_markup_cleanup.sql` ANTES
   de re-subir SV: la idempotencia del RPC es por nombre y el nombre limpio

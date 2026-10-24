@@ -8,7 +8,10 @@ import { test } from 'node:test';
 
 import {
   isWowMarkup,
+  normalizeRichTokens,
+  normalizeWowLink,
   parseWowLink,
+  richTextTokens,
   stripWowMarkup,
   tokenizeWowText,
 } from '../src/lib/wowLink.ts';
@@ -88,4 +91,43 @@ test('un id no numérico se omite sin perder la etiqueta', () => {
   assert.equal(link?.type, 'item');
   assert.equal(link?.id, undefined);
   assert.equal(link?.label, 'Objeto raro');
+});
+
+
+test('richTextTokens conserva texto y enlaces con id válido', () => {
+  const tokens = richTextTokens(`pre ${ITEM} post`);
+  assert.deepEqual(tokens, [
+    { type: 'text', text: 'pre ' },
+    { type: 'link', kind: 'item', id: 36895, label: 'PIEDRA DE ALMA', color: 'ffffff' },
+    { type: 'text', text: ' post' },
+  ]);
+});
+
+test('richTextTokens degrada enlaces sin id a texto', () => {
+  const tokens = richTextTokens('|cffffffff|Hitem:ABC|h[Objeto raro]|h|r');
+  assert.deepEqual(tokens, [{ type: 'text', text: 'Objeto raro' }]);
+});
+
+test('normalizeWowLink valida la forma que llega de la DB', () => {
+  const link = normalizeWowLink({ type: 'achievement', id: 4608, label: 'ICC25N', color: 'ffff00' });
+  assert.equal(link?.type, 'achievement');
+  assert.equal(link?.id, 4608);
+  assert.equal(link?.color, 'ffff00');
+  assert.equal(normalizeWowLink({ type: 'item', id: 0, label: 'Cero' }), null);
+  assert.equal(normalizeWowLink({ type: 'raro', id: 1, label: 'X' }), null);
+  assert.equal(normalizeWowLink({ type: 'item', id: 1, label: '' }), null);
+});
+
+test('normalizeRichTokens descarta formas inválidas y acota el texto', () => {
+  const tokens = normalizeRichTokens([
+    { type: 'text', text: 'Hola' },
+    { type: 'link', kind: 'item', id: 36895, label: 'Piedra' },
+    { type: 'link', kind: 'item', id: 0, label: 'Mala' },
+    { type: 'otro', text: 'x' },
+    null,
+  ]);
+  assert.deepEqual(tokens, [
+    { type: 'text', text: 'Hola' },
+    { type: 'link', kind: 'item', id: 36895, label: 'Piedra' },
+  ]);
 });

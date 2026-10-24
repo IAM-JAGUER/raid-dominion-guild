@@ -13,6 +13,8 @@ import { ui } from '@/lib/ui/design';
 import { chip, el, iconChip } from '@/lib/ui/dom';
 import { iconEl } from '@/lib/ui/icons';
 import { toast } from '@/lib/ui/toast';
+import { normalizeWowLink, type WowLink } from '@/lib/wowLink';
+import { wowLinkEl } from '@/lib/ui/wowhead';
 import type { GuildRow } from '@/types/database';
 
 // ── Card de hermandad (directorio /hermandades, reino, perfil) ──────────────
@@ -299,6 +301,10 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
 export interface BandCardInput {
   slug: string;
   name: string;
+  // Enlace del juego del nombre (logro de la mazmorra) si el SV lo trajo.
+  nameLink?: WowLink | null;
+  // Forma cruda de la DB (`raiddominion_bands.name_link`); se normaliza aquí.
+  name_link?: unknown;
   schedule?: string | null;
   min_gs?: number | null;
   hide_players?: boolean;
@@ -327,7 +333,11 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
 
   const head = el('div', 'flex items-center gap-3 mb-3');
   head.appendChild(iconTileEl('espadas'));
-  head.appendChild(el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors', band.name));
+  const title = el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors');
+  const nameLink = band.nameLink ?? normalizeWowLink(band.name_link);
+  if (nameLink) title.appendChild(wowLinkEl(nameLink));
+  else title.textContent = band.name;
+  head.appendChild(title);
   link.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5');

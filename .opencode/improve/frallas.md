@@ -275,8 +275,9 @@ Problemas encontrados y cómo evitarlos. Cada entrada tiene **estado**
   `raiddominion_upsert_bands` (`regexp_replace(name,'[^a-zA-Z0-9]+','-','g')`)
   quedaba basura tipo `sinregistro-cffffff00-hachievement-4608-…-h-icc25n-h-r`.
 - **Solución**: `src/lib/wowLink.ts` (parseo puro) + `toCleanStr` en el parser
-  (ningún campo visible conserva markup) + `Band.nameLink` en memoria para el
-  tooltip del widget de Wowhead en el preview + migración de limpieza
+  (ningún campo visible conserva markup) + `Band.nameLink` persistido en
+  `raiddominion_bands.name_link` para el tooltip de UltimoWoW (preview y
+  fichas; migración 20261024) + migración de limpieza
   `20261017_bands_name_wow_markup_cleanup.sql` para las filas ya guardadas
   (sin ella, el re-upload con nombre limpio duplica la banda sucia porque la
   idempotencia es por nombre).

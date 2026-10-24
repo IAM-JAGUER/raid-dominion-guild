@@ -455,19 +455,21 @@ Los textos del SavedVariables pueden traer markup del cliente WoW
 - **Fuente única de parseo**: `src/lib/wowLink.ts` (`stripWowMarkup`,
   `parseWowLink`, `tokenizeWowText`). El parser NUNCA persiste markup: todo
   campo visible pasa por su texto limpio.
-- **Render**: `src/lib/ui/wowhead.ts` — `wowLinkEl(link)` (etiqueta + enlace)
-  y `applyWowhead(anchor, link)`. NO escribas `data-wowhead`, URLs de Wowhead
+- **Render**: `src/lib/ui/wowhead.ts` — `wowLinkEl(link)`, `richTextEl(tokens)`
+  y `applyWowhead(anchor, link)`. NO escribas `data-wowhead`, URLs de UltimoWoW
   ni spans con color del juego a mano.
 - **Color**: se respeta el color del código `|c` del SV (color del juego:
   logro = dorado, hechizo = azul); sin color, `text-brand-200`. El enlace
   siempre fija color explícito (nunca hereda `text-transparent` de
   `ui.gradientTitle`).
-- **Tooltip**: widget oficial de Wowhead (`power.js`), cargado PEREZOSAMENTE
-  (`ensureWowhead`) solo cuando la página monta un enlace con id soportado
-  (item/spell/achievement/quest) — la landing no descarga terceros.
-- **Alcance del id**: el id sale del markup (preview del upload). Los nombres
-  limpios que vienen de la DB NO conservan id → en páginas públicas se
-  degradan a etiqueta limpia (sin tooltip), decisión 2026-10-17.
+- **Tooltip**: widget de UltimoWoW (`power.js?lang=es`), MISMO método que
+  `wow-rd`, cargado PEREZOSAMENTE (`ensureWowhead`) solo cuando la página monta
+  un enlace con id soportado (item/spell/achievement/quest/currency/npc/
+  object/itemset/event) — la landing no descarga terceros.
+- **Alcance del id**: además del preview, la DB conserva `itemID` del equipo,
+  `name_link` de bandas y `note_rich` de notas (migración 20261024). Las filas
+  antiguas sin id se degradan a texto limpio (sin enlace inventado), igual que
+  wow-rd; se completan al re-subir el SV.
 
 ## 12. Póster: zonas, jerarquía y escala (2026-10-17)
 
@@ -515,6 +517,17 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-23 (Task Tracker del dashboard)**: la pestaña Personajes suma el
+  tracker bajo "Datos del perfil" con tokens nuevos `ui.tracker.*` (tarjeta
+  colapsable, cabecera con tinte de clase, stats sin GS, tabs icono+contador,
+  tareas con checkbox/switch, barra de progreso, leyenda interactiva y dock de
+  selección). Reutiliza `ui.card`, `ui.surf`, `ui.filter`, `ui.pager`,
+  `ui.form` e `itemRow`; la marca de agua de raza usa el sprite y los emblemas
+  de facción en `public/images/watermarks/`. La ficha en línea replica el
+  esqueleto de ventana (`sectionHead` + `sectionBody`) y el catálogo usa una
+  lista editable; ambos conservan accesibilidad (labels, aria, foco) y
+  `prefers-reduced-motion` en las transiciones.
 
 - **2026-10-19 (core de banda)**: los badges de las placas del Core pasan a
   SOLO-ICONO (integración/líder/baneado/dual/sanción/puntos) y el contenido
@@ -681,8 +694,8 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   F023) se sustituye por medallón del sprite + miniatura de clase a 20px.
 
 - **2026-10-17 (enlaces del juego)**: nuevo §11; parseo único de markup de
-  chat en `src/lib/wowLink.ts`, render con widget perezoso de Wowhead en
-  `src/lib/ui/wowhead.ts`, y limpieza del nombre de banda del SV (antes se
+  chat en `src/lib/wowLink.ts`, render con widget perezoso de UltimoWoW en
+  `src/lib/ui/wowhead.ts` (proveedor cambiado el 2026-10-24), y limpieza del nombre de banda del SV (antes se
   persistía el enlace crudo → slug basura).
 - **2026-10-17 (capa única sobre el fondo)**: la imagen de atmósfera pasa a
   opacidad plena (fuera `opacity 0.42/0.3` y el `filter` de saturación/brillo)

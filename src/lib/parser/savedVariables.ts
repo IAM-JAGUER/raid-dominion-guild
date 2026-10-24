@@ -4,7 +4,7 @@
 //
 //   RaidDominionDB = {
 //     registry.player = { name, realm, race, raceFile, class, classFile, level,
-//       talentSpec, talentTree, avgIlvl, equipmentCount, equipment = { {slot,name,ilvl,quality} } },
+//       talentSpec, talentTree, avgIlvl, equipmentCount, equipment = { {slot,name,ilvl,quality,itemID?} } },
 //     registry["Char-Realm"].guild = { name, numMembers, isGM, rankIndex, rank,
 //       memberList = { {name, rank, rankIndex, level, class, classFile, online} } } (roster GM),
 //     registry["Char-Realm"].objectives = { equipment = { {slot,name,itemID?,ilvl?,quality?,done} },
@@ -33,7 +33,7 @@
 // `toCleanStr` (texto plano); el enlace se conserva SOLO como `Band.nameLink`
 // para el tooltip del widget de Wowhead en el preview (ver src/lib/wowLink.ts).
 
-import { parseWowLink, stripWowMarkup } from '@/lib/wowLink';
+import { parseWowLink, richTextTokens, stripWowMarkup, type RichTextToken } from '@/lib/wowLink';
 import {
   type GuildMember,
   type Band,
@@ -45,6 +45,7 @@ import {
   type PlayerObjectives,
   type CharacterInstance,
   type AccountCharacter,
+  type AccountCurrency,
   type RegistryGuild,
   type GuildRank,
   type GuildMemberSummary,
@@ -347,11 +348,13 @@ function asEquipmentPieces(raw: unknown): EquipmentPiece[] {
       if (!name) return null;
       const slot = toNum(e['slot']);
       if (slot === undefined) return null;
+      const itemID = toNum(e['itemID']);
       return {
         slot,
         name,
         ilvl: toNum(e['ilvl']) ?? 0,
         quality: toNum(e['quality']) ?? 0,
+        ...(itemID !== undefined && Number.isSafeInteger(itemID) && itemID > 0 ? { itemID } : {}),
       };
     })
     .filter((x): x is EquipmentPiece => x !== null);
@@ -427,6 +430,18 @@ function asPlayerNote(raw: unknown): string | undefined {
   return stripWowMarkup(raw).trim().slice(0, 500);
 }
 
+// Tokens ricos de la nota (misma fuente que el texto limpio). Se guardan en la
+// columna privada note_rich y se renderizan con el tooltip de UltimoWoW.
+function asPlayerNoteRich(raw: unknown): RichTextToken[] | undefined {
+  if (typeof raw !== 'string') return undefined;
+  // Si la nota excede el límite del texto limpio, no se guardan tokens: la UI
+  // debe mostrar exactamente el mismo contenido recortado que `note`.
+  if (stripWowMarkup(raw).trim().length > 500) return [];
+  const tokens = richTextTokens(raw);
+  // Solo se persisten si hay enlaces; el texto plano ya vive en `note`.
+  return tokens.some((token) => token.type === 'link') ? tokens : [];
+}
+
 // ─── Facción deducida de la raza ────────────────────────────────────────────
 // El SV guarda `faction` en `characters["Nombre-Reino"]` (UnitFactionGroup), pero
 // puede venir como "?" si el API no estaba disponible al registrar, y el claim de
@@ -482,6 +497,7 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
   // clave ausente se OMITE del modelo (SV anterior → el RPC conserva lo
   // guardado); presente, aunque vaya vacía, viaja tal cual (permite limpiar).
   const note = asPlayerNote(e['note']);
+  const noteRich = asPlayerNoteRich(e['note']);
   const instances = e['instances'] !== undefined ? asPlayerInstances(e['instances']) : undefined;
   return {
     name,
@@ -499,8 +515,28 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
     equipment,
     ...(objectives ? { objectives } : {}),
     ...(note !== undefined ? { note } : {}),
+    ...(noteRich !== undefined ? { noteRich } : {}),
     ...(instances !== undefined ? { instances } : {}),
   };
+}
+
+// characters["Nombre-Reino"].currencies — monedas de la barra del personaje.
+// El addon las escribe como { name, quantity, money? } (money = fila de oro;
+// quantity en cobre para esa fila). Sanitiza nombre/quantity y descarta basura.
+function asAccountCurrencies(raw: unknown): AccountCurrency[] {
+  return asArray(raw).reduce<AccountCurrency[]>((out, entry) => {
+    const e = asObj(entry);
+    if (!e) return out;
+    const name = toCleanStr(e['name']);
+    if (!name) return out;
+    const quantity = toNum(e['quantity']);
+    out.push({
+      name,
+      quantity: quantity !== undefined && Number.isFinite(quantity) ? Math.max(0, Math.trunc(quantity)) : 0,
+      money: toBool(e['money']),
+    });
+    return out;
+  }, []).slice(0, 40);
 }
 
 // characters["Nombre-Reino"] — todos los personajes de la cuenta.
@@ -519,6 +555,8 @@ function asAccountCharacters(raw: unknown, raceFiles?: Map<string, string>): Acc
       // El roster `characters` no trae raceFile; se resuelve el nombre exacto
       // contra el registry del SV para completar el token del cliente.
       const raceFile = raceFiles?.get(key.toLowerCase());
+      const currencies = asAccountCurrencies(e['currencies'] ?? e['currency']);
+      const money = toNum(e['money']);
       return {
         key,
         name,
@@ -536,6 +574,8 @@ function asAccountCharacters(raw: unknown, raceFiles?: Map<string, string>): Acc
         version: toStr(e['version']).trim() || undefined,
         firstSeen: toNum(e['firstSeen']),
         lastSeen: toNum(e['lastSeen']),
+        ...(currencies.length > 0 ? { currencies } : {}),
+        ...(money !== undefined ? { money } : {}),
       };
     })
     .filter((c) => c !== null) as AccountCharacter[];

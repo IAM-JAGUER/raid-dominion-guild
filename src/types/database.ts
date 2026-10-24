@@ -1,4 +1,5 @@
-import type { ParsedSavedVariables } from './parser';
+import type { AccountCurrency, ParsedSavedVariables } from './parser';
+import type { RichTextToken, WowLink } from '@/lib/wowLink';
 
 export type RaiddominionRole = 'visitante' | 'member' | 'guild_master' | 'moderator' | 'admin';
 export type UploadStatus = 'parsed' | 'verified' | 'rejected';
@@ -101,6 +102,8 @@ export type BandRow = {
   guild_id: string | null;
   slug: string;
   name: string;
+  // Enlace del juego del nombre (logro de la mazmorra) cuando el SV lo trae.
+  name_link?: WowLink | null;
   icon: string | null;
   schedule: string | null;
   min_gs: number | null;
@@ -150,8 +153,50 @@ export type CharacterNoteRow = {
   character_id: string;
   user_id: string;
   note: string;
+  // Tokens ricos (enlaces del juego) de la nota. Privado; la vista pública los
+  // expone solo con notes_public + is_public.
+  note_rich: RichTextToken[];
   updated_at: string;
 };
+
+// ── Task Tracker (20261023) ──────────────────────────────────────────────
+// Catálogo manual por usuario. Privado: escrituras solo por RPC.
+export type TrackerCatalogRow = {
+  id: string;
+  user_id: string;
+  label: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+// Estado privado por personaje: oculto, nota LOCAL del tracker, monedas y
+// metadatos del roster del SV (fechas/versión). No se publica.
+export type CharacterTrackerRow = {
+  character_id: string;
+  user_id: string;
+  hidden: boolean;
+  note: string;
+  currencies: AccountCurrency[];
+  money: number;
+  first_seen: number | null;
+  last_seen: number | null;
+  sv_saved_at: string | null;
+  addon_version: string | null;
+  updated_at: string;
+};
+
+// Estado activo/marcado de una tarea en un personaje.
+export type CharacterTaskRow = {
+  character_id: string;
+  task_id: string;
+  user_id: string;
+  active: boolean;
+  marked: boolean;
+  updated_at: string;
+};
+
+export type TrackerTaskState = { active: string[]; marked: string[] };
 
 type PublicSchema = {
   raiddominion_profile_handles: {
@@ -206,6 +251,24 @@ type PublicSchema = {
     Row: CharacterRow;
     Insert: Partial<CharacterRow> & { user_id: string; name: string };
     Update: Partial<CharacterRow>;
+    Relationships: [];
+  };
+  raiddominion_tracker_catalog: {
+    Row: TrackerCatalogRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  raiddominion_character_tracker: {
+    Row: CharacterTrackerRow;
+    Insert: never;
+    Update: never;
+    Relationships: [];
+  };
+  raiddominion_character_tasks: {
+    Row: CharacterTaskRow;
+    Insert: never;
+    Update: never;
     Relationships: [];
   };
 };
@@ -270,6 +333,36 @@ type PublicFunctions = {
   raiddominion_reset_account_data: { Args: Record<string, never>; Returns: undefined };
   raiddominion_ensure_character_slug: { Args: Record<string, never>; Returns: Record<string, unknown>[] };
   raiddominion_public_stats: { Args: Record<string, never>; Returns: Record<string, unknown>[] };
+  raiddominion_tracker_catalog: {
+    Args: {
+      p_op: string;
+      p_task_id?: string | null;
+      p_task_ids?: string[] | null;
+      p_label?: string | null;
+      p_order?: string[] | null;
+    };
+    Returns: Record<string, unknown>[];
+  };
+  raiddominion_tracker_save: {
+    Args: { p_character_id: string; p_hidden?: boolean | null; p_note?: string | null };
+    Returns: Record<string, unknown>;
+  };
+  raiddominion_tracker_set_task: {
+    Args: { p_character_id: string; p_task_id: string; p_active: boolean; p_marked: boolean };
+    Returns: Record<string, unknown>;
+  };
+  raiddominion_tracker_apply: {
+    Args: { p_action: string; p_task_ids?: string[] | null; p_character_ids: string[] };
+    Returns: Record<string, unknown>;
+  };
+  raiddominion_sync_character_tracker_meta: {
+    Args: { p_name: string; p_realm: string | null; p_meta: Record<string, unknown> };
+    Returns: string | null;
+  };
+  raiddominion_sync_character_note_rich: {
+    Args: { p_name: string; p_realm: string | null; p_note_rich: unknown[] };
+    Returns: boolean;
+  };
 };
 
 export type Database = {

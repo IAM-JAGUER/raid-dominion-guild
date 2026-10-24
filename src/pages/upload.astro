@@ -149,6 +149,8 @@ import { ui } from '@/lib/ui/design';
     upsertBands,
     ensureMyCharacterSlugs,
     checkCharacterOwner,
+    syncCharacterTrackerMeta,
+    syncCharacterNoteRich,
   } from '@/lib/api';
 
   const fileInput = document.getElementById('sv-file') as HTMLInputElement;
@@ -287,6 +289,22 @@ import { ui } from '@/lib/ui/design';
     // la tabla `characters` del archivo NO registra nada.
     let charStatus: string | null = null;
     const conflicts: string[] = [];
+    let trackerSyncFailures = 0;
+    let noteRichSyncFailures = 0;
+
+    // Meta del tracker (monedas, fechas, versión) desde el roster de la cuenta.
+    // `registry` es la fuente de registro; `characters` aporta la barra de
+    // monedas y los metadatos de conexión del mismo personaje. Un reino vacío
+    // se trata como falta de dato, no como otro reino.
+    const findRosterMeta = (name: string, realm?: string | null) => {
+      const n = name.trim().toLowerCase();
+      const r = (realm ?? '').trim().toLowerCase();
+      return data.characters.find((c) => {
+        if (c.name.trim().toLowerCase() !== n) return false;
+        const cr = (c.realm ?? '').trim().toLowerCase();
+        return !r || !cr || cr === r;
+      });
+    };
 
     for (const reg of data.registries) {
       if (!reg.player) continue;
@@ -297,9 +315,57 @@ import { ui } from '@/lib/ui/design';
       if (!up.ok || up.result === 'conflict') {
         conflicts.push(reg.player.name);
         if (!charStatus && (up.result === 'conflict' || isActiveReg)) charStatus = up.result === 'conflict' ? 'conflict' : null;
-      } else if (isActiveReg || !charStatus) {
-        charStatus = up.result ?? 'updated';
+      } else {
+        if (isActiveReg || !charStatus) charStatus = up.result ?? 'updated';
+
+        // El tracker es dato PRIVADO del dueño (tabla aparte, sin exposición
+        // pública): se sincroniza solo cuando el personaje quedó registrado.
+        const roster = findRosterMeta(reg.player.name, reg.player.realm);
+        if (roster) {
+          const meta: Record<string, unknown> = {};
+          if (reg.savedAt) meta.savedAt = reg.savedAt;
+          if (roster.currencies) meta.currencies = roster.currencies;
+          if (typeof roster.money === 'number') meta.money = roster.money;
+          if (typeof roster.firstSeen === 'number') meta.firstSeen = roster.firstSeen;
+          if (typeof roster.lastSeen === 'number') meta.lastSeen = roster.lastSeen;
+          if (roster.version) meta.version = roster.version;
+          const sync = await syncCharacterTrackerMeta(
+            reg.player.name,
+            reg.player.realm ?? null,
+            meta
+          );
+          if (!sync.ok) {
+            // Mientras la migración 20261023 no esté aplicada, la RPC no existe:
+            // no bloquees el upload con un aviso que el usuario no puede resolver.
+            const missingRpc = /could not find the function|does not exist|PGRST202|schema cache/i.test(sync.error ?? "");
+            if (!missingRpc) trackerSyncFailures += 1;
+          }
+        }
+
+        // Enlaces del juego dentro de la nota (tokens ricos): la nota de texto
+        // ya la guardó upsert_character; esta RPC solo actualiza su JSONB.
+        if (reg.player.noteRich !== undefined) {
+          const richSync = await syncCharacterNoteRich(
+            reg.player.name,
+            reg.player.realm ?? null,
+            reg.player.noteRich
+          );
+          if (!richSync.ok) {
+            const missingRpc = /could not find the function|does not exist|PGRST202|schema cache/i.test(richSync.error ?? "");
+            if (!missingRpc) noteRichSyncFailures += 1;
+          }
+        }
       }
+    }
+    if (trackerSyncFailures > 0) {
+      addWarning(
+        `No se pudieron sincronizar las monedas/metadatos del tracker de ${trackerSyncFailures} personaje(s). Tus personajes y tareas siguen guardados.`
+      );
+    }
+    if (noteRichSyncFailures > 0) {
+      addWarning(
+        `No se pudieron sincronizar los enlaces de las notas de ${noteRichSyncFailures} personaje(s). La nota de texto sí quedó guardada.`
+      );
     }
     const conflictNames = new Set(conflicts.map((c) => c.trim().toLowerCase()));
     if (conflicts.length > 0) {

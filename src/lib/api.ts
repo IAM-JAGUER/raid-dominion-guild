@@ -1,7 +1,19 @@
 import { supabase } from './supabase';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import type { ParsedSavedVariables, GuildRank, ContentItem, PlayerObjectives, CharacterInstance } from '@/types/parser';
-import type { SavedVariableRow, ProfileRow, GuildRow, BandRow, RaiddominionRole } from '@/types/database';
+import type { RichTextToken, WowLink } from '@/lib/wowLink';
+import { normalizeRichTokens, normalizeWowLink } from '@/lib/wowLink';
+import type {
+  SavedVariableRow,
+  ProfileRow,
+  GuildRow,
+  BandRow,
+  RaiddominionRole,
+  TrackerCatalogRow,
+  CharacterTrackerRow,
+  CharacterTaskRow,
+  TrackerTaskState,
+} from '@/types/database';
 
 // Forma persistida de `raiddominion_characters.objectives` (columna JSONB). La
 // sanea la DB (raiddominion_sanitize_objectives) y el parser aplica el mismo
@@ -1254,7 +1266,7 @@ export interface CharacterRow {
   level: number | null;
   talent_spec: string | null;
   avg_ilvl: number | null;
-  equipment: Array<{ slot: number; name: string; ilvl: number; quality: number }>;
+  equipment: Array<{ slot: number; name: string; ilvl: number; quality: number; itemID?: number }>;
   // Metas del personaje (registry[*].objectives saneadas en la DB). Viaja por la
   // MISMA RLS que el resto de la ficha: si el personaje es privado, no hay metas.
   objectives: CharacterObjectives;
@@ -1267,6 +1279,8 @@ export interface CharacterRow {
   // Presente SOLO en lecturas de raiddominion_character_public: texto cuando
   // notes_public e is_public están activos; null en caso contrario.
   note?: string | null;
+  // Tokens ricos de la nota (mismos gates que `note`).
+  note_rich?: RichTextToken[] | null;
   is_public: boolean;
   member_verified: boolean;
   sv_guild_name: string | null;
@@ -1408,20 +1422,43 @@ export async function setCharacterVisibility(id: string, isPublic: boolean): Pro
 // Notas privadas del dueño (RLS de raiddominion_character_notes: solo el
 // dueño lee). Devuelve un mapa character_id → texto para el visor del
 // dashboard; la nota en sí NO viaja en raiddominion_characters.
-export async function getMyCharacterNotes(): Promise<{ ok: boolean; notes?: Map<string, string>; error?: string }> {
+export interface CharacterNoteData {
+  note: string;
+  rich: RichTextToken[] | null;
+}
+
+export async function getMyCharacterNotes(): Promise<{ ok: boolean; notes?: Map<string, CharacterNoteData>; error?: string }> {
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData.session?.user;
   if (!user) return { ok: false, error: 'sin sesión' };
 
-  const res = await supabase
+  const withRich = await supabase
     .from('raiddominion_character_notes')
-    .select('character_id, note')
+    .select('character_id, note, note_rich')
     .eq('user_id', user.id);
 
-  if (res.error) return { ok: false, error: res.error.message };
-  const notes = new Map<string, string>();
-  (res.data as Array<{ character_id: string; note: string | null }> ?? []).forEach((row) => {
-    if (row.note) notes.set(row.character_id, row.note);
+  let rows: Array<{ character_id: string; note: string | null; note_rich?: unknown }> = [];
+  if (!withRich.error) {
+    rows = (withRich.data as Array<{ character_id: string; note: string | null; note_rich?: unknown }>) ?? [];
+  } else {
+    // Antes de aplicar 20261024 la columna note_rich no existe: se degrada a
+    // la nota de texto para no perder el visor de notas del dashboard.
+    const textOnly = await supabase
+      .from('raiddominion_character_notes')
+      .select('character_id, note')
+      .eq('user_id', user.id);
+    if (textOnly.error) return { ok: false, error: textOnly.error.message };
+    rows = (textOnly.data as Array<{ character_id: string; note: string | null }>) ?? [];
+  }
+
+  const notes = new Map<string, CharacterNoteData>();
+  rows.forEach((row) => {
+    if (row.note) {
+      notes.set(row.character_id, {
+        note: row.note,
+        rich: normalizeRichTokens(row.note_rich),
+      });
+    }
   });
   return { ok: true, notes };
 }
@@ -1433,6 +1470,175 @@ export async function setCharacterNotesPublic(id: string, isPublic: boolean): Pr
   const rpc = await supabase.rpc('raiddominion_set_character_notes_public', {
     p_character_id: id,
     p_public: isPublic,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true };
+}
+
+// ── Task Tracker del dashboard (20261023) ────────────────────────────────
+// Catálogo, estado privado por personaje y estados activo/marcado. Todo es
+// owner-only (RLS + RPC); el GearScore no forma parte del portal.
+
+export interface MyTrackerData {
+  catalog: TrackerCatalogRow[];
+  // character_id → fila privada (oculto, nota local, monedas, metadatos).
+  tracker: Map<string, CharacterTrackerRow>;
+  // character_id → { active, marked } (ids de tareas del catálogo).
+  tasks: Map<string, TrackerTaskState>;
+}
+
+// Lee en paralelo el catálogo, el estado privado y las tareas del usuario.
+export async function getMyTrackerData(): Promise<{ ok: boolean; data?: MyTrackerData; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) return { ok: false, error: 'sin sesión' };
+
+  const [catalogRes, trackerRes, tasksRes] = await Promise.all([
+    supabase
+      .from('raiddominion_tracker_catalog')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('position', { ascending: true })
+      .order('created_at', { ascending: true }),
+    supabase.from('raiddominion_character_tracker').select('*').eq('user_id', user.id),
+    supabase.from('raiddominion_character_tasks').select('*').eq('user_id', user.id),
+  ]);
+
+  const error = catalogRes.error ?? trackerRes.error ?? tasksRes.error;
+  if (error) return { ok: false, error: error.message };
+
+  const tracker = new Map<string, CharacterTrackerRow>();
+  (trackerRes.data as CharacterTrackerRow[] | null ?? []).forEach((row) => tracker.set(row.character_id, row));
+
+  const tasks = new Map<string, TrackerTaskState>();
+  (tasksRes.data as CharacterTaskRow[] | null ?? []).forEach((row) => {
+    const state = tasks.get(row.character_id) ?? { active: [], marked: [] };
+    if (row.active) state.active.push(row.task_id);
+    if (row.marked) state.marked.push(row.task_id);
+    tasks.set(row.character_id, state);
+  });
+
+  return {
+    ok: true,
+    data: {
+      catalog: (catalogRes.data as TrackerCatalogRow[] | null) ?? [],
+      tracker,
+      tasks,
+    },
+  };
+}
+
+export interface TrackerCatalogOp {
+  taskId?: string | null;
+  taskIds?: string[] | null;
+  label?: string | null;
+  order?: string[] | null;
+}
+
+// CRUD atómico del catálogo (add/rename/remove/duplicate/reorder). Devuelve el
+// catálogo completo ya normalizado por la RPC.
+export async function trackerCatalogOp(
+  op: 'add' | 'rename' | 'remove' | 'duplicate' | 'reorder',
+  payload: TrackerCatalogOp = {}
+): Promise<{ ok: boolean; catalog?: TrackerCatalogRow[]; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_tracker_catalog', {
+    p_op: op,
+    p_task_id: payload.taskId ?? null,
+    p_task_ids: payload.taskIds ?? null,
+    p_label: payload.label ?? null,
+    p_order: payload.order ?? null,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, catalog: (rpc.data as TrackerCatalogRow[] | null) ?? [] };
+}
+
+// Guarda el oculto y/o la nota LOCAL del tracker (nunca la nota del juego).
+export async function saveCharacterTracker(
+  characterId: string,
+  patch: { hidden?: boolean; note?: string }
+): Promise<{ ok: boolean; hidden?: boolean; note?: string; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_tracker_save', {
+    p_character_id: characterId,
+    p_hidden: patch.hidden ?? null,
+    p_note: patch.note ?? null,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  const row = (rpc.data ?? {}) as Record<string, unknown>;
+  return {
+    ok: true,
+    hidden: typeof row.hidden === 'boolean' ? row.hidden : undefined,
+    note: typeof row.note === 'string' ? row.note : undefined,
+  };
+}
+
+// Activa/marca una tarea concreta de un personaje propio.
+export async function setTrackerTask(
+  characterId: string,
+  taskId: string,
+  active: boolean,
+  marked: boolean
+): Promise<{ ok: boolean; state?: { active: boolean; marked: boolean }; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_tracker_set_task', {
+    p_character_id: characterId,
+    p_task_id: taskId,
+    p_active: active,
+    p_marked: marked,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  const row = (rpc.data ?? {}) as Record<string, unknown>;
+  return {
+    ok: true,
+    state: {
+      active: row.active === true,
+      marked: row.marked === true,
+    },
+  };
+}
+
+// Acción masiva del tracker (tareas × personajes). Devuelve los estados ya
+// recalculados por personaje.
+export async function applyTrackerTasks(
+  action: 'mark' | 'unmark' | 'activate' | 'deactivate' | 'reset' | 'markAll' | 'unmarkAll',
+  taskIds: string[],
+  characterIds: string[]
+): Promise<{ ok: boolean; states?: Record<string, TrackerTaskState>; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_tracker_apply', {
+    p_action: action,
+    p_task_ids: taskIds,
+    p_character_ids: characterIds,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, states: (rpc.data as Record<string, TrackerTaskState> | null) ?? {} };
+}
+
+// Sincroniza monedas/money/fechas/versión del roster del SV en el tracker
+// privado del personaje propio. Sin coincidencia devuelve null.
+export async function syncCharacterTrackerMeta(
+  name: string,
+  realm: string | null,
+  meta: Record<string, unknown>
+): Promise<{ ok: boolean; characterId?: string | null; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_sync_character_tracker_meta', {
+    p_name: name,
+    p_realm: realm,
+    p_meta: meta,
+  });
+  if (rpc.error) return { ok: false, error: rpc.error.message };
+  return { ok: true, characterId: (rpc.data as string | null) ?? null };
+}
+
+// Sincroniza los tokens ricos de la nota del juego (enlaces del SV) en el
+// almacén privado. La nota de texto la guarda upsert_character; aquí solo se
+// actualizan los tokens si la fila de nota existe.
+export async function syncCharacterNoteRich(
+  name: string,
+  realm: string | null,
+  tokens: RichTextToken[]
+): Promise<{ ok: boolean; error?: string }> {
+  const rpc = await supabase.rpc('raiddominion_sync_character_note_rich', {
+    p_name: name,
+    p_realm: realm,
+    p_note_rich: tokens,
   });
   if (rpc.error) return { ok: false, error: rpc.error.message };
   return { ok: true };
@@ -1555,6 +1761,7 @@ export async function getPublicCharacterBySlug(slug: string): Promise<{ ok: bool
 
 export interface PublicBandSummary {
   name: string;
+  nameLink?: WowLink | null;
   slug?: string;
   schedule?: string;
   minGS?: number;
@@ -1646,6 +1853,7 @@ export async function getPublicBandsForCharacter(
     if (!meRow) continue;
     bands.push({
       name: b.name,
+      nameLink: normalizeWowLink(b.name_link),
       slug: b.slug ?? undefined,
       schedule: b.schedule ?? undefined,
       minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,

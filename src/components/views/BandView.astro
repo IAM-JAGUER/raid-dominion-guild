@@ -81,6 +81,8 @@ import Icon from '@/components/ui/Icon.astro';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
   import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
   import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
+  import { wowLinkEl } from '@/lib/ui/wowhead';
+  import { normalizeWowLink } from '@/lib/wowLink';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -120,7 +122,11 @@ import Icon from '@/components/ui/Icon.astro';
 
   async function render(band: BandRow): Promise<void> {
     document.title = `${band.name || 'Banda'} - RaidDominion`;
-    (document.getElementById('bv-name') as HTMLElement).textContent = band.name || 'Sin nombre';
+    const nameEl = document.getElementById('bv-name') as HTMLElement;
+    nameEl.textContent = '';
+    const nameLink = normalizeWowLink(band.name_link);
+    if (nameLink) nameEl.appendChild(wowLinkEl(nameLink));
+    else nameEl.textContent = band.name || 'Sin nombre';
     setBreadcrumb(band.name || 'Banda');
 
     const ownerLink = document.getElementById('bv-owner-link') as HTMLAnchorElement;

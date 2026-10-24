@@ -29,6 +29,8 @@ export interface PaginatorOptions {
   renderPage: (page: number) => void;
   /** Si se indica, fuerza el número de páginas (listas empaquetadas). */
   pageCount?: number;
+  /** Página inicial (1-based). Default 1; se acota al rango válido. */
+  initialPage?: number;
 }
 
 export interface Paginator {
@@ -50,7 +52,7 @@ export function createPaginator(opts: PaginatorOptions): Paginator {
     1,
     opts.pageCount !== undefined ? opts.pageCount : Math.ceil(opts.totalItems / opts.pageSize)
   );
-  let page = 1;
+  let page = Math.min(Math.max(1, Math.floor(opts.initialPage ?? 1)), totalPages);
 
   const prev = el('button', ui.pager.btn) as HTMLButtonElement;
   prev.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';

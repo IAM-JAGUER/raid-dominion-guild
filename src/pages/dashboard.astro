@@ -513,14 +513,95 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
               </p>
             </div>
 
-            <!-- Motor único de filtros (src/lib/ui/filterBar.ts) + paginador. -->
-            <div id="characters-filtro" class="mb-4"></div>
-            <div
-              id="characters-list"
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-            >
+            <div class={`${ui.dividerFadeBoth} my-5`} aria-hidden="true"></div>
+
+            <!-- ── Task Tracker (adaptación del tracker wow-rd) ───────────────
+                 La sección "Datos del perfil" se mantiene arriba; debajo vive
+                 el seguimiento por personaje con datos de las subidas SV. -->
+            <div id="tracker-root" class={ui.tracker.shell}>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div class="min-w-0">
+                  <p class={ui.eyebrow}>Seguimiento</p>
+                  <h4 class={`${ui.subTitle} flex items-center gap-2`}>
+                    <Icon name="validado" size="sm" />
+                    <span>Tracker de personajes</span>
+                    <span
+                      id="tracker-catalog-count"
+                      class="inline-flex items-center px-2 py-0.5 rounded-md border border-brand-600/30 bg-brand-950/60 text-[10px] font-black text-brand-200 tabular-nums"
+                      >0</span
+                    >
+                  </h4>
+                  <p class={`${ui.text.caption} mt-1`}>
+                    Tareas manuales, notas locales y seguimiento del roster. Los
+                    datos del personaje vienen de tus subidas de SavedVariables;
+                    sin GearScore ni lectura del WTF.
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    id="tracker-refresh"
+                    class={`${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                    title="Volver a leer tus datos desde el portal"
+                  >
+                    <Icon name="sincronizar" size="xs" />
+                    Actualizar
+                  </button>
+                  <button
+                    type="button"
+                    id="tracker-catalog-btn"
+                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                    title="Gestionar el catálogo manual de tareas"
+                  >
+                    <Icon name="pergamino" size="xs" />
+                    Catálogo
+                  </button>
+                  <a
+                    href="/upload"
+                    class={`${ui.btnBase} ${ui.btnGhost} px-3 py-2 text-[10px] font-black uppercase tracking-widest border border-brand-600/30`}
+                  >
+                    <Icon name="subir" size="xs" />
+                    Subir SV
+                  </a>
+                </div>
+              </div>
+
+              <div id="tracker-list-view" class="space-y-3">
+                <!-- Motor único de filtros del portal (filterBar.ts). -->
+                <div id="tracker-filtro"></div>
+                <div id="tracker-controls"></div>
+                <div id="tracker-selection" class={`${ui.tracker.dock} hidden`} aria-live="polite"></div>
+                <div
+                  id="tracker-catalog-empty"
+                  class="hidden flex flex-wrap items-center justify-between gap-3 rounded-md border border-brand-600/30 bg-brand-950/40 px-4 py-3"
+                >
+                  <p class="text-xs text-gray-300">
+                    Aún no tienes tareas en el catálogo. Créalas para activarlas y
+                    marcarlas por personaje.
+                  </p>
+                  <button
+                    type="button"
+                    id="tracker-catalog-empty-btn"
+                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                  >
+                    Crear catálogo
+                  </button>
+                </div>
+                <div
+                  id="tracker-grid"
+                  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start"
+                ></div>
+                <div id="tracker-pager"></div>
+                <div
+                  id="tracker-legend"
+                  class={`${ui.tracker.legend} hidden`}
+                  aria-label="Leyenda de pestañas del tracker"
+                ></div>
+              </div>
+
+              <div id="tracker-subview" class="hidden"></div>
             </div>
-            <div id="characters-pager" class="mt-3"></div>
+
             <p
               id="characters-onboarding"
               data-rd-reveal
@@ -1178,24 +1259,24 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       ensureMyProfileSlug,
       getMyCharacters,
       getMyCharacterNotes,
+      getMyTrackerData,
       getMyBands,
       getMyMembershipGuilds,
       getMyRulesCatalog,
       listGuildPortalBands,
       claimGuildFromSV,
       tryPromoteMember,
-      setCharacterVisibility,
-      setCharacterNotesPublic,
       deleteMyAccount,
       resetMyData,
     } from "@/lib/api";
-    import type { UploadSummary, CharacterRow } from "@/lib/api";
+    import type { UploadSummary, CharacterRow, CharacterNoteData } from "@/lib/api";
     import type { BandRow } from "@/types/database";
     import { handleFromSlug } from "@/lib/ui/playerNames";
     import {
       DASHBOARD_TABS,
       DASHBOARD_CONFIG,
       tabFromHash,
+      dashboardTabHead,
       tabHash,
     } from "@/lib/ui/tabs";
     import { isVisitor } from "@/lib/roles";
@@ -1204,6 +1285,8 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     import { iconEl } from "@/lib/ui/icons";
     import { toast } from "@/lib/ui/toast";
     import { renderCharacterCard } from "@/lib/ui/cards";
+    import { initTracker, type TrackerController } from "@/lib/ui/dashboard/tracker";
+    import { computeProgress, type TrackerCharacter } from "@/lib/ui/dashboard/trackerLogic";
     import { createFilterBar, type Facet } from "@/lib/ui/filterBar";
     import { createPaginator, PAGE_SIZE_GRID, PAGE_SIZE_LIST } from "@/lib/ui/paginator";
     import { svLabel } from "@/lib/ui/dashboard/format";
@@ -1267,6 +1350,7 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
     let profilePublic = false;
     let accountEmail = "";
     let myCharacters: CharacterRow[] = [];
+    let tracker: TrackerController | null = null;
     let profileCharacterName: string | null = null;
     let uploadsCache: UploadSummary[] = [];
     let currentSvId = "";
@@ -1672,7 +1756,12 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         openConfigPanel(false);
         return;
       }
-      activateTab((PANELS.includes(id) ? id : PANELS[0]) as PanelName, false);
+      // Subvistas anidadas del tracker (#personajes/ficha/<slug>,
+      // #personajes/catalogo): la pestaña activa es el primer segmento; el
+      // tracker resuelve la subvista con su propio listener de hash.
+      const head = dashboardTabHead(window.location.hash);
+      const target = PANELS.includes(head) ? head : id;
+      activateTab((PANELS.includes(target) ? target : PANELS[0]) as PanelName, false);
     }
     window.addEventListener("hashchange", syncTabFromHash);
     syncTabFromHash();
@@ -1896,7 +1985,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
 
     async function loadCharacters(): Promise<void> {
       await profileReady;
-      const listEl = document.getElementById("characters-list") as HTMLElement;
       const statusEl = document.getElementById(
         "characters-status",
       ) as HTMLElement;
@@ -1907,22 +1995,51 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         "characters-empty",
       ) as HTMLElement;
 
-      const res = await getMyCharacters();
+      // Personajes + notas del juego + estado privado del tracker en paralelo.
+      const [res, notesRes, trackerRes] = await Promise.all([
+        getMyCharacters(),
+        getMyCharacterNotes(),
+        getMyTrackerData(),
+      ]);
       if (!res.ok) {
         statusEl.textContent = "No se pudieron cargar tus personajes.";
         statusEl.classList.remove("hidden");
         return;
       }
-      const items = res.items ?? [];
-      // Notas privadas del dueño (RLS de raiddominion_character_notes): la
-      // tabla de personajes NO lleva la nota; se leen aparte para el visor.
-      const notesRes = await getMyCharacterNotes();
-      const myNotes = notesRes.ok ? (notesRes.notes ?? new Map<string, string>()) : new Map<string, string>();
+      const rows = res.items ?? [];
+      const myNotes = notesRes.ok
+        ? (notesRes.notes ?? new Map<string, CharacterNoteData>())
+        : new Map<string, CharacterNoteData>();
+      const trackerData = trackerRes.ok ? trackerRes.data : undefined;
+      const catalog = trackerData?.catalog ?? [];
+      const trackerMap = trackerData?.tracker ?? new Map();
+      const taskMap = trackerData?.tasks ?? new Map();
+
+      // Modelo del tracker: personaje del SV + estado privado + nota del
+      // juego. `myCharacters` comparte los MISMOS objetos para que los
+      // interruptores de visibilidad/nota refresquen el perfil y los chips.
+      const items: TrackerCharacter[] = rows.map((row) => {
+        const meta = trackerMap.get(row.id);
+        const tasks = taskMap.get(row.id) ?? { active: [], marked: [] };
+        return {
+          ...row,
+          trackerHidden: meta?.hidden ?? false,
+          trackerNote: meta?.note ?? "",
+          currencies: meta?.currencies ?? [],
+          money: meta?.money ?? 0,
+          firstSeen: meta?.first_seen ?? null,
+          lastSeen: meta?.last_seen ?? null,
+          svSavedAt: meta?.sv_saved_at ?? null,
+          addonVersion: meta?.addon_version ?? null,
+          tasks,
+          gameNote: myNotes.get(row.id)?.note ?? null,
+          gameNoteRich: myNotes.get(row.id)?.rich ?? null,
+          progress: computeProgress(catalog.length, tasks),
+        };
+      });
       myCharacters = items;
       refreshHdrCharacters();
       populateMainCharacterSelect();
-      listEl.innerHTML = "";
-      // Encabezado y roster solo tienen sentido con personajes registrados.
       emptyEl.classList.toggle("hidden", items.length > 0);
       document
         .getElementById("chars-sectionhead")
@@ -1931,6 +2048,26 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
         .getElementById("chars-sectionbody")
         ?.classList.toggle("hidden", items.length === 0);
       statusEl.classList.add("hidden");
+      if (!trackerRes.ok) {
+        // El tracker es una capa adicional: si falla, los personajes y el
+        // perfil siguen operativos.
+        statusEl.textContent = "El tracker no pudo cargar sus datos privados. Reintenta con Actualizar.";
+        statusEl.classList.remove("hidden");
+      }
+
+      if (!tracker) {
+        tracker = initTracker({
+          onReload: () => loadCharacters(),
+          onOwnerChange: () => {
+            populateMainCharacterSelect();
+            refreshHdrCharacters();
+          },
+          getCanPublish: () => canPublishContent(),
+          onUpload: () => window.location.assign("/upload"),
+        });
+      }
+      tracker.setData(items, catalog);
+
       if (items.length === 0) {
         return;
       }
@@ -1943,114 +2080,6 @@ const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
       } else {
         onboardingEl.classList.add("hidden");
       }
-
-      // Buscador + chips (clase, reino, público, validado, con nota) +
-      // paginador. La numeración es GLOBAL sobre la lista filtrada
-      // (page*PAGE_SIZE + idx + 1), no se reinicia por página.
-      const filterEl = document.getElementById("characters-filtro") as HTMLElement;
-      const pagerEl = document.getElementById("characters-pager") as HTMLElement | null;
-      filterEl.innerHTML = "";
-      if (pagerEl) pagerEl.textContent = "";
-      const facets: Array<Facet<(typeof items)[number]>> = [
-        {
-          id: "clase",
-          label: "Filtrar personajes por clase",
-          getValues: (c) => (c.class ? [c.class] : []),
-        },
-        {
-          id: "reino",
-          label: "Filtrar personajes por reino",
-          getValues: (c) => [(c.realm ?? "").trim()].filter(Boolean),
-        },
-        {
-          kind: "flag",
-          id: "publico",
-          label: "Filtrar personajes públicos",
-          getFlag: (c) => c.is_public,
-          chipLabel: "Público",
-          icon: "visibilidad",
-        },
-        {
-          kind: "flag",
-          id: "validado",
-          label: "Filtrar personajes validados",
-          getFlag: (c) => c.member_verified,
-          chipLabel: "Validado",
-          icon: "validado",
-        },
-        {
-          kind: "flag",
-          id: "nota",
-          label: "Filtrar personajes con nota",
-          getFlag: (c) => myNotes.has(c.id),
-          chipLabel: "Con nota",
-          icon: "nota",
-        },
-      ];
-
-      createFilterBar({
-        mount: filterEl,
-        items,
-        getSearchText: (c) => `${c.name} ${c.realm ?? ""} ${c.class ?? ""} ${c.sv_guild_name ?? ""}`,
-        searchPlaceholder: "Buscar personaje…",
-        searchLabel: "Buscar personajes por nombre, clase o reino",
-        facets,
-        resultNoun: (n) => `${n} personaje${n === 1 ? "" : "s"}`,
-        onChange: (filtered, state) => {
-          if (pagerEl) pagerEl.textContent = "";
-          if (filtered.length === 0) {
-            listEl.innerHTML = "";
-            const msg = state.query.trim()
-              ? `Ningún personaje coincide con "${state.query.trim()}".`
-              : "No hay personajes que coincidan con los filtros.";
-            listEl.appendChild(el("p", `${ui.text.bodyMuted} italic col-span-full`, msg));
-            return;
-          }
-          const paginator = createPaginator({
-            pageSize: PAGE_SIZE_GRID,
-            totalItems: filtered.length,
-            summary: `${filtered.length} personaje${filtered.length === 1 ? "" : "s"}`,
-            renderPage: (page) => {
-              listEl.innerHTML = "";
-              const start = (page - 1) * PAGE_SIZE_GRID;
-              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((c, idx) => {
-                listEl.appendChild(
-                  renderCharacterCard(
-                    { ...c, note: myNotes.get(c.id) ?? null },
-                    {
-                      number: start + idx + 1,
-                      canPublish: canPublishContent(),
-                      hideStats: true,
-                      setVisibility: async (visible) => {
-                        const res = await setCharacterVisibility(c.id, visible);
-                        if (res.ok) {
-                          c.is_public = visible;
-                          // Refresco del selector de personaje principal e indicadores.
-                          populateMainCharacterSelect();
-                          refreshHdrCharacters();
-                        }
-                        return res;
-                      },
-                      // Publicación de la nota privada (vive en su tabla; la card
-                      // muestra el texto y el interruptor).
-                      setNotesPublic: async (visible) => {
-                        const res = await setCharacterNotesPublic(c.id, visible);
-                        if (res.ok) {
-                          c.notes_public = visible;
-                          refreshHdrCharacters();
-                        }
-                        return res;
-                      },
-                    },
-                  ),
-                );
-              });
-            },
-          });
-          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
-          paginator.update();
-        },
-      });
     }
 
     // ── Mi Registro: historial + visor del snapshot seleccionado ────────────

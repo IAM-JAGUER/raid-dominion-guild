@@ -2,7 +2,7 @@
 // Alineados al formato REAL verificado en los SV del cliente
 // (IAMM 2026-08-22 como referencia vigente; IAMM1/JUNGJX para secciones legacy).
 
-import type { WowLink } from '@/lib/wowLink';
+import type { RichTextToken, WowLink } from '@/lib/wowLink';
 
 // Ítem de contenido (mecánicas, reglas)
 export interface ContentItem {
@@ -17,6 +17,9 @@ export interface EquipmentPiece {
   name: string;
   ilvl: number;
   quality: number;
+  // ID del objeto del cliente (si el SV lo exporta); alimenta el tooltip de
+  // UltimoWoW en las fichas. Las filas antiguas pueden no traerlo.
+  itemID?: number;
 }
 
 // Metas personales proyectadas desde itemGoals al pulsar "Registrar".
@@ -74,8 +77,19 @@ export interface PlayerCharacter {
   // Nota global del personaje (RD_Utils_PlayerNotes). Viaja SIEMPRE que el SV
   // traiga la clave (puede ser "" para borrarla); ausente = SV anterior a 3.1.0.
   note?: string;
+  // Tokens ricos de la nota (enlaces del juego) para el tooltip de UltimoWoW.
+  // Solo se persisten en el almacén privado de notas; nunca se publica markup.
+  noteRich?: RichTextToken[];
   // Instancias guardadas (snapshot del addon v3.1.0). Ausente = SV anterior.
   instances?: CharacterInstance[];
+}
+
+// Moneda del roster de la cuenta (`characters[key].currencies`). `money`
+// marca la entrada de oro; `quantity` es la cantidad (cobre si money=true).
+export interface AccountCurrency {
+  name: string;
+  quantity: number;
+  money: boolean;
 }
 
 // Personaje de la cuenta WoW (characters["Nombre-Reino"]) — config compartida
@@ -91,6 +105,8 @@ export interface AccountCharacter {
   version?: string;
   firstSeen?: number;
   lastSeen?: number;
+  currencies?: AccountCurrency[];
+  money?: number;
 }
 
 // Snapshot de registro POR PERSONAJE (registry["Nombre-Reino"])
@@ -217,7 +233,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-export const PARSER_VERSION = 'v3.4.0';
+export const PARSER_VERSION = 'v3.6.0';
 
 export const MAX_SV_BYTES = 2 * 1024 * 1024; // 2 MB
 

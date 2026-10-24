@@ -32,7 +32,7 @@
 | `encuentrosvip` | `encuentrosvip_` | `profiles`, `media`, `reviews`, ... |
 | `agendaya` | `agendaya_` | `profiles`, `businesses`, `services`, ... |
 | `guild_portal` | `guild_portal_` | `config`, `guides`, `roster_players`, ... |
-| `raiddominion` | `raiddominion_` | `profiles`, `characters`, `roster_evidence`, `guilds`, `guild_members`, `saved_variables`, `guild_config`, `audit_log` |
+| `raiddominion` | `raiddominion_` | `profiles`, `characters`, `roster_evidence`, `guilds`, `guild_members`, `saved_variables`, `guild_config`, `audit_log`, `tracker_catalog`, `character_tracker`, `character_tasks` |
 | Compartidas | — | `apps`, `user_apps`, `auth.users` |
 
 ## Cómo agregar una app al ecosistema
@@ -97,6 +97,38 @@ líder lo autoriza.
 - En TypeScript, los `Row` del mapa `PublicSchema` deben ser alias `type`, no
   `interface`: una `interface` rompe la inferencia de `@supabase/supabase-js` y
   colapsa todo el esquema a `never`.
+
+## Task Tracker del dashboard (`raiddominion_tracker_*`)
+
+Regla 20261023. El dashboard incorpora el Task Tracker del proyecto local
+`wow-rd` adaptado a las subidas SV del portal (sin WTF y sin GearScore).
+
+- `raiddominion_tracker_catalog`: catálogo MANUAL por `user_id` (`id`, `label`,
+  `position`). Es privado de cada cuenta, no de la hermandad.
+- `raiddominion_character_notes.note_rich` y `raiddominion_bands.name_link`
+  (migración 20261024) conservan tokens/enlaces del juego para los tooltips de
+  UltimoWoW; la nota rica mantiene el gate `notes_public` + `is_public`.
+- `raiddominion_character_tracker`: estado privado por personaje (`hidden`,
+  `note` local del tracker, `currencies`, `money`, `first_seen`, `last_seen`,
+  `sv_saved_at`, `addon_version`). La nota del juego sigue viviendo en
+  `raiddominion_character_notes`; son notas distintas.
+- `raiddominion_character_tasks`: estado `active`/`marked` por
+  (`character_id`, `task_id`), con `CHECK (NOT marked OR active)`.
+- **Privacidad**: las tres tablas son owner-only (RLS `auth.uid() = user_id`,
+  solo SELECT). Las escrituras pasan por RPC `SECURITY DEFINER` con check
+  explícito de dueño: `raiddominion_tracker_catalog`,
+  `raiddominion_tracker_save`, `raiddominion_tracker_set_task`,
+  `raiddominion_tracker_apply` y
+  `raiddominion_sync_character_tracker_meta`.
+- **Por qué no hay columnas en `raiddominion_characters`**: esa tabla es
+  legible por `anon` cuando `is_public = TRUE`; monedas, nota local y oculto
+  se filtrarían por un SELECT directo. Las tablas del tracker no tienen
+  policy para `anon`.
+- El sync de monedas/fechas/versión se hace al subir el SV, emparejando
+  `registry.player` con `characters["Nombre-Reino"]` por nombre+reino (con
+  tolerancia a reino vacío). El GS no existe en el portal.
+- El catálogo se elimina con cascada a los estados; resetear la cuenta borra
+  personajes y, con ellos, el estado privado del tracker.
 
 ## Facción de hermandad inferida
 
