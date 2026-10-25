@@ -29,6 +29,21 @@
   "_nota_ledger": "LEDGER COMPLETO (2026-08-30): las 40 migraciones de supabase/migrations/ fueron confirmadas como aplicadas por el usuario (aplicación manual vía SQL Editor, sin CLI, ver AGENTS.md §8). 'migraciones_aplicadas' es ahora la fuente de verdad completa desde el origen del proyecto (frallas.md F012 resuelto). (2026-10-15) Existen migraciones posteriores sin confirmar en 'migraciones_pendientes_confirmacion'.",
   "ciclos": [
     {
+      "fecha": "2026-10-25",
+      "agente": "development",
+      "descripcion": "Campaña de Discord limitada a 2 mensajes/día (uno solo con @everyone, elegido por fecha); prompt de mercadeo sin metas internas (argumentos de conversión); fix TDZ de ROLE_ICONS/GOAL_ICONS en /admin y carga robusta de los indicadores de objetivos.",
+      "archivos_tocados": [
+        "netlify/functions/discord-daily.ts",
+        "netlify/functions/_shared/marketing.ts",
+        "src/pages/admin.astro",
+        "AGENTS.md"
+      ],
+      "migraciones_creadas": [],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    },
+    {
       "fecha": "2026-10-24",
       "agente": "development",
       "descripcion": "Tooltips de juego alineados con wow-rd: power.js de UltimoWoW, data-wowhead kind=id, itemID de equipamiento, itemID en metas y equipo de fichas pública/tracker, tokens ricos de nota (note_rich) y enlace de nombre de banda (name_link).",
@@ -493,8 +508,8 @@
     }
   ],
   "resumen": {
-    "total_ciclos": 3,
-    "exitosos": 3,
+    "total_ciclos": 4,
+    "exitosos": 4,
     "fracasados": 0,
     "mejora_promedio": 0
   }

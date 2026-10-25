@@ -1,11 +1,16 @@
 // Scheduled Function de Netlify: publica mensajes automáticos IA-generados
 // en Discord durante el día, usando el motor de mercadeo (_shared/marketing).
 //
-// Cron de disparo: cada hora (UTC). La PERIODICIDAD real la controla la env
-// DISCORD_DAILY_HOURS (horas UTC en que se publica, separadas por coma);
-// si la env no está configurada, se usan las horas por defecto 6,10,14,18,22
-// (≈ 00-17 esMX: mañana, mediodía, tarde y noche). Así se cambia la cadencia
-// sin tocar código ni redeployar.
+// Cron de disparo: cada hora (UTC). La campaña está limitada a DOS mensajes
+// por día; las horas salen de DISCORD_DAILY_HOURS (horas UTC separadas por
+// coma). Si la env no está configurada se usan 14 y 22 UTC (≈ 08:00 y 16:00
+// esMX). Si trae más de dos horas se conservan los dos extremos (la más
+// temprana y la más tardía) para repartir la campaña a lo largo del día.
+//
+// De los dos mensajes diarios, SOLO UNO (elegido pseudoaleatoriamente por
+// fecha) lleva @everyone; el otro se publica sin mención para no saturar al
+// servidor. La elección es estable durante el día, así que no depende de qué
+// invocación corra primero.
 //
 // Flujo:
 //   1. Comprueba si la hora UTC actual está habilitada (DISCORD_DAILY_HOURS).
@@ -38,28 +43,59 @@ export const config = {
   schedule: '0 * * * *',
 };
 
-// Horas UTC (separadas por coma) en las que el daily SÍ publica.
-const DEFAULT_HOURS = [6, 10, 14, 18, 22];
+// Dos mensajes diarios como máximo. 14 y 22 UTC ≈ 08:00 y 16:00 esMX.
+const MAX_DAILY_MESSAGES = 2;
+const DEFAULT_HOURS = [14, 22];
 
 function enabledHours(): number[] {
   const raw = env('DISCORD_DAILY_HOURS');
   if (!raw) return DEFAULT_HOURS;
-  const hours = raw
-    .split(',')
-    .map((h) => Number.parseInt(h.trim(), 10))
-    .filter((h) => Number.isInteger(h) && h >= 0 && h <= 23);
-  return hours.length > 0 ? hours : DEFAULT_HOURS;
+  const hours = [
+    ...new Set(
+      raw
+        .split(',')
+        .map((h) => Number.parseInt(h.trim(), 10))
+        .filter((h) => Number.isInteger(h) && h >= 0 && h <= 23),
+    ),
+  ].sort((a, b) => a - b);
+  // Menos de dos horas configuradas: se ignora la config parcial y se usa el
+  // par por defecto (la campaña siempre tiene dos ventanas diarias).
+  if (hours.length < 2) return DEFAULT_HOURS;
+  // Con más horas configuradas se conservan los extremos para mantener el
+  // reparto a lo largo del día y no duplicar envíos.
+  return [hours[0], hours[hours.length - 1]].slice(0, MAX_DAILY_MESSAGES);
+}
+
+// FNV-1a de 32 bits: elige de forma pseudoaleatoria (pero estable por día)
+// cuál de los dos mensajes lleva @everyone. Cambia cada jornada y garantiza
+// exactamente un mention si ambos envíos se concretan.
+function hash32(value: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash >>> 0;
+}
+
+function mentionHour(hours: number[]): number {
+  const now = new Date();
+  const day = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}${String(now.getUTCDate()).padStart(2, '0')}`;
+  return hours[hash32(day) % hours.length];
 }
 
 export default async (): Promise<Response> => {
   try {
+    const hours = enabledHours();
     const currentHour = new Date().getUTCHours();
-    if (!enabledHours().includes(currentHour)) {
+    if (!hours.includes(currentHour)) {
       return new Response(
-        JSON.stringify({ ok: true, skipped: true, hour: currentHour, enabledHours: enabledHours() }),
+        JSON.stringify({ ok: true, skipped: true, hour: currentHour, enabledHours: hours }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       );
     }
+    // Solo una de las dos ventanas del día menciona a @everyone.
+    const withMention = currentHour === mentionHour(hours);
 
     // Idempotencia: reclama el slot de esta ventana horaria. Si otro disparo
     // (o un reintento de Netlify) ya lo tomó, no enviamos de nuevo.
@@ -100,6 +136,7 @@ export default async (): Promise<Response> => {
         eje: 'jugadores',
         canal: 'prod',
         send: true,
+        mention: withMention,
         communityText: contextToText(ctx),
       });
     } catch (err) {
@@ -112,7 +149,13 @@ export default async (): Promise<Response> => {
     }
 
     return new Response(
-      JSON.stringify({ ok: true, sent: outcome.sent, length: outcome.message.length, goals: outcome.goals.length }),
+      JSON.stringify({
+        ok: true,
+        sent: outcome.sent,
+        mention: withMention,
+        length: outcome.message.length,
+        goals: outcome.goals.length,
+      }),
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err) {

@@ -110,6 +110,39 @@ export function ejeForGoal(goalKey: string): MarketingEje {
   return GOAL_EJES[goalKey] ?? 'jugadores';
 }
 
+// Traducción de cada meta interna a un ARGUMENTO DE CONVERSIÓN: lo que gana
+// el jugador o la hermandad al dar el paso. El mensaje público nunca muestra
+// targets, progreso ni la palabra "objetivo"; usa estos ángulos como
+// inspiración para vender el beneficio real.
+const GOAL_ARGUMENTS: Record<string, string> = {
+  uploads_sv:
+    'subir el SavedVariables toma un minuto y convierte tu roster en una ficha viva que la comunidad puede consultar',
+  visitante_to_member:
+    'validar al menos dos personajes abre tu perfil público y te vuelve visible para hermandades y bandas',
+  member_to_guild_master:
+    'si eres maestro de hermandad, el addon reconoce tu gremio y te entrega un portal web gratuito',
+  guilds_public:
+    'publicar el portal de tu hermandad muestra horarios, reglas y roster a posibles nuevos integrantes',
+  chars_validated:
+    'un personaje validado aparece en el directorio con su equipamiento, lo que busca mejorar e instancias reales',
+  players_public:
+    'un perfil público deja que hermandades y bandas te encuentren sin tener que buscar en el chat',
+  players_active:
+    'mantener tu SavedVariables al día hace que tu avance y tus lockouts se vean siempre frescos',
+  visits_weekly:
+    'el portal reúne hermandades, bandas y personajes con datos reales; entrar es la vía rápida para encontrar grupo',
+  visitors_30d:
+    'más jugadores explorando el portal significa más hermandades y bandas visibles para todos',
+  visits_upload_7d:
+    'el upload convierte el archivo de tu addon en un roster público en segundos',
+  visits_directory_7d:
+    'los directorios de hermandades, bandas y jugadores concentran la actividad real de la comunidad',
+};
+
+export function argumentForGoal(goalKey: string, eje: MarketingEje = ejeForGoal(goalKey)): string {
+  return GOAL_ARGUMENTS[goalKey] ?? EJE_LLAMADA[eje];
+}
+
 function usernameFor(eje: MarketingEje): string {
   return eje === 'bandas'
     ? 'RaidDominion · Bandas'
@@ -125,9 +158,12 @@ function usernameFor(eje: MarketingEje): string {
 // Ambos canales llevan una CAPTURA del addon (public/images/addon) como
 // imagen del embed, rotada de forma balanceada según el eje del mensaje
 // (bandas/hermandades/jugadores), y el logo como thumbnail.
-// La mención @everyone va SOLO en el canal público (prod); el canal
-// de pruebas/admin no menciona a nadie y, si se pasa `monitor`, incluye
-// la IP/UA desde la que se lanzó la prueba en el pie del embed.
+// La mención @everyone va SOLO en el canal público (prod) y solo si
+// `mention` es true. El cron diario la activa en UNA de sus dos ventanas
+// (elegida al azar por día); el envío manual desde /admin la mantiene por
+// defecto para que el operador decida cuándo llamar la atención.
+// El canal de pruebas/admin no menciona a nadie y, si se pasa `monitor`,
+// incluye la IP/UA desde la que se lanzó la prueba en el pie del embed.
 // Solo el aviso de VISITAS (visit.ts → canal admin) va sin captura.
 // Devuelve el contenido final publicado (o que se publicaría). Nunca lanza.
 export async function sendContent(
@@ -135,6 +171,7 @@ export async function sendContent(
   body: string,
   canal: MarketingCanal,
   monitor?: { ip?: string | null; userAgent?: string | null },
+  mention: boolean = true,
 ): Promise<{ sent: boolean; content: string }> {
   let webhookUrl: string | undefined;
   if (canal === 'test') {
@@ -154,10 +191,12 @@ export async function sendContent(
 
   const cta = EJE_CTA[eje];
   const ctaLine = `➜ **${cta.label}**: ${cta.url}`;
-  // @everyone solo en el canal público (prod); en el canal de pruebas/admin
-  // no se menciona a nadie para no spamear a la comunidad.
+  // @everyone solo en el canal público (prod) y solo cuando la campaña lo
+  // pide (una de las dos ventanas diarias). En pruebas/admin nunca se
+  // menciona a nadie para no spamear a la comunidad.
   const isProd = canal === 'prod';
-  const content = isProd
+  const withMention = isProd && mention;
+  const content = withMention
     ? `@everyone\n${body.trim()}\n\n${ctaLine}`
     : `${body.trim()}\n\n${ctaLine}`;
 
@@ -172,7 +211,7 @@ export async function sendContent(
   const payload = {
     username: usernameFor(eje),
     content,
-    allowed_mentions: { parse: isProd ? ['everyone'] : [] },
+    allowed_mentions: { parse: withMention ? ['everyone'] : [] },
     embeds: [
       {
         color: EMBED_COLOR,
@@ -212,7 +251,13 @@ export async function sendContent(
 // PostgREST envuelve las funciones RETURNS TABLE en un array de una fila.
 async function fetchStats(): Promise<Partial<MarketingStats>> {
   const data = await rpc<MarketingStats[]>('raiddominion_marketing_stats');
-  return (Array.isArray(data) ? data[0] : data) ?? {};
+  const row = (Array.isArray(data) ? data[0] : data) ?? {};
+  // Un snapshot vacío NUNCA debe llegar a evaluate: interpretaría todos los
+  // objetivos como 0 y corrompería el histórico/tendencias.
+  if (typeof row !== 'object' || Array.isArray(row) || Object.keys(row).length === 0) {
+    throw new Error('raiddominion_marketing_stats devolvió un snapshot vacío');
+  }
+  return row;
 }
 
 // Persiste la evaluación y devuelve los objetivos actualizados.
@@ -224,13 +269,19 @@ export async function evaluateGoals(): Promise<MarketingGoal[]> {
   return Array.isArray(goals) ? goals : [];
 }
 
-// Describe brevemente el estado de los objetivos para el prompt.
-function goalsToText(goals: MarketingGoal[]): string {
-  const lines = goals.map((g) => {
-    const estado = g.trend === 'up' ? 'en alza' : g.trend === 'down' ? 'en baja' : 'estable';
-    return `- ${g.label}: ${g.current_value} (objetivo ${g.target}) · ${estado}${g.focus_boost ? ' · PRIORIZAR' : ''}`;
-  });
-  return lines.join('\n');
+// Elige hasta `limit` objetivos internos que conviene empujar DENTRO del eje
+// del mensaje (para que el argumento y el CTA hablen de lo mismo). Las cifras
+// (current/target) y la etiqueta del objetivo NO se envían al redactor: solo
+// el argumento de conversión asociado. Se ordena por urgencia (baja →
+// estancado → alza) para que el mensaje tenga un ángulo claro en lugar de una
+// lista de KPIs.
+function pickFocusGoals(goals: MarketingGoal[], eje: MarketingEje, limit = 2): MarketingGoal[] {
+  const priority: Record<MarketingGoal['trend'], number> = { down: 0, hold: 1, up: 2 };
+  const byEje = goals.filter((g) => g.enabled && ejeForGoal(g.goal_key) === eje);
+  const candidates = byEje.length > 0 ? byEje : goals.filter((g) => g.enabled);
+  const pool = candidates.filter((g) => g.focus_boost || g.trend === 'up');
+  const source = pool.length > 0 ? pool : candidates;
+  return [...source].sort((a, b) => priority[a.trend] - priority[b.trend]).slice(0, limit);
 }
 
 export interface MarketingOutcome {
@@ -244,11 +295,14 @@ export interface MarketingOutcome {
 // - goalKey: si se indica, el mensaje se focaliza en ese objetivo y el eje se
 //   deriva de él (bandas/hermandades/jugadores). Si no, se priorizan los
 //   objetivos en focus_boost del eje indicado.
+// - mention: si es false, el mensaje público se envía SIN @everyone (el cron
+//   lo usa para que solo una de sus dos ventanas diarias mencione).
 export async function runMarketing(opts: {
   eje?: MarketingEje;
   goalKey?: string;
   canal?: MarketingCanal;
   send?: boolean;
+  mention?: boolean;
   communityText?: string;
   monitor?: { ip?: string | null; userAgent?: string | null };
 }): Promise<MarketingOutcome> {
@@ -256,34 +310,31 @@ export async function runMarketing(opts: {
   const goals = await evaluateGoals();
 
   let eje: MarketingEje;
-  let focusText: string;
+  let focusArguments: string[];
   if (opts.goalKey) {
     eje = ejeForGoal(opts.goalKey);
-    const g = goals.find((x) => x.goal_key === opts.goalKey)
-      ?? goals.find((x) => x.enabled);
-    focusText = g ? `${g.label} (actual ${g.current_value} de objetivo ${g.target})` : opts.goalKey;
+    focusArguments = [argumentForGoal(opts.goalKey, eje)];
   } else {
     eje = opts.eje ?? 'jugadores';
-    const inFocus = goals.filter((g) => g.focus_boost && g.enabled);
-    focusText = inFocus.length > 0
-      ? inFocus.map((g) => g.label).join(', ')
-      : goals.filter((g) => g.enabled && g.trend === 'up').slice(0, 1).map((g) => g.label).join(', ') || 'crecimiento sostenido';
+    const picked = pickFocusGoals(goals, eje);
+    focusArguments = picked.map((g) => argumentForGoal(g.goal_key, eje));
+    if (focusArguments.length === 0) focusArguments = [EJE_LLAMADA[eje]];
   }
 
   const ctx = opts.communityText || '';
   const prompt = [
     `Eres el estratega de comunidad de RaidDominion, un addon para World of Warcraft 3.3.5a (WotLK).`,
-    `Tu prioridad estratégica es generar NUEVOS USUARIOS del addon, CONTENIDO para el ecosistema y TRÁFICO ORGÁNICO (nuevas visitas y visitantes únicos según las estadísticas de visitas): descargas y uso del addon, subidas de SavedVariables, personajes validados, bandas/hermandades registradas y más gente llegando a la web. No persigas solo visibilidad: empuja a dar el siguiente paso práctico.`,
+    `Tu prioridad estratégica es generar NUEVOS USUARIOS del addon, CONTENIDO para el ecosistema y TRÁFICO ORGÁNICO: descargas y uso del addon, subidas de SavedVariables, personajes validados, bandas/hermandades registradas y más gente llegando a la web. Esa estrategia es INTERNA: jamás la expliques ni la cites en el mensaje.`,
     `Redacta un mensaje para Discord (#general) ENFOCADO A LA CONVERSIÓN: 1 línea de apertura con gancho, máximo 3 viñetas cortas y una llamada a la acción final.`,
-    `Formato atractivo y balanceado: usa negritas para resaltar las cifras o el paso clave, sin exagerar el relleno. Iconos con mesura: entre 1 y 3 emojis como máximo, colocados en puntos clave, nunca más de 2 seguidos.`,
+    `Formato atractivo y balanceado: usa negritas para resaltar el paso clave o una cifra real de comunidad; nunca para metas internas. Iconos con mesura: entre 1 y 3 emojis como máximo, colocados en puntos clave, nunca más de 2 seguidos.`,
     `NO incluyas URLs ni enlaces: el enlace de la plataforma con su CTA se agrega automáticamente al mensaje. Menciónalo de forma natural ("entra al portal", "súbela ahora") sin inventar rutas.`,
-    `Objetivos de la plataforma (estado real):`,
-    goalsToText(goals),
-    '',
-    `Esta invocación debe dar visibilidad y empujar a: ${focusText}.`,
+    `Brújula interna (NO la menciones en el mensaje): esta publicación debe empujar a estos beneficios, no a una meta del portal.`,
+    `Argumentos de conversión (inspiración; adáptalos al tono, no los copies literalmente):`,
+    focusArguments.map((a) => `- ${a}`).join('\n'),
+    `Habla SIEMPRE de lo que GANA el jugador o su hermandad. PROHIBIDO escribir "objetivo", "meta", "target", "progreso del portal" o cifras tipo "X de Y": esas métricas son solo tu brújula interna.`,
     `Tema: ${EJE_GIROS[eje]}.`,
     `Llamada a la acción sugerida: ${EJE_LLAMADA[eje]}.`,
-    ctx ? `Contexto de la comunidad (usa cifras/nombres reales cuando aplique, no inventes):\n${ctx}` : '',
+    ctx ? `Contexto de la comunidad (usa nombres o cifras reales solo como prueba social cuando sumen; NUNCA cifras en cero ni métricas internas de tráfico):\n${ctx}` : '',
     'Devuelve SOLO el cuerpo del mensaje (sin "Hola @everyone", el cuerpo empieza con el gancho), sin razonamientos previos, encabezados ni explicaciones.',
     'Cierra con una frase corta, sin hashtags, con tono de hermandad y energía.',
   ].filter((l) => l).join('\n');
@@ -292,7 +343,7 @@ export async function runMarketing(opts: {
   let sent = false;
   let message = body;
   if (opts.send !== false) {
-    const result = await sendContent(eje, body, canal, opts.monitor);
+    const result = await sendContent(eje, body, canal, opts.monitor, opts.mention ?? true);
     sent = result.sent;
     message = result.content;
   }

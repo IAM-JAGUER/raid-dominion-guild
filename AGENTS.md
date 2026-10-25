@@ -354,11 +354,13 @@ Node 20. `env()` (`_shared/env.ts`) lee `process.env` en deploy e
 - **`netlify/functions/discord-daily.ts`** — Scheduled Function (cron de
   disparo horario UTC `0 * * * *`): usa el **motor de mercadeo**
   (`_shared/marketing`) para generar un mensaje dinámico enfocado a conversión
-  y publicarlo en el webhook público de Discord. La **periodicidad real** se
-  controla con la env `DISCORD_DAILY_HOURS` (horas UTC separadas por coma en
-  las que sí publica; por defecto `6,10,14,18,22` ≈ 00‑17 esMX — es decir, 5
-  envíos al día, el disparo horario descarta el resto de horas). Cambiar la
-  cadencia = tocar la env, sin tocar código ni redeployar.
+  y publicarlo en el webhook público de Discord. La campaña está **limitada a
+  2 mensajes al día**. Las horas salen de la env `DISCORD_DAILY_HOURS` (UTC,
+  separadas por coma; por defecto `14,22` ≈ 08:00 y 16:00 esMX). Si la env trae
+  más de dos horas se conservan los extremos (la más temprana y la más tardía).
+  De los dos mensajes diarios, **solo uno (elegido pseudoaleatoriamente por
+  fecha) lleva @everyone**; el otro se publica sin mención. Cambiar las horas =
+  tocar la env, sin tocar código ni redeployar.
   **Idempotencia anti-duplicados (migración 20260925):** antes de evaluar y
   enviar, la función reclama el slot de su ventana horaria
   (`raiddominion_cron_claim_slot`, clave `YYYYMMDD-HH` UTC sobre
@@ -464,7 +466,8 @@ Groq; por defecto `openai/gpt-oss-120b` — la disponibilidad de modelos en la
 cuenta rota, ver `_shared/groq.ts`), `DISCORD_WEBHOOK_URL` (webhook
 privado/admin: test de mercadeo y avisos de visitas),
 `DISCORD_PUBLIC_WEBHOOK_URL` (canal público),
-`DISCORD_DAILY_HOURS` (periodicidad del cron, ver `discord-daily.ts`),
+`DISCORD_DAILY_HOURS` (dos horas UTC del cron, p. ej. `14,22`; máx. 2
+mensajes/día, ver `discord-daily.ts`),
 `SITE_URL` (sobreescribe la URL canónica del portal; por defecto
 `https://raid-dominion.netlify.app`). El `.env` local está en `.gitignore`;
 configurar las mismas vars en Netlify.
@@ -475,7 +478,9 @@ Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
   **balanceada según el eje del mensaje** (bandas/hermandades/jugadores) vía
   RPC `raiddominion_marketing_pick_image` (tabla `raiddominion_marketing_images`,
   migración 20260925; fallback determinista en `_shared/addonImages.ts` si el
-  RPC no está aplicado) + logo como thumbnail + @everyone + CTA.
+  RPC no está aplicado) + logo como thumbnail + CTA. El cron diario menciona
+  @everyone solo en UNA de sus dos ventanas (elegida al azar por fecha); el
+  envío manual "Público" del panel sí lleva @everyone.
 - **Canal admin/pruebas (`test`)**: MISMO embed con captura + CTA y logo
   thumbnail, SIN @everyone; es un preview de monitoreo con la **IP** y UA de
   quien lanzó la prueba en el pie del embed.
@@ -486,7 +491,10 @@ Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
   `/hermandades`, `/bandas`.
 - **Formato balanceado y atractivo**: negritas en cifras/paso clave, máx. 3
   viñetas, entre 1 y 3 emojis colocados con mesura, CTA final. El prompt
-  instruye NO incluir URLs (las agrega el código de forma determinística).
+  instruye NO incluir URLs (las agrega el código de forma determinística) y
+  **NO exponer metas internas**: los objetivos de `raiddominion_marketing` son
+  solo la brújula del redactor; el mensaje vende el beneficio para el jugador
+  (argumentos de conversión), nunca "objetivo X de Y" ni progreso del portal.
 
 Canales del Discord comunitario (solo referencia; el envío usa el webhook URL
 completo, Configurados en `.env`/Netlify):
@@ -498,6 +506,16 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-25 (campaña Discord y panel admin)**: el cron de Discord queda
+  limitado a **2 mensajes/día** (por defecto 14 y 22 UTC) y **solo uno**
+  (elegido pseudoaleatoriamente por fecha) usa @everyone. El prompt del motor
+  deja de exponer metas del portal: los objetivos son brújula interna y el
+  mensaje usa **argumentos de conversión** (beneficio para el jugador), sin
+  cifras de progreso ni "objetivo X de Y". Se corrige un TDZ en `/admin`
+  (`ROLE_ICONS`/`GOAL_ICONS` se leían antes de inicializarse durante el
+  arranque) que impedía pintar los indicadores de objetivos; la carga ahora
+  muestra estado de error/vacío en vez de fallar en silencio.
 
 - **2026-10-25 (datos pasivos desde characters)**: el addon v3.2.0 deja de
   duplicar el array de equipo y las instancias en `registry[].player`; esos

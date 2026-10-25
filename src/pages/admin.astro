@@ -53,11 +53,12 @@ import { ui } from '@/lib/ui/design';
               <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">objetivos reales → mensaje de conversión</span>
             </div>
 
-            <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-brand-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-brand-300/80">canal de pruebas</span> (privado, sin @everyone) o al <span class="text-brand-300/80">canal público</span> (con @everyone).</p>
+            <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-brand-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-brand-300/80">canal de pruebas</span> (privado, sin @everyone) o al <span class="text-brand-300/80">canal público</span> (con @everyone). La campaña automática publica <span class="text-brand-300/80">2 mensajes al día</span> y solo uno de ellos, elegido al azar, usa @everyone.</p>
 
             <!-- Objetivos de conversión -->
             <h3 class={`${ui.subTitle}`}>Objetivos de conversión</h3>
             <div id="discord-goals" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-5"></div>
+            <p id="discord-goals-status" class={`${ui.loading.liveText} italic mb-5`} aria-live="polite">Cargando objetivos…</p>
             <p id="discord-status" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status" aria-live="polite"></p>
             <pre id="discord-preview" class="hidden mt-3 whitespace-pre-wrap rounded-md bg-brand-900/70 border border-brand-600/20 p-3 text-xs text-gray-300"></pre>
           </section>
@@ -229,6 +230,34 @@ import { ui } from '@/lib/ui/design';
     band_status_changed: 'Banda gestionada',
   };
 
+  // Icono temático del medallón de cada rol (métricas del admin).
+  // Se declara ANTES del top-level await de carga: loadUsers() → renderStats()
+  // lo usa durante la inicialización y un `const` posterior caería en TDZ.
+  const ROLE_ICONS: Record<string, IconName> = {
+    visitante: 'visibilidad',
+    member: 'perfil',
+    guild_master: 'corona',
+    moderator: 'balanza',
+    admin: 'bloqueo-alt',
+  };
+
+  // Icono temático por objetivo de mercadeo (claves de la migración 20260913/18).
+  // Misma razón que ROLE_ICONS: loadGoals() → renderGoals() se ejecuta en la
+  // inicialización del módulo.
+  const GOAL_ICONS: Record<string, IconName> = {
+    uploads_sv: 'subir',
+    visitante_to_member: 'anadir',
+    member_to_guild_master: 'corona',
+    guilds_public: 'hermandad',
+    chars_validated: 'validado',
+    players_public: 'perfil',
+    players_active: 'energia',
+    visits_weekly: 'vientos',
+    visitors_30d: 'perfil-alt',
+    visits_upload_7d: 'sincronizar',
+    visits_directory_7d: 'brujula',
+  };
+
   let users: AdminUserRow[] = [];
   let audit: AuditRow[] = [];
   let activeRole: RaiddominionRole | null = null;
@@ -369,15 +398,6 @@ import { ui } from '@/lib/ui/design';
     renderStats();
     render();
   }
-
-  // Icono temático del medallón de cada rol (métricas del admin).
-  const ROLE_ICONS: Record<string, IconName> = {
-    visitante: 'visibilidad',
-    member: 'perfil',
-    guild_master: 'corona',
-    moderator: 'balanza',
-    admin: 'bloqueo-alt',
-  };
 
   function renderStats(): void {
     const wrap = document.getElementById('role-stats') as HTMLElement;
@@ -1123,25 +1143,15 @@ import { ui } from '@/lib/ui/design';
     // El snapshot viene en array de una fila (RETURNS TABLE); se normaliza a
     // objeto para que la evaluación acepte p_stats (jsonb_typeof = object).
     const stats = await rpcAdmin('raiddominion_marketing_stats');
+    if (stats.error) throw stats.error;
     const statsRow = Array.isArray(stats.data) ? (stats.data[0] ?? {}) : (stats.data ?? {});
+    if (!statsRow || typeof statsRow !== 'object' || Array.isArray(statsRow)) {
+      throw new Error('El snapshot de métricas llegó vacío.');
+    }
     const goals = await rpcAdmin('raiddominion_marketing_evaluate', { p_stats: statsRow });
+    if (goals.error) throw goals.error;
     return (Array.isArray(goals.data) ? goals.data : []) as unknown as MarketingGoalView[];
   }
-
-  // Icono temático por objetivo de mercadeo (claves de la migración 20260913/18).
-  const GOAL_ICONS: Record<string, IconName> = {
-    uploads_sv: 'subir',
-    visitante_to_member: 'anadir',
-    member_to_guild_master: 'corona',
-    guilds_public: 'hermandad',
-    chars_validated: 'validado',
-    players_public: 'perfil',
-    players_active: 'energia',
-    visits_weekly: 'vientos',
-    visitors_30d: 'perfil-alt',
-    visits_upload_7d: 'sincronizar',
-    visits_directory_7d: 'brujula',
-  };
 
   function goalBadgeClasses(trend: MarketingGoalView['trend']): string {
     if (trend === 'down') return `${ui.badge} ${ui.badgeRole.visitante}`;
@@ -1197,11 +1207,20 @@ import { ui } from '@/lib/ui/design';
   }
 
   async function loadGoals(): Promise<void> {
+    const status = document.getElementById('discord-goals-status') as HTMLElement;
     try {
       const goals = await fetchGoals();
-      if (goals.length > 0) renderGoals(goals);
+      if (goals.length > 0) {
+        renderGoals(goals);
+        status.classList.add('hidden');
+      } else {
+        status.className = 'mb-5 text-sm text-gray-400 italic';
+        status.textContent = 'No hay objetivos activos para mostrar.';
+      }
     } catch (err) {
       console.error('[discord-goals]', err);
+      status.className = `mb-5 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+      status.textContent = 'No se pudieron cargar los objetivos. Revisa la conexión y recarga la página.';
     }
   }
 
