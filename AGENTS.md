@@ -377,11 +377,14 @@ Node 20. `env()` (`_shared/env.ts`) lee `process.env` en deploy e
   ① lee el snapshot de métricas (`raiddominion_marketing_stats`) → ② evalúa
   objetivos contra el histórico en `raiddominion_marketing`
   (`raiddominion_marketing_evaluate`): tendencia (up/hold/down) + `focus_boost`
-  (objetivo bajo a priorizar) → ③ Groq redacta un mensaje de conversión con
-  data real priorizando el foco; si se pasa `goalKey`, se focaliza en ese
-  objetivo y el **eje** (bandas/hermandades/jugadores) se deriva de él
-  (`ejeForGoal`) → ④ lo publica según **canal** (`test`/`prod`) vía
-  `sendContent()`. NO persiste mensajes, solo estado de objetivos.
+  (objetivo bajo a priorizar) → ③ Groq redacta un mensaje de conversión
+  priorizando el foco, **sin cifras ni nombres de comunidad**; si se pasa
+  `goalKey`, se focaliza en ese objetivo y el **eje**
+  (bandas/hermandades/jugadores) se deriva de él (`ejeForGoal`) → ④ valida el
+  texto con `marketingGuard.ts`: si inventó cifras se reintenta sin datos y,
+  si vuelve a fallar, se usa una plantilla determinista → ⑤ lo publica según
+  **canal** (`test`/`prod`) vía `sendContent()`. NO persiste mensajes, solo
+  estado de objetivos.
 - **`netlify/functions/discord-send.ts`** — envío manual de un OBJETIVO a
   Discord desde el panel admin ("cuando quiera"). Recibe `POST /api/discord-send`
   con `{ goal_key, canal: 'test' | 'prod' }` (redirect `/api/discord-send →
@@ -417,7 +420,9 @@ registran la IP de cada visitante.
   y `Accept-Profile: public`, RLS activa: solo lee datos públicos), `env.ts`
   (envs deploy/dev), `groq.ts` (`openai/gpt-oss-120b`, sobreescribible con
   `GROQ_MODEL`; modelo de razonamiento: `maxTokens` altos), `discord.ts`
-  (webhooks), `context.ts` (contexto de comunidad), `marketing.ts` (motor).
+  (webhooks), `context.ts` (contexto de comunidad), `marketing.ts` (motor) y
+  `marketingGuard.ts` (guardián anti-falsos positivos: rechaza cifras/nombres
+  inventados y cae a plantilla segura).
 
 ### Migración de mercadeo (20260913_marketing_goals.sql)
 
@@ -474,13 +479,14 @@ configurar las mismas vars en Netlify.
 
 Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
 - **Canal público (`prod`)**: una CAPTURA del addon como imagen del embed
-  (`embed image`, desde `public/images/addon/*.jpg`), rotada de forma
+  (`embed image`, desde `public/images/addon/*.{jpg,png}`), rotada de forma
   **balanceada según el eje del mensaje** (bandas/hermandades/jugadores) vía
   RPC `raiddominion_marketing_pick_image` (tabla `raiddominion_marketing_images`,
-  migración 20260925; fallback determinista en `_shared/addonImages.ts` si el
-  RPC no está aplicado) + logo como thumbnail + CTA. El cron diario menciona
-  @everyone solo en UNA de sus dos ventanas (elegida al azar por fecha); el
-  envío manual "Público" del panel sí lleva @everyone.
+  migraciones 20260925 y 20261025; fallback determinista en
+  `_shared/addonImages.ts` si el RPC no está aplicado) + logo como thumbnail +
+  CTA. El cron diario menciona @everyone solo en UNA de sus dos ventanas
+  (elegida al azar por fecha); el envío manual "Público" del panel sí lleva
+  @everyone.
 - **Canal admin/pruebas (`test`)**: MISMO embed con captura + CTA y logo
   thumbnail, SIN @everyone; es un preview de monitoreo con la **IP** y UA de
   quien lanzó la prueba en el pie del embed.
@@ -489,12 +495,14 @@ Formato de los mensajes de mercadeo (cron y panel, ambos usan el MISMO motor):
 - **Enlace útil de la plataforma con CTA** en ambos (título clicable del
   embed + línea markdown `➜ **<label>**: <url>` según eje): `/upload`,
   `/hermandades`, `/bandas`.
-- **Formato balanceado y atractivo**: negritas en cifras/paso clave, máx. 3
+- **Formato balanceado y atractivo**: negritas en el paso clave, máx. 3
   viñetas, entre 1 y 3 emojis colocados con mesura, CTA final. El prompt
-  instruye NO incluir URLs (las agrega el código de forma determinística) y
-  **NO exponer metas internas**: los objetivos de `raiddominion_marketing` son
-  solo la brújula del redactor; el mensaje vende el beneficio para el jugador
-  (argumentos de conversión), nunca "objetivo X de Y" ni progreso del portal.
+  instruye NO incluir URLs (las agrega el código de forma determinística),
+  NO exponer metas internas ni cifras/nombres de comunidad: los objetivos de
+  `raiddominion_marketing` son solo la brújula del redactor y el mensaje vende
+  el beneficio para el jugador (argumentos de conversión). `marketingGuard.ts`
+  rechaza cualquier cifra/cuantificador inventado y usa una plantilla sin
+  datos como último recurso.
 
 Canales del Discord comunitario (solo referencia; el envío usa el webhook URL
 completo, Configurados en `.env`/Netlify):
@@ -506,6 +514,19 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-25 (capturas reubicadas del addon)**: las 6 capturas PNG movidas a
+  `public/images/addon` se renombran a PascalCase y entran al catálogo
+  `_shared/addonImages.ts`; la migración `20261025_marketing_images_addon_pngs.sql`
+  (aplicada por el usuario el 2026-10-25) las suma a la rotación balanceada del
+  RPC `raiddominion_marketing_pick_image`.
+
+- **2026-10-25 (anti-falsos positivos en Discord)**: el copy de mercadeo deja
+  de recibir y de presumir datos de comunidad. `_shared/marketingGuard.ts`
+  rechaza cualquier mensaje con cifras o cuantificadores inventados (p. ej.
+  "más de 500 hermandades"), reintenta una vez sin datos y, si vuelve a fallar,
+  publica una plantilla determinista sin cifras ni nombres. Se retiró el
+  contexto de estadísticas del prompt del cron.
 
 - **2026-10-25 (campaña Discord y panel admin)**: el cron de Discord queda
   limitado a **2 mensajes/día** (por defecto 14 y 22 UTC) y **solo uno**

@@ -31,6 +31,44 @@
     {
       "fecha": "2026-10-25",
       "agente": "development",
+      "descripcion": "Capturas del addon reubicadas a public/images/addon: se renombran a PascalCase, entran al catálogo de addonImages.ts y se redacta la migración 20261025 para sumarlas a la rotación balanceada del RPC de mercadeo.",
+      "archivos_tocados": [
+        "netlify/functions/_shared/addonImages.ts",
+        "supabase/migrations/20261025_marketing_images_addon_pngs.sql",
+        "public/images/addon/MenuHabilidadesRoles.png",
+        "public/images/addon/MenuReglasMecanicas.png",
+        "public/images/addon/RosterRolesBanda.png",
+        "public/images/addon/BuffsBanda.png",
+        "public/images/addon/HabilidadesUtilidad.png",
+        "public/images/addon/HabilidadesDuales.png",
+        "AGENTS.md"
+      ],
+      "migraciones_creadas": [
+        "20261025_marketing_images_addon_pngs.sql (redactada, no aplicada por el agente)"
+      ],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    },
+    {
+      "fecha": "2026-10-25",
+      "agente": "development",
+      "descripcion": "Anti-falsos positivos en Discord: el copy de mercadeo no recibe ni presume datos de comunidad. marketingGuard.ts rechaza cifras/cuantificadores inventados, reintenta una vez y cae a plantilla determinista sin datos.",
+      "archivos_tocados": [
+        "netlify/functions/_shared/marketingGuard.ts",
+        "netlify/functions/_shared/marketing.ts",
+        "netlify/functions/discord-daily.ts",
+        "tests/marketingGuard.test.ts",
+        "AGENTS.md"
+      ],
+      "migraciones_creadas": [],
+      "veredicto_qa": "N/A",
+      "build": "ok_check",
+      "exitoso": true
+    },
+    {
+      "fecha": "2026-10-25",
+      "agente": "development",
       "descripcion": "Campaña de Discord limitada a 2 mensajes/día (uno solo con @everyone, elegido por fecha); prompt de mercadeo sin metas internas (argumentos de conversión); fix TDZ de ROLE_ICONS/GOAL_ICONS en /admin y carga robusta de los indicadores de objetivos.",
       "archivos_tocados": [
         "netlify/functions/discord-daily.ts",
@@ -483,6 +521,13 @@
       "aplicada_por": "usuario (manual, sin CLI)",
       "project_ref_verificado": true,
       "notas": "Aplicada (2026-09-05), confirmado por el usuario. Tabla raiddominion_marketing_images + RPC raiddominion_marketing_pick_image para rotar de forma balanceada las capturas del addon en los embeds de mercadeo según el eje del mensaje."
+    },
+    {
+      "archivo": "20261025_marketing_images_addon_pngs.sql",
+      "fecha_aplicacion": "2026-10-25",
+      "aplicada_por": "usuario (manual, sin CLI)",
+      "project_ref_verificado": true,
+      "notas": "Aplicada (2026-10-25), confirmado por el usuario. Suma las 6 capturas PNG reubicadas (MenuHabilidadesRoles, MenuReglasMecanicas, RosterRolesBanda, BuffsBanda, HabilidadesUtilidad, HabilidadesDuales) al catálogo raiddominion_marketing_images sin tocar contadores de uso."
     }
   ],
   "migraciones_pendientes_confirmacion": [
@@ -508,8 +553,8 @@
     }
   ],
   "resumen": {
-    "total_ciclos": 4,
-    "exitosos": 4,
+    "total_ciclos": 6,
+    "exitosos": 6,
     "fracasados": 0,
     "mejora_promedio": 0
   }

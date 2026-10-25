@@ -17,11 +17,10 @@
 //   2. Reclama el slot de idempotencia de la ventana horaria
 //      (raiddominion_cron_claim_slot): si otro disparo/reintento ya lo tomó,
 //      responde skipped y NO envía → garantiza un solo mensaje por ventana.
-//   3. Lee contexto público de la comunidad (tablas raiddominion_*).
-//   4. El motor evalúa objetivos, genera un mensaje dinámico enfocado a la
-//      conversión y lo publica en el webhook público de Discord.
-//   5. Nunca lanza: ante fallo responde { ok: false } y loguea.
-import { buildCommunityContext, contextToText } from './_shared/context';
+//   3. El motor evalúa objetivos, genera un mensaje dinámico enfocado a la
+//      conversión (sin cifras ni nombres de comunidad) y lo publica en el
+//      webhook público de Discord.
+//   4. Nunca lanza: ante fallo responde { ok: false } y loguea.
 import { runMarketing, type MarketingOutcome } from './_shared/marketing';
 import { env } from './_shared/env';
 import { rpc, deleteFrom } from './_shared/supabase';
@@ -130,14 +129,11 @@ export default async (): Promise<Response> => {
 
     let outcome: MarketingOutcome;
     try {
-      const ctx = await buildCommunityContext();
-
       outcome = await runMarketing({
         eje: 'jugadores',
         canal: 'prod',
         send: true,
         mention: withMention,
-        communityText: contextToText(ctx),
       });
     } catch (err) {
       await releaseSlot();

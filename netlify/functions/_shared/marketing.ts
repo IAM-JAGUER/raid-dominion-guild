@@ -6,8 +6,10 @@
 //   2. Evalúa objetivos contra el histórico persistido
 //      (raiddominion_marketing_evaluate) → tendencia (up/hold/down) y
 //      focus_boost (objetivo que va bajo y conviene empujar).
-//   3. Groq redacta un mensaje de conversión con la data real, priorizando
-//      los objetivos en foco y el eje elegido.
+//   3. Groq redacta un mensaje de conversión priorizando los objetivos en
+//      foco y el eje elegido. El copy NO presume datos: no incluye cifras ni
+//      nombres de comunidad. Un guardián descarta cualquier respuesta que
+//      invente números y cae a una plantilla segura (anti-falsos positivos).
 //   4. Publica en el webhook de Discord según canal (test/prod).
 //
 // Es el MISMO motor que usa el cron (discord-daily) y el panel de /admin
@@ -17,6 +19,7 @@ import { rpc } from './supabase';
 import { groqChat } from './groq';
 import { env } from './env';
 import { pickAddonImage, addonImageUrl } from './addonImages';
+import { hasUnverifiedClaims, safeBodyFor } from './marketingGuard';
 
 export type MarketingEje = 'bandas' | 'hermandades' | 'jugadores';
 export type MarketingCanal = 'test' | 'prod';
@@ -61,7 +64,7 @@ const EJE_GIROS: Record<MarketingEje, string> = {
 const EJE_LLAMADA: Record<MarketingEje, string> = {
   bandas: 'registra tus bandas y deja que la comunidad encuentre tu raid',
   hermandades: 'haz público tu portal de hermandad y acerca nuevos integrantes',
-  jugadores: 'valida tu personaje (≥2) y haz público tu perfil para que te encuentren',
+  jugadores: 'valida tus personajes y haz público tu perfil para que te encuentren',
 };
 
 // Enlace útil de la plataforma con CTA, por eje. Va en el embed (título
@@ -118,7 +121,7 @@ const GOAL_ARGUMENTS: Record<string, string> = {
   uploads_sv:
     'subir el SavedVariables toma un minuto y convierte tu roster en una ficha viva que la comunidad puede consultar',
   visitante_to_member:
-    'validar al menos dos personajes abre tu perfil público y te vuelve visible para hermandades y bandas',
+    'validar tus personajes abre tu perfil público y te vuelve visible para hermandades y bandas',
   member_to_guild_master:
     'si eres maestro de hermandad, el addon reconoce tu gremio y te entrega un portal web gratuito',
   guilds_public:
@@ -303,7 +306,6 @@ export async function runMarketing(opts: {
   canal?: MarketingCanal;
   send?: boolean;
   mention?: boolean;
-  communityText?: string;
   monitor?: { ip?: string | null; userAgent?: string | null };
 }): Promise<MarketingOutcome> {
   const canal: MarketingCanal = opts.canal ?? 'prod';
@@ -321,24 +323,43 @@ export async function runMarketing(opts: {
     if (focusArguments.length === 0) focusArguments = [EJE_LLAMADA[eje]];
   }
 
-  const ctx = opts.communityText || '';
   const prompt = [
     `Eres el estratega de comunidad de RaidDominion, un addon para World of Warcraft 3.3.5a (WotLK).`,
     `Tu prioridad estratégica es generar NUEVOS USUARIOS del addon, CONTENIDO para el ecosistema y TRÁFICO ORGÁNICO: descargas y uso del addon, subidas de SavedVariables, personajes validados, bandas/hermandades registradas y más gente llegando a la web. Esa estrategia es INTERNA: jamás la expliques ni la cites en el mensaje.`,
     `Redacta un mensaje para Discord (#general) ENFOCADO A LA CONVERSIÓN: 1 línea de apertura con gancho, máximo 3 viñetas cortas y una llamada a la acción final.`,
-    `Formato atractivo y balanceado: usa negritas para resaltar el paso clave o una cifra real de comunidad; nunca para metas internas. Iconos con mesura: entre 1 y 3 emojis como máximo, colocados en puntos clave, nunca más de 2 seguidos.`,
+    `Formato atractivo y balanceado: usa negritas para resaltar el paso clave, nunca para cifras. Iconos con mesura: entre 1 y 3 emojis como máximo, colocados en puntos clave, nunca más de 2 seguidos.`,
     `NO incluyas URLs ni enlaces: el enlace de la plataforma con su CTA se agrega automáticamente al mensaje. Menciónalo de forma natural ("entra al portal", "súbela ahora") sin inventar rutas.`,
+    `PROHIBIDO incluir cifras, cantidades, porcentajes, rangos o nombres de hermandades, bandas, personajes, reinos o servidores. No inventes datos: si no lo sabes, no lo digas. Habla de beneficios, no de estadísticas.`,
     `Brújula interna (NO la menciones en el mensaje): esta publicación debe empujar a estos beneficios, no a una meta del portal.`,
     `Argumentos de conversión (inspiración; adáptalos al tono, no los copies literalmente):`,
     focusArguments.map((a) => `- ${a}`).join('\n'),
     `Habla SIEMPRE de lo que GANA el jugador o su hermandad. PROHIBIDO escribir "objetivo", "meta", "target", "progreso del portal" o cifras tipo "X de Y": esas métricas son solo tu brújula interna.`,
     `Tema: ${EJE_GIROS[eje]}.`,
     `Llamada a la acción sugerida: ${EJE_LLAMADA[eje]}.`,
-    ctx ? `Contexto de la comunidad (usa nombres o cifras reales solo como prueba social cuando sumen; NUNCA cifras en cero ni métricas internas de tráfico):\n${ctx}` : '',
     'Devuelve SOLO el cuerpo del mensaje (sin "Hola @everyone", el cuerpo empieza con el gancho), sin razonamientos previos, encabezados ni explicaciones.',
     'Cierra con una frase corta, sin hashtags, con tono de hermandad y energía.',
   ].filter((l) => l).join('\n');
-  const body = await groqChat([{ role: 'user', content: prompt }], { temperature: 0.85, maxTokens: 1200 });
+  let body = await groqChat([{ role: 'user', content: prompt }], { temperature: 0.85, maxTokens: 1200 });
+
+  // Guardián: si el modelo inventó cifras o datos de comunidad, se reintenta
+  // una vez con la prohibición reforzada. Si vuelve a fallar, se publica una
+  // plantilla determinista sin datos: nunca se envía una cifra no verificada.
+  if (hasUnverifiedClaims(body)) {
+    console.warn('marketing: se descartó un mensaje con datos no verificados; reintentando sin cifras.');
+    body = await groqChat(
+      [
+        {
+          role: 'user',
+          content: `${prompt}\n\nTU RESPUESTA ANTERIOR INCLUYÓ CIFRAS O DATOS NO VERIFICADOS. Reescribe el mensaje SIN ningún número, porcentaje, cantidad ni nombre propio de comunidad.`,
+        },
+      ],
+      { temperature: 0.6, maxTokens: 1200 },
+    );
+    if (hasUnverifiedClaims(body)) {
+      console.warn('marketing: el reintento volvió a incluir datos no verificados; se usa plantilla segura.');
+      body = safeBodyFor(eje);
+    }
+  }
 
   let sent = false;
   let message = body;

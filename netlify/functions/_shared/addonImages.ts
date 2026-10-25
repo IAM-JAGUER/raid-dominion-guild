@@ -4,11 +4,12 @@
 // general). El motor de mercadeo elige la captura más acorde al eje del
 // mensaje y la rota "balanceadamente" (la menos usada recientemente primero)
 // gracias a la tabla raiddominion_marketing_images + RPC
-// raiddominion_marketing_pick_image (ver migración 20260925_marketing_images.sql).
+// raiddominion_marketing_pick_image (migraciones 20260925_marketing_images.sql
+// y 20261025_marketing_images_addon_pngs.sql).
 // Si el RPC no está disponible (migración pendiente o fallo de red), se usa
 // una rotación determinista por ventana horaria como fallback.
 //
-// Archivos: public/images/addon/*.jpg — sirve el portal estático.
+// Archivos: public/images/addon/*.jpg y *.png — sirve el portal estático.
 const IMAGES_DIR = '/images/addon';
 
 export interface AddonImage {
@@ -44,6 +45,44 @@ export const ADDON_IMAGES: AddonImage[] = [
     file: 'SpammerReglas.jpg',
     label: 'Spammer de reglas',
     ejes: ['bandas', 'hermandades'],
+  },
+  // Capturas reubicadas desde public/gallery (2026-10-25). Se suman a la
+  // rotación con los mismos ejes que usa el motor de mercadeo.
+  {
+    key: 'menu-habilidades-roles',
+    file: 'MenuHabilidadesRoles.png',
+    label: 'Menú de habilidades y roles',
+    ejes: ['general', 'jugadores'],
+  },
+  {
+    key: 'menu-reglas-mecanicas',
+    file: 'MenuReglasMecanicas.png',
+    label: 'Menú de reglas y mecánicas',
+    ejes: ['general', 'bandas', 'hermandades', 'jugadores'],
+  },
+  {
+    key: 'roster-roles-banda',
+    file: 'RosterRolesBanda.png',
+    label: 'Roster de roles de banda',
+    ejes: ['bandas', 'jugadores'],
+  },
+  {
+    key: 'buffs-banda',
+    file: 'BuffsBanda.png',
+    label: 'Buffs de banda',
+    ejes: ['bandas', 'jugadores'],
+  },
+  {
+    key: 'habilidades-utilidad',
+    file: 'HabilidadesUtilidad.png',
+    label: 'Habilidades de utilidad',
+    ejes: ['bandas', 'jugadores'],
+  },
+  {
+    key: 'habilidades-duales',
+    file: 'HabilidadesDuales.png',
+    label: 'Habilidades duales',
+    ejes: ['bandas', 'jugadores'],
   },
 ];
 
