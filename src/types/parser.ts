@@ -11,7 +11,7 @@ export interface ContentItem {
   icon?: string;
 }
 
-// Pieza de equipamiento (registry.player.equipment)
+// Pieza de equipamiento (efectiva: characters[].equipment o fallback registry)
 export interface EquipmentPiece {
   slot: number;
   name: string;
@@ -43,9 +43,9 @@ export interface PlayerObjectives {
   currencies: CurrencyObjective[];
 }
 
-// Instancia guardada proyectada por el addon v3.1.0
-// (registry["Nombre-Reino"].player.instances). `resetAt` es la época absoluta
-// del reinicio (según el último "Registrar"); la web recalcula la cuenta atrás.
+// Instancia guardada (v3.2.0). Fuente canónica: characters["Nombre-Reino"].instances;
+// fallback: registry["Nombre-Reino"].player.instances. `resetAt` es la época
+// absoluta del reinicio; la web recalcula la cuenta atrás.
 export interface CharacterInstance {
   name: string;
   difficulty?: string;
@@ -53,7 +53,8 @@ export interface CharacterInstance {
   extended?: boolean;
 }
 
-// Personaje propio exportado por el addon (registry.player)
+// Personaje propio normalizado: identidad/nota/objetivos desde registry.player
+// y datos pasivos (equipo/instancias/nivel/raza/clase) desde characters.
 // `server` = realmlist (servidor real, p.ej. "Lordaeron"), DISTINTO de `realm`.
 // Solo existe en registry.player (el roster `characters` de la cuenta no lo trae).
 export interface PlayerCharacter {
@@ -80,7 +81,7 @@ export interface PlayerCharacter {
   // Tokens ricos de la nota (enlaces del juego) para el tooltip de UltimoWoW.
   // Solo se persisten en el almacén privado de notas; nunca se publica markup.
   noteRich?: RichTextToken[];
-  // Instancias guardadas (snapshot del addon v3.1.0). Ausente = SV anterior.
+  // Instancias efectivas: characters[].instances o fallback registry (v3.2.0).
   instances?: CharacterInstance[];
 }
 
@@ -233,7 +234,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-export const PARSER_VERSION = 'v3.6.0';
+export const PARSER_VERSION = 'v3.7.0';
 
 export const MAX_SV_BYTES = 2 * 1024 * 1024; // 2 MB
 

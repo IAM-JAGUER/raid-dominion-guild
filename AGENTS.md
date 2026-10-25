@@ -131,8 +131,8 @@ evidencia de membresía (GM v3, legacy, bandas) y helpers de roles, leer
 
 ## 5. Formato de SavedVariables
 
-Formato actual v3.1.0, compatible con archivos v3.0.0/v3.0.1. Parser en
-`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.6.0).
+Formato actual v3.2.0, compatible con archivos v3.0.0/v3.0.1/v3.1.0. Parser en
+`src/lib/parser/savedVariables.ts` (`PARSER_VERSION` v3.7.0).
 Los textos del SV pueden traer markup de chat (`|c…|H…|h[Etiqueta]|h|r`):
 el parser lo limpia (`src/lib/wowLink.ts`) y el render usa el MISMO widget de
 UltimoWoW que el tracker local donde hay id (`src/lib/ui/wowhead.ts`) — ver
@@ -498,6 +498,14 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-25 (datos pasivos desde characters)**: el addon v3.2.0 deja de
+  duplicar el array de equipo y las instancias en `registry[].player`; esos
+  datos pasivos viven en `characters[]` y el parser v3.7.0 los superpone al
+  personaje registrado (nivel/raza/clase incluidos), con `registry` como
+  fallback para SV antiguos. `registry` sigue siendo la única fuente de
+  registro: `characters` nunca crea fichas. Sin migración SQL: el RPC recibe
+  el `p_player` ya mezclado. Detalle: `parser.md` y `addon.md`.
 
 - **2026-10-24 (tooltips de juego)**: el portal adopta el método de tooltip de
   `wow-rd`: `power.js` de UltimoWoW, `data-wowhead="kind=id"` y URL

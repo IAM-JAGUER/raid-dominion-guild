@@ -308,6 +308,164 @@ test('characters[] sin currencies no inventa la clave', () => {
   assert.equal(res.characters?.[0]?.money, undefined);
 });
 
+// ─── Roster pasivo (characters) superpuesto al registro (registry) ─────────
+
+test('characters aporta equipo, nivel, raza/clase e instancias frescos al registro', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        savedAt = "2026-10-01 10:00:00",
+        player = {
+          name = "Ana", realm = "Serena", level = 80,
+          class = "Sacerdote", classFile = "PRIEST",
+          race = "Elfa de la noche", raceFile = "NightElf",
+          equipment = { { slot = 1, name = "Casco viejo", ilvl = 200, quality = 4 } },
+          equipmentCount = 1, avgIlvl = 200,
+          instances = { { name = "Instancia vieja", resetAt = 100 } },
+          note = "Nota del registro",
+        },
+        objectives = { equipment = {}, currencies = {} },
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = {
+        name = "Ana", realm = "Serena", level = 81,
+        className = "Maga", classFile = "MAGE",
+        raceName = "Humana", raceFile = "Human",
+        equipment = {
+          { slot = 1, name = "Casco nuevo", ilvl = 277, quality = 4, itemID = 50661 },
+          { slot = 5, name = "Pechera nueva", ilvl = 264, quality = 4 },
+        },
+        equipmentCount = 2, avgIlvl = 270,
+        instances = { { name = "Instancia nueva", difficulty = "25H", resetAt = 1800000000 } },
+      },
+    },
+  `);
+  const player = res.registries?.[0]?.player;
+  assert.equal(player?.equipment[0]?.name, 'Casco nuevo');
+  assert.equal(player?.equipment[0]?.itemID, 50661);
+  assert.equal(player?.equipment.length, 2);
+  assert.equal(player?.equipmentCount, 2);
+  assert.equal(player?.avgIlvl, 270);
+  assert.equal(player?.level, 81);
+  assert.equal(player?.class, 'Maga');
+  assert.equal(player?.classFile, 'MAGE');
+  assert.equal(player?.race, 'Humana');
+  assert.equal(player?.raceFile, 'Human');
+  assert.equal(player?.instances?.[0]?.name, 'Instancia nueva');
+  // La identidad pública y la nota siguen viniendo del registro.
+  assert.equal(player?.note, 'Nota del registro');
+  assert.equal(res.registries?.[0]?.savedAt, '2026-10-01 10:00:00');
+});
+
+test('sin snapshot en characters el registro conserva equipo e instancias (SV antiguo)', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = {
+          name = "Ana", realm = "Serena",
+          equipment = { { slot = 1, name = "Casco registro", ilvl = 200, quality = 4 } },
+          equipmentCount = 1, avgIlvl = 200,
+          instances = { { name = "Instancia registro", resetAt = 100 } },
+        },
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = { name = "Ana", realm = "Serena" },
+    },
+  `);
+  const player = res.registries?.[0]?.player;
+  assert.equal(player?.equipment[0]?.name, 'Casco registro');
+  assert.equal(player?.equipmentCount, 1);
+  assert.equal(player?.instances?.[0]?.name, 'Instancia registro');
+});
+
+test('characters con instancias vacías limpia las del registro', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = {
+          name = "Ana", realm = "Serena",
+          instances = { { name = "Instancia vieja", resetAt = 100 } },
+        },
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = { name = "Ana", realm = "Serena", version = "3.2.0", instances = {} },
+    },
+  `);
+  const instances = res.registries?.[0]?.player?.instances;
+  assert.ok(Array.isArray(instances));
+  assert.equal(instances?.length, 0);
+});
+
+test('un roster antiguo con instances vacías NO limpia el registro', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = {
+          name = "Ana", realm = "Serena",
+          instances = { { name = "Instancia registro", resetAt = 100 } },
+        },
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = { name = "Ana", realm = "Serena", version = "3.1.0", instances = {} },
+    },
+  `);
+  const instances = res.registries?.[0]?.player?.instances;
+  assert.equal(instances?.[0]?.name, 'Instancia registro');
+});
+
+test('el nivel del roster nunca degrada un registro más nuevo', () => {
+  const res = parseData(`
+    registry = {
+      ["Ana-Serena"] = {
+        player = { name = "Ana", realm = "Serena", level = 81 },
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = { name = "Ana", realm = "Serena", level = 80 },
+    },
+  `);
+  assert.equal(res.registries?.[0]?.player?.level, 81);
+});
+
+test('un personaje solo en characters NO se registra', () => {
+  const res = parseData(`
+    characters = {
+      ["Solo-Serena"] = { name = "Solo", realm = "Serena", equipment = {
+        { slot = 1, name = "Casco", ilvl = 200, quality = 4 } } },
+    },
+  `);
+  assert.equal(res.registries?.length, 0);
+  assert.equal(res.player, null);
+});
+
+test('el formato antiguo de registro único también recibe el roster por nombre+reino', () => {
+  const res = parseData(`
+    registry = {
+      savedAt = "2026-10-01 10:00:00",
+      player = {
+        name = "Ana", realm = "Serena", level = 80,
+        equipment = { { slot = 1, name = "Casco viejo", ilvl = 200, quality = 4 } },
+        equipmentCount = 1, avgIlvl = 200,
+      },
+    },
+    characters = {
+      ["Ana-Serena"] = {
+        name = "Ana", realm = "Serena", level = 81,
+        equipment = { { slot = 1, name = "Casco nuevo", ilvl = 277, quality = 4 } },
+        equipmentCount = 1, avgIlvl = 277,
+      },
+    },
+  `);
+  assert.equal(res.player?.level, 81);
+  assert.equal(res.player?.equipment[0]?.name, 'Casco nuevo');
+  assert.equal(res.player?.equipmentCount, 1);
+  assert.equal(res.player?.avgIlvl, 277);
+});
+
 
 test('el equipamiento conserva itemID para el tooltip de UltimoWoW', () => {
   const res = parseData(`

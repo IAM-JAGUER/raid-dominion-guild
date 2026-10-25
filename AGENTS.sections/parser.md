@@ -1,4 +1,4 @@
-# Formato de SavedVariables — Especificación v3.1.0
+# Formato de SavedVariables — Especificación v3.2.0
 
 > Este archivo complementa `AGENTS.md` §5. Solo leerlo cuando se trabaja con
 > el parser de SavedVariables o las guías del addon.
@@ -14,11 +14,14 @@ Referencias: `D:\WowClient esMX\WTF\Account\IAMM\SavedVariables\RaidDominion.lua
 RaidDominionDB = {
   ["registry"] = {                    -- ⭐ FUENTE PRINCIPAL — DOS formas reales:
     -- a) mapa por personaje (config compartida v3, vigente):
-    ["Nombre-Reino"] = { ["savedAt"], ["player"] = {...equipamiento...,
-        -- v3.1.0: proyecciones del editor "Jugador" (nota + instancias)
+    ["Nombre-Reino"] = { ["savedAt"], ["player"] = {...identidad,
+        -- v3.2.0: equipo e instancias son PASIVOS y viven en characters.
+        -- El registro solo los conserva como fallback si ese snapshot no existe.
+        ["equipment"] = { ... } | ausente,
+        -- resetAt = época absoluta del reinicio (instancias)
+        ["instances"] = { {name, difficulty?, resetAt?, extended?} } | ausente,
         ["note"] = "texto" | "",        -- nota global; "" = borrar lo publicado
-        ["instances"] = { {name, difficulty?, resetAt?, extended?} },
-      },                                -- resetAt = época absoluta del reinicio
+      },
       ["objectives"] = {
         ["equipment"] = { {slot, name, itemID?, ilvl?, quality?, done} },
         ["currencies"] = { {name, target, reached} },
@@ -31,8 +34,12 @@ RaidDominionDB = {
     --      classFile, online } }  -- SIN notas pública/oficial (privacidad)
   ["characters"] = {                    -- roster de TODA la cuenta (config compartida)
     ["Nombre-Reino"] = { ["name"], ["realm"], ["faction"], ["className"], ["classFile"],
-      ["raceName"], ["level"], ["version"], ["firstSeen"], ["lastSeen"],
-      ["currencies"] = { { name, quantity, money? } }, ["money"] },
+      ["raceName"], ["raceFile"], ["level"], ["version"], ["firstSeen"], ["lastSeen"],
+      ["currencies"] = { { name, quantity, money? } }, ["money"],
+      -- v3.2.0: datos PASIVOS canónicos del personaje (sin "Registrar")
+      ["equipment"] = { {slot, name, itemID?, ilvl?, quality?} },
+      ["equipmentCount"], ["avgIlvl"],
+      ["instances"] = { {name, difficulty?, resetAt?, extended?} } },
   },
   ["Guild"] = {                       -- LEGACY opcional (evidencia de membresía)
     ["lastUpdate"], ["generatedBy"],
@@ -64,18 +71,38 @@ columna `raiddominion_characters.objectives` se sella con el mismo
 sincronice cuentas, pero **no es dato comunitario**: el parser no lo expone en
 `AccountCharacter`/`CharacterRegistry` y la web no lo persiste ni lo publica.
 
-`registry["Nombre-Reino"].player.note` y `.instances` (addon v3.1.0) viajan
-DENTRO de `player` (no son ramas hermanas). Semántica de las claves, idéntica
-para ambas:
+`registry["Nombre-Reino"].player.note` (addon v3.1.0) viaja DENTRO de `player`.
+Semántica de la clave:
 - **ausente** → SV anterior a 3.1.0: el parser no inventa la clave y el RPC
   CONSERVA lo ya guardado en la web.
-- **presente** (aunque vaya vacía: `note=""`, `instances={}`) → el SV manda:
-  la nota se sincroniza (vaciar = borrar) y las instancias expiradas se limpian.
+- **presente** (aunque vaya vacía: `note=""`) → el SV manda: la nota se
+  sincroniza (vaciar = borrar).
 
 La nota se publica SOLO con el interruptor propio del dueño
 (`raiddominion_characters.notes_public`, apagado por defecto) **y** la ficha
-pública; las instancias siguen la RLS de la ficha (`is_public`), igual que
-equipo/metas.
+pública.
+
+### Datos pasivos: `characters` manda (v3.2.0)
+
+Equipo, `equipmentCount`, `avgIlvl`, instancias, nivel y raza/clase son datos
+PASIVOS del personaje: el addon los refresca en `characters["Nombre-Reino"]`
+(login/equipo/nivel/logout) SIN exigir "Registrar". Para los personajes que ya
+tienen entrada en `registry`, el parser superpone ese snapshot al
+`PlayerCharacter` normalizado. Reglas:
+
+- **Equipo:** `characters.equipment` si trae piezas; si no, el fallback
+  `registry.player.equipment`. `equipmentCount`/`avgIlvl` se toman de la misma
+  fuente.
+- **Instancias:** `characters.instances` si la clave existe (incluido `{}` para
+  limpiar lockouts); si no, el fallback `registry.player.instances`. Un export
+  fallido del addon conserva el último snapshot válido. En SV ≤ v3.1.0 un `{}`
+  no es fiable (ese addon escribía vacío al fallar la lectura): solo se acepta
+  si trae entradas o si `characters.version` es ≥ 3.2.0.
+- **Nivel, raza/clase:** `characters` si el valor es válido; si no, `registry`.
+- **Identidad, servidor, talento, nota, objetivos, hermandad y `savedAt`:**
+  siempre `registry`.
+- `characters` NUNCA crea registros: un personaje sin entrada en `registry` no
+  se publica.
 
 ### Normalización interna del portal
 
@@ -84,10 +111,13 @@ del portal la anida bajo el personaje para que todo lo público cuelgue de una
 sola entidad:
 
 ```
-SV:  registry[name].player = {...}   registry[name].objectives = {...}
+SV:  characters[name].equipment / .instances / .level / .raceName / .classFile
+SV → PlayerCharacter.equipment / .instances / .level / .race / .classFile
+SV:  registry[name].player.equipment / .instances   (solo fallback)
+SV:  registry[name].player.note
+SV → PlayerCharacter.note
+SV:  registry[name].objectives
 SV → PlayerCharacter.objectives      (CharacterRegistry ya NO tiene `objectives`)
-SV:  registry[name].player.note / .instances
-SV → PlayerCharacter.note / PlayerCharacter.instances
 ```
 
 La facción de la hermandad se resuelve con este orden (idéntico en el parser y
@@ -121,7 +151,7 @@ La nota (`player.note`) conserva su texto limpio y además `noteRich` (tokens
 se persisten en `raiddominion_bands.name_link` para el tooltip público.
 Snapshots sin `objectives` se aceptan por compatibilidad: la columna queda
 vacía y se muestra el aviso de re-registro. Los registros con `objectives` pero
-sin `note`/`instances` (addon 3.0.1) disparan un aviso de re-registro propio.
+sin `note` (addon 3.0.1) disparan un aviso de re-registro propio.
 
 ### Markup de chat / enlaces del juego (2026-10-17)
 
@@ -150,7 +180,7 @@ de la mazmorra (`|cffffff00|Hachievement:4608:…|h[ICC25N]|h|r`).
 
 ## Reglas del parser
 
-- Prioridad: **formato oficial v3.1.0** (el de arriba), con compatibilidad para
+- Prioridad: **formato oficial v3.2.0** (el de arriba), con compatibilidad para
   SV v3.0.0/v3.0.1. El formato v2 (`Guild`
   como único origen, bandas solo en `Core`) NO se parsea como fuente principal.
 - Claim de maestro en DOS flujos:

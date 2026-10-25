@@ -42,12 +42,18 @@ El addon dev vive en `D:\WowClient esMX\Interface\AddOns\RaidDominion`
    deduce de la raza del GM (`characters[*].raceName`/`raceFile`). El addon no
    necesita cambios para esto, pero `raceFile` debe seguir exportándose en
    `characters[*]` para que el fallback sea posible.
-9. **Nota e instancias (addon v3.1.0):** `registry["Nombre-Reino"].player`
-   exporta además `note` (nota global del personaje; `""` = borrarla) e
-   `instances` (`{ name, difficulty?, resetAt?, extended? }`; `resetAt` = época
-   ABSOLUTA del reinicio, la web recalcula la cuenta atrás). Clave ausente = SV
-   anterior a 3.1.0 (el portal conserva lo ya guardado). La nota se almacena
-   SIEMPRE en `raiddominion_character_notes` (privada, RLS del dueño) y solo se
-   proyecta a la ficha pública con el interruptor propio `notes_public` (por
-   defecto apagado) **y** la ficha pública; las instancias viajan con la RLS de
-   la ficha (`is_public`).
+9. **Nota e instancias:** `registry["Nombre-Reino"].player` exporta `note`
+   (nota global del personaje; `""` = borrarla). Clave ausente = SV anterior a
+   3.1.0 (el portal conserva lo ya guardado). La nota se almacena SIEMPRE en
+   `raiddominion_character_notes` (privada, RLS del dueño) y solo se proyecta a
+   la ficha pública con el interruptor propio `notes_public` (por defecto
+   apagado) **y** la ficha pública.
+10. **Datos pasivos (addon v3.2.0):** equipo, `equipmentCount`, `avgIlvl`,
+    instancias, nivel y raza/clase viven en `characters["Nombre-Reino"]` y se
+    refrescan sin "Registrar". El parser los superpone al `PlayerCharacter`
+    normalizado de cada entrada de `registry`; `registry[].player.equipment` e
+    `instances` solo se usan como fallback si `characters` aún no tiene el
+    snapshot (los SV ≤ v3.1.0 siguen funcionando; su `instances = {}` solo se
+    interpreta como limpieza si `characters.version` es ≥ 3.2.0). `characters`
+    NUNCA crea registros: sin entrada en `registry` el personaje no se publica.
+    Las instancias viajan con la RLS de la ficha (`is_public`).

@@ -1,4 +1,4 @@
-// Parser estructural de SavedVariables de RaidDominion (RaidDominionDB v3.0.1).
+// Parser estructural de SavedVariables de RaidDominion (RaidDominionDB v3.2.0).
 // Alineado al formato REAL del addon v3 (la ruta local del addon dev y los
 // perfiles de ejemplo viven SOLO en AGENTS.sections/addon.md):
 //
@@ -10,7 +10,8 @@
 //     registry["Char-Realm"].objectives = { equipment = { {slot,name,itemID?,ilvl?,quality?,done} },
 //       currencies = { {name,target,reached} } },
 //     registry["Char-Realm"].player.note = "texto" (nota global; "" = borrar),
-//     registry["Char-Realm"].player.instances = { {name, difficulty?, resetAt?, extended?} },
+//     registry["Char-Realm"].player.instances = { {name, difficulty?, resetAt?, extended?} } (fallback),
+//     characters["Char-Realm"].equipment / .instances (fuente pasiva canónica v3.2.0),
 //     registry.savedAt,
 //     Guild (legacy) = { lastUpdate, generatedBy, memberList = { {name, class, rank, publicNote, officerNote} } },
 //     bands = { { name, icon, schedule, minGS, players = { {name, class, role, dual, leader, banned, sanction, notes, points} }, spammer } },
@@ -423,6 +424,162 @@ function asPlayerInstances(raw: unknown): CharacterInstance[] {
     .slice(0, 60);
 }
 
+// ─── Snapshot pasivo del roster de la cuenta ───────────────────────────────
+// `characters["Nombre-Reino"]` mantiene los datos que el addon refresca sin
+// pulsar "Registrar" (equipo, iLvl, instancias y nivel). El registro público
+// sigue viviendo en `registry`: aquí solo se extraen esos datos para
+// superponerlos al personaje YA registrado. Nunca crea registros nuevos.
+interface RosterSnapshot {
+  name: string;
+  realm: string;
+  version?: string;
+  equipment: EquipmentPiece[];
+  equipmentCount?: number;
+  avgIlvl?: number;
+  instances?: CharacterInstance[];
+  level?: number;
+  race?: string;
+  raceFile?: string;
+  class?: string;
+  classFile?: string;
+}
+
+function asRosterSnapshot(raw: unknown): RosterSnapshot | null {
+  const e = asObj(raw);
+  if (!e) return null;
+  const name = toCleanStr(e['name']);
+  if (!name) return null;
+  const equipment = asEquipmentPieces(e['equipment']);
+  const equipmentCount = toNum(e['equipmentCount']);
+  const avgIlvl = toNum(e['avgIlvl']);
+  const instances = e['instances'] !== undefined ? asPlayerInstances(e['instances']) : undefined;
+  const level = toNum(e['level']);
+  const race = toCleanStr(e['raceName']);
+  const raceFile = toStr(e['raceFile']).trim();
+  const className = toCleanStr(e['className']);
+  const classFile = toStr(e['classFile']).trim();
+  const version = toStr(e['version']).trim();
+  return {
+    name,
+    realm: toCleanStr(e['realm']),
+    ...(version ? { version } : {}),
+    equipment,
+    ...(equipmentCount !== undefined ? { equipmentCount } : {}),
+    ...(avgIlvl !== undefined ? { avgIlvl } : {}),
+    ...(instances !== undefined ? { instances } : {}),
+    ...(level !== undefined && level > 0 ? { level } : {}),
+    ...(race ? { race } : {}),
+    ...(raceFile ? { raceFile } : {}),
+    ...(className ? { class: className } : {}),
+    ...(classFile ? { classFile } : {}),
+  };
+}
+
+interface RosterIndex {
+  byKey: Map<string, RosterSnapshot>;
+  byNameRealm: Map<string, RosterSnapshot>;
+  byName: Map<string, RosterSnapshot>;
+}
+
+function buildRosterIndex(raw: unknown): RosterIndex {
+  const byKey = new Map<string, RosterSnapshot>();
+  const byNameRealm = new Map<string, RosterSnapshot>();
+  const byName = new Map<string, RosterSnapshot>();
+  const map = asObj(raw);
+  if (!map) return { byKey, byNameRealm, byName };
+  for (const [key, entry] of Object.entries(map)) {
+    const roster = asRosterSnapshot(entry);
+    if (!roster) continue;
+    byKey.set(key.trim().toLowerCase(), roster);
+    const name = roster.name.toLowerCase();
+    const realm = roster.realm.toLowerCase();
+    if (!byName.has(name)) byName.set(name, roster);
+    byNameRealm.set(`${name}|${realm}`, roster);
+  }
+  return { byKey, byNameRealm, byName };
+}
+
+// Busca el snapshot del mismo personaje: primero por clave exacta del registry
+// y, para el formato antiguo sin clave, por nombre+reino. Un reino vacío en
+// cualquiera de los dos lados se considera comodín (misma regla que el RPC).
+function findRosterSnapshot(
+  index: RosterIndex,
+  key: string | undefined,
+  player: PlayerCharacter | null
+): RosterSnapshot | undefined {
+  if (key) {
+    const byKey = index.byKey.get(key.trim().toLowerCase());
+    if (byKey) return byKey;
+  }
+  if (!player) return undefined;
+  const name = toCleanStr(player.name).toLowerCase();
+  if (!name) return undefined;
+  const realm = toCleanStr(player.realm).toLowerCase();
+  const exact = index.byNameRealm.get(`${name}|${realm}`);
+  if (exact) return exact;
+  if (!realm) return index.byName.get(name);
+  // Con reino declarado solo se acepta un roster sin reino (comodín). Un mismo
+  // nombre en OTRO reino es otro personaje y no debe recibir estos datos.
+  return index.byNameRealm.get(`${name}|`);
+}
+
+// Compara versiones del addon ("3.2.0"). Los sufijos no numéricos se ignoran.
+function versionAtLeast(version: string | undefined, minimum: string): boolean {
+  if (!version) return false;
+  const parse = (value: string): number[] =>
+    value.split('.').map((part) => Number.parseInt(part, 10) || 0);
+  const current = parse(version);
+  const target = parse(minimum);
+  const length = Math.max(current.length, target.length);
+  for (let i = 0; i < length; i++) {
+    const a = current[i] ?? 0;
+    const b = target[i] ?? 0;
+    if (a !== b) return a > b;
+  }
+  return true;
+}
+
+// Superpone los datos pasivos del roster al snapshot registrado. El registro
+// manda en identidad, servidor, talento, nota, objetivos y hermandad; el
+// roster manda en equipo, instancias, nivel y raza/clase cuando trae datos.
+function mergeRosterIntoPlayer(
+  player: PlayerCharacter | null,
+  roster: RosterSnapshot | undefined
+): PlayerCharacter | null {
+  if (!player || !roster) return player;
+
+  const freshEquipment = roster.equipment.length > 0 ? roster.equipment : null;
+  const equipment = freshEquipment ?? player.equipment;
+  const equipmentCount = freshEquipment
+    ? (roster.equipmentCount ?? freshEquipment.length)
+    : (player.equipmentCount ?? player.equipment.length);
+  const avgIlvl = freshEquipment
+    ? (roster.avgIlvl ?? player.avgIlvl ?? 0)
+    : player.avgIlvl;
+  // El addon <= 3.1.0 podía escribir instances={} ante un fallo de export:
+  // ese vacío no es confiable. Desde 3.2.0 el guard conserva el snapshot y un
+  // vacío sí limpia los lockouts expirados.
+  const useRosterInstances = roster.instances !== undefined
+    && (roster.instances.length > 0 || versionAtLeast(roster.version, '3.2.0'));
+  const instances = useRosterInstances ? roster.instances : player.instances;
+  // El nivel nunca baja: el máximo evita degradar un registro más nuevo cuando
+  // characters aún no recibió PLAYER_LEVEL_UP (addon antiguo).
+  const level = Math.max(roster.level ?? 0, player.level ?? 0);
+
+  return {
+    ...player,
+    equipment,
+    equipmentCount,
+    ...(avgIlvl !== undefined ? { avgIlvl } : {}),
+    ...(instances !== undefined ? { instances } : {}),
+    ...(level > 0 ? { level } : {}),
+    ...(roster.race ? { race: roster.race } : {}),
+    ...(roster.raceFile ? { raceFile: roster.raceFile } : {}),
+    ...(roster.class ? { class: roster.class } : {}),
+    ...(roster.classFile ? { classFile: roster.classFile } : {}),
+  };
+}
+
 // registry.player.note — nota global del personaje. Solo se acepta string; el
 // "" viaja a propósito (el RPC lo interpreta como "borrar lo publicado").
 function asPlayerNote(raw: unknown): string | undefined {
@@ -493,9 +650,11 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
   if (!name) return null;
   const equipment = asEquipmentPieces(e['equipment']);
   const objectives = asPlayerObjectives(objectivesRaw) ?? asPlayerObjectives(e['objectives']);
-  // Nota e instancias (addon v3.1.0): viven dentro del propio `player`. La
-  // clave ausente se OMITE del modelo (SV anterior → el RPC conserva lo
-  // guardado); presente, aunque vaya vacía, viaja tal cual (permite limpiar).
+  // Nota e instancias: dentro del propio `player`. `note` y el fallback de
+  // `instances` viven aquí; el parser superpone después las instancias
+  // pasivas de characters para los personajes registrados. La clave ausente
+  // se OMITE del modelo (SV anterior → el RPC conserva lo guardado);
+  // presente, aunque vaya vacía, viaja tal cual (permite limpiar).
   const note = asPlayerNote(e['note']);
   const noteRich = asPlayerNoteRich(e['note']);
   const instances = e['instances'] !== undefined ? asPlayerInstances(e['instances']) : undefined;
@@ -760,20 +919,24 @@ export function parseSavedVariables(rawText: string): ParseResult {
   }
 
   const registries: CharacterRegistry[] = [];
+  const rosterIndex = buildRosterIndex(root['characters']);
   // registry admite DOS formas reales del addon:
   //  a) objeto único con .player/.savedAt/.guild (formato previo)
   //  b) mapa "Nombre-Reino" → snapshot por personaje (config compartida v3)
   const registryRaw = asObj(root['registry']);
   let registryEntry: Record<string, unknown> | null = null;
+  let activeRegistry: CharacterRegistry | null = null;
   if (registryRaw && 'player' in registryRaw) {
     registryEntry = registryRaw;
-    registries.push({
+    const rawPlayer = asPlayerCharacter(registryEntry['player'], registryEntry['objectives']);
+    activeRegistry = {
       key: `${stripWowMarkup(toStr(asObj(registryEntry['player'])?.['name'])).trim()}-${
         stripWowMarkup(toStr(asObj(registryEntry['player'])?.['realm'])).trim()}`,
-      player: asPlayerCharacter(registryEntry['player'], registryEntry['objectives']),
+      player: mergeRosterIntoPlayer(rawPlayer, findRosterSnapshot(rosterIndex, undefined, rawPlayer)),
       guild: asRegistryGuild(registryEntry['guild']),
       savedAt: toStr(registryEntry['savedAt']).trim() || null,
-    });
+    };
+    registries.push(activeRegistry);
   } else if (registryRaw && Object.keys(registryRaw).length > 0) {
     const entries = Object.entries(registryRaw)
       .map(([key, val]) => ({ key, val: asObj(val) }))
@@ -790,17 +953,20 @@ export function parseSavedVariables(rawText: string): ParseResult {
       });
       registryEntry = entries[0].val;
       for (const e of entries) {
-        registries.push({
+        const rawPlayer = asPlayerCharacter(e.val['player'], e.val['objectives']);
+        const registry: CharacterRegistry = {
           key: e.key,
-          player: asPlayerCharacter(e.val['player'], e.val['objectives']),
+          player: mergeRosterIntoPlayer(rawPlayer, findRosterSnapshot(rosterIndex, e.key, rawPlayer)),
           guild: asRegistryGuild(e.val['guild']),
           savedAt: toStr(e.val['savedAt']).trim() || null,
-        });
+        };
+        registries.push(registry);
+        if (!activeRegistry) activeRegistry = registry;
       }
     }
   }
-  const player = asPlayerCharacter(registryEntry?.['player'], registryEntry?.['objectives']);
-  const savedAt = toStr(registryEntry?.['savedAt']).trim() || null;
+  const player = activeRegistry?.player ?? null;
+  const savedAt = activeRegistry?.savedAt ?? null;
 
   // Token de raza del cliente por clave del roster ("Nombre-Reino" → "NightElf").
   // Permite deducir facción en characters[] aunque el SV traiga faction = "?".
