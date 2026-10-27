@@ -130,8 +130,8 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     const infos = await getPublicAccountNames(res.players.map((p) => p.id));
     const items = res.players.map((p) => derive(p, infos.get(p.id)));
 
-    // Barra estándar (src/lib/ui/filterBar.ts): buscador (nombre, personaje,
-    // reino, @handle) + chips dinámicos de reino, Maestro y Sin nombre.
+    // Panel estándar (src/lib/ui/filterBar.ts): buscador (nombre, personaje,
+    // reino, @handle) + selector dinámico de reino, Maestro y Sin nombre.
     createFilterBar({
       mount: filtersEl,
       items,

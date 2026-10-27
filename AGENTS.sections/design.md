@@ -61,10 +61,13 @@ Ver el archivo directamente para las clases exactas. Categorías disponibles:
 `btnSecondary`/`btnGhost`/`btnSizes`, `badge`/`chip`, `kbd`, `text.*`
 (hero/h1-h3/body/bodyMuted/caption), `status.*` (success/warning/error/info),
 `eyebrow`/`gradientTitle`/`statValue`/`iconTile`, `form.*`
-(label/input/inputError/helperText/errorText), `filter.*` (searchRow/
-searchWrap/searchIcon/result/facets/row/chip/chipActive/chipIdle/count —
-barra de filtros de directorios), `pager.*` (bar/info/select/btn — barra de
-paginación "Página [X] de Y", `src/lib/ui/paginator.ts`), `loading.*`
+(label/input/inputError/helperText/errorText), `filter.*` (panelBody/summaryLeft/summaryCount/chevron/bar/searchRow/
+searchRowWide/searchWrap/searchIcon/result/org/orgHead/orgLabel/select/clear/
+chips/chip/chipValue/chipRemove/notice/extraGroup — panel de filtros
+compartido), `pager.*` (bar/info/select/btn — barra de
+paginación "Página [X] de Y", `src/lib/ui/paginator.ts`), `tracker.*`
+(grid/group/card/content/selectionDock/legend — Task Tracker, §7f),
+`loading.*`
 (skeleton/spinner/spinnerLg/liveText), `focusRing`, `transition`.
 
 **Regla de oro:** si vas a escribir un literal de Tailwind que ya existe como
@@ -295,30 +298,46 @@ Nunca dejar una operación async sin feedback visual — ver `frallas.md` F010.
   plugin, y `theme.extend` exige reiniciar el dev server (su build queda
   cacheado).
 
-## 7b. Filtros de directorio (2026-10-16)
+## 7b. Filtros del portal (2026-10-16; rediseño wow-rd 2026-10-26)
 
 Los directorios raíz (`/servidores`, `/jugadores`, `/personajes`, `/bandas`,
-`/hermandades`) comparten el esquema de `/bandas`: **ventana de panel**
-(`PanelWindow`) cuyo encabezado monta la barra de filtros y cuyo cuerpo es la
-lista asíncrona. El motor es ÚNICO — `src/lib/ui/filterBar.ts`
-(`createFilterBar`) — y no se duplica buscador/botones de filtro por página:
+`/hermandades`) y las pestañas de listas comparten el MISMO motor:
+`src/lib/ui/filterBar.ts` (`createFilterBar`). No se duplica buscador,
+selector ni chips por página.
 
-- **Buscador** de texto (`getSearchText` por ítem) + una **fila de chips por
-  faceta** (valores) o un **chip de bandera** (booleano: ★ Maestro,
-  ✓ Verificada, Discord, Sin nombre). Chips = `<button aria-pressed>` sobre
-  los tokens `ui.filter.*`; clic en el activo limpia el filtro.
-- **Conteo por chip** computado sobre la búsqueda + los DEMÁS filtros activos
-  (el propio facet se excluye) y **faceta dinámica**: una fila solo se pinta
-  si aporta ≥2 valores distintos (bandera: ≥1 ítem que la cumple). El orden
-  de los chips se fija al crear la barra (no re-ordena al tipear) y el input
-  persiste (foco/cursor).
+- **Panel plegable y fila única**: el motor pinta un `<details>` “Filtros”
+  (abierto por defecto) con badge de filtros activos. Dentro del panel, UNA
+  fila flex (`bar`) reúne buscador + contador `aria-live`, grupo **Criterios**
+  (selector + chips removibles + limpiar) y los extras del tracker. En móvil
+  la fila se apila; desde `md` comparte línea y solo envuelve si no cabe. El
+  input se crea UNA vez.
+- **Selector dinámico**: “Añadir filtro…” (u “Añadir filtro u orden…” en el
+  tracker) agrupa todas las facetas visibles. Elegir un valor lo aplica y lo
+  pinta como chip; no hay filas de chips permanentes. Los conteos de opciones/chips se computan sobre la
+  búsqueda + los DEMÁS filtros activos (el propio facet se excluye). Una
+  faceta de valores solo se ofrece con ≥2 valores (`minValues` la fuerza);
+  una bandera solo si algún ítem la cumple.
+- **Chips activos**: solo el valor + × accesible (`aria-label`), con icono
+  cuando la faceta lo aporta; no repiten la clave ni el conteo (el selector
+  ya los muestra). Viven en una línea con scroll horizontal interno para no
+  aumentar el alto de la barra. “Limpiar” vacía búsqueda/facetas/orden y solo
+  se muestra con filtros activos.
+- **Orden compartido**: el tracker aporta una faceta `kind: 'sort'` que no
+  filtra ítems; su valor vive en `state.selected` y el chip de orden solo
+  aparece si no es el default. “Limpiar” lo devuelve a
+  `pending-desc`.
+- **Inline vs disclosure**: los directorios y pestañas usan el panel
+  plegable; el tracker monta el mismo motor con `panel: 'inline'` dentro de
+  su propio panel (botón “Filtros” en la cabecera + badge), porque añade
+  “Ocultos” y selección rápida. Esos extras entran en la MISMA fila vía
+  `extra` como un grupo inline (`extraGroup`); el conteo filtrado de
+  personajes vive en el título, no en la barra.
 - **Facetas por directorio**: personajes → clase (ícono WoW + `CLASS_LABELS`
   de `classColors.ts`), reino, ★ Maestro; jugadores → reino, ★ Maestro, sin
   nombre; hermandades → facción (Horda/Alianza), reino, ✓ Verificada,
   Discord; bandas → día y tipo (Personal / De hermandad, vía
-  `bandasPanel.ts`); servidores → solo buscador (una sola dimensión de dato).
-  El día de bandas es dimensión núcleo (`minValues: 1`): su fila se muestra
-  aunque los horarios caigan en un solo día, y solo lista los días presentes.
+  `bandasPanel.ts`); servidores → solo buscador (una sola dimensión de dato,
+  sin panel plegable).
 - **Sin resultados**: con texto → «Ninguno/a coincide con "q"»; solo facetas
   → «Sin resultados con los filtros aplicados.» Se asienta por el contrato de
   listas (`settleAsyncList` → `notice`, conserva el marco); el estado sin
@@ -329,6 +348,7 @@ lista asíncrona. El motor es ÚNICO — `src/lib/ui/filterBar.ts`
 El montaje del motor es `#filters` (`data-rd-filter-bar`) en la cabecera;
 las pestañas Bandas de perfil/personaje/reino y el portal de hermandad usan
 `bandasPanel.ts` (que consume el mismo motor) sobre sus propios contenedores.
+El tracker lo monta en `#tracker-filtro` con `panel: 'inline'`.
 
 ### 7b.1 Pestañas de lista (2026-10-19)
 
@@ -353,6 +373,30 @@ sus facetas de contenido (nunca un buscador propio):
   propuestas de integración (estado, Con reglas).
 - **Sin filtros/paginador**: la nota y la hermandad de la ficha de personaje
   (0/1 ítem) y la pestaña Bandas del dashboard (selector, no lista).
+
+### 7b.2 Controlador persistente y selección rápida (2026-10-26)
+
+`createFilterBar` devuelve un `FilterBarController<T>` opcional
+(`update(items)`, `getState()`, `reset()`). Los consumidores históricos pueden
+ignorarlo; el tracker lo usa para refrescar su dataset sin recrear la barra:
+
+- `update` recalcula opciones/chips, limpia selecciones inválidas y emite
+  `onChange`; query, flags, facetas, orden y foco sobreviven a “Mostrar
+  ocultos”, recargas y `setData()`.
+- El input de búsqueda y el `<details>` se crean UNA vez: abrir/cerrar o
+  tipear no reconstruye el panel ni pierde el foco.
+- `reset` limpia búsqueda/facetas/flags y devuelve el orden al default; el
+  tracker conserva “Ocultos” y la selección al limpiar.
+- **Selección rápida del tracker** (misma caja del panel): visibles,
+  desplegadas/colapsadas, progreso, notas, iLvl, instancias, público/privado,
+  validado/sin validar, tareas y limpiar/invertir. “Sumar” añade a la
+  selección; desmarcado la reemplaza. Los criterios de acción no usan tarea.
+- La selección masiva vive en el criterio **“Todos los visibles”** de la
+  selección rápida; el check “Todos” se retiró por redundante. El dock sticky
+  aparece con la selección y agrupa Tareas/Tarjetas/Visibilidad.
+- El conteo filtrado se muestra en el título “Tracker de personajes N” (badge
+  `aria-live`), no en la barra. El total de tareas del catálogo queda en el
+  tooltip del botón **Catálogo**.
 
 ### 7c. Paginador (2026-10-19)
 
@@ -390,6 +434,40 @@ exacto (p. ej. «sanción: 2 días», «15 pts») se conserva en `title` y en un
 libres del jugador siguen como texto (no son badges). El pie se re-monta
 con cada filtrado; el estado vacío del filtro no lo muestra (no hay
 contenido que cerrar).
+
+### 7f. Tracker: grupos, FLIP y dock (2026-10-26)
+
+El tracker de `#personajes` pagina primero por el modo activo
+(`compareTrackerCharacters`, sin sesgo de colapso) y después reparte la página
+en dos grupos internos: desplegadas y colapsadas (`splitTrackerPage`). Cada
+grupo mantiene la grilla responsive 1/2/3 columnas y el orden del modo. Así
+una tarjeta no salta de página al colapsarse.
+
+- El colapso/expansión individual o masivo mueve la tarjeta de grupo sin
+  re-render completo y anima con FLIP (Web Animations API, ~320 ms,
+  `cubic-bezier(.22,1,.36,1)`); se cancela la animación previa por tarjeta.
+  Con `prefers-reduced-motion: reduce` no hay FLIP ni traslación.
+- El contenido interno acompaña al `grid-template-rows` con una transición
+  corta de opacidad/translate (`ui.tracker.contentInner*`).
+- Completar todas las tareas activas colapsa; reabrir una pendiente expande
+  (`justCompleted`/`justPending`). `setData()` compara el progreso previo para
+  detectar los mismos cambios hechos fuera de la web.
+- El `data-rd-reveal-cards` vive en `#tracker-grid`; el reveal escalonado se
+  dispara UNA sola vez (el motor lo bloquea con `data-rd-revealed`), nunca al
+  teclear ni al filtrar.
+- El botón “Filtros” de la cabecera abre el panel completo (colapsado por
+  defecto) con badge de activos: buscador, selector de organización/orden,
+  chips, “Ocultos” y selección rápida. Es el mismo motor de §7b con
+  `panel: 'inline'`. El conteo filtrado se refleja en el título
+  “Tracker de personajes N”; no hay botón **Actualizar** ni check “Todos”.
+- El check de selección de cada tarjeta vive en la esquina superior derecha
+  (`ui.tracker.cardPick`, absoluto) y la cabecera reserva `pr-9` para no
+  chocar con el contador ni con **Ficha**.
+- El dock de selección es `sticky` dentro del panel (nunca `fixed`), agrupa
+  Tareas / Tarjetas / Visibilidad, conserva la selección en desplegar,
+  colapsar, ocultar y mostrar, y mueve `aria-live` al contador. Los botones
+  Ocultar/Mostrar requieren la migración
+  `20261026_tracker_apply_visibility.sql` (aplicación manual pendiente).
 
 ## 8. Responsive
 
@@ -470,6 +548,16 @@ Los textos del SavedVariables pueden traer markup del cliente WoW
   `name_link` de bandas y `note_rich` de notas (migración 20261024). Las filas
   antiguas sin id se degradan a texto limpio (sin enlace inventado), igual que
   wow-rd; se completan al re-subir el SV.
+- **Nombre de banda**: fuente única `src/lib/ui/bandName.ts`
+  (`bandNameLink` + `bandDetailCta`). En TODAS las superficies el nombre usa
+  `wowLinkEl` si el juego guardó un enlace (tooltip de UltimoWoW) y cae a texto
+  limpio si no. El CTA **“Ver banda”** vive JUNTO al nombre y navega a
+  `/banda/:slug`; las cards ya no son un `cardLink` global (evita anchors
+  anidados y deja el acceso explícito). En contenedores con `ui.gradientTitle`
+  nunca se inyecta un `<span>` degradado: se usa `textContent` para no heredar
+  `text-transparent`. Cubre cards públicas, ficha del tracker, encabezado del
+  dashboard, preview, admin y fallbacks sin slug. Sin `slug` no hay CTA (no
+  existe ficha).
 
 ## 12. Póster: zonas, jerarquía y escala (2026-10-17)
 
@@ -517,6 +605,54 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
   (`tabs.ts`) usan `md` — el arte marca jerarquía, no viñetas diminutas.
 
 ## Historial de enmiendas
+
+- **2026-10-26 (bandas: enlaces, CTA y acceso del dueño)**: `bandName.ts`
+  centraliza el nombre enriquecido y el CTA **“Ver banda”** junto al nombre en
+  cards públicas, tracker, dashboard, preview, fallbacks sin slug y admin. Las
+  cards de banda dejan de ser un enlace global para evitar anchors anidados.
+  `/banda/:slug` resuelve por RLS (pública o propia), así el dueño accede a su
+  banda privada; `hide_players` sigue ocultando el roster solo al público. El
+  RPC admin gana `name_link` (migración `20261026_admin_band_name_link.sql`,
+  pendiente de aplicación manual).
+
+- **2026-10-26 (bandas con nombre-enlace)**: las cards públicas de banda dejan
+  de envolver el nombre en un segundo anchor cuando el SV guardó el nombre como
+  enlace del juego. Esas cards pasan a contenedor y muestran un CTA **“Ver
+  banda”** junto al nombre; el nombre mantiene el tooltip de UltimoWoW. La
+  entrada superior generaliza el CTA a todas las cards y superficies (ya no
+  hay enlace global). Mismo CTA en la ficha privada del tracker. Sin cambios
+  de datos/parser.
+
+- **2026-10-26 (filtros versátiles wow-rd, A+B+C)**: `createFilterBar` deja
+  las filas de chips permanentes y pasa a un panel `<details>` “Filtros” con
+  selector dinámico “Añadir filtro u orden…”, chips removibles, “Limpiar
+  filtros” y badge de activos, todo en una sola fila compacta que incluye el
+  buscador y chips con scroll interno. El patrón se aplica a todos los
+  directorios y pestañas (C) manteniendo conteos por faceta. El tracker usa el
+  mismo motor inline con botón “Filtros” en la cabecera, “Ocultos” y
+  **Selección rápida** (visibles, tarjeta, progreso, datos, visibilidad,
+  tareas); la selección masiva vive en “Todos los visibles” y el dock sticky
+  se conserva. El conteo filtrado se movió de la barra al título “Tracker de
+  personajes N”; el total del catálogo queda en el tooltip de **Catálogo**.
+  Se retiró el botón **Actualizar** y el check de selección de cada tarjeta
+  pasó a la esquina superior derecha. El orden del tracker entra como faceta
+  `kind: 'sort'` y “Limpiar” lo devuelve a `pending-desc` sin tocar selección
+  ni ocultos. En móvil la fila se apila (buscador y grupos a ancho completo).
+  Verificado con Chrome headless (runtime de filtros, chips, limpiar,
+  conteo, selección y posición del check) y capturas 1400/390.
+
+- **2026-10-26 (tracker: filtros persistentes, grupos y dock)**: el motor
+  `createFilterBar` gana controlador (`update`/`getState`/`reset`) sin romper
+  consumidores; el tracker conserva búsqueda/facetas/flags/foco entre refrescos
+  y añade “Limpiar” + chip de orden removible. El grid se pagina por
+  modo y se separa en grupos desplegadas/colapsadas con FLIP (~320 ms,
+  reduced-motion sin traslación), reveal inicial único y auto
+  colapso/expansión al completar/reabrir tareas. El dock pasa a sticky y
+  agrupa Tareas/Tarjetas/Visibilidad conservando la selección; `aria-live`
+  vive en su contador. La visibilidad masiva (`hide`/`show`) usa la RPC
+  `raiddominion_tracker_apply` y requiere la migración
+  `20261026_tracker_apply_visibility.sql`, **pendiente de aplicación manual**
+  (no está aplicada). Detalle en §7b.2 y §7f.
 
 - **2026-10-23 (Task Tracker del dashboard)**: la pestaña Personajes suma el
   tracker bajo "Datos del perfil" con tokens nuevos `ui.tracker.*` (tarjeta

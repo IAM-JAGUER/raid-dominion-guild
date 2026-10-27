@@ -8,13 +8,13 @@ import { supabase } from '@/lib/supabase';
 import type { PublicAccountNames } from '@/lib/api';
 import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
-import { cardLink, card as cardBox, cardTitle, iconTileEl, arrowIcon } from '@/lib/ui/card';
+import { cardLink, card as cardBox, cardTop, cardTitle, iconTileEl, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { chip, el, iconChip } from '@/lib/ui/dom';
 import { iconEl } from '@/lib/ui/icons';
 import { toast } from '@/lib/ui/toast';
-import { normalizeWowLink, type WowLink } from '@/lib/wowLink';
-import { wowLinkEl } from '@/lib/ui/wowhead';
+import type { WowLink } from '@/lib/wowLink';
+import { bandDetailCta, bandNameLink } from '@/lib/ui/bandName';
 import type { GuildRow } from '@/types/database';
 
 // ── Card de hermandad (directorio /hermandades, reino, perfil) ──────────────
@@ -329,16 +329,21 @@ export interface BandCardOpts {
 }
 
 export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLElement {
-  const link = cardLink(`/banda/${encodeURIComponent(band.slug)}`, 'p-5');
+  const cardEl = cardBox(`p-5 ${ui.cardHover} group`);
+  cardEl.appendChild(cardTop());
 
   const head = el('div', 'flex items-center gap-3 mb-3');
   head.appendChild(iconTileEl('espadas'));
-  const title = el('h3', 'font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors');
-  const nameLink = band.nameLink ?? normalizeWowLink(band.name_link);
-  if (nameLink) title.appendChild(wowLinkEl(nameLink));
-  else title.textContent = band.name;
-  head.appendChild(title);
-  link.appendChild(head);
+
+  const titleWrap = el('div', 'flex min-w-0 flex-1 items-center gap-2');
+  const title = el('h3', 'min-w-0 font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors');
+  const name = bandNameLink(band.name, band.nameLink ?? band.name_link);
+  if (name.anchor) title.appendChild(name.anchor);
+  else title.textContent = name.label;
+  titleWrap.appendChild(title);
+  titleWrap.appendChild(bandDetailCta(band.slug, band.name));
+  head.appendChild(titleWrap);
+  cardEl.appendChild(head);
 
   const meta = el('div', 'flex flex-wrap gap-1.5');
   if (band.schedule) meta.appendChild(chip(band.schedule));
@@ -357,21 +362,18 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   if (opts?.source || opts?.integrated) {
     meta.appendChild(chip('Integrada', '!text-emerald-300 !border-emerald-500/40'));
   }
-  link.appendChild(meta);
+  cardEl.appendChild(meta);
 
-  const foot = el('p', 'text-xs text-gray-400 mt-4 flex items-center justify-between');
   // La banda se atribuye al jugador (cuenta), a su perfil/hermandad, o al
   // personaje PRINCIPAL del dueño; a falta de principal público, queda el
   // handle @hex (resolveBandOwners).
   if (opts?.owner?.href && opts.owner.label) {
+    const foot = el('p', 'text-xs text-gray-400 mt-4');
     foot.appendChild(el('span', 'text-brand-300 hover:text-brand-200 transition-colors', opts.owner.kind === 'guild' ? opts.owner.label : `Por ${opts.owner.label}`));
-    foot.appendChild(document.createTextNode('Ver banda →'));
-  } else {
-    foot.appendChild(el('span', 'text-brand-300/80 group-hover:text-brand-200 transition-colors', 'Ver banda →'));
+    cardEl.appendChild(foot);
   }
-  link.appendChild(foot);
 
-  return link;
+  return cardEl;
 }
 
 // ── Helpers de datos compartidos (directorio y vistas) ─────────────────────

@@ -20,8 +20,8 @@ import { formatMoney, fmtEpoch, formatRemaining } from '@/lib/ui/dashboard/forma
 import type { TrackerCharacter } from '@/lib/ui/dashboard/trackerLogic';
 import { renderTrackerTasks } from '@/lib/ui/dashboard/trackerTasks';
 import { currencyIconFor, iconEl } from '@/lib/ui/icons';
-import { applyWowhead, richTextEl, wowheadUrl, wowLinkEl } from '@/lib/ui/wowhead';
-import { normalizeWowLink } from '@/lib/wowLink';
+import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
+import { bandDetailCta, bandNameLink } from '@/lib/ui/bandName';
 import {
   equipmentSlotLabel,
   roleLabel,
@@ -132,10 +132,11 @@ function bandRow(band: BandRow, character: TrackerCharacter): HTMLElement {
   const head = el('div', 'flex flex-wrap items-center gap-2');
   head.appendChild(iconEl('espadas', { size: 'sm' }));
   const bandTitle = el('p', 'font-black italic text-sm text-brand-100');
-  const bandLink = normalizeWowLink(band.name_link);
-  if (bandLink) bandTitle.appendChild(wowLinkEl(bandLink));
-  else bandTitle.textContent = band.name;
+  const bandName = bandNameLink(band.name, band.name_link);
+  if (bandName.anchor) bandTitle.appendChild(bandName.anchor);
+  else bandTitle.textContent = bandName.label;
   head.appendChild(bandTitle);
+  head.appendChild(bandDetailCta(band.slug, band.name));
   if (member?.leader) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-brand-200 bg-brand-950/60 border-brand-600/30`, 'Líder'));
   if (member?.banned) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-red-300 bg-red-950/30 border-red-600/40`, 'Baneado'));
   row.appendChild(head);

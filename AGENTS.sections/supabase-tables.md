@@ -98,6 +98,16 @@ líder lo autoriza.
   `interface`: una `interface` rompe la inferencia de `@supabase/supabase-js` y
   colapsa todo el esquema a `never`.
 
+## Acceso a la ficha de banda (`/banda/:slug`)
+
+Regla 20261026. `raiddominion_bands` ya tiene RLS SELECT
+`auth.uid() = owner_id OR is_public = TRUE`; por eso `getBandBySlug` NO filtra
+`is_public` en SQL. Así el dueño abre su banda privada y un anónimo solo las
+públicas. `hide_players` se aplica solo a quien no es dueño: el dueño conserva
+`players[]` en `/banda/:slug` y en su ficha. El panel admin obtiene `name_link`
+desde `raiddominion_admin_get_user_entities` (migración
+`20261026_admin_band_name_link.sql`, pendiente de aplicación manual).
+
 ## Task Tracker del dashboard (`raiddominion_tracker_*`)
 
 Regla 20261023. El dashboard incorpora el Task Tracker del proyecto local
@@ -120,6 +130,16 @@ Regla 20261023. El dashboard incorpora el Task Tracker del proyecto local
   `raiddominion_tracker_save`, `raiddominion_tracker_set_task`,
   `raiddominion_tracker_apply` y
   `raiddominion_sync_character_tracker_meta`.
+- **Acciones masivas** (`raiddominion_tracker_apply`, firma
+  `TEXT, UUID[], UUID[]`): además de `activate`/`mark`/`unmark`/`deactivate`/
+  `reset`/`markAll`/`unmarkAll`, acepta `hide` y `show`. Ambas validan la
+  propiedad de TODOS los personajes, hacen upsert solo de
+  `raiddominion_character_tracker.hidden` y devuelven
+  `{ "<character_id>": { "hidden": bool } }` sin tocar
+  `raiddominion_character_tasks`. La migración
+  `20261026_tracker_apply_visibility.sql` está **pendiente de aplicación
+  manual**; hasta entonces la UI muestra un error explícito y no simula el
+  éxito.
 - **Por qué no hay columnas en `raiddominion_characters`**: esa tabla es
   legible por `anon` cuando `is_public = TRUE`; monedas, nota local y oculto
   se filtrarían por un SELECT directo. Las tablas del tracker no tienen

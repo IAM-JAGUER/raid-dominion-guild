@@ -69,7 +69,8 @@ const {
      grilla del cuerpo del panel; el bloque de carga es su único hijo mientras
      carga y se retira al asentarse (reemplazo in-place, sin salto). El motor
      de reveal escalona los ítems. La cabecera monta la barra de filtros
-     (buscador + chips) vía src/lib/ui/filterBar.ts sobre #filters. -->
+     (buscador + selector dinámico + chips activos) vía
+     src/lib/ui/filterBar.ts sobre #filters. -->
 <div data-rd-list-frame>
   <PanelWindow title={panelTitle} icon={panelIcon}>
     <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>

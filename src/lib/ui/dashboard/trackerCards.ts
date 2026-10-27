@@ -179,13 +179,16 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   const header = el('div', ui.tracker.cardHeader);
   header.style.background = `linear-gradient(180deg, ${tint} 0%, rgba(0,0,0,0.16) 100%)`;
 
+  const pickWrap = document.createElement('label');
+  pickWrap.className = ui.tracker.cardPick;
+  pickWrap.title = 'Seleccionar personaje';
   const pick = document.createElement('input');
   pick.type = 'checkbox';
   pick.checked = selected;
-  pick.className = 'w-3.5 h-3.5 accent-brand-500 shrink-0';
-  pick.title = 'Seleccionar personaje';
+  pick.className = 'w-3.5 h-3.5 accent-brand-500 cursor-pointer';
   pick.setAttribute('aria-label', `Seleccionar ${character.name}`);
   pick.addEventListener('change', () => h.onToggleSelect(id, pick.checked));
+  pickWrap.appendChild(pick);
 
   const collapseBtn = document.createElement('button');
   collapseBtn.type = 'button';
@@ -198,18 +201,20 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   chevron.setAttribute('aria-hidden', 'true');
   chevron.dataset.trackerChevron = '';
   collapseBtn.append(chevron, classIconEl(character.class, character.class_file, 'w-6 h-6 rounded-md border border-gray-700/50 object-cover shrink-0'));
-  const title = el('span', ui.tracker.cardTitle, character.name);
+  const titleGroup = el('span', 'min-w-0 flex flex-col');
+  const title = el('span', `${ui.tracker.cardTitle} block`, character.name);
   title.style.color = color;
-  collapseBtn.appendChild(title);
-  if (typeof character.level === 'number' && character.level > 0) {
-    collapseBtn.appendChild(el('span', 'text-[10px] text-gray-300 shrink-0', `Nv ${character.level}`));
-  }
-  if (character.realm) collapseBtn.appendChild(el('span', ui.tracker.cardMeta, character.realm));
+  titleGroup.appendChild(title);
+  const meta = [
+    typeof character.level === 'number' && character.level > 0 ? `Nv ${character.level}` : '',
+    character.realm ?? '',
+  ].filter(Boolean).join(' · ');
+  if (meta) titleGroup.appendChild(el('span', `${ui.tracker.cardMeta} truncate`, meta));
+  collapseBtn.appendChild(titleGroup);
   collapseBtn.addEventListener('click', () => {
     const next = !h.collapsed.has(id);
     h.onToggleCollapse(id, next);
   });
-  header.appendChild(pick);
   header.appendChild(collapseBtn);
   header.appendChild(el('span', ui.tracker.counter, `${character.progress.done}/${character.progress.active}`));
 
@@ -221,12 +226,16 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   ficha.addEventListener('click', () => h.onOpenFicha(id));
   header.appendChild(ficha);
   card.appendChild(header);
+  card.appendChild(pickWrap);
 
   // ── Cuerpo colapsable ───────────────────────────────────────────────────
   const content = el('div', `${ui.tracker.content} ${collapsed ? ui.tracker.contentClosed : ui.tracker.contentOpen}`);
   content.id = `tracker-body-${id}`;
   content.dataset.trackerContent = '';
-  const inner = el('div', ui.tracker.contentInner);
+  const inner = el(
+    'div',
+    `${ui.tracker.contentInner} ${collapsed ? ui.tracker.contentInnerClosed : ''}`.trim(),
+  );
   const body = el('div', ui.tracker.body);
   inner.appendChild(body);
   content.appendChild(inner);

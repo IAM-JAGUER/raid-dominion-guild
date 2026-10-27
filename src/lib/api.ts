@@ -514,20 +514,30 @@ export async function listPublicBands(): Promise<{ ok: boolean; bands?: BandRow[
   return { ok: true, bands: rows };
 }
 
-// Banda pública por slug.
-export async function getPublicBandBySlug(slug: string): Promise<{ ok: boolean; band?: BandRow; error?: string }> {
+// Banda visible por slug: públicas para cualquiera + privadas para su dueño.
+// La RLS de raiddominion_bands ya resuelve el acceso (owner OR is_public);
+// no se filtra is_public aquí o el dueño perdería su propia banda privada.
+export async function getBandBySlug(
+  slug: string,
+): Promise<{ ok: boolean; band?: BandRow; isOwner?: boolean; error?: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const me = sessionData.session?.user?.id ?? null;
+
   const res = await supabase
     .from('raiddominion_bands')
     .select('*')
     .eq('slug', slug)
-    .eq('is_public', true)
     .maybeSingle();
 
   if (res.error) return { ok: false, error: res.error.message };
   const band = res.data as BandRow | null;
-  if (band && band.hide_players) band.players = [];
-  if (band) sanitizeBandRules(band);
-  return { ok: true, band: band ?? undefined };
+  if (!band) return { ok: true };
+
+  const isOwner = me !== null && band.owner_id === me;
+  // hide_players oculta el roster al público, nunca a su dueño.
+  if (band.hide_players && !isOwner) band.players = [];
+  sanitizeBandRules(band);
+  return { ok: true, band, isOwner };
 }
 
 // ─── Gestión de bandas propias ──────────────────────────────────────────
@@ -1171,6 +1181,7 @@ export interface AdminEntityBand {
   id: string;
   slug: string;
   name: string;
+  name_link?: WowLink | null;
   icon: string | null;
   schedule: string | null;
   guild_id: string | null;
@@ -1595,20 +1606,40 @@ export async function setTrackerTask(
   };
 }
 
+export type TrackerApplyAction =
+  | 'mark'
+  | 'unmark'
+  | 'activate'
+  | 'deactivate'
+  | 'reset'
+  | 'markAll'
+  | 'unmarkAll'
+  | 'hide'
+  | 'show';
+
+// La respuesta de tareas incluye active/marked; la de visibilidad incluye
+// hidden y NO toca las tareas existentes. Ambos campos son opcionales para
+// que applyStates nunca borre datos que la RPC no devolvió.
+export type TrackerApplyState = {
+  active?: string[];
+  marked?: string[];
+  hidden?: boolean;
+};
+
 // Acción masiva del tracker (tareas × personajes). Devuelve los estados ya
 // recalculados por personaje.
 export async function applyTrackerTasks(
-  action: 'mark' | 'unmark' | 'activate' | 'deactivate' | 'reset' | 'markAll' | 'unmarkAll',
+  action: TrackerApplyAction,
   taskIds: string[],
   characterIds: string[]
-): Promise<{ ok: boolean; states?: Record<string, TrackerTaskState>; error?: string }> {
+): Promise<{ ok: boolean; states?: Record<string, TrackerApplyState>; error?: string }> {
   const rpc = await supabase.rpc('raiddominion_tracker_apply', {
     p_action: action,
     p_task_ids: taskIds,
     p_character_ids: characterIds,
   });
   if (rpc.error) return { ok: false, error: rpc.error.message };
-  return { ok: true, states: (rpc.data as Record<string, TrackerTaskState> | null) ?? {} };
+  return { ok: true, states: (rpc.data as Record<string, TrackerApplyState> | null) ?? {} };
 }
 
 // Sincroniza monedas/money/fechas/versión del roster del SV en el tracker

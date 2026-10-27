@@ -118,6 +118,9 @@ visitante / member
 - Perfil de jugador: **`/jugador/:slug`** vía `src/pages/jugador.astro` + rewrite Netlify.
 - Fichas: **`/personaje/:slug`**, **`/servidor/:server`**, **`/servidor/:server/reino/:realm`**,
   **`/banda/:slug`** vía shells `personaje.astro`/`servidor.astro`/`banda.astro` + rewrites.
+- **Acceso a banda**: `/banda/:slug` sirve las públicas y también la propia
+  privada de su dueño (RLS: owner OR is_public). `hide_players` oculta el roster
+  solo a los demás; el dueño lo conserva.
 - Slugs reservados: `upload`, `login`, `dashboard`, `admin`, `moderate`,
   `guilds`, `api`, `assets`, `_astro`, `portal`, `jugador`, `personajes`,
   `personaje`, `servidor`, `servidores`, `reino`, `hermandad`, `hermandades`,
@@ -179,11 +182,14 @@ src/
 - **Contrato único visual**: cualquier clase Tailwind que se repita 2+ veces
   se convierte en token de `src/lib/ui/design.ts` antes de seguir usándose
   suelta. Reglas y razones completas en `AGENTS.sections/design.md`.
-- **Contrato único de filtros**: buscador y chips de facetas de los
-  directorios viven SOLO en `src/lib/ui/filterBar.ts` (`createFilterBar`),
-  montados sobre `#filters` en la cabecera del panel (`DirectoryPage` y
-  `/bandas`); `bandasPanel.ts` (día/tipo) lo consume para las pestañas
-  Bandas. Jamás duplicar buscador/chips en una página (design.md §7b).
+- **Contrato único de filtros**: el panel (buscador + selector dinámico
+  “Añadir filtro u orden” + chips activos + limpiar) vive SOLO en
+  `src/lib/ui/filterBar.ts` (`createFilterBar`), montado sobre `#filters` en
+  la cabecera del panel (`DirectoryPage` y `/bandas`); `bandasPanel.ts`
+  (día/tipo) lo consume para las pestañas Bandas. El tracker lo monta inline
+  (`panel: 'inline'`) y añade “Ocultos” + selección rápida; el conteo
+  filtrado se muestra en el título del tracker, no en la barra. Jamás
+  duplicar buscador/selector/chips en una página (design.md §7b).
 - **Contrato único de iconos**: los 65 iconos temáticos viven SOLO en
   `src/lib/ui/icons.ts` (sprite `public/icons/rd-icons.*`, generado por
   `scripts/icons-sheet.py`). Render SIEMPRE vía `Icon.astro` o `iconEl`
@@ -514,6 +520,38 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-10-26 (bandas: enlaces, CTA y acceso del dueño)**: nombre de banda
+  centralizado en `src/lib/ui/bandName.ts` (`bandNameLink` + `bandDetailCta`)
+  y aplicado en cards públicas, tracker, dashboard, preview, fallbacks y admin.
+  El CTA **“Ver banda”** va junto al nombre cuando hay `slug`; las cards dejan
+  de ser un enlace global. `/banda/:slug` usa RLS (pública o propia), así el
+  dueño ve su banda privada y `hide_players` solo oculta el roster a terceros.
+  El RPC admin gana `name_link` con la migración
+  `20261026_admin_band_name_link.sql` (pendiente de aplicación manual).
+
+- **2026-10-26 (bandas con nombre-enlace)**: cuando `nameLink` produce un
+  anchor de juego, la card pública de banda ya no es un `cardLink` (anchors
+  anidados): usa contenedor con el mismo aspecto y un CTA **“Ver banda”** junto
+  al nombre hacia `/banda/:slug`; el nombre conserva el tooltip de UltimoWoW.
+  Esta primera iteración solo cubría cards con enlace; la entrada superior
+  generaliza el CTA a todas las cards y superficies. Sin cambios de datos ni
+  migración.
+
+- **2026-10-26 (filtros versátiles wow-rd)**: `createFilterBar` se rediseña
+  como panel plegable con selector dinámico “Añadir filtro u orden”, chips
+  removibles, limpiar y badge de activos; se aplica a directorios y pestañas
+  (C). El tracker usa el mismo motor inline con botón “Filtros”, “Ocultos” y
+  **selección rápida** (visibles, tarjeta, progreso, datos, visibilidad,
+  tareas); la selección masiva vive en el criterio “Todos los visibles” (el
+  check “Todos” se retiró por redundante). El conteo filtrado se movió de la
+  barra al título “Tracker de personajes N”; el total de tareas del catálogo
+  queda en el tooltip del botón **Catálogo**. Se retiró el botón **Actualizar**
+  del tracker y el check de selección de cada tarjeta pasó a la esquina
+  superior derecha. Buscador, criterios, chips y extras comparten una sola
+  fila compacta (apilada en móvil), con chips de scroll horizontal. El orden
+  del tracker es una faceta `kind: 'sort'`; “Limpiar” vuelve a
+  `pending-desc` sin tocar selección ni ocultos. Detalle en design.md §7b/§7f.
 
 - **2026-10-25 (capturas reubicadas del addon)**: las 6 capturas PNG movidas a
   `public/images/addon` se renombran a PascalCase y entran al catálogo

@@ -4,7 +4,7 @@ import { classColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
-import { wowLinkEl } from '@/lib/ui/wowhead';
+import { bandNameLink } from '@/lib/ui/bandName';
 import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
@@ -38,8 +38,9 @@ function chip(text: string, extra = ''): HTMLElement {
 // muestra la etiqueta limpia con el tooltip de UltimoWoW; si no, texto plano.
 function bandTitle(band: ParsedSavedVariables['bands'][number]): HTMLElement {
   const title = cardTitle('', 'text-base');
-  if (band.nameLink) title.appendChild(wowLinkEl(band.nameLink));
-  else title.textContent = band.name || 'Sin nombre';
+  const name = bandNameLink(band.name, band.nameLink);
+  if (name.anchor) title.appendChild(name.anchor);
+  else title.textContent = name.label;
   return title;
 }
 

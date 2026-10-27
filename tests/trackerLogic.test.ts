@@ -5,11 +5,16 @@ import { test } from 'node:test';
 
 import {
   bucketTrackerTasks,
+  compareTrackerCharacters,
   computeProgress,
+  justCompleted,
+  justPending,
   legendCounts,
+  matchesTrackerCriterion,
   resolveTrackerTasks,
   shouldStartCollapsed,
   sortTrackerCharacters,
+  splitTrackerPage,
   taskUsage,
   type TrackerCharacter,
 } from '../src/lib/ui/dashboard/trackerLogic.ts';
@@ -110,6 +115,100 @@ test('el orden coloca expandidas primero y respeta el modo', () => {
   const c = character({ id: 'c', name: 'Cora', tasks: { active: [], marked: [] }, progress: { done: 0, active: 0, pending: 0, possible: 2, percent: 0 } });
   const sorted = sortTrackerCharacters([a, b, c], 'pending-desc', new Set(['b']));
   assert.deepEqual(sorted.map((x) => x.id), ['a', 'c', 'b']);
+});
+
+test('compareTrackerCharacters ordena por modo sin mirar el colapso', () => {
+  const a = character({
+    id: 'a',
+    name: 'Ana',
+    avg_ilvl: 250,
+    tasks: { active: ['t'], marked: [] },
+    progress: { done: 0, active: 1, pending: 1, possible: 2, percent: 0 },
+  });
+  const b = character({
+    id: 'b',
+    name: 'Beto',
+    avg_ilvl: 270,
+    tasks: { active: ['t'], marked: ['t'] },
+    progress: { done: 1, active: 1, pending: 0, possible: 2, percent: 50 },
+  });
+
+  assert.ok(compareTrackerCharacters(a, b, 'pending-desc') < 0);
+  assert.ok(compareTrackerCharacters(a, b, 'pending-asc') > 0);
+  assert.ok(compareTrackerCharacters(a, b, 'ilvl-desc') > 0);
+  assert.ok(compareTrackerCharacters(a, b, 'ilvl-asc') < 0);
+  assert.ok(compareTrackerCharacters(a, b, 'progress-desc') > 0);
+  assert.ok(compareTrackerCharacters(a, b, 'name') < 0);
+});
+
+test('justCompleted y justPending detectan cambios de progreso', () => {
+  const pending = { done: 1, active: 3, pending: 2, possible: 4, percent: 25 };
+  const complete = { done: 3, active: 3, pending: 0, possible: 4, percent: 75 };
+  assert.equal(justCompleted(pending, complete), true);
+  assert.equal(justCompleted(complete, pending), false);
+  assert.equal(justPending(complete, pending), true);
+  assert.equal(justPending(pending, complete), false);
+  assert.equal(justCompleted(null, complete), false);
+  assert.equal(justPending(undefined, pending), false);
+  assert.equal(justCompleted(complete, complete), false);
+});
+
+test('splitTrackerPage separa una página sin cambiar el orden de cada grupo', () => {
+  const a = character({ id: 'a', name: 'Ana', tasks: { active: ['t'], marked: [] } });
+  const b = character({ id: 'b', name: 'Beto', tasks: { active: ['t'], marked: ['t'] } });
+  const c = character({ id: 'c', name: 'Cora', tasks: { active: [], marked: [] } });
+  const groups = splitTrackerPage([a, b, c], new Set(['b']));
+  assert.deepEqual(groups.expanded.map((item) => item.id), ['a', 'c']);
+  assert.deepEqual(groups.collapsed.map((item) => item.id), ['b']);
+});
+
+test('matchesTrackerCriterion cubre estado, datos y tareas', () => {
+  const a = character({
+    id: 'a',
+    name: 'Ana',
+    avg_ilvl: 264,
+    is_public: true,
+    member_verified: true,
+    instances: [{ name: 'ICC' }],
+    trackerNote: 'nota local',
+    tasks: { active: ['t1', 't2'], marked: ['t1'] },
+    progress: { done: 1, active: 2, pending: 1, possible: 3, percent: 33 },
+  });
+  const b = character({
+    id: 'b',
+    name: 'Beto',
+    avg_ilvl: 0,
+    is_public: false,
+    member_verified: false,
+    instances: [],
+    trackerNote: '',
+    gameNote: null,
+    tasks: { active: [], marked: [] },
+    progress: { done: 0, active: 0, pending: 0, possible: 3, percent: 0 },
+  });
+  const collapsed = new Set(['b']);
+
+  assert.equal(matchesTrackerCriterion(a, 'all', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'expanded', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'collapsed', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'pending', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'empty', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'notes', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'no-notes', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'ilvl', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'no-ilvl', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'instances', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'no-instances', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'public', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'private', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'validated', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'unvalidated', '', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'done', '', collapsed), false);
+  assert.equal(matchesTrackerCriterion(a, 'task-pending', 't2', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'task-marked', 't1', collapsed), true);
+  assert.equal(matchesTrackerCriterion(b, 'task-inactive', 't1', collapsed), true);
+  assert.equal(matchesTrackerCriterion(a, 'task-active', '', collapsed), false);
+  assert.equal(matchesTrackerCriterion(a, 'invert', '', collapsed), false);
 });
 
 test('la leyenda suma todas las tarjetas y calcula inactivas', () => {

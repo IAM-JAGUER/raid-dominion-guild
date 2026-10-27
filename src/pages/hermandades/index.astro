@@ -56,8 +56,8 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
     if (guilds.length === 0) {
       settleAsyncList(list, 'empty');
     } else {
-      // Barra estándar (src/lib/ui/filterBar.ts): buscador (nombre, reino,
-      // servidor, descripción) + chips dinámicos de facción, reino,
+      // Panel estándar (src/lib/ui/filterBar.ts): buscador (nombre, reino,
+      // servidor, descripción) + selector dinámico de facción, reino,
       // Verificada y Discord. Cards vía renderGuildCard (src/lib/ui/cards.ts).
       createFilterBar({
         mount: filtersEl,

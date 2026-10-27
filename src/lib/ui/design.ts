@@ -153,31 +153,50 @@ export const ui = {
     errorText: 'mt-1.5 text-[11px] text-red-300',
   },
 
-  // ── Filtros de directorio (2026-10-16, filterBar.ts) ────────────────────
-  // Barra de filtros estándar de los directorios (buscador + chips de
-  // facetas con conteo). ÚNICA fuente del chip de filtro: antes embebido en
-  // bandasPanel.ts; hoy lo consume el motor src/lib/ui/filterBar.ts.
+  // ── Filtros del portal (2026-10-26, filterBar.ts) ──────────────────────
+  // Panel plegable "Filtros" (modelo wow-rd): buscador + selector dinámico
+  // "Añadir filtro u orden" + chips removibles. Lo consumen los directorios,
+  // las pestañas de perfil/ficha y el tracker. ÚNICA fuente del panel.
   filter: {
-    // Fila buscador + contador de resultados (aria-live).
-    searchRow: 'flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3',
-    searchWrap: 'relative flex-1',
+    panelBody: 'space-y-2',
+    summaryLeft: 'flex min-w-0 items-center gap-2',
+    summaryCount:
+      'inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-brand-500/50 bg-brand-500/20 px-1 text-[9px] font-black text-brand-100 tabular-nums',
+    chevron:
+      'h-4 w-4 shrink-0 text-brand-300 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none',
+    // Fila única de controles: buscador + organización + extras. En móvil se
+    // apila; desde md convive en una línea y solo envuelve si no cabe.
+    bar: 'flex w-full flex-col gap-2 md:flex-row md:flex-wrap md:items-center',
+    // Buscador + contador de resultados (aria-live) como ítem de la fila.
+    searchRow:
+      'flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center md:w-[12rem] md:flex-none',
+    searchRowWide:
+      'flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center md:min-w-[12rem] md:max-w-[22rem] md:flex-1',
+    searchWrap: 'relative min-w-0 flex-1',
     // Lupa temática (rd-ico) posicionada dentro del input.
     searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
-    // Embudo temático que marca el inicio de la zona de facetas.
-    facetLead: 'self-center mr-1 opacity-90',
     // Contador de resultados ("N bandas"): live region de la barra. gray-400
     // (6.7:1 sobre la superficie de marca) — gray-500 no pasa AA (F011).
     result: 'text-[10px] font-black uppercase tracking-widest text-gray-400 sm:text-right shrink-0',
-    // Contenedor de filas de facetas (una fila por faceta, con wrap).
-    facets: 'mt-3 space-y-2',
-    row: 'flex flex-wrap gap-1.5',
-    // Chip de filtro (botón): CON texto → rounded-md (R2). Estado por
-    // chipActive/chipIdle; el conteo va en un span con `filter.count`.
-    chip: 'inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
-    chipActive: 'bg-gradient-to-b from-brand-900/50 to-brand-950/50 text-brand-200 border-brand-500/50',
-    chipIdle:
-      'bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-400 border-brand-600/25 hover:from-brand-900/40 hover:to-brand-950/40 hover:text-brand-200 hover:border-brand-500/40',
-    count: 'text-[9px] font-bold opacity-60',
+    // Grupo "Organización" inline: label + selector + chips + limpiar.
+    org: 'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto md:flex-1',
+    orgHead: 'flex w-full min-w-0 items-center gap-1.5 md:w-auto',
+    orgLabel: 'shrink-0 whitespace-nowrap text-[10px] font-black uppercase tracking-widest text-brand-300/90',
+    select:
+      'min-w-[8rem] flex-1 md:flex-none md:min-w-[8rem] max-w-full px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
+    clear:
+      'ml-auto shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:bg-brand-900/40 transition-colors',
+    chips:
+      'flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    chip:
+      'inline-flex max-w-full shrink-0 items-center gap-1.5 rounded-md border border-brand-500/50 bg-gradient-to-b from-brand-900/50 to-brand-950/50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-brand-200',
+    chipValue: 'min-w-0 truncate',
+    chipRemove:
+      'inline-flex h-4 w-4 items-center justify-center rounded-md text-brand-300/80 hover:bg-white/10 hover:text-brand-100 transition-colors',
+    notice: 'text-[11px] italic text-gray-400',
+    // Grupo extra inline de la misma fila (tracker: ocultos + selección).
+    extraGroup:
+      'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto',
   },
 
   // ── Paginador reutilizable (2026-10-19, paginator.ts) ──────────────────
@@ -204,10 +223,17 @@ export const ui = {
   tracker: {
     shell: 'space-y-4',
     toolbar: 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
-    card: 'relative overflow-hidden rounded-md border bg-brand-900/40 rd-card transition-all duration-200',
+    // Grid del tracker: dos grupos (desplegadas/colapsadas). La página se
+    // calcula primero por modo; cada grupo conserva la grilla responsive.
+    grid: 'flex flex-col gap-3',
+    group: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start',
+    card:
+      'relative overflow-hidden rounded-md border bg-brand-900/40 rd-card transition-[border-color,box-shadow] duration-200 hover:shadow-[0_0_0_1px_var(--class-color),0_16px_34px_-20px_var(--class-color)] motion-reduce:transition-none',
     cardSelected: 'border-brand-400/70 shadow-[0_0_0_1px_rgba(92,169,232,0.35)]',
     cardHidden: 'opacity-60',
-    cardHeader: 'relative z-10 flex items-center gap-2 px-3 py-2.5 border-b border-brand-600/20',
+    cardHeader: 'relative z-10 flex items-center gap-2 pl-3 pr-9 py-2.5 border-b border-brand-600/20',
+    cardPick:
+      'absolute top-1.5 right-1.5 z-20 inline-flex items-center justify-center p-1 rounded-md bg-brand-950/70 border border-brand-600/40 cursor-pointer focus-within:ring-2 focus-within:ring-brand-400',
     cardCollapse:
       'min-w-0 flex-1 flex items-center gap-2 text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
     cardTitle: 'font-black italic text-sm truncate',
@@ -219,7 +245,10 @@ export const ui = {
       'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
     contentOpen: 'grid-rows-[1fr]',
     contentClosed: 'grid-rows-[0fr]',
-    contentInner: 'min-h-0 overflow-hidden',
+    // El contenido interno acompaña al row: opacidad + translate cortos.
+    contentInner:
+      'min-h-0 overflow-hidden transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none',
+    contentInnerClosed: 'opacity-0 -translate-y-1',
     stats: 'flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2',
     stat: 'inline-flex items-baseline gap-1.5',
     statLabel: 'text-[10px] font-black uppercase tracking-widest text-gray-400',
@@ -240,12 +269,22 @@ export const ui = {
     switchKnobOn: 'translate-x-3',
     progress: 'rd-progress h-2 rounded-full',
     progressBar: 'block h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none',
-    legend: 'flex flex-wrap items-center gap-1.5 rounded-md border border-brand-700/40 bg-brand-950/50 p-2',
+    legend:
+      'flex flex-wrap items-center gap-1.5 rounded-md border border-brand-700/40 bg-brand-950/50 p-2 scroll-mt-24',
     legendBtn:
       'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
     legendActive: 'bg-brand-900/60 text-brand-200 border-brand-500/50',
     legendCount: 'text-[9px] font-bold opacity-70 tabular-nums',
     dock: 'flex flex-wrap items-center gap-2 rounded-md border border-brand-500/40 bg-brand-950/90 p-2.5 shadow-lg shadow-brand-950/40',
+    // Dock de selección del tracker: sticky dentro del panel, nunca fixed.
+    // Al vivir en el flujo no tapa la leyenda al final del scroll.
+    selectionDock:
+      'sticky top-2 z-30 backdrop-blur-sm supports-[backdrop-filter]:bg-brand-950/85',
+    dockCount:
+      'text-[10px] font-black uppercase tracking-widest text-brand-200 mr-auto',
+    filterOptionLabel:
+      'flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer select-none',
+    filterCheckbox: 'w-3.5 h-3.5 accent-brand-500',
     select:
       'px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
     catalogRow:

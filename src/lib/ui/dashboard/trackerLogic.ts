@@ -57,6 +57,41 @@ export type TrackerSortMode =
   | 'seen-desc'
   | 'name';
 
+export type TrackerQuickCriterion =
+  | 'all'
+  | 'none'
+  | 'invert'
+  | 'clear'
+  | 'expanded'
+  | 'collapsed'
+  | 'pending'
+  | 'done'
+  | 'empty'
+  | 'notes'
+  | 'no-notes'
+  | 'ilvl'
+  | 'no-ilvl'
+  | 'instances'
+  | 'no-instances'
+  | 'public'
+  | 'private'
+  | 'validated'
+  | 'unvalidated'
+  | 'task-active'
+  | 'task-pending'
+  | 'task-marked'
+  | 'task-inactive';
+
+export const TRACKER_TASK_CRITERIA = new Set<TrackerQuickCriterion>([
+  'task-active',
+  'task-pending',
+  'task-marked',
+  'task-inactive',
+]);
+
+// Criterios que operan sobre la selección actual y no usan "Sumar".
+export const TRACKER_ACTION_CRITERIA = new Set<TrackerQuickCriterion>(['none', 'invert', 'clear']);
+
 export function emptyTasks(): TrackerTaskState {
   return { active: [], marked: [] };
 }
@@ -105,6 +140,78 @@ export function shouldStartCollapsed(progress: TrackerProgress): boolean {
   return progress.active === 0 || progress.done >= progress.active;
 }
 
+// ¿Acaba de completar todas sus tareas activas?
+export function justCompleted(before: TrackerProgress | null | undefined, after: TrackerProgress | null | undefined): boolean {
+  if (!before || !after) return false;
+  return before.pending > 0 && after.pending === 0 && after.active > 0;
+}
+
+// ¿Acaba de pasar de estar al día a tener pendientes?
+export function justPending(before: TrackerProgress | null | undefined, after: TrackerProgress | null | undefined): boolean {
+  if (!before || !after) return false;
+  return before.pending === 0 && after.pending > 0;
+}
+
+export function matchesTrackerCriterion(
+  character: TrackerCharacter,
+  criterion: TrackerQuickCriterion,
+  taskId: string,
+  collapsedKeys: Set<string>,
+): boolean {
+  const tasks = character.tasks ?? emptyTasks();
+  const hasNote =
+    String(character.trackerNote ?? '').trim() !== '' ||
+    String(character.gameNote ?? '').trim() !== '' ||
+    (Array.isArray(character.gameNoteRich) && character.gameNoteRich.length > 0);
+  switch (criterion) {
+    case 'all':
+      return true;
+    case 'expanded':
+      return !collapsedKeys.has(character.id);
+    case 'collapsed':
+      return collapsedKeys.has(character.id);
+    case 'pending':
+      return character.progress.pending > 0;
+    case 'done':
+      return character.progress.active > 0 && character.progress.pending === 0;
+    case 'empty':
+      return character.progress.active === 0;
+    case 'notes':
+      return hasNote;
+    case 'no-notes':
+      return !hasNote;
+    case 'ilvl':
+      return typeof character.avg_ilvl === 'number' && character.avg_ilvl > 0;
+    case 'no-ilvl':
+      return !(typeof character.avg_ilvl === 'number' && character.avg_ilvl > 0);
+    case 'instances':
+      return Array.isArray(character.instances) && character.instances.length > 0;
+    case 'no-instances':
+      return !(Array.isArray(character.instances) && character.instances.length > 0);
+    case 'public':
+      return character.is_public;
+    case 'private':
+      return !character.is_public;
+    case 'validated':
+      return character.member_verified;
+    case 'unvalidated':
+      return !character.member_verified;
+    case 'task-active':
+      return !!taskId && tasks.active.includes(taskId);
+    case 'task-pending':
+      return !!taskId && tasks.active.includes(taskId) && !tasks.marked.includes(taskId);
+    case 'task-marked':
+      return !!taskId && tasks.marked.includes(taskId);
+    case 'task-inactive':
+      return !!taskId && !tasks.active.includes(taskId);
+    case 'none':
+    case 'invert':
+    case 'clear':
+    default:
+      return false;
+  }
+}
+
 export function pendingOf(character: TrackerCharacter): number {
   return character.progress.pending;
 }
@@ -120,40 +227,67 @@ export function seenOf(character: TrackerCharacter): number {
   return Number.isFinite(updated) ? Math.floor(updated / 1000) : 0;
 }
 
-// Orden del tracker local: expandidas primero y, dentro de cada grupo, el modo
-// elegido. El GS se sustituye por iLvl (el portal no tiene GearScore).
+// Comparador del modo activo, SIN sesgo de colapso: el paginador ordena
+// primero por modo y solo después reparte la página en grupos. El GS se
+// sustituye por iLvl (el portal no tiene GearScore).
+export function compareTrackerCharacters(
+  a: TrackerCharacter,
+  b: TrackerCharacter,
+  mode: TrackerSortMode,
+): number {
+  const tie = (x: TrackerCharacter, y: TrackerCharacter): number => {
+    const seen = seenOf(y) - seenOf(x);
+    if (seen !== 0) return seen;
+    return String(x.name ?? '').localeCompare(String(y.name ?? ''));
+  };
+  switch (mode) {
+    case 'pending-asc':
+      return pendingOf(a) - pendingOf(b) || tie(a, b);
+    case 'ilvl-desc':
+      return ilvlOf(b) - ilvlOf(a) || tie(a, b);
+    case 'ilvl-asc':
+      return ilvlOf(a) - ilvlOf(b) || tie(a, b);
+    case 'progress-desc':
+      return b.progress.percent - a.progress.percent || tie(a, b);
+    case 'seen-desc':
+      return seenOf(b) - seenOf(a) || tie(a, b);
+    case 'name':
+      return String(a.name ?? '').localeCompare(String(b.name ?? ''));
+    case 'pending-desc':
+    default:
+      return pendingOf(b) - pendingOf(a) || tie(a, b);
+  }
+}
+
+// Orden histórico del tracker: expandidas primero y, dentro de cada grupo, el
+// modo elegido. Se conserva para consumidores/pruebas; el grid paginado usa
+// compareTrackerCharacters + splitTrackerPage.
 export function sortTrackerCharacters(
   list: TrackerCharacter[],
   mode: TrackerSortMode,
   collapsedKeys: Set<string>,
 ): TrackerCharacter[] {
-  const tie = (a: TrackerCharacter, b: TrackerCharacter): number => {
-    const seen = seenOf(b) - seenOf(a);
-    if (seen !== 0) return seen;
-    return String(a.name ?? '').localeCompare(String(b.name ?? ''));
-  };
   return list.slice().sort((a, b) => {
     const aCollapsed = collapsedKeys.has(a.id);
     const bCollapsed = collapsedKeys.has(b.id);
     if (aCollapsed !== bCollapsed) return aCollapsed ? 1 : -1;
-    switch (mode) {
-      case 'pending-asc':
-        return pendingOf(a) - pendingOf(b) || tie(a, b);
-      case 'ilvl-desc':
-        return ilvlOf(b) - ilvlOf(a) || tie(a, b);
-      case 'ilvl-asc':
-        return ilvlOf(a) - ilvlOf(b) || tie(a, b);
-      case 'progress-desc':
-        return b.progress.percent - a.progress.percent || tie(a, b);
-      case 'seen-desc':
-        return seenOf(b) - seenOf(a) || tie(a, b);
-      case 'name':
-        return String(a.name ?? '').localeCompare(String(b.name ?? ''));
-      case 'pending-desc':
-      default:
-        return pendingOf(b) - pendingOf(a) || tie(a, b);
-    }
+    return compareTrackerCharacters(a, b, mode);
   });
+}
+
+// Separa una página ya ordenada en desplegadas/colapsadas sin alterar el orden
+// activo dentro de cada grupo.
+export function splitTrackerPage(
+  list: TrackerCharacter[],
+  collapsedKeys: Set<string>,
+): { expanded: TrackerCharacter[]; collapsed: TrackerCharacter[] } {
+  const expanded: TrackerCharacter[] = [];
+  const collapsed: TrackerCharacter[] = [];
+  list.forEach((character) => {
+    if (collapsedKeys.has(character.id)) collapsed.push(character);
+    else expanded.push(character);
+  });
+  return { expanded, collapsed };
 }
 
 // Totales del pie de leyenda (todas las tarjetas, no solo la página/filtro).

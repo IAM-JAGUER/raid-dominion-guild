@@ -68,7 +68,7 @@ import Icon from '@/components/ui/Icon.astro';
 </section>
 
 <script>
-  import { getPublicBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, getGuildBandIntegrationRules, type BandRow } from '@/lib/api';
+  import { getBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, getGuildBandIntegrationRules, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
   import { renderBandCore, coreRoleGroup, CORE_ROLE_LABELS } from '@/lib/ui/preview';
@@ -81,19 +81,18 @@ import Icon from '@/components/ui/Icon.astro';
   import { bandMergeKey, mergeBandPlayers, type MergePlayer } from '@/lib/bandMerge';
   import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
   import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
-  import { wowLinkEl } from '@/lib/ui/wowhead';
-  import { normalizeWowLink } from '@/lib/wowLink';
+  import { bandNameLink } from '@/lib/ui/bandName';
 
   if (isBandRoute()) {
     const slug = currentSlug();
     if (!slug) {
       showNotFound('Banda no encontrada.');
     } else {
-      const res = await getPublicBandBySlug(slug);
+      const res = await getBandBySlug(slug);
       if (!res.ok || !res.band) {
-        showNotFound('Esta banda no existe o no es pública.');
+        showNotFound('Esta banda no existe o no tienes acceso.');
       } else {
-        await render(res.band);
+        await render(res.band, res.isOwner === true);
       }
     }
   }
@@ -120,13 +119,13 @@ import Icon from '@/components/ui/Icon.astro';
     icon?: string;
   }
 
-  async function render(band: BandRow): Promise<void> {
+  async function render(band: BandRow, isOwner: boolean): Promise<void> {
     document.title = `${band.name || 'Banda'} - RaidDominion`;
     const nameEl = document.getElementById('bv-name') as HTMLElement;
     nameEl.textContent = '';
-    const nameLink = normalizeWowLink(band.name_link);
-    if (nameLink) nameEl.appendChild(wowLinkEl(nameLink));
-    else nameEl.textContent = band.name || 'Sin nombre';
+    const name = bandNameLink(band.name, band.name_link);
+    if (name.anchor) nameEl.appendChild(name.anchor);
+    else nameEl.textContent = name.label;
     setBreadcrumb(band.name || 'Banda');
 
     const ownerLink = document.getElementById('bv-owner-link') as HTMLAnchorElement;
@@ -143,20 +142,27 @@ import Icon from '@/components/ui/Icon.astro';
     if (band.guild_id && band.is_rank_integrated) {
       meta.appendChild(metaChip('enlace', 'Integrada', '!text-emerald-300 !border-emerald-500/40'));
     }
+    if (isOwner && !band.is_public) {
+      meta.appendChild(metaChip('bloqueo', 'Privada · solo tú', '!text-brand-300 !border-brand-500/40'));
+    }
     // Jugadores combinados: si la banda está integrada a una hermandad, se
     // unen los rosters de todas las bandas del mismo grupo (clave name|horario|
     // GS), deduplicando por nombre y destacando la fuente de la integración.
-    const merged = await resolveMergeGroup(band);
+    const merged = await resolveMergeGroup(band, isOwner);
     const players = merged.players;
     if (band.hide_players) {
-      meta.appendChild(metaChip('bloqueo', 'jugadores ocultos', '!text-gray-400'));
+      meta.appendChild(metaChip(
+        'bloqueo',
+        isOwner ? 'jugadores ocultos al público' : 'jugadores ocultos',
+        '!text-gray-400',
+      ));
     }
 
     const coreBox = document.getElementById('bv-core') as HTMLElement;
 
     // Core (antes "Roster"): lista de asistencia estilo raids de guild-portal,
     // agrupada por rol con cabeceras colapsables.
-    if (band.hide_players) {
+    if (band.hide_players && !isOwner) {
       coreBox.appendChild(emptyState('Esta banda mantiene oculta su lista de jugadores al público.'));
     } else if (players.length === 0) {
       coreBox.appendChild(emptyState('Esta banda aún no tiene jugadores asignados.'));
@@ -333,7 +339,7 @@ import Icon from '@/components/ui/Icon.astro';
     const tabMetaGroup = document.createElement('div');
     tabMetaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-brand-500/40 bg-brand-600/20 overflow-hidden';
     BAND_TABS.forEach((t) => {
-      const n = t.id === 'core' ? (band.hide_players ? null : players.length) : rules.length;
+      const n = t.id === 'core' ? (band.hide_players && !isOwner ? null : players.length) : rules.length;
       if (n === null) return;
       const chip = document.createElement('a');
       chip.href = t.href;
@@ -379,7 +385,7 @@ import Icon from '@/components/ui/Icon.astro';
   // las bandas públicas del mismo grupo (clave name|horario|GS) deduplicando
   // por nombre; las fuentes de integración son los character_name de las
   // bandas de miembros (owner distinto al GM).
-  async function resolveMergeGroup(band: BandRow): Promise<{ players: MergePlayer[]; sourceNames: string[] }> {
+  async function resolveMergeGroup(band: BandRow, isOwner: boolean): Promise<{ players: MergePlayer[]; sourceNames: string[] }> {
     const ownPlayers = Array.isArray(band.players) ? (band.players as MergePlayer[]) : [];
     if (!band.guild_id || !band.is_rank_integrated) {
       return { players: ownPlayers, sourceNames: [] };
@@ -399,7 +405,7 @@ import Icon from '@/components/ui/Icon.astro';
     const sourceNames = guildOwnerId
       ? Array.from(new Set(group.filter((g) => g.owner_id !== guildOwnerId).map((g) => g.character_name).filter((n): n is string => !!n)))
       : [];
-    const players = band.hide_players ? [] : mergeBandPlayers(group);
+    const players = band.hide_players && !isOwner ? [] : mergeBandPlayers(group);
     return { players, sourceNames };
   }
 
