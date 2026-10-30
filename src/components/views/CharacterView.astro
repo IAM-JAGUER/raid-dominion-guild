@@ -235,7 +235,7 @@ import Icon from '@/components/ui/Icon.astro';
       available.push('instancias');
     }
 
-    const bands = await getPublicBandsForCharacter(c.name);
+    const bands = await getPublicBandsForCharacter(c.name, c.realm);
     const bandList = bands.ok ? (bands.bands ?? []) : [];
     if (bandList.length > 0) {
       // Cards de banda ESTÁNDAR (modelo del directorio /bandas) con ATRIBUCIÓN;

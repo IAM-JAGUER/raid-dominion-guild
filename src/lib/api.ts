@@ -3,6 +3,7 @@ import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import type { ParsedSavedVariables, GuildRank, ContentItem, PlayerObjectives, CharacterInstance } from '@/types/parser';
 import type { RichTextToken, WowLink } from '@/lib/wowLink';
 import { normalizeRichTokens, normalizeWowLink } from '@/lib/wowLink';
+import { matchBandCharacter } from '@/lib/bandMerge';
 import type {
   SavedVariableRow,
   ProfileRow,
@@ -1834,9 +1835,11 @@ export async function getPublicCharacterSlugsByNames(
   return { ok: true, slugs };
 }
 
-// Bandas donde aparece un personaje dentro de raiddominion_bands: cruza la
-// tabla buscando en players[] el nombre insensible a mayúsculas. Ya no depende
-// del snapshot: las bandas viven en su propia tabla con su visibilidad espejo.
+// Bandas de un personaje dentro de raiddominion_bands. El vínculo se resuelve
+// con matchBandCharacter: ATRIBUCIÓN (character_name/character_realm del SV
+// que subió la banda, aunque el personaje no esté en players[]) o MEMBRESÍA
+// (players[]). Ya no depende del snapshot: las bandas viven en su propia tabla
+// con su visibilidad espejo.
 //
 // Visibilidad (bug corregido 2026-09-01): el query NUNCA filtra is_public en
 // SQL — lo hace RLS (públicas para cualquiera + propias para el dueño con
@@ -1844,10 +1847,11 @@ export async function getPublicCharacterSlugsByNames(
 // jugador en su perfil. Aquí se refina en cliente:
 //   - bandas privadas: solo las ve su dueño (autenticado);
 //   - bandas con hide_players: el dueño conserva su membresía y rol; el resto
-//     no expone pertenencia alguna.
+//     no ve la banda (el roster oculto la oculta también en las fichas).
 // Se leen TODAS las filas visibles (paginado), sin truncar en el primer lote.
 export async function getPublicBandsForCharacter(
-  charName: string
+  charName: string,
+  charRealm?: string | null,
 ): Promise<{ ok: boolean; bands?: PublicBandSummary[]; error?: string }> {
   const name = (charName ?? '').trim().toLowerCase();
   if (!name) return { ok: true, bands: [] };
@@ -1877,18 +1881,17 @@ export async function getPublicBandsForCharacter(
     // RLS ya entregó solo lo que esta sesión puede ver (públicas + propias);
     // aquí se refina el caso propias-privadas sin repetir el filtro en SQL.
     if (!isMine && !b.is_public) continue;
-    // Bandas con hide_players: el dueño ve su membresía; el público no.
+    // Bandas con hide_players: el dueño las conserva; el público no las ve.
     if (b.hide_players && !isMine) continue;
-    const players = Array.isArray(b.players) ? (b.players as Array<{ name?: string; role?: string }>) : [];
-    const meRow = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
-    if (!meRow) continue;
+    const match = matchBandCharacter(b, name, charRealm);
+    if (!match) continue;
     bands.push({
       name: b.name,
       nameLink: normalizeWowLink(b.name_link),
       slug: b.slug ?? undefined,
       schedule: b.schedule ?? undefined,
       minGS: b.min_gs !== null && b.min_gs !== undefined ? Number(b.min_gs) : undefined,
-      role: meRow.role,
+      role: match.role,
       integrated: !!(b.is_rank_integrated && b.guild_id),
       guildId: b.guild_id ?? null,
       ownerId: b.owner_id,

@@ -13,6 +13,37 @@ export interface MergePlayer {
   points?: number;
 }
 
+// Vínculo de un PERSONAJE con una banda. Existe por dos vías:
+//   * atribución: el personaje subió el SV (character_name/character_realm),
+//     aunque no aparezca en players[] (caso típico del GM/organizador);
+//   * membresía: el personaje figura en players[].
+// El reino acota la atribución cuando ambos lados lo traen (mismo nombre en
+// reinos distintos); si falta en la banda (filas legacy) o en el personaje,
+// se acepta por nombre. Devuelve null si no hay vínculo.
+export interface BandCharacterMatch {
+  attributed: boolean;
+  member: boolean;
+  role?: string;
+}
+
+export function matchBandCharacter(
+  band: { character_name?: string | null; character_realm?: string | null; players?: unknown[] | null },
+  charName: string | null | undefined,
+  charRealm?: string | null,
+): BandCharacterMatch | null {
+  const name = (charName ?? '').trim().toLowerCase();
+  if (!name) return null;
+  const realm = (charRealm ?? '').trim().toLowerCase();
+  const bandRealm = (band.character_realm ?? '').trim().toLowerCase();
+  const attributed =
+    (band.character_name ?? '').trim().toLowerCase() === name &&
+    (!realm || !bandRealm || realm === bandRealm);
+  const players = Array.isArray(band.players) ? (band.players as Array<{ name?: string; role?: string }>) : [];
+  const row = players.find((p) => (p?.name ?? '').trim().toLowerCase() === name);
+  if (!attributed && !row) return null;
+  return { attributed, member: !!row, role: row?.role };
+}
+
 // Clave de coincidencia de una banda: nombre + horario (día y hora van en el
 // string schedule del addon) + gearscore, normalizados (trim + lowercase).
 // Única fuente de verdad del criterio de fusión de bandas integradas.

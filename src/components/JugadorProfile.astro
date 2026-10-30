@@ -283,7 +283,7 @@ import { ui } from '@/lib/ui/design';
     const seen = new Set<string>();
     const unique: PublicBandSummary[] = [];
     for (const c of chars) {
-      const res = await getPublicBandsForCharacter(c.name);
+      const res = await getPublicBandsForCharacter(c.name, c.realm);
       (res.ok ? (res.bands ?? []) : []).forEach((b) => {
         // Dedupe por identidad nombre|horario (no solo por nombre): un jugador
         // puede pertenecer a DOS bandas con el mismo nombre en horarios

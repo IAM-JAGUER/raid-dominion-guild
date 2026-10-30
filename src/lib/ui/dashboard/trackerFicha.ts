@@ -22,6 +22,7 @@ import { renderTrackerTasks } from '@/lib/ui/dashboard/trackerTasks';
 import { currencyIconFor, iconEl } from '@/lib/ui/icons';
 import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
 import { bandDetailCta, bandNameLink } from '@/lib/ui/bandName';
+import { matchBandCharacter } from '@/lib/bandMerge';
 import {
   equipmentSlotLabel,
   roleLabel,
@@ -286,17 +287,9 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
 
   // ── Bandas ──────────────────────────────────────────────────────────────
   const bandas = el('div', 'space-y-3');
-  const charName = c.name.trim().toLowerCase();
-  const charRealm = (c.realm ?? '').trim().toLowerCase();
-  const mine = ctx.bands.filter((band) => {
-    const bandRealm = (band.character_realm ?? '').trim().toLowerCase();
-    if (
-      (band.character_name ?? '').trim().toLowerCase() === charName &&
-      (!charRealm || !bandRealm || charRealm === bandRealm)
-    ) return true;
-    const players = Array.isArray(band.players) ? (band.players as Array<Record<string, unknown>>) : [];
-    return players.some((p) => String(p.name ?? '').trim().toLowerCase() === charName);
-  });
+  // Atribución (SV subido por el personaje) o membresía en players[]: misma
+  // regla única que la ficha pública (matchBandCharacter).
+  const mine = ctx.bands.filter((band) => matchBandCharacter(band, c.name, c.realm) !== null);
   bandas.appendChild(sectionTitle('espadas', `Bandas del personaje (${mine.length})`));
   if (mine.length === 0) {
     bandas.appendChild(el('p', 'text-xs text-gray-400 italic', 'El personaje no está en ninguna banda registrada.'));
