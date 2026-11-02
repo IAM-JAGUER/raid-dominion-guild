@@ -11,6 +11,14 @@
 [functions]
   node_bundler = "esbuild"
 
+# Sitemap dinámico: DEBE ir antes del redirect /:slug, que también captura
+# una sola sección (si va después, /sitemap.xml termina en /hermandad/sitemap.xml).
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+  force = true
+
 # Portal de hermandad: raíz legacy /:slug → portal canónico /hermandad/:slug
 # (los archivos reales tienen prioridad; /guilds y demás específicos también)
 [[redirects]]
@@ -88,6 +96,47 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Rutas privadas: no indexables aunque se enlacen desde fuera.
+[[headers]]
+  for = "/dashboard"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/dashboard/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/moderate"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/moderate/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/login"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/login/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# El sitemap es una función: cachea una hora en CDN y navegador.
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, s-maxage=3600"
+    Content-Type = "application/xml; charset=utf-8"
 
 # Caché para assets estáticos
 [[headers]]

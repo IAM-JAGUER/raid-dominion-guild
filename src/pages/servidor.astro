@@ -7,10 +7,14 @@
 import DetailShell from '@/components/DetailShell.astro';
 import ServerView from '@/components/views/ServerView.astro';
 import RealmView from '@/components/views/RealmView.astro';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/servidor'];
 ---
 <DetailShell
-  title="Servidor - RaidDominion"
-  description="Ficha de servidor y reinos de la comunidad RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  autoCanonical
   particles="frost"
 >
   <ServerView />

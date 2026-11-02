@@ -5,10 +5,14 @@
 // auto-activa y resuelve el slug 100% en cliente.
 import DetailShell from '@/components/DetailShell.astro';
 import CharacterView from '@/components/views/CharacterView.astro';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/personaje'];
 ---
 <DetailShell
-  title="Personaje - RaidDominion"
-  description="Ficha pública de personaje de la comunidad RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  autoCanonical
   particles="arcane"
 >
   <CharacterView />

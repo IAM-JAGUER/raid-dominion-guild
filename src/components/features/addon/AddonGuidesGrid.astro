@@ -54,7 +54,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 
 <div class="mt-8" id="addon-guides">
   <p class="text-gray-400 text-sm text-center mb-8 italic">
-    Aprende a usar RaidDominion: menú flotante, bandas, botín, spammers y comandos.
+    Aprende a usar RaidDominion en WoW 3.3.5a: menú flotante, bandas, botín, spammers y comandos.
   </p>
 
   <!-- Lector interno: la guía activa se muestra ARRIBA, antes de la lista -->
@@ -82,9 +82,9 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 <Icon name={guide.icon} size="lg" />
               </div>
               <div>
-                <h4 class="text-xl font-bold text-brand-300">
+                <h3 class="text-xl font-bold text-brand-300">
                   <span class="text-brand-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
-                </h4>
+                </h3>
                 <span class={`${ui.chip} ${c.iconBg} ${c.iconBorder} ${c.iconText}`}>
                   {guide.category}
                 </span>
@@ -180,9 +180,9 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
     {guides.map((guide, index) => {
       const c = colorClasses[guide.color] || colorClasses.amber;
       return (
-        <button
-          type="button"
-          class={`addon-guide-card relative group ${ui.card} ${ui.cardHover} p-5 overflow-hidden text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`}
+        <a
+          href={`#guide-${guide.id}`}
+          class={`addon-guide-card block relative group ${ui.card} ${ui.cardHover} p-5 overflow-hidden text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400`}
           data-guide-index={index}
           aria-expanded="false"
           aria-controls={`guide-panel-${guide.id}`}
@@ -197,9 +197,9 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 {guide.category}
               </span>
             </div>
-            <h4 class="text-base font-black italic mb-4 leading-[1.35] ${ui.gradientTitle}">
+            <h3 class={`text-base font-black italic mb-4 leading-[1.35] ${ui.gradientTitle}`}>
               <span class="text-brand-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
-            </h4>
+            </h3>
             <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic">
               {guide.description}
             </p>
@@ -210,7 +210,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
               </span>
             </div>
           </div>
-        </button>
+        </a>
       );
     })}
   </div>
@@ -238,10 +238,6 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
     const container = document.getElementById('addon-guides');
     if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-
-  cards.forEach((card, i) => {
-    card.addEventListener('click', () => openGuide(i));
-  });
 
   // Navegación anterior/siguiente del pie de panel (reutiliza openGuide,
   // que ya hace scroll al contenedor #addon-guides).

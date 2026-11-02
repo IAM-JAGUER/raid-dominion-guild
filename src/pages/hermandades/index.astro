@@ -2,11 +2,22 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
+import { PAGE_META, breadcrumbSchema, collectionPageSchema } from '@/lib/seo';
+
+const meta = PAGE_META['/hermandades'];
+const jsonLd = [
+  collectionPageSchema('Directorio de hermandades de WoW 3.3.5a', meta.description, '/hermandades'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Hermandades', path: '/hermandades' },
+  ]),
+];
 ---
 
 <Layout
-  title="Hermandades - RaidDominion"
-  description="Directorio público de hermandades de la comunidad RaidDominion: roster, bandas y reglas de cada portal."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="banner"
 >
   <Navigation currentPath="/hermandades" />
@@ -15,8 +26,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
       <DirectoryPage
         hero="Hermandades"
         panelIcon="hermandad"
-        intro="Portales públicos de las hermandades que usan RaidDominion: roster, bandas, horarios y reglas, actualizados por sus propios maestros."
+        intro="Explora hermandades de World of Warcraft 3.3.5a por reino y facción. Cada portal reúne roster, bandas, horarios, reglas y Discord, sincronizados desde el addon RaidDominion."
         loadingText="Cargando hermandades…"
+        context={{
+          title: '¿Cómo aparecer en este directorio?',
+          text: 'Sube el SavedVariables de un personaje con rango de maestro (isGM) y valida al menos un personaje. El portal detecta la maestría y crea la hermandad sin formularios; después publícala desde tu dashboard para que aparezca aquí.',
+          cta: { label: 'Subir SavedVariables', href: '/upload' },
+        }}
         gridLabel="Listado de hermandades"
         empty={{
           icon: 'hermandad',

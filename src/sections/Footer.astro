@@ -12,8 +12,10 @@ import { SITE_CONFIG } from '@/utils/constants'
                 <div class="flex items-center justify-center md:justify-start">
                     <img
                         src="/logo.png"
-                        alt="Logo RaidDominion"
-                        class="h-8 w-auto mr-2 rounded"
+                        alt="Logo de RaidDominion"
+                        width="32"
+                        height="32"
+                        class="h-8 w-8 mr-2 rounded"
                         loading="lazy"
                         decoding="async"
                     />
@@ -21,7 +23,11 @@ import { SITE_CONFIG } from '@/utils/constants'
                         {SITE_CONFIG.TITLE}
                     </h3>
                 </div>
-                <p class="text-xs text-gray-300 mt-1">
+                <p class="text-xs text-gray-400 mt-2 max-w-md leading-relaxed">
+                    RaidDominion es un addon gratuito y un portal comunitario para World of Warcraft 3.3.5a
+                    (WotLK): organiza bandas, publica el roster de tu hermandad y comparte tu progreso.
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
                     &copy; 2026 Todos los derechos reservados
                 </p>
             </div>
@@ -57,6 +63,7 @@ import { SITE_CONFIG } from '@/utils/constants'
                 <li><a href="/" class="text-brand-200 hover:text-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-md">Inicio</a></li>
                 <li><a href="/#addon" class="text-brand-200 hover:text-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-md">Guía del Addon</a></li>
                 <li><a href="/upload" class="text-brand-200 hover:text-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-md">Subir SavedVariables</a></li>
+                <li><a href="/#faq" class="text-brand-200 hover:text-white transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-md">Preguntas frecuentes</a></li>
             </ul>
             <ul class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm mt-2">
                 <li><a href="/bandas" class="text-gray-400 hover:text-brand-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-md">Bandas</a></li>

@@ -3,7 +3,19 @@ import Footer from "@/sections/Footer.astro";
 import ChatWidget from "@/components/features/ChatWidget.astro";
 import ToastContainer from "@/components/ui/ToastContainer.astro";
 import PageAtmosphere from "@/components/ui/PageAtmosphere.astro";
+import JsonLd from "@/components/seo/JsonLd.astro";
 import type { ParticleVariant } from "@/lib/ui/particles";
+import {
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+  LOCALE,
+  SITE_NAME,
+  absoluteUrl,
+  metaFor,
+  normalizeRoute,
+  robotsContent,
+  type JsonLdNode,
+} from "@/lib/seo";
 import "@fontsource-variable/jost";
 import "@/styles/material.css";
 import "@/styles/icons.css";
@@ -11,6 +23,19 @@ import "@/styles/icons.css";
 interface Props {
   title: string;
   description?: string;
+  // Canonical explícito para rutas estáticas. Si se omite, se usa la ruta
+  // actual del build (Astro.url.pathname).
+  canonicalPath?: string;
+  // Shells con rewrite (/personaje/:slug, /hermandad/:slug…): el canonical
+  // real se resuelve en cliente desde location.pathname; el HTML estático no
+  // declara un canonical ajeno.
+  autoCanonical?: boolean;
+  // 404: no declara canonical (la URL solicitada es arbitraria y no indexable).
+  omitCanonical?: boolean;
+  image?: string;
+  ogType?: 'website' | 'profile' | 'article';
+  noindex?: boolean;
+  jsonLd?: JsonLdNode | JsonLdNode[];
   // Atmósfera de la página (imagen + partículas). La fuente única
   // del markup/engine vive en PageAtmosphere + src/lib/ui/particles.ts.
   // El fondo es GameLoginBg en TODO el portal (default); las páginas solo
@@ -21,7 +46,27 @@ interface Props {
   veil?: number;
 }
 
-const { title, description, background = '/images/GameLoginBg.jpg', particles, veil } = Astro.props;
+const {
+  title,
+  description = metaFor('/').description,
+  canonicalPath,
+  autoCanonical = false,
+  omitCanonical = false,
+  image = DEFAULT_OG_IMAGE,
+  ogType = 'website',
+  noindex = false,
+  jsonLd,
+  background = '/images/GameLoginBg.jpg',
+  particles,
+  veil,
+} = Astro.props;
+
+const canonical =
+  autoCanonical || omitCanonical
+    ? null
+    : absoluteUrl(normalizeRoute(canonicalPath ?? Astro.url.pathname));
+const ogImage = absoluteUrl(image);
+const robots = robotsContent(noindex);
 
 // En dev el pipeline cliente no expone VITE_* en import.meta.env;
 // se pasan por SSR al cliente vía window.__RD_ENV__ (ver src/lib/supabase.ts)
@@ -30,7 +75,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es-CO">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -44,62 +89,66 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
         color-scheme: dark;
       }
     </style>
-    <meta
-      name="description"
-      content={description ?? "Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."}
-    />
-    <meta
-      name="keywords"
-      content="comunidad, raid, dominion, tools, addon, world, warcraft, 3.3.5a, macro, ayuda, compacto, fácil"
-    />
-    <meta name="robots" content="index, follow" />
-    <meta name="author" content="Andrés Muñoz" />
-    <meta name="language" content="es" />
-    <meta name="revisit-after" content="7 days" />
-    <link rel="canonical" href="https://raid-dominion.netlify.app/" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="author" content={SITE_NAME} />
+    <meta name="theme-color" content="#00BFFF" />
+
+    {canonical && <link rel="canonical" href={canonical} />}
+    {autoCanonical && (
+      <script is:inline>
+        (function () {
+          var path = window.location.pathname.replace(/\/+$/, '') || '/';
+          var url = window.location.origin + path;
+          var canonical = document.querySelector('link[rel="canonical"]');
+          if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+          }
+          canonical.setAttribute('href', url);
+          canonical.setAttribute('data-rd-auto-canonical', '');
+          var ogUrl = document.querySelector('meta[property="og:url"]');
+          if (!ogUrl) {
+            ogUrl = document.createElement('meta');
+            ogUrl.setAttribute('property', 'og:url');
+            document.head.appendChild(ogUrl);
+          }
+          ogUrl.setAttribute('content', url);
+        })();
+      </script>
+    )}
+
     <!-- Open Graph Meta Tags -->
-    <meta
-      property="og:title"
-      content="Comunidad Raid Dominion"
-    />
-    <meta
-      property="og:description"
-      content="Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://raid-dominion.netlify.app/" />
-    <meta
-      property="og:image"
-      content="https://raid-dominion.netlify.app/logo.png"
-    />
-    <meta
-      property="og:site_name"
-      content="Comunidad Raid Dominion"
-    />
-    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    {!autoCanonical && canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={DEFAULT_OG_IMAGE_ALT} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:locale" content={LOCALE} />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Comunidad Raid Dominion"
-    />
-    <meta
-      name="twitter:description"
-      content="Addon para World of Warcraft 3.3.5a para liderar bandas. Compacto y fácil de usar."
-    />
-    <meta
-      name="twitter:image"
-      content="https://raid-dominion.netlify.app/logo.png"
-    />
-    <!-- <meta name="twitter:site" content="@tu_usuario" /> -->
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={DEFAULT_OG_IMAGE_ALT} />
 
-    <!-- Favicon -->
+    <!-- Iconos -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+    {jsonLd && <JsonLd data={jsonLd} />}
+
     <!-- Fondo de atmósfera precargado: queda decodificado antes del primer
          pintado (sin pop-in) y el encuadre `cover` no reajusta al aparecer. -->
     {background && <link rel="preload" as="image" href={background} fetchpriority="high" />}
-    <title>{title}</title>
     <!-- Registro de visitas (estilo guild-portal): beacon a /api/visit con la
          sección visitada. La visita jamás bloquea la navegación. -->
     <script is:inline>
@@ -168,7 +217,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     </script>
   </head>
   <body class="rd-bg relative flex flex-col min-h-[100dvh]">
-    <script define:vars={{ rdEnvUrl, rdEnvKey }}>
+    <script is:inline define:vars={{ rdEnvUrl, rdEnvKey }}>
       window.__RD_ENV__ = { url: rdEnvUrl || "", key: rdEnvKey || "" };
     </script>
     <!-- Contexto de apilado de la página (isolation): permite que la atmósfera

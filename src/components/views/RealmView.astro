@@ -91,6 +91,7 @@
     type CharacterRow, type PublicAccountNames,
   } from '@/lib/api';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
+  import { setPageMeta } from '@/lib/seo';
   import { supabase } from '@/lib/supabase';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
   import { resolveBandOwners, mergeDirectoryBands } from '@/lib/bandListing';
@@ -147,7 +148,18 @@
       return;
     }
 
-    document.title = `${realm} - RaidDominion`;
+    const realmPath = `/servidor/${encodeURIComponent(server)}/reino/${slugify(realm)}`;
+    setPageMeta({
+      title: `${realm} — Reino de ${server} | RaidDominion`,
+      description: `Hermandades, personajes y bandas públicas del reino ${realm} en ${server}, World of Warcraft 3.3.5a.`,
+      path: realmPath,
+      breadcrumbs: [
+        { name: 'Inicio', path: '/' },
+        { name: 'Servidores', path: '/servidores' },
+        { name: server, path: `/servidor/${encodeURIComponent(server)}` },
+        { name: realm, path: realmPath },
+      ],
+    });
     (document.getElementById('rv-realm') as HTMLElement).textContent = realm;
     setBreadcrumb(realm);
 

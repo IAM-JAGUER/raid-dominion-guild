@@ -7,11 +7,22 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META, breadcrumbSchema, collectionPageSchema } from '@/lib/seo';
+
+const meta = PAGE_META['/bandas'];
+const jsonLd = [
+  collectionPageSchema('Bandas de raid públicas de WoW 3.3.5a', meta.description, '/bandas'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Bandas', path: '/bandas' },
+  ]),
+];
 ---
 
 <Layout
-  title="Bandas - RaidDominion"
-  description="Bandas de raid públicas de las hermandades que usan RaidDominion: horario, GS mínimo y roster."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="ember"
 >
   <Navigation currentPath="/bandas" />
@@ -22,7 +33,7 @@ import { ui } from '@/lib/ui/design';
         eyebrow="Directorio público"
         title="Bandas"
         icon="espadas"
-        intro="Bandas de raid públicas de la comunidad: horarios, requisitos de GS y miembros, extraídos de los SavedVariables de cada jugador."
+        intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas extraídos de los SavedVariables de cada jugador."
       />
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
@@ -58,6 +69,16 @@ import { ui } from '@/lib/ui/design';
         ctaCls="transform hover:scale-105"
         align="center"
       />
+      <section class={`${ui.panel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <h2 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>¿Cómo publicar tus bandas?</h2>
+        <p class={`${ui.text.body} leading-relaxed max-w-3xl`}>
+          Registra tus bandas en el addon, sube el SavedVariables y activa su visibilidad. Cada banda puede ser
+          personal o pertenecer a tu hermandad, con horario, gearscore mínimo y reglas propias.
+        </p>
+        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>Subir SavedVariables</a>
+      </section>
+
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>

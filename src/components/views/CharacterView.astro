@@ -92,6 +92,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { getPublicCharacterBySlug, getPublicBandsForCharacter, getPublicGuildByOwner, getPublicAccountNames, type CharacterRow } from '@/lib/api';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
+  import { profilePageSchema, setPageMeta } from '@/lib/seo';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
@@ -133,7 +134,21 @@ import Icon from '@/components/ui/Icon.astro';
   }
 
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
-    document.title = `${c.name}${c.realm ? ' - ' + c.realm : ''} - RaidDominion`;
+    const slug = c.slug ?? currentSlug();
+    const path = `/personaje/${slug}`;
+    const description = `Ficha de ${c.name}${c.realm ? ` de ${c.realm}` : ''}: equipo, iLevel, metas, instancias y bandas públicas en RaidDominion.`;
+    setPageMeta({
+      title: `${c.name}${c.realm ? ' — ' + c.realm : ''} — Personaje | RaidDominion`,
+      description,
+      path,
+      type: 'profile',
+      breadcrumbs: [
+        { name: 'Inicio', path: '/' },
+        { name: 'Personajes', path: '/personajes' },
+        { name: c.name, path },
+      ],
+      jsonLd: profilePageSchema(`${c.name} — RaidDominion`, description, path),
+    });
     (document.getElementById('pv-name') as HTMLElement).textContent = c.name;
     setBreadcrumb(c.name);
 

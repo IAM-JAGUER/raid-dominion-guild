@@ -2,13 +2,47 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META, breadcrumbSchema, faqSchema, howToSchema, webPageSchema } from '@/lib/seo';
+import { UPLOAD_FAQ } from '@/data/faq';
+
+const meta = PAGE_META['/upload'];
+const subscribeSteps = [
+  {
+    name: 'Instala el addon',
+    text: 'Descomprime la carpeta RaidDominion en Interface/AddOns y reinicia World of Warcraft 3.3.5a.',
+  },
+  {
+    name: 'Registra tu personaje',
+    text: 'Abre el menú con /rd, entra en RaidDominion > Registrar y cierra el juego para guardar el SavedVariables.',
+  },
+  {
+    name: 'Localiza RaidDominion.lua',
+    text: 'Busca el archivo en WTF/Account/<tu cuenta>/SavedVariables/RaidDominion.lua.',
+  },
+  {
+    name: 'Sube el archivo al portal',
+    text: 'Arrastra RaidDominion.lua a /upload, revisa la vista previa y guarda el análisis con tu cuenta.',
+  },
+];
+
+const jsonLd = [
+  webPageSchema('Subir SavedVariables', meta.description, '/upload'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Subir SavedVariables', path: '/upload' },
+  ]),
+  howToSchema('Cómo subir tu SavedVariables de RaidDominion', 'Instala el addon, registra tu personaje y sube el archivo para publicar tu perfil o el portal de tu hermandad.', subscribeSteps),
+  faqSchema(UPLOAD_FAQ),
+];
 ---
 
 <Layout
-  title="Sube tu SavedVariables - RaidDominion"
-  description="Sube tu RaidDominion.lua y visualiza el roster y las bandas de tu hermandad."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="arcane"
 >
   <Navigation currentPath="/upload" />
@@ -49,7 +83,7 @@ import { ui } from '@/lib/ui/design';
         <p class={`${ui.text.caption} mt-3 text-center`}>
           ¿Cómo lo obtengo? En el juego abre el menú con <code class="text-brand-300">/rd</code> →
           RaidDominion &gt; Registrar y busca el archivo en tu
-          <code class="text-brand-300">WTF/Account/&lt;cuenta&gt;/SavedVariables</code>
+          <code class="text-brand-300 break-words">WTF/Account/&lt;cuenta&gt;/SavedVariables</code>
           · <a href="/#guide-primeros-pasos" class="text-brand-300 underline hover:text-brand-200">Ver guía</a>
         </p>
 
@@ -59,8 +93,39 @@ import { ui } from '@/lib/ui/design';
         <div id="warnings" class="mt-4 space-y-2"></div>
       </section>
 
+      <!-- Contexto estático: ubicación, datos publicados y privacidad -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" aria-label="Qué necesitas saber antes de subir">
+        <article class={`${ui.card} relative overflow-hidden p-5`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <div class={`${ui.iconTile} ${ui.iconTileMd} mb-3`}><Icon name="bandeja" size="md" /></div>
+          <h2 class={`${ui.text.h3} text-brand-200 mb-2`}>Dónde está el archivo</h2>
+          <p class={`${ui.text.caption} leading-relaxed`}>
+            Tras usar Registrar y cerrar el juego, busca
+            <code class="text-brand-300 break-words">WTF/Account/&lt;cuenta&gt;/SavedVariables/RaidDominion.lua</code>.
+          </p>
+        </article>
+        <article class={`${ui.card} relative overflow-hidden p-5`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <div class={`${ui.iconTile} ${ui.iconTileMd} mb-3`}><Icon name="visibilidad" size="md" /></div>
+          <h2 class={`${ui.text.h3} text-brand-200 mb-2`}>Qué se publica</h2>
+          <p class={`${ui.text.caption} leading-relaxed`}>
+            Personaje, equipo, iLevel, metas, instancias, bandas y hermandad. Las notas privadas
+            solo se muestran si activas su visibilidad.
+          </p>
+        </article>
+        <article class={`${ui.card} relative overflow-hidden p-5`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <div class={`${ui.iconTile} ${ui.iconTileMd} mb-3`}><Icon name="bloqueo-alt" size="md" /></div>
+          <h2 class={`${ui.text.h3} text-brand-200 mb-2`}>Cuenta y privacidad</h2>
+          <p class={`${ui.text.caption} leading-relaxed`}>
+            Puedes analizar el archivo sin cuenta; para guardarlo y publicar tu perfil necesitas
+            iniciar sesión. Tú decides qué personajes y bandas son visibles.
+          </p>
+        </article>
+      </section>
+
       <!-- Resultado -->
-      <section id="result" data-rd-reveal class="hidden space-y-6">
+      <section id="result" data-rd-reveal data-nosnippet class="hidden space-y-6">
         <!-- Claim de maestro (solo vía SV; sin formularios) -->
         <div id="claim-banner" data-rd-reveal class={`hidden relative p-4 sm:p-6 ${ui.plaque}`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
@@ -126,6 +191,25 @@ import { ui } from '@/lib/ui/design';
         <h2 class={`${ui.text.h2} text-red-300 mb-2`}>No se pudo procesar el archivo</h2>
         <p id="error-msg" class="text-sm text-red-200/80"></p>
       </section>
+
+      <!-- FAQ de la subida (mismo texto que el FAQPage de /upload) -->
+      <section id="faq" class="mt-12" aria-labelledby="upload-faq-title">
+        <SectionHeader title="Preguntas sobre la subida" subtitle="Cuenta, privacidad y archivos múltiples." />
+        <div class="grid md:grid-cols-2 gap-4 items-start">
+          {UPLOAD_FAQ.map((item, index) => (
+            <details class={`${ui.disclosure} group`} open={index === 0}>
+              <summary class={ui.disclosureSummary}>
+                <span>{item.question}</span>
+                <Icon name="brujula-alt" size="xs" class="shrink-0 transition-transform group-open:rotate-90" />
+              </summary>
+              <div class={ui.disclosureBody}>
+                <p class={`${ui.text.body} leading-relaxed`}>{item.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>

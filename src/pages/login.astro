@@ -4,11 +4,15 @@ import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/login'];
 ---
 
 <Layout
-  title="Iniciar Sesión - RaidDominion"
-  description="Inicia sesión o crea tu cuenta en el portal comunitario de RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  noindex={meta.noindex}
   particles="frost"
 >
   <Navigation currentPath="/login" />
@@ -18,7 +22,7 @@ import { ui } from '@/lib/ui/design';
       <!-- Encabezado con logo (placa: el texto no se disuelve sobre la imagen) -->
       <header class={`relative text-center px-6 py-6 animate-fade-in-1 ${ui.plaque}`}>
         <span class={ui.cardTop} aria-hidden="true"></span>
-        <img src="/logo.png" alt="Raid Dominion" class="h-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(0,191,255,0.35)]" loading="eager" decoding="async" />
+        <img src="/logo.png" alt="Logo de RaidDominion" width="64" height="64" class="h-16 w-16 mx-auto mb-4 drop-shadow-[0_0_12px_rgba(0,191,255,0.35)]" loading="eager" decoding="async" />
         <h1 class={`${ui.titleHero}`}>
           <span id="form-title">Iniciar Sesión</span>
         </h1>

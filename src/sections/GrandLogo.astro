@@ -8,17 +8,21 @@ import { APP_URLS } from '@/utils/constants';
   <!-- Placa de identidad: el título no se disuelve sobre la imagen -->
   <div class={`relative mt-8 mb-8 max-w-2xl px-6 py-5 text-center ${ui.plaque} animate-fade-in-1`}>
     <span class={ui.cardTop} aria-hidden="true"></span>
-    <p class={ui.eyebrow}>Addon de World of Warcraft 3.3.5a</p>
+    <p class={ui.eyebrow}>Addon para World of Warcraft 3.3.5a (WotLK)</p>
     <h1 class={`${ui.gradientTitle} ${ui.ornament} mt-2 text-3xl md:text-4xl font-black italic`}>
-      RaidDominion
+      RaidDominion: addon de bandas y hermandades
     </h1>
+    <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
+      Organiza roles, buffs, reglas y botín en tu banda. Sube el SavedVariables y publica el
+      roster de tu hermandad en un portal web gratuito.
+    </p>
   </div>
 
   <!-- Logo limpio: sin marco ni sombra -->
   <div class="relative mb-8 animate-fade-in-1" style="animation-delay: 0.3s">
     <img
       src="/logo.png"
-      alt="Raid Dominion"
+      alt="RaidDominion, addon de bandas para World of Warcraft 3.3.5a"
       width="280"
       height="280"
       fetchpriority="high"

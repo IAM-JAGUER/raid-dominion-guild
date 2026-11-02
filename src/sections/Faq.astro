@@ -1,0 +1,65 @@
+---
+// FAQ + glosario de la landing. El texto visible es la fuente del FAQPage
+// JSON-LD (src/lib/seo.ts → faqSchema(HOME_FAQ)); no dupliques respuestas.
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { ui } from '@/lib/ui/design';
+import { GLOSSARY, HOME_FAQ } from '@/data/faq';
+---
+
+<section id="faq" class="scroll-mt-16 py-8">
+  <SectionHeader
+    title="Preguntas frecuentes"
+    subtitle="Lo esencial del addon, el SavedVariables y los portales de hermandad."
+  />
+
+  <div class="grid lg:grid-cols-2 gap-4 items-start">
+    {HOME_FAQ.map((item, index) => (
+      <details class={`${ui.disclosure} group`} open={index === 0}>
+        <summary class={ui.disclosureSummary}>
+          <span class="flex items-baseline gap-2">
+            <span class="text-brand-400 font-black tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+            <span>{item.question}</span>
+          </span>
+          <Icon name="brujula-alt" size="xs" class="shrink-0 transition-transform group-open:rotate-90" />
+        </summary>
+        <div class={ui.disclosureBody}>
+          <p class={`${ui.text.body} leading-relaxed`}>{item.answer}</p>
+        </div>
+      </details>
+    ))}
+  </div>
+
+  <div class="mt-10">
+    <SectionHeader
+      title="Glosario de banda"
+      subtitle="Los términos que aparecen en el addon y en los directorios."
+    />
+    <dl class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {GLOSSARY.map((item) => (
+        <div class={`${ui.surf.row} p-5`}>
+          <dt class={`${ui.text.h3} text-brand-200 mb-2`}>{item.term}</dt>
+          <dd class={`${ui.text.caption} leading-relaxed`}>{item.definition}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+
+  <div class={`${ui.panel} relative overflow-hidden mt-10 p-6 text-center`}>
+    <span class={ui.cardTop} aria-hidden="true"></span>
+    <h3 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>¿Listo para probarlo?</h3>
+    <p class={`${ui.text.bodyMuted} max-w-xl mx-auto mb-5`}>
+      Descarga el addon para WoW 3.3.5a o sube el SavedVariables que ya tienes y mira tu roster en el portal.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>
+        <Icon name="subir" size="sm" />
+        Subir SavedVariables
+      </a>
+      <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>
+        <Icon name="hermandad" size="sm" />
+        Ver hermandades
+      </a>
+    </div>
+  </div>
+</section>

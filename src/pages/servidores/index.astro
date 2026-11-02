@@ -2,11 +2,22 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
+import { PAGE_META, breadcrumbSchema, collectionPageSchema } from '@/lib/seo';
+
+const meta = PAGE_META['/servidores'];
+const jsonLd = [
+  collectionPageSchema('Servidores y reinos de WoW 3.3.5a', meta.description, '/servidores'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Servidores', path: '/servidores' },
+  ]),
+];
 ---
 
 <Layout
-  title="Servidores - RaidDominion"
-  description="Servidores y reinos con hermandades y personajes públicos de la comunidad RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="frost"
 >
   <Navigation currentPath="/servidores" />
@@ -16,8 +27,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
         hero="Servidores"
         panelIcon="servidor"
         heroTitleCls="rd-title rd-ornament"
-        intro="Reinos con hermandades y personajes públicos, derivados de los SavedVariables subidos por la comunidad."
+        intro="Explora servidores y reinos de WoW 3.3.5a con hermandades, personajes y bandas públicas. Los datos se derivan de los SavedVariables que la comunidad decide compartir."
         loadingText="Cargando servidores…"
+        context={{
+          title: '¿Qué es un servidor en RaidDominion?',
+          text: 'El servidor es la dirección realmlist del cliente de WoW 3.3.5a (por ejemplo, logon.ejemplo.com). Cada servidor agrupa reinos, y cada reino reúne las hermandades, personajes y bandas públicas registradas.',
+          cta: { label: 'Subir SavedVariables', href: '/upload' },
+        }}
         gridLabel="Listado de servidores"
         empty={{
           icon: 'servidor',

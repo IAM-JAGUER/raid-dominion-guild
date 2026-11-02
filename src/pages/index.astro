@@ -2,14 +2,28 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
+import AddonOverview from '@/sections/AddonOverview.astro';
 import Donations from '@/sections/Donations.astro';
 import AddonSection from '@/sections/AddonSection.astro';
+import Faq from '@/sections/Faq.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META, faqSchema, organizationSchema, softwareApplicationSchema, websiteSchema } from '@/lib/seo';
+import { HOME_FAQ } from '@/data/faq';
+import { ADDON_FEATURES } from '@/utils/constants';
+
+const meta = PAGE_META['/'];
+const jsonLd = [
+  organizationSchema(),
+  websiteSchema(),
+  softwareApplicationSchema(ADDON_FEATURES.map((feature) => feature.title)),
+  faqSchema(HOME_FAQ),
+];
 ---
 
 <Layout
-	title="RaidDominion - Addon World of Warcraft 3.3.5a"
-	description="Addon gratuito para WoW 3.3.5a: organiza bandas, roles y buffs. Sube tu SavedVariables y publica el portal de tu hermandad."
+	title={meta.title}
+	description={meta.description}
+	jsonLd={jsonLd}
 	particles="snow"
 >
 	<Navigation />
@@ -27,6 +41,11 @@ import { ui } from '@/lib/ui/design';
 				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 				<div class={`${ui.dividerFadeRight} my-8`} aria-hidden="true"></div>
 
+				<!-- Presentación editorial: qué es, funciones, audiencias y pasos -->
+				<AddonOverview />
+
+				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
+
 				<!-- Sección Addon -->
 				<AddonSection />
 
@@ -36,6 +55,11 @@ import { ui } from '@/lib/ui/design';
 				<section id="donaciones" class="scroll-mt-16">
 					<Donations></Donations>
 				</section>
+
+				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
+
+				<!-- FAQ + glosario (contenido AEO; mismo texto que el FAQPage) -->
+				<Faq />
 
 				<!-- Separador derecho: cierra el contenido principal. -->
 				<div class={`${ui.dividerFadeLeft} my-8`} aria-hidden="true"></div>

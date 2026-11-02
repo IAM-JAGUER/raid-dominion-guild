@@ -15,19 +15,40 @@ import type { ParticleVariant } from '@/lib/ui/particles';
 interface Props {
   title: string;
   description?: string;
+  // La ficha se sirve por rewrite: el canonical real se resuelve en cliente.
+  autoCanonical?: boolean;
+  noindex?: boolean;
   // Atmósfera de la ficha (se reenvía al Layout: imagen + partículas).
   background?: string;
   particles?: ParticleVariant;
   veil?: number;
 }
-const { title, description, background, particles, veil } = Astro.props;
+const {
+  title,
+  description,
+  autoCanonical = false,
+  noindex = false,
+  background,
+  particles,
+  veil,
+} = Astro.props;
 ---
 
-<Layout title={title} description={description} background={background} particles={particles} veil={veil}>
+<Layout
+  title={title}
+  description={description}
+  autoCanonical={autoCanonical}
+  noindex={noindex}
+  background={background}
+  particles={particles}
+  veil={veil}
+>
   <Navigation />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
       <Breadcrumb />
+
+      <noscript><style>#loading { display: none; }</style></noscript>
 
       <!-- Cargando -->
       <LoadingBlock id="loading" text="Cargando…" />
@@ -42,6 +63,35 @@ const { title, description, background, particles, veil } = Astro.props;
 
       <!-- Vistas de la ficha (cada una se auto-activa según el primer segmento) -->
       <slot />
+
+      <!-- Contenido estático de la ficha: da contexto a lectores sin JS y a
+           crawlers que no ejecutan el cliente, y enlaza los directorios. -->
+      <section class="mt-12" aria-labelledby="rd-ficha-info">
+        <div class={`${ui.panel} p-5 sm:p-7`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <h2 id="rd-ficha-info" class={`${ui.text.h2} text-brand-200 mb-3`}>Sobre esta ficha</h2>
+          <p class={`${ui.text.body} mb-3`}>
+            Las fichas públicas de RaidDominion se generan con los datos que cada jugador comparte al subir
+            su <code class="text-brand-300">RaidDominion.lua</code>: equipo, iLevel, metas, instancias, bandas
+            y hermandad. La visibilidad la decide el dueño del perfil.
+          </p>
+          <p class={`${ui.text.bodyMuted}`}>
+            Explora el <a href="/personajes" class="text-brand-300 underline hover:text-brand-200">directorio de personajes</a>,
+            las <a href="/bandas" class="text-brand-300 underline hover:text-brand-200">bandas de raid</a> o las
+            <a href="/hermandades" class="text-brand-300 underline hover:text-brand-200">hermandades</a> de WoW 3.3.5a.
+            Si ya usas el addon, <a href="/upload" class="text-brand-300 underline hover:text-brand-200">sube tu SavedVariables</a>.
+          </p>
+        </div>
+        <noscript>
+          <div class={`${ui.status.info} mt-4 rounded-md p-4 text-sm`}>
+            Esta ficha carga sus datos con JavaScript. También puedes explorar los directorios públicos de
+            <a href="/personajes" class="underline">personajes</a>,
+            <a href="/bandas" class="underline">bandas</a>,
+            <a href="/hermandades" class="underline">hermandades</a> y
+            <a href="/servidores" class="underline">servidores</a>.
+          </div>
+        </noscript>
+      </section>
     </div>
   </main>
 </Layout>

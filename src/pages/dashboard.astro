@@ -5,13 +5,16 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
 import Icon from "@/components/ui/Icon.astro";
 import { ui } from "@/lib/ui/design";
+import { PAGE_META } from "@/lib/seo";
 
 const ctaVacio = `${ui.btnBase} ${ui.btnPrimary} px-6 py-3 text-sm`;
+const meta = PAGE_META['/dashboard'];
 ---
 
 <Layout
-  title="Mi Dashboard - RaidDominion"
-  description="Tu addon en la comunidad RaidDominion: registro, bandas, hermandad y perfil."
+  title={meta.title}
+  description={meta.description}
+  noindex={meta.noindex}
   particles="arcane"
 >
   <Navigation currentPath="/dashboard" />

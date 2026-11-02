@@ -1,0 +1,42 @@
+# RaidDominion
+
+> Addon gratuito para World of Warcraft 3.3.5a (WotLK) y portal comunitario para organizar bandas y publicar el roster de una hermandad. El addon registra personajes, equipo, metas, instancias, bandas y reglas; el portal convierte el SavedVariables en fichas y directorios públicos.
+
+## Qué es
+
+RaidDominion ayuda a líderes y jugadores de WoW 3.3.5a a preparar y dirigir bandas: composición, roles, buffs, reglas, botín y horarios. El portal complementa al addon con fichas de personaje, directorios de bandas, hermandades, jugadores y servidores, y un portal web gratuito para cada hermandad. No hay formularios de hermandad: los datos llegan desde el archivo RaidDominion.lua.
+
+- Cliente: World of Warcraft 3.3.5a (Wrath of the Lich King).
+- Addon y portal: gratuitos.
+- Formato de datos: SavedVariables de World of Warcraft (RaidDominion.lua).
+- Instalación: descomprimir en Interface/AddOns y reiniciar el cliente; menú con /rd.
+- Registro: menú RaidDominion > Registrar; el archivo se guarda en WTF/Account/<cuenta>/SavedVariables/RaidDominion.lua.
+- Cuenta: visitante por defecto; member al registrar al menos 2 personajes; guild_master al acreditar rango de maestro en el SavedVariables.
+
+## Páginas clave
+
+- [Inicio y guía del addon](https://raid-dominion.netlify.app/): presentación, funciones, guías, preguntas frecuentes y glosario.
+- [Subir SavedVariables](https://raid-dominion.netlify.app/upload): análisis del archivo y creación del perfil o portal.
+- [Directorio de hermandades](https://raid-dominion.netlify.app/hermandades): portales públicos con roster, bandas y reglas.
+- [Bandas de raid](https://raid-dominion.netlify.app/bandas): bandas públicas por día, tipo, horario y gearscore mínimo.
+- [Personajes](https://raid-dominion.netlify.app/personajes): fichas con equipo, iLevel, metas e instancias.
+- [Jugadores](https://raid-dominion.netlify.app/jugadores): perfiles públicos de las cuentas.
+- [Servidores y reinos](https://raid-dominion.netlify.app/servidores): hermandades, personajes y bandas por servidor y reino.
+
+## Preguntas frecuentes
+
+- ¿Qué es RaidDominion? Un addon gratuito para WoW 3.3.5a y un portal para organizar bandas y hermandades.
+- ¿Es gratis? Sí; las donaciones son opcionales.
+- ¿Para qué versión funciona? World of Warcraft 3.3.5a (WotLK) y servidores privados de esa versión.
+- ¿Cómo instalo el addon? Descomprime la carpeta en Interface/AddOns, reinicia el cliente y abre el menú con /rd.
+- ¿Dónde está el SavedVariables? En WTF/Account/<cuenta>/SavedVariables/RaidDominion.lua.
+- ¿Qué se publica? Los datos que el addon registra; las notas privadas solo si su dueño activa su visibilidad.
+- ¿Cómo obtengo el portal de mi hermandad? Sube un SavedVariables con rango de maestro (isGM) y valida al menos un personaje; el portal se crea y se publica desde el dashboard.
+- ¿Qué es el gearscore? Una cifra de referencia del equipo; el addon permite fijar un GS mínimo por banda.
+
+## Enlaces de comunidad
+
+- Discord: https://discord.gg/BwdpNV9sky
+- YouTube: https://www.youtube.com/@IAM-GAMECODE
+- Repositorio del portal: https://github.com/IAM-DEV88/raid-dominion-guild
+- Descarga del addon: https://github.com/IAM-DEV88/RaidDominion/archive/refs/heads/main.zip

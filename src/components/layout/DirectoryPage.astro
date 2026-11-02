@@ -40,6 +40,13 @@ interface Props {
   gridLabel: string;
   // Config del estado vacío (toggle #empty).
   empty: EmptyConfig;
+  // Bloque editorial de cierre: explica cómo aparecer en el directorio y
+  // añade contenido estático indexable (además del listado cliente).
+  context?: {
+    title: string;
+    text: string;
+    cta?: { label: string; href: string } | null;
+  };
   // Clases del separador CENTRAL tras el header (por defecto `mt-6`).
   dividerCls?: string;
   // Clases extra del h1 (p. ej. `rd-title rd-ornament`).
@@ -55,6 +62,7 @@ const {
   loadingText,
   gridLabel,
   empty,
+  context,
   dividerCls = 'mt-6',
   heroTitleCls = '',
 } = Astro.props;
@@ -94,4 +102,17 @@ const {
   ctaCls={empty.ctaCls}
   align="center"
 />
+
+{context && (
+  <section class={`${ui.panel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
+    <span class={ui.cardTop} aria-hidden="true"></span>
+    <h2 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>{context.title}</h2>
+    <p class={`${ui.text.body} leading-relaxed max-w-3xl`}>{context.text}</p>
+    {context.cta && (
+      <a href={context.cta.href} class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>
+        {context.cta.label}
+      </a>
+    )}
+  </section>
+)}
 <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>

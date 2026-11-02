@@ -1,0 +1,19 @@
+---
+// Render de datos estructurados JSON-LD.
+// Acepta un nodo o una lista (se envuelve en @graph) y escapa "<" para que
+// ningún texto editorial pueda cerrar el <script> antes de tiempo.
+import type { JsonLdNode } from '@/lib/seo';
+
+interface Props {
+  data: JsonLdNode | JsonLdNode[];
+  id?: string;
+}
+
+const { data, id = 'rd-page-ld' } = Astro.props as Props;
+const payload = Array.isArray(data)
+  ? { '@context': 'https://schema.org', '@graph': data }
+  : data;
+const json = JSON.stringify(payload).replace(/</g, '\\u003c');
+---
+
+<script is:inline id={id} type="application/ld+json" set:html={json} />

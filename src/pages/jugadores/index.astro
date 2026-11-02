@@ -5,11 +5,22 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
+import { PAGE_META, breadcrumbSchema, collectionPageSchema } from '@/lib/seo';
+
+const meta = PAGE_META['/jugadores'];
+const jsonLd = [
+  collectionPageSchema('Jugadores con perfil público', meta.description, '/jugadores'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Jugadores', path: '/jugadores' },
+  ]),
+];
 ---
 
 <Layout
-  title="Jugadores - RaidDominion"
-  description="Jugadores de la comunidad RaidDominion con perfil público: cuenta, personaje principal y hermandad."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="arcane"
 >
   <Navigation currentPath="/jugadores" />
@@ -19,8 +30,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
         hero="Jugadores"
         panelIcon="jugadores"
         heroTitleCls="rd-title rd-ornament"
-        intro="Cuentas de la comunidad con perfil público. Cada jugador enlaza a su página de perfil con sus personajes y bandas visibles."
+        intro="Conoce a los jugadores de la comunidad con perfil público. Cada cuenta enlaza a sus personajes, hermandades y bandas visibles en World of Warcraft 3.3.5a."
         loadingText="Cargando jugadores…"
+        context={{
+          title: '¿Cómo activar tu perfil público?',
+          text: 'Inicia sesión, sube tu SavedVariables y activa la visibilidad de tu perfil desde el dashboard. El perfil reúne tus personajes públicos, tu hermandad y tus bandas sin exponer datos privados.',
+          cta: { label: 'Subir SavedVariables', href: '/upload' },
+        }}
         gridLabel="Listado de jugadores"
         empty={{
           icon: 'perfil',

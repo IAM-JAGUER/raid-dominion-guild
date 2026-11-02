@@ -71,6 +71,7 @@ import Icon from '@/components/ui/Icon.astro';
   import { getBandBySlug, listGuildPortalBands, getPublicAccountNames, getPublicCharacterSlugsByNames, getGuildBandIntegrationRules, type BandRow } from '@/lib/api';
   import { supabase } from '@/lib/supabase';
   import { currentSlug, showNotFound, showView } from '@/lib/routes';
+  import { setPageMeta } from '@/lib/seo';
   import { renderBandCore, coreRoleGroup, CORE_ROLE_LABELS } from '@/lib/ui/preview';
   import { classIconEl } from '@/lib/ui/classIcon';
   import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
@@ -120,7 +121,19 @@ import Icon from '@/components/ui/Icon.astro';
   }
 
   async function render(band: BandRow, isOwner: boolean): Promise<void> {
-    document.title = `${band.name || 'Banda'} - RaidDominion`;
+    const bandName = band.name || 'Banda';
+    const path = `/banda/${band.slug}`;
+    const description = `Banda ${bandName}${band.character_realm ? ` de ${band.character_realm}` : ''}: horario, gearscore mínimo, roster y reglas en RaidDominion.`;
+    setPageMeta({
+      title: `${bandName} — Banda de raid | RaidDominion`,
+      description,
+      path,
+      breadcrumbs: [
+        { name: 'Inicio', path: '/' },
+        { name: 'Bandas', path: '/bandas' },
+        { name: bandName, path },
+      ],
+    });
     const nameEl = document.getElementById('bv-name') as HTMLElement;
     nameEl.textContent = '';
     const name = bandNameLink(band.name, band.name_link);

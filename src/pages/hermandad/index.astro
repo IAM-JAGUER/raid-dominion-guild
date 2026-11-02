@@ -11,17 +11,23 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/hermandad'];
 ---
 
 <Layout
-  title="Hermandad - RaidDominion"
-  description="Portal público de hermandad de la comunidad RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  autoCanonical
   particles="banner"
 >
   <Navigation />
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
       <Breadcrumb />
+
+      <noscript><style>#loading { display: none; }</style></noscript>
 
       <!-- Cargando -->
       <LoadingBlock id="loading" text="Invocando el portal…" />
@@ -197,6 +203,31 @@ import { ui } from '@/lib/ui/design';
              de servidor y reino (la atribución ★ y la facción quedan arriba). -->
         <div id="guild-context" class={ui.contextStrip}></div>
       </div>
+
+      <!-- Contexto estático del portal: visible sin JS y para crawlers que no
+           ejecutan el cliente. -->
+      <section class="mt-12" aria-labelledby="rd-hermandad-info">
+        <div class={`${ui.panel} p-5 sm:p-7`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <h2 id="rd-hermandad-info" class={`${ui.text.h2} text-brand-200 mb-3`}>Sobre este portal de hermandad</h2>
+          <p class={`${ui.text.body} mb-3`}>
+            Cada portal reúne el roster, las bandas, los horarios y las reglas que el maestro de la
+            hermandad comparte desde el addon RaidDominion. Los datos se actualizan al volver a subir
+            el SavedVariables, sin formularios ni edición manual.
+          </p>
+          <p class={`${ui.text.bodyMuted}`}>
+            Explora el <a href="/hermandades" class="text-brand-300 underline hover:text-brand-200">directorio de hermandades</a>
+            o descubre las <a href="/bandas" class="text-brand-300 underline hover:text-brand-200">bandas de raid</a> de WoW 3.3.5a.
+            Si diriges una guild, <a href="/upload" class="text-brand-300 underline hover:text-brand-200">sube tu SavedVariables</a>.
+          </p>
+          <noscript>
+            <p class={`${ui.status.info} mt-4 rounded-md p-3 text-sm`}>
+              Este portal carga el roster con JavaScript. También puedes consultar el
+              <a href="/hermandades" class="underline">directorio de hermandades</a>.
+            </p>
+          </noscript>
+        </div>
+      </section>
     </div>
   </main>
 </Layout>
@@ -215,6 +246,7 @@ import { ui } from '@/lib/ui/design';
   import { sortRanks } from '@/lib/ui/ranks';
   import { ui } from '@/lib/ui/design';
   import { setBreadcrumb } from '@/lib/ui/dom';
+  import { setPageMeta } from '@/lib/seo';
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
@@ -226,7 +258,11 @@ import { ui } from '@/lib/ui/design';
     const nf = document.getElementById('not-found') as HTMLElement;
     if (msg) (document.getElementById('not-found-msg') as HTMLElement).textContent = msg;
     nf.classList.remove('hidden');
-    document.title = 'Portal no encontrado - RaidDominion';
+    setPageMeta({
+      title: 'Portal no encontrado — RaidDominion',
+      description: 'Esta hermandad no existe o su portal es privado.',
+      noindex: true,
+    });
   }
 
   function metaChip(text: string, icon?: IconName): HTMLElement {
@@ -306,7 +342,25 @@ import { ui } from '@/lib/ui/design';
       showNotFound();
     } else {
       const g = res.guild;
-      document.title = `${g.name} - RaidDominion`;
+      const path = `/hermandad/${g.slug}`;
+      const description = `Portal de la hermandad ${g.name}${g.realm ? ` de ${g.realm}` : ''}: roster, bandas, horarios, reglas y Discord en RaidDominion.`;
+      setPageMeta({
+        title: `${g.name} — Hermandad | RaidDominion`,
+        description,
+        path,
+        breadcrumbs: [
+          { name: 'Inicio', path: '/' },
+          { name: 'Hermandades', path: '/hermandades' },
+          { name: g.name, path },
+        ],
+        jsonLd: {
+          '@type': 'Organization',
+          name: g.name,
+          url: `${window.location.origin}${path}`,
+          ...(g.description ? { description: g.description } : {}),
+          ...(g.discord_link ? { sameAs: [g.discord_link] } : {}),
+        },
+      });
       setBreadcrumb(g.name);
 
       (document.getElementById('guild-name') as HTMLElement).textContent = g.name;

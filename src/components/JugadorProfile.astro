@@ -10,6 +10,8 @@ import { ui } from '@/lib/ui/design';
   <div class="max-w-6xl mx-auto">
     <Breadcrumb />
 
+    <noscript><style>#loading { display: none; }</style></noscript>
+
     <!-- Cargando -->
     <LoadingBlock id="loading" text="Cargando perfil…" />
 
@@ -103,6 +105,30 @@ import { ui } from '@/lib/ui/design';
       <!-- Contexto del jugador (servidor/reino): va DESPUÉS del separador
            final para liberar el encabezado. -->
       <div id="jugador-context" class={ui.contextStrip}></div>
+
+      <!-- Contexto estático del perfil: visible sin JS y para crawlers. -->
+      <section class="mt-12" aria-labelledby="rd-jugador-info">
+        <div class={`${ui.panel} p-5 sm:p-7`}>
+          <span class={ui.cardTop} aria-hidden="true"></span>
+          <h2 id="rd-jugador-info" class={`${ui.text.h2} text-brand-200 mb-3`}>Sobre este perfil de jugador</h2>
+          <p class={`${ui.text.body} mb-3`}>
+            El perfil reúne los personajes que la cuenta decidió hacer públicos, junto con sus
+            hermandades y bandas visibles. La identidad, la visibilidad y las notas privadas las
+            controla el dueño desde su dashboard.
+          </p>
+          <p class={`${ui.text.bodyMuted}`}>
+            Explora el <a href="/jugadores" class="text-brand-300 underline hover:text-brand-200">directorio de jugadores</a>
+            o las <a href="/personajes" class="text-brand-300 underline hover:text-brand-200">fichas de personaje</a> de WoW 3.3.5a.
+            Si quieres aparecer aquí, <a href="/upload" class="text-brand-300 underline hover:text-brand-200">sube tu SavedVariables</a>.
+          </p>
+          <noscript>
+            <p class={`${ui.status.info} mt-4 rounded-md p-3 text-sm`}>
+              Este perfil carga los personajes con JavaScript. También puedes consultar el
+              <a href="/jugadores" class="underline">directorio de jugadores</a>.
+            </p>
+          </noscript>
+        </div>
+      </section>
     </div>
 
   </div>
@@ -121,6 +147,7 @@ import { ui } from '@/lib/ui/design';
   import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
   import { card, cardTop, iconTileEl, serverRealmLinks } from '@/lib/ui/card';
   import { el, chip, iconChip, statChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { profilePageSchema, setPageMeta } from '@/lib/seo';
   import { classColor } from '@/lib/ui/classColors';
   import { renderCharacterCard, renderGuildCard, renderBandCard } from '@/lib/ui/cards';
   import { bandNameLink } from '@/lib/ui/bandName';
@@ -151,7 +178,11 @@ import { ui } from '@/lib/ui/design';
     const cta = document.getElementById('not-found-cta') as HTMLAnchorElement;
     cta.href = '/jugadores';
     cta.textContent = 'Ver jugadores';
-    document.title = 'Perfil no encontrado - RaidDominion';
+    setPageMeta({
+      title: 'Perfil no encontrado — RaidDominion',
+      description: 'Este perfil no existe, es privado o cambió su enlace.',
+      noindex: true,
+    });
   }
 
   const isProfile = isProfileRoute() || !!new URLSearchParams(window.location.search).get('slug');
@@ -195,7 +226,21 @@ import { ui } from '@/lib/ui/design';
     // público (los `chars` ya son solo personajes públicos).
     const publicNames = new Set(chars.map((c) => c.name.toLowerCase()));
     const displayName = safePlayerName(p, { publicNames, fallbackName: main?.name });
-    document.title = `${displayName} - RaidDominion`;
+    const slug = p.slug ?? currentSlug();
+    const path = `/jugador/${slug}`;
+    const description = `Perfil público de ${displayName} en RaidDominion: personajes, hermandades y bandas visibles de World of Warcraft 3.3.5a.`;
+    setPageMeta({
+      title: `${displayName} — Perfil de jugador | RaidDominion`,
+      description,
+      path,
+      type: 'profile',
+      breadcrumbs: [
+        { name: 'Inicio', path: '/' },
+        { name: 'Jugadores', path: '/jugadores' },
+        { name: displayName, path },
+      ],
+      jsonLd: profilePageSchema(`${displayName} — RaidDominion`, description, path),
+    });
     setBreadcrumb(displayName);
 
     // Halo del medallón héroe con el color de clase del personaje principal.

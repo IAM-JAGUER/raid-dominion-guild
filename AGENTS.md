@@ -145,13 +145,14 @@ parser.md → «Markup de chat». Especificación completa: `AGENTS.sections/par
 
 ```
 src/
-├── components/      # UI reutilizable (Navigation, Footer, cards, AddonGuidesGrid, ...)
+├── components/      # UI reutilizable (Navigation, Footer, cards, AddonGuidesGrid, seo/, ...)
 ├── layouts/         # Layout.astro (tema global)
 ├── pages/           # Rutas Astro (/ index, /upload, /login, /dashboard, /hermandad/:slug, /jugador/:slug, /hermandades, fichas)
-├── sections/        # Secciones de la landing (GrandLogo, AddonSection, Donaciones, ...)
-├── data/            # datos estáticos (features, raids.json, addonGuides.ts)
+├── sections/        # Secciones de la landing (GrandLogo, AddonOverview, AddonSection, Faq, Donaciones, ...)
+├── data/            # datos estáticos (features, raids.json, addonGuides.ts, faq.ts)
 ├── lib/
 │   ├── supabase.ts  # cliente tipado
+│   ├── seo.ts       # fuente única SEO/AEO (metas, JSON-LD, setPageMeta)
 │   ├── roles.ts     # roles y helpers
 │   ├── api.ts       # wrappers RPC/queries tipadas
 │   ├── routes.ts    # resolver de rutas públicas
@@ -520,6 +521,19 @@ completo, Configurados en `.env`/Netlify):
   "Público" de cada objetivo; con @everyone y captura del addon).
 
 ## 13. Changelog de este archivo
+
+- **2026-11-02 (SEO/AEO)**: fuente única `src/lib/seo.ts` (canonical, metas,
+  JSON-LD, `setPageMeta`), `Layout.astro` con canonical/OG/Twitter por página
+  y `noindex` en rutas privadas; shells con rewrite resuelven canonical en
+  cliente. Sitemap dinámico `/sitemap.xml` (Netlify Function con datos
+  públicos), `llms.txt`, `robots.txt` con crawlers de IA y `/upload`
+  desbloqueado. Nueva portada editorial (qué es, funciones, pasos, FAQ y
+  glosario), FAQ/HowTo en `/upload`, directorios con contexto estático,
+  guías con enlaces rastreables y fallbacks sin JS en fichas. Ritmo vertical
+  corregido: `PageHeader` delega el margen al esqueleto de divisores y los
+  bloques editoriales de directorios van después de la lista/estado vacío.
+  Sin SQL. Detalle: `src/lib/seo.ts`, `public/llms.txt`,
+  `netlify/functions/sitemap.ts`.
 
 - **2026-10-26 (bandas: enlaces, CTA y acceso del dueño)**: nombre de banda
   centralizado en `src/lib/ui/bandName.ts` (`bandNameLink` + `bandDetailCta`)

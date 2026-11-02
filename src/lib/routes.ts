@@ -11,6 +11,7 @@
 // (middleware dev) y netlify.toml.
 
 import { revealEl } from '@/lib/ui/reveal';
+import { setPageMeta } from '@/lib/seo';
 
 export const RESERVED = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
@@ -60,7 +61,11 @@ export function showNotFound(message?: string): void {
     const msg = document.getElementById('not-found-msg');
     if (msg) msg.textContent = message;
   }
-  document.title = 'No encontrado - RaidDominion';
+  setPageMeta({
+    title: 'No encontrado — RaidDominion',
+    description: 'El contenido que buscas no existe, es privado o cambió su enlace.',
+    noindex: true,
+  });
 }
 
 // Oculta el cargando y muestra un contenedor de vista (id dado).

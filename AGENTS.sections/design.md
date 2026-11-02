@@ -606,6 +606,18 @@ pestañas y cuerpo de paneles, cada uno con su ritmo y su contenedor. Reglas:
 
 ## Historial de enmiendas
 
+- **2026-11-02 (landing editorial y SEO)**: la portada suma `AddonOverview`
+  (qué es, funciones, audiencias y pasos) y `Faq` (FAQ + glosario) reutilizando
+  los tokens existentes (`ui.panel`, `ui.card`, `ui.disclosure`,
+  `ui.sectionTitle`, `ui.iconTile`), sin tokens nuevos. Las cards de las guías
+  pasan de `<button>` a `<a href="#guide-…">` y sus títulos a `h3`; los paneles
+  siguen siendo el lector colapsable. `Layout.astro` gana metadatos por página
+  (canonical/OG/Twitter), `theme-color`, iconos PNG y JSON-LD. Sin cambios de
+  datos ni de la dirección de arte. Ritmo vertical: `PageHeader` ya no suma
+  margen propio (lo aporta el esqueleto de divisores), los bloques editoriales
+  de directorios van después de la lista/estado vacío con `mt-10` y las
+  secciones de `AddonOverview` se separan con `mt-14 sm:mt-16`.
+
 - **2026-10-26 (bandas: enlaces, CTA y acceso del dueño)**: `bandName.ts`
   centraliza el nombre enriquecido y el CTA **“Ver banda”** junto al nombre en
   cards públicas, tracker, dashboard, preview, fallbacks sin slug y admin. Las

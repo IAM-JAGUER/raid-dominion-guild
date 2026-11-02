@@ -41,6 +41,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
 <script>
   import { getServerRealms } from '@/lib/api';
   import { currentSegments, showNotFound, showView, slugify } from '@/lib/routes';
+  import { setPageMeta } from '@/lib/seo';
   import { cardLink, cardTitle, iconTileEl } from '@/lib/ui/card';
   import { ui } from '@/lib/ui/design';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
@@ -65,7 +66,17 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   }
 
   async function render(server: string, realms: string[]): Promise<void> {
-    document.title = `${server} - RaidDominion`;
+    const path = `/servidor/${encodeURIComponent(server)}`;
+    setPageMeta({
+      title: `${server} — Servidor | RaidDominion`,
+      description: `Reinos, hermandades y personajes públicos de ${server} en World of Warcraft 3.3.5a. Explora la ficha del servidor en RaidDominion.`,
+      path,
+      breadcrumbs: [
+        { name: 'Inicio', path: '/' },
+        { name: 'Servidores', path: '/servidores' },
+        { name: server, path },
+      ],
+    });
     (document.getElementById('sv-server') as HTMLElement).textContent = server;
     setBreadcrumb(server);
 

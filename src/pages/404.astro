@@ -6,11 +6,16 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/404'];
 ---
 
 <Layout
-  title="404 - RaidDominion"
-  description="La página que buscas no existe en el portal de RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  noindex={meta.noindex}
+  omitCanonical
   particles="frost"
 >
   <Navigation />

@@ -2,11 +2,15 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import JugadorProfile from '@/components/JugadorProfile.astro';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/jugador'];
 ---
 
 <Layout
-  title="Jugador - RaidDominion"
-  description="Perfil público de jugador de la comunidad RaidDominion."
+  title={meta.title}
+  description={meta.description}
+  autoCanonical
   particles="arcane"
 >
   <Navigation currentPath="/jugador" />

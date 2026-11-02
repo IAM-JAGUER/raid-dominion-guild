@@ -13,6 +13,9 @@ const RESERVED_PORTAL_SLUGS = new Set([
 
 // https://astro.build/config
 export default defineConfig({
+  // URL canónica del portal. SITE_URL permite sobreescribirla en Netlify sin
+  // tocar código (la misma env que usan las Netlify Functions).
+  site: process.env.SITE_URL ?? 'https://raid-dominion.netlify.app',
   integrations: [tailwind()],
   
   // Desactivar la barra de desarrollo de Astro

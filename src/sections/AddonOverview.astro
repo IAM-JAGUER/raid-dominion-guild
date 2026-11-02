@@ -1,0 +1,164 @@
+---
+// Presentación editorial del addon en la landing: qué es, funciones reales,
+// beneficios por audiencia y flujo de uso. Contenido estático indexable que
+// complementa las guías (que viven en paneles colapsables).
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { ui } from '@/lib/ui/design';
+import { ADDON_FEATURES, APP_URLS } from '@/utils/constants';
+
+const playerBenefits = [
+  'Registra tu personaje con equipo, iLevel, metas e instancias.',
+  'Comparte un perfil público con la visibilidad que tú elijas.',
+  'Encuentra bandas por horario, reino y gearscore mínimo.',
+];
+
+const guildBenefits = [
+  'Publica un portal con roster, bandas, horarios y reglas.',
+  'Mantén el roster al día volviendo a subir el SavedVariables.',
+  'Difunde tu hermandad en el directorio público de WoW 3.3.5a.',
+];
+
+const steps = [
+  {
+    icon: 'descargar',
+    title: 'Descarga e instala',
+    text: 'Descomprime el addon en Interface/AddOns y reinicia World of Warcraft 3.3.5a.',
+  },
+  {
+    icon: 'anadir',
+    title: 'Registra tu personaje',
+    text: 'Abre el menú con /rd, entra en RaidDominion > Registrar y cierra el juego.',
+  },
+  {
+    icon: 'subir',
+    title: 'Sube el SavedVariables',
+    text: 'Carga RaidDominion.lua en el portal y publica tu perfil o el de tu hermandad.',
+  },
+] as const;
+---
+
+<section id="que-es" class="scroll-mt-16 py-8">
+  <SectionHeader
+    title="¿Qué es RaidDominion?"
+    subtitle="Un addon para organizar bandas en World of Warcraft 3.3.5a y un portal para compartir el roster de tu hermandad."
+  />
+
+  <div class={`${ui.panel} relative overflow-hidden p-6 sm:p-8`}>
+    <span class={ui.cardTop} aria-hidden="true"></span>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <p class={`${ui.text.body} leading-relaxed`}>
+        RaidDominion reúne en una sola interfaz las herramientas que un líder de banda usa
+        cada noche: composición, roles, buffs, reglas, botín y horarios. El addon está pensado
+        para el cliente <strong class="text-brand-200">World of Warcraft 3.3.5a (WotLK)</strong> y
+        para los servidores privados que mantienen viva esa versión.
+      </p>
+      <p class={`${ui.text.body} leading-relaxed`}>
+        El portal complementa al addon: conviertes el archivo <code class="text-brand-300">RaidDominion.lua</code>
+        en fichas de personaje, directorios de bandas y un portal web para tu hermandad. No tienes que
+        rellenar formularios: los datos llegan desde el SavedVariables que ya genera el juego.
+      </p>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>
+        <Icon name="subir" size="sm" />
+        Subir mi SavedVariables
+      </a>
+      <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>
+        <Icon name="hermandad" size="sm" />
+        Explorar hermandades
+      </a>
+    </div>
+  </div>
+
+  <div class="mt-14 sm:mt-16">
+    <SectionHeader
+      title="Funciones del addon"
+      subtitle="Herramientas concretas para preparar, dirigir y compartir una banda de raid."
+    />
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    {ADDON_FEATURES.map((feature) => (
+      <article class={`${ui.card} relative overflow-hidden p-5`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <div class={`${ui.iconTile} ${ui.iconTileMd} mb-4`}>
+          <Icon name={feature.icon} size="md" />
+        </div>
+        <h3 class={`${ui.text.h3} text-brand-200 mb-2 leading-snug`}>{feature.title}</h3>
+        <p class={`${ui.text.caption} leading-relaxed`}>{feature.description}</p>
+      </article>
+    ))}
+  </div>
+
+  <div class="mt-14 sm:mt-16">
+    <SectionHeader
+      title="Para jugadores y hermandades"
+      subtitle="El mismo SavedVariables alimenta tu perfil personal y el portal de tu guild."
+    />
+  </div>
+  <div class="grid md:grid-cols-2 gap-5">
+    <article class={`${ui.panel} relative overflow-hidden p-6`}>
+      <span class={ui.cardTop} aria-hidden="true"></span>
+      <div class="flex items-center gap-3 mb-4">
+        <div class={`${ui.iconTile} ${ui.iconTileMd}`}><Icon name="perfil-alt" size="md" /></div>
+        <h3 class={`${ui.text.h1} ${ui.gradientTitle}`}>Para jugadores</h3>
+      </div>
+      <ul class="space-y-2.5">
+        {playerBenefits.map((item) => (
+          <li class={`${ui.text.body} flex gap-2`}>
+            <Icon name="validado" size="xs" class="shrink-0 mt-0.5" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+      <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>
+        Crear mi perfil
+      </a>
+    </article>
+
+    <article class={`${ui.panel} relative overflow-hidden p-6`}>
+      <span class={ui.cardTop} aria-hidden="true"></span>
+      <div class="flex items-center gap-3 mb-4">
+        <div class={`${ui.iconTile} ${ui.iconTileMd}`}><Icon name="estandarte" size="md" /></div>
+        <h3 class={`${ui.text.h1} ${ui.gradientTitle}`}>Para hermandades</h3>
+      </div>
+      <ul class="space-y-2.5">
+        {guildBenefits.map((item) => (
+          <li class={`${ui.text.body} flex gap-2`}>
+            <Icon name="validado" size="xs" class="shrink-0 mt-0.5" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+      <a href="/#guide-primeros-pasos" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.sm} mt-5`}>
+        Ver cómo funciona
+      </a>
+    </article>
+  </div>
+
+  <div class="mt-14 sm:mt-16">
+    <SectionHeader
+      title="Cómo funciona en 3 pasos"
+      subtitle="Del addon al portal sin formularios ni configuraciones extra."
+    />
+  </div>
+  <ol class="grid md:grid-cols-3 gap-4">
+    {steps.map((step, index) => (
+      <li class={`${ui.card} relative overflow-hidden p-5`}>
+        <span class={ui.cardTop} aria-hidden="true"></span>
+        <div class="flex items-center justify-between mb-4">
+          <div class={`${ui.iconTile} ${ui.iconTileMd}`}>
+            <Icon name={step.icon} size="md" />
+          </div>
+          <span class={`${ui.statValue} text-3xl`} aria-hidden="true">{index + 1}</span>
+        </div>
+        <h3 class={`${ui.text.h3} text-brand-200 mb-2`}>{step.title}</h3>
+        <p class={`${ui.text.caption} leading-relaxed`}>{step.text}</p>
+      </li>
+    ))}
+  </ol>
+  <p class={`${ui.text.bodyMuted} text-center mt-6`}>
+    ¿Prefieres empezar por la descarga? <a href={APP_URLS.DOWNLOAD} target="_blank" rel="noopener noreferrer" class="text-brand-300 underline hover:text-brand-200">Descarga el addon</a>
+    {' '}o consulta la <a href="/#addon" class="text-brand-300 underline hover:text-brand-200">guía completa</a>.
+  </p>
+</section>

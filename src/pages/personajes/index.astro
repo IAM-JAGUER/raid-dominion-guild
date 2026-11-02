@@ -2,11 +2,22 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import DirectoryPage from '@/components/layout/DirectoryPage.astro';
+import { PAGE_META, breadcrumbSchema, collectionPageSchema } from '@/lib/seo';
+
+const meta = PAGE_META['/personajes'];
+const jsonLd = [
+  collectionPageSchema('Personajes públicos de WoW 3.3.5a', meta.description, '/personajes'),
+  breadcrumbSchema([
+    { name: 'Inicio', path: '/' },
+    { name: 'Personajes', path: '/personajes' },
+  ]),
+];
 ---
 
 <Layout
-  title="Personajes - RaidDominion"
-  description="Navegador público de personajes validados de la comunidad RaidDominion: clase, nivel, ilvl y hermandad de cada jugador."
+  title={meta.title}
+  description={meta.description}
+  jsonLd={jsonLd}
   particles="arcane"
 >
   <Navigation currentPath="/personajes" />
@@ -16,8 +27,13 @@ import DirectoryPage from '@/components/layout/DirectoryPage.astro';
         hero="Personajes"
         panelIcon="personaje"
         heroTitleCls="rd-title rd-ornament"
-        intro="Personajes validados y hechos públicos por sus dueños: equipo, nivel e ilvl provienen de sus SavedVariables."
+        intro="Explora personajes públicos de WoW 3.3.5a con equipo, iLevel, metas, instancias y bandas. Solo aparecen los personajes que su dueño decidió hacer visibles desde el portal."
         loadingText="Cargando personajes…"
+        context={{
+          title: '¿Qué muestra una ficha de personaje?',
+          text: 'Equipo, iLevel, metas de equipo y moneda, instancias guardadas y bandas registradas en el SavedVariables. La nota privada no se publica salvo que su dueño active su visibilidad.',
+          cta: { label: 'Subir SavedVariables', href: '/upload' },
+        }}
         gridLabel="Listado de personajes"
         empty={{
           icon: 'personaje',

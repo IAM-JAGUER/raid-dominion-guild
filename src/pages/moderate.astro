@@ -5,11 +5,15 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
+import { PAGE_META } from '@/lib/seo';
+
+const meta = PAGE_META['/moderate'];
 ---
 
 <Layout
-  title="Moderación - RaidDominion"
-  description="Panel de moderación: verificación de hermandades y control de portales públicos."
+  title={meta.title}
+  description={meta.description}
+  noindex={meta.noindex}
   particles="arcane"
 >
   <Navigation currentPath="/moderate" />
