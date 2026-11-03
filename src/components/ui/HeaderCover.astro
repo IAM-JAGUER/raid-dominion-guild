@@ -1,0 +1,35 @@
+---
+// Banda de portada de un encabezado (decorativa). Se monta DENTRO de la placa,
+// nunca como capa de fondo de página (design.md §3b), y sangra hasta el borde
+// con las clases de margen negativo que aporta el anfitrión. El degradado
+// inferior funde la imagen con la superficie y deja respirar al medallón.
+interface Props {
+  image: string;
+  position?: string;
+  extraClass?: string;
+  heightCls?: string;
+}
+
+const {
+  image,
+  position = 'center',
+  extraClass = '',
+  heightCls = 'h-40 sm:h-48 lg:h-52',
+} = Astro.props;
+---
+<div class={`relative overflow-hidden ${heightCls} ${extraClass}`}>
+  <img
+    src={image}
+    alt=""
+    aria-hidden="true"
+    class="h-full w-full object-cover"
+    style={`object-position:${position}`}
+    loading="eager"
+    decoding="async"
+    fetchpriority="low"
+  />
+  <span
+    class="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-950/20 to-transparent"
+    aria-hidden="true"
+  ></span>
+</div>

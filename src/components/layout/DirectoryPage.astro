@@ -51,6 +51,10 @@ interface Props {
   dividerCls?: string;
   // Clases extra del h1 (p. ej. `rd-title rd-ornament`).
   heroTitleCls?: string;
+  // Imagen de portada del encabezado (decorativa; se monta dentro de la placa).
+  heroImage?: string;
+  heroImagePosition?: string;
+  heroImageMode?: 'background' | 'cover';
 }
 
 const {
@@ -65,11 +69,23 @@ const {
   context,
   dividerCls = 'mt-6',
   heroTitleCls = '',
+  heroImage,
+  heroImagePosition,
+  heroImageMode,
 } = Astro.props;
 ---
 <Breadcrumb />
 
-<PageHeader eyebrow={eyebrow} title={hero} intro={intro} titleCls={heroTitleCls} icon={panelIcon} />
+<PageHeader
+  eyebrow={eyebrow}
+  title={hero}
+  intro={intro}
+  titleCls={heroTitleCls}
+  icon={panelIcon}
+  image={heroImage}
+  imagePosition={heroImagePosition}
+  imageMode={heroImageMode}
+/>
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 

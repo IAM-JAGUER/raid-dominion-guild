@@ -3,6 +3,7 @@ import Breadcrumb from '@/components/Breadcrumb.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import Icon from '@/components/ui/Icon.astro';
+import HeaderCover from '@/components/ui/HeaderCover.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -33,12 +34,16 @@ import { ui } from '@/lib/ui/design';
     <div id="profile" data-rd-reveal class="hidden">
       <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
         <div class={`${ui.plaque} p-5 sm:p-7`}>
-          <span class={ui.cardTop} aria-hidden="true"></span>
+          <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+          <HeaderCover
+            image="/images/headers/ficha-personaje.webp"
+            extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
+          />
           <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
             <!-- Medallón héroe: arte nativo del sprite con halo del color de
                  clase del personaje principal. La clase va en su chip con la
                  miniatura JPG a 20px (el asset es de 18px). -->
-            <div id="avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero}`}>
+            <div id="avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
               <Icon name="personaje" size="hero" />
             </div>
             <div class="flex-1 min-w-0 text-left">

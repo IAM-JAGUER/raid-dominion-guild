@@ -5,6 +5,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Icon from '@/components/ui/Icon.astro';
+import HeaderCover from '@/components/ui/HeaderCover.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
 
@@ -22,7 +23,8 @@ const meta = PAGE_META['/404'];
   <main class="relative py-24">
     <div class="max-w-xl mx-auto text-center">
       <header class={`relative px-6 py-8 ${ui.plaque}`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
+        <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+        <HeaderCover image="/images/headers/404.webp" extraClass="-mx-6 -mt-8" />
         <p class={`${ui.eyebrow} flex items-center justify-center`}>
           <Icon name="brujula-alt" size="xs" class="mr-1.5" />
           <span>Zona inexplorada</span>

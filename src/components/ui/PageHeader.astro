@@ -15,22 +15,88 @@ interface Props {
   titleCls?: string;
   // Icono temático del medallón de identidad (contrato src/lib/ui/icons.ts).
   icon?: IconName;
+  // Imagen de portada del encabezado (decorativa). Se monta DENTRO de la placa,
+  // como superficie del header —nunca como capa de fondo de página— y lleva un
+  // velo de contraste para que el texto siga respirando (design.md §3b/§12).
+  image?: string;
+  // Posición del recorte de la imagen (`object-position`).
+  imagePosition?: string;
+  // `background`: la imagen llena la placa y el texto va encima con velo.
+  // `cover`: banda superior a sangre y texto sobre la superficie sólida.
+  imageMode?: 'background' | 'cover';
 }
 
-const { eyebrow, title, intro, titleCls = '', icon } = Astro.props;
+const {
+  eyebrow,
+  title,
+  intro,
+  titleCls = '',
+  icon,
+  image,
+  imagePosition = 'center',
+  imageMode = 'cover',
+} = Astro.props;
 
 import { ui } from '@/lib/ui/design';
 import Icon from '@/components/ui/Icon.astro';
+import HeaderCover from '@/components/ui/HeaderCover.astro';
 import type { IconName } from '@/lib/ui/icons';
+
+const isCover = !!image && imageMode === 'cover';
+const isBackground = !!image && imageMode === 'background';
 ---
-<header class={`${ui.plaque} max-w-3xl mx-auto text-center px-6 py-8 sm:py-10 animate-fade-in-1`}>
-  <span class={ui.cardTop} aria-hidden="true"></span>
-  {icon && (
-    <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`}>
-      <Icon name={icon} size="xl" />
-    </div>
+<header
+  class={`${ui.plaque} max-w-3xl mx-auto text-center px-6 animate-fade-in-1 ${
+    isCover
+      ? 'pt-0 pb-8 sm:pb-10'
+      : isBackground
+        ? 'min-h-[20rem] py-10 sm:py-14 flex flex-col justify-center'
+        : 'py-8 sm:py-10'
+  }`}
+>
+  <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+  {isCover && (
+    <HeaderCover image={image ?? ''} position={imagePosition} extraClass="-mx-6" />
   )}
-  {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
-  <h1 class={`${ui.text.hero} ${ui.titleHero} ${titleCls}`}>{title}</h1>
-  {intro && <p class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto`}>{intro}</p>}
+  {isBackground && (
+    <>
+      <img
+        src={image}
+        alt=""
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={`object-position:${imagePosition}`}
+        loading="eager"
+        decoding="async"
+        fetchpriority="low"
+      />
+      <span class="pointer-events-none absolute inset-0 bg-brand-950/15" aria-hidden="true"></span>
+      <span
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_58%_90%_at_50%_54%,rgba(7,17,30,0.82)_0%,rgba(7,17,30,0.55)_48%,rgba(7,17,30,0.12)_74%,transparent_100%)]"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/15 to-transparent"
+        aria-hidden="true"
+      ></span>
+    </>
+  )}
+  <div class="relative z-10">
+    {icon && (
+      <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto ${isCover ? '-mt-8 mb-4' : 'mb-4'}`}>
+        <Icon name={icon} size="xl" />
+      </div>
+    )}
+    {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
+    <h1 class={`${ui.text.hero} ${ui.titleHero} ${titleCls}`}>{title}</h1>
+    {intro && (
+      <p
+        class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto ${
+          isBackground ? '!text-gray-300' : ''
+        }`}
+      >
+        {intro}
+      </p>
+    )}
+  </div>
 </header>

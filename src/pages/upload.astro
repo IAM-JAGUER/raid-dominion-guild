@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import SectionHeader from '@/components/ui/SectionHeader.astro';
 import Icon from '@/components/ui/Icon.astro';
+import HeaderCover from '@/components/ui/HeaderCover.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META, breadcrumbSchema, faqSchema, howToSchema, webPageSchema } from '@/lib/seo';
 import { UPLOAD_FAQ } from '@/data/faq';
@@ -52,8 +53,9 @@ const jsonLd = [
       <!-- Header (placa: el texto no se disuelve sobre la imagen) -->
       <header class="text-center animate-fade-in-1">
         <div class={`relative mx-auto max-w-2xl px-6 py-6 ${ui.plaque}`}>
-          <span class={ui.cardTop} aria-hidden="true"></span>
-          <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 shadow-lg shadow-brand-900/20`}>
+          <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+          <HeaderCover image="/images/headers/upload.webp" extraClass="-mx-6 -mt-6" />
+          <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 -mt-8 relative z-10 shadow-lg shadow-brand-900/20`}>
             <Icon name="subir" size="xl" />
           </div>
           <h1 class={`${ui.titleHero}`}>
