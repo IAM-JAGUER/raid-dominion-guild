@@ -9,6 +9,7 @@ import { ruleKey } from '@/lib/ui/dashboard/format';
 import { ui } from '@/lib/ui/design';
 import { toast } from '@/lib/ui/toast';
 import { card, cardTop } from '@/lib/ui/card';
+import { userError } from '@/lib/ui/userError';
 import { resolveRules, setBandVisibility, setBandHidePlayers, setBandNotesPublic, setBandGuild, proposeBandIntegration, setBandRules } from '@/lib/api';
 import type { BandRow, GuildRow } from '@/types/database';
 import type { ContentItem } from '@/types/parser';
@@ -102,7 +103,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       input.checked = !input.checked;
       status.textContent = '✗ error';
       status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      toast.error('No se pudo actualizar la banda', res.error || 'Error desconocido');
+      toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }));
@@ -126,7 +127,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       input.checked = !input.checked;
       status.textContent = '✗ error';
       status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      toast.error('No se pudo actualizar la banda', res.error || 'Error desconocido');
+      toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }));
@@ -154,7 +155,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       input.checked = !input.checked;
       status.textContent = '✗ error';
       status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      toast.error('No se pudo actualizar la banda', res.error || 'Error desconocido');
+      toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }));
@@ -232,7 +233,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       } else {
         select.value = b.integration_target_guild_id ?? b.guild_id ?? '';
         gStatus.textContent = '';
-        gErr.textContent = res.error || 'error';
+        gErr.textContent = userError(res.error, 'No se pudo guardar la hermandad.');
       }
       window.setTimeout(() => { gStatus.textContent = ''; }, 2500);
     });
@@ -286,7 +287,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       opts.onHdrRefresh();
     } else {
       prop.checked = false;
-      propStatus.textContent = '✗ ' + (res.error || 'error');
+      propStatus.textContent = '✗ ' + userError(res.error, 'No se pudo enviar la propuesta.');
       propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
     }
     window.setTimeout(() => { propStatus.textContent = ''; }, 3500);
@@ -403,7 +404,7 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
       rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
     } else {
       b.rules = prev as unknown as BandRow['rules'];
-      rulesStatus.textContent = '✗ ' + (res.error || 'error');
+      rulesStatus.textContent = '✗ ' + userError(res.error, 'No se pudieron guardar las reglas.');
       rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
     }
     renderTags();
@@ -416,11 +417,11 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
   addRow.appendChild(addSelect);
   if (opts.rulesCatalog.length === 0) {
     addSelect.classList.add('hidden');
-    addRow.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a esta banda.'));
+    addRow.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un archivo con reglas para asignarlas a esta banda.'));
   }
   cardEl.appendChild(rulesBox);
 
-  cardEl.appendChild(el('p', 'mt-3 text-[11px] text-gray-400 italic', 'Jugadores y horario se actualizan re-subiendo tu SavedVariables; las reglas de esta banda las eliges tú aquí.'));
+  cardEl.appendChild(el('p', 'mt-3 text-[11px] text-gray-400 italic', 'Jugadores y horario se actualizan al volver a subir el archivo; las reglas de esta banda las eliges tú aquí.'));
 
   return cardEl;
 }

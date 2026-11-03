@@ -36,7 +36,7 @@ export const PAGE_META: Record<string, PageMeta> = {
       'Addon gratuito para WoW 3.3.5a (WotLK): organiza bandas, roles, buffs y botín. Sube tu RaidDominion.lua y publica el portal de tu hermandad.',
   },
   '/upload': {
-    title: 'Sube tu SavedVariables — Portal de hermandades RaidDominion',
+    title: 'Sube tu archivo del addon — Portal de hermandades RaidDominion',
     description:
       'Sube tu RaidDominion.lua y convierte el roster, las bandas y las metas de tu hermandad en un portal web gratuito. Sin formularios y en segundos.',
   },
@@ -169,7 +169,7 @@ export function organizationSchema(): JsonLdNode {
     logo: absoluteUrl('/logo.png'),
     description:
       'Addon y portal comunitario para organizar bandas, hermandades y rosters de World of Warcraft 3.3.5a (WotLK).',
-    sameAs: [SOCIAL_LINKS.discord.url, SOCIAL_LINKS.youtube.url, SOCIAL_LINKS.github.url],
+    sameAs: [SOCIAL_LINKS.discord.url, SOCIAL_LINKS.youtube.url],
   };
 }
 

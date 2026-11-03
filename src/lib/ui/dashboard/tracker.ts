@@ -17,6 +17,7 @@ import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
 import { trackerFichaHash, trackerCatalogHash, trackerHashView } from '@/lib/ui/tabs';
 import { toast } from '@/lib/ui/toast';
+import { userError } from '@/lib/ui/userError';
 import {
   createFilterBar,
   type Facet,
@@ -336,7 +337,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
             : `${character.name} ya no aparece en el directorio público.`,
         );
       } else {
-        toast.error('No se pudo actualizar la visibilidad', res.error || 'Reintenta o recarga el portal.');
+        toast.error('No se pudo actualizar la visibilidad', userError(res.error, 'Reintenta o recarga el portal.'));
       }
       return { ok: res.ok };
     } catch {
@@ -360,7 +361,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
             : `La nota del juego de ${character.name} ya no se muestra en su ficha pública.`,
         );
       } else {
-        toast.error('No se pudo actualizar la nota del juego', res.error || 'Reintenta o recarga el portal.');
+        toast.error('No se pudo actualizar la nota del juego', userError(res.error, 'Reintenta o recarga el portal.'));
       }
       return { ok: res.ok };
     } catch {
@@ -375,7 +376,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     try {
       const res = await saveCharacterTracker(id, { note });
       if (!res.ok) {
-        toast.error('No se pudo guardar la nota local', res.error || 'Reintenta.');
+        toast.error('No se pudo guardar la nota local', userError(res.error, 'Reintenta.'));
         return false;
       }
       character.trackerNote = res.note ?? note;
@@ -392,7 +393,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     try {
       const res = await saveCharacterTracker(id, { hidden });
       if (!res.ok) {
-        toast.error('No se pudo ocultar el personaje', res.error || 'Reintenta.');
+        toast.error('No se pudo ocultar el personaje', userError(res.error, 'Reintenta.'));
         return false;
       }
       character.trackerHidden = hidden;
@@ -441,8 +442,8 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       throw new Error('task');
     }
     if (!res.ok) {
-      toast.error('No se pudo actualizar la tarea', res.error || 'Reintenta o recarga el portal.');
-      throw new Error(res.error || 'task');
+      toast.error('No se pudo actualizar la tarea', userError(res.error, 'Reintenta o recarga el portal.'));
+      throw new Error('task');
     }
     const tasks = taskStateOf(character);
     const activeSet = new Set(tasks.active);
@@ -703,17 +704,6 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     syncDockControls();
   }
 
-  function visibilityErrorMessage(error?: string): string {
-    const message = error ?? '';
-    if (
-      /could not find the function|function .* does not exist|schema cache|Acción no soportada/i.test(message) ||
-      /raiddominion_tracker_apply/i.test(message)
-    ) {
-      return 'La migración 20261026_tracker_apply_visibility.sql aún no está aplicada. Aplícala en Supabase y reintenta.';
-    }
-    return message || 'Reintenta o recarga el portal.';
-  }
-
   async function handleDockApply(): Promise<void> {
     if (!dockAction) return;
     const action = dockAction.value as DockAction;
@@ -737,14 +727,14 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       if (action === 'hide' || action === 'show') {
         const res = await applyTrackerTasks(action, [], ids);
         if (!res.ok) {
-          toast.error('No se pudo cambiar la visibilidad', visibilityErrorMessage(res.error));
+          toast.error('No se pudo cambiar la visibilidad', userError(res.error, 'No se pudo cambiar la visibilidad. Reintenta o recarga el portal.'));
           return;
         }
         const states = res.states ?? {};
         if (Object.keys(states).length === 0) {
           toast.error(
             'No se pudo cambiar la visibilidad',
-            'La RPC no devolvió el estado de los personajes. Revisa que la migración 20261026 esté aplicada.',
+            'No se pudo completar la acción. Reintenta o contacta a soporte.',
           );
           return;
         }
@@ -766,7 +756,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       }
       const res = await applyTrackerTasks(taskAction, isReset ? [] : [taskId], ids);
       if (!res.ok) {
-        toast.error('No se pudo aplicar la acción', res.error || 'Reintenta.');
+        toast.error('No se pudo aplicar la acción', userError(res.error, 'Reintenta.'));
         return;
       }
       applyStates(res.states ?? {});
@@ -1158,7 +1148,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     if (sorted.length === 0) {
       syncGroupVisibility();
       const message = characters.length === 0
-        ? 'Sube tu SavedVariables para ver tus personajes aquí.'
+        ? 'Sube el archivo del addon para ver tus personajes aquí.'
         : !showHidden && characters.some((c) => c.trackerHidden)
           ? 'No hay personajes visibles. Activa "Ocultos" para ver los que ocultaste del tracker.'
           : 'No hay personajes que coincidan con los filtros.';
@@ -1291,7 +1281,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       onAdd: async (label) => {
         const res = await trackerCatalogOp('add', { label });
         if (!res.ok) {
-          toast.error('No se pudo añadir la tarea', res.error || 'Reintenta.');
+          toast.error('No se pudo añadir la tarea', userError(res.error, 'Reintenta.'));
           return false;
         }
         catalog = res.catalog ?? catalog;
@@ -1301,7 +1291,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       onRename: async (taskId, label) => {
         const res = await trackerCatalogOp('rename', { taskId, label });
         if (!res.ok) {
-          toast.error('No se pudo renombrar la tarea', res.error || 'Reintenta.');
+          toast.error('No se pudo renombrar la tarea', userError(res.error, 'Reintenta.'));
           return false;
         }
         catalog = res.catalog ?? catalog;
@@ -1311,7 +1301,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       onDuplicate: async (taskId) => {
         const res = await trackerCatalogOp('duplicate', { taskId });
         if (!res.ok) {
-          toast.error('No se pudo duplicar la tarea', res.error || 'Reintenta.');
+          toast.error('No se pudo duplicar la tarea', userError(res.error, 'Reintenta.'));
           return false;
         }
         catalog = res.catalog ?? catalog;
@@ -1321,7 +1311,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       onDelete: async (taskIds) => {
         const res = await trackerCatalogOp('remove', { taskIds });
         if (!res.ok) {
-          toast.error('No se pudieron eliminar las tareas', res.error || 'Reintenta.');
+          toast.error('No se pudieron eliminar las tareas', userError(res.error, 'Reintenta.'));
           return false;
         }
         catalog = res.catalog ?? catalog;
@@ -1340,7 +1330,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
       onReorder: async (order) => {
         const res = await trackerCatalogOp('reorder', { order });
         if (!res.ok) {
-          toast.error('No se pudo reordenar el catálogo', res.error || 'Reintenta.');
+          toast.error('No se pudo reordenar el catálogo', userError(res.error, 'Reintenta.'));
           return false;
         }
         catalog = res.catalog ?? catalog;
@@ -1361,7 +1351,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
         }
         const res = await applyTrackerTasks(action, taskIds, ids);
         if (!res.ok) {
-          toast.error('No se pudo aplicar la acción', res.error || 'Reintenta.');
+          toast.error('No se pudo aplicar la acción', userError(res.error, 'Reintenta.'));
           return false;
         }
         applyStates(res.states ?? {});

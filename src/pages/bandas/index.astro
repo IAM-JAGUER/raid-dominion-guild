@@ -33,7 +33,7 @@ const jsonLd = [
         eyebrow="Directorio público"
         title="Bandas"
         icon="espadas"
-        intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas extraídos de los SavedVariables de cada jugador."
+        intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas compartidos por cada jugador."
       />
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
@@ -64,8 +64,8 @@ const jsonLd = [
         title="Aún no hay bandas públicas"
         titleCls="font-black italic text-white"
         gradient={false}
-        message="Publica tus bandas desde tu dashboard subiendo tu SavedVariables; cada banda puede ser personal o pertenecer a tu hermandad."
-        cta={{ label: 'Sube tu SavedVariables', href: '/upload' }}
+        message="Publica tus bandas desde tu dashboard subiendo el archivo del addon; cada banda puede ser personal o pertenecer a tu hermandad."
+        cta={{ label: 'Sube el archivo del addon', href: '/upload' }}
         ctaCls="transform hover:scale-105"
         align="center"
       />
@@ -73,10 +73,10 @@ const jsonLd = [
         <span class={ui.cardTop} aria-hidden="true"></span>
         <h2 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>¿Cómo publicar tus bandas?</h2>
         <p class={`${ui.text.body} leading-relaxed max-w-3xl`}>
-          Registra tus bandas en el addon, sube el SavedVariables y activa su visibilidad. Cada banda puede ser
+          Registra tus bandas en el addon, sube el archivo y activa su visibilidad. Cada banda puede ser
           personal o pertenecer a tu hermandad, con horario, gearscore mínimo y reglas propias.
         </p>
-        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>Subir SavedVariables</a>
+        <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>Subir archivo del addon</a>
       </section>
 
       <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>

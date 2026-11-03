@@ -16,7 +16,7 @@ const subscribeSteps = [
   },
   {
     name: 'Registra tu personaje',
-    text: 'Abre el menú con /rd, entra en RaidDominion > Registrar y cierra el juego para guardar el SavedVariables.',
+    text: 'Abre el menú con /rd, entra en RaidDominion > Registrar y cierra el juego para que se guarde el archivo.',
   },
   {
     name: 'Localiza RaidDominion.lua',
@@ -29,12 +29,12 @@ const subscribeSteps = [
 ];
 
 const jsonLd = [
-  webPageSchema('Subir SavedVariables', meta.description, '/upload'),
+  webPageSchema('Subir archivo del addon', meta.description, '/upload'),
   breadcrumbSchema([
     { name: 'Inicio', path: '/' },
-    { name: 'Subir SavedVariables', path: '/upload' },
+    { name: 'Subir archivo del addon', path: '/upload' },
   ]),
-  howToSchema('Cómo subir tu SavedVariables de RaidDominion', 'Instala el addon, registra tu personaje y sube el archivo para publicar tu perfil o el portal de tu hermandad.', subscribeSteps),
+  howToSchema('Cómo subir tu archivo del addon de RaidDominion', 'Instala el addon, registra tu personaje y sube el archivo para publicar tu perfil o el portal de tu hermandad.', subscribeSteps),
   faqSchema(UPLOAD_FAQ),
 ];
 ---
@@ -57,7 +57,7 @@ const jsonLd = [
             <Icon name="subir" size="xl" />
           </div>
           <h1 class={`${ui.titleHero}`}>
-            Sube tu SavedVariables
+            Sube el archivo del addon
           </h1>
           <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
             Carga tu <code class="text-brand-300">RaidDominion.lua</code> para analizar roster, bandas y metas registradas de tus personajes.
@@ -126,18 +126,18 @@ const jsonLd = [
 
       <!-- Resultado -->
       <section id="result" data-rd-reveal data-nosnippet class="hidden space-y-6">
-        <!-- Claim de maestro (solo vía SV; sin formularios) -->
+        {/* Claim de maestro (solo desde el archivo; sin formularios) */}
         <div id="claim-banner" data-rd-reveal class={`hidden relative p-4 sm:p-6 ${ui.plaque}`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
           <h2 class={`${ui.text.h2} text-brand-300 mb-2 flex items-center gap-2`}><Icon name="corona" size="md" />¡Eres candidato a maestro de hermandad!</h2>
           <p class={`${ui.text.body} mb-4`}>
-            Tu SavedVariables fue generado por <strong id="claim-char" class="text-brand-200"></strong> con rango de liderazgo.
-            Al guardar el análisis, el portal detecta tu maestría y te permite registrar tu hermandad
+            Este archivo fue generado por <strong id="claim-char" class="text-brand-200"></strong> con rango de liderazgo.
+            Al guardar el análisis, el portal reconocerá tu rango de maestro y te permitirá registrar tu hermandad
             <strong class="text-brand-200">automáticamente desde el propio archivo</strong> (sin formularios).
           </p>
           <p id="claim-status-note" class="hidden text-sm text-brand-200/80">
             Tu rango en este archivo no es de liderazgo: no se reclamará ninguna hermandad.
-            Solo un SV generado por un maestro (isGM) habilita el registro automático del portal.
+            El archivo debe acreditar rango de maestro para habilitar el registro automático.
           </p>
           <p id="claim-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
         </div>
@@ -222,6 +222,7 @@ const jsonLd = [
   import { el } from '@/lib/ui/preview';
   import { supabase } from '@/lib/supabase';
   import { toast } from '@/lib/ui/toast';
+  import { userError } from '@/lib/ui/userError';
   import {
     saveUpload,
     getMyProfile,
@@ -347,23 +348,23 @@ const jsonLd = [
         return;
       }
       if (!ownerCheck.ok) {
-        addWarning('No se pudo verificar la propiedad del archivo: ' + (ownerCheck.error || '') + '. Contacta a soporte si persiste.');
+        addWarning(userError(ownerCheck.error, 'No pudimos verificar la propiedad del archivo. Contacta a soporte si persiste.'));
       }
     }
 
     setStatus('Guardando en tu historial…');
     const saved = await saveUpload(data);
     if (!saved.ok) {
-      const msg = 'Archivo procesado, pero no se pudo guardar en el historial: ' + (saved.error || 'error desconocido');
+      const msg = 'Archivo procesado, pero no se pudo guardar en el historial. ' + userError(saved.error, 'Inténtalo de nuevo.');
       setStatus(msg);
-      toast.error('Historial no guardado', saved.error || 'Error desconocido');
+      toast.error('Historial no guardado', userError(saved.error, 'No se pudo guardar el archivo. Inténtalo de nuevo.'));
       enableDashboardLink();
       return;
     }
     if (!saved.id) {
       const msg = 'Archivo procesado, pero el historial quedó incompleto. Vuelve a subir tu archivo.';
       setStatus(msg);
-      toast.warning('Historial incompleto', 'Vuelve a subir tu SavedVariables.');
+      toast.warning('Historial incompleto', 'Vuelve a subir el archivo.');
       enableDashboardLink();
       return;
     }
@@ -525,7 +526,7 @@ const jsonLd = [
         toast.success('Bandas sincronizadas', msg);
       }
     } else {
-      const msg = 'No se pudieron sincronizar tus bandas: ' + (bandsSync.error || '') + '. Reintenta subiendo el SV de nuevo.';
+      const msg = 'No se pudieron sincronizar tus bandas. ' + userError(bandsSync.error, 'Reintenta subiendo el archivo de nuevo.');
       addWarning(msg);
     }
     }
@@ -534,7 +535,7 @@ const jsonLd = [
     // el propio upsert; este RPC cubre filas previas y cambios de nombre/reino.
     const slugSync = await ensureMyCharacterSlugs();
     if (!slugSync.ok) {
-      addWarning('No se pudieron asegurar los enlaces de tus personajes: ' + (slugSync.error || ''));
+      addWarning(userError(slugSync.error, 'No se pudieron preparar los enlaces de tus personajes. Reintenta más tarde.'));
     }
 
     // Onboarding visitante → member.
@@ -554,7 +555,7 @@ const jsonLd = [
       if (promo.ok && promo.data?.promoted) {
         const wasVisitante = role === 'visitante';
         const msg = wasVisitante
-          ? '¡Bienvenido, Miembro! Tu cuenta quedó validada. Con tu SV de maestro (isGM) podrás reclamar tu hermandad.'
+          ? '¡Bienvenido, Miembro! Tu cuenta quedó validada. Cuando el addon acredite tu rango de maestro, podrás reclamar tu hermandad.'
           : 'Registro actualizado. Tu cuenta ya estaba validada como Miembro.';
         renderOnboardingBanner('success', msg);
         toast.success(wasVisitante ? '¡Cuenta validada como Miembro!' : 'Registro actualizado', msg);
@@ -562,12 +563,12 @@ const jsonLd = [
       } else if (promo.ok) {
         // Sin auto-validación: se queda Visitante, sin pedir validación externa
         if (role === 'visitante') {
-          const msg = 'Registrado como Visitante. Para ser Miembro, registra al menos dos personajes en tu SavedVariables.';
+          const msg = 'Registrado como Visitante. Para validar tu cuenta como Miembro, registra tus personajes con el addon.';
           renderOnboardingBanner('visitor', msg);
           toast.info('Sigue como Visitante', msg);
         }
       } else {
-        addWarning('No se pudo validar tu personaje: ' + (promo.error || 'error desconocido') + '. Contacta a soporte si persiste.');
+        addWarning(userError(promo.error, 'No se pudo validar tu personaje. Contacta a soporte si persiste.'));
       }
     }
 
@@ -577,28 +578,28 @@ const jsonLd = [
     const isGmInSV = Boolean(data.registryGuild?.isGM) ||
       data.registries.some((r) => r.guild?.isGM === true);
     if (saved.id && isGmInSV && charStatus !== 'conflict') {
-      setStatus('El addon te reporta como Maestro: reclamando hermandades desde el SV…');
+      setStatus('El addon te reconoce como Maestro: preparando el portal de tu hermandad…');
       const claimRes = await claimGuildFromSV(saved.id);
       if (claimRes.ok) {
         role = 'guild_master';
-        const msg = '¡Hermandad(es) reclamada(s) desde tu SavedVariables! Ya eres Maestro; revisa la pestaña Hermandad.';
+        const msg = '¡Hermandad(es) reclamada(s) desde tu archivo! Ya eres Maestro; revisa la pestaña Hermandad.';
         renderOnboardingBanner('success', msg);
         toast.success('Maestro de hermandad confirmado', msg, { duration: 6000 });
       } else if (claimRes.error?.includes('personaje validado')) {
         // El reclamo (20260925) exige al menos UN personaje validado: el SV
         // con isGM valida con un personaje.
-        addWarning('Tu SV acredita maestría, pero el reclamo requiere al menos un personaje validado. Registra tu personaje y vuelve a subir tu SV.');
+        addWarning('El archivo acredita maestría, pero primero debes validar tu personaje. Regístralo y vuelve a subir el archivo.');
       } else if (claimRes.error?.includes('otra cuenta')) {
         // Guard (20260925): el personaje principal del SV pertenece a otra
         // cuenta → jamás se reclama su hermandad.
-        addWarning('Este SavedVariables pertenece a otra cuenta; no puedes reclamar su hermandad desde aquí.');
+        addWarning('Este archivo pertenece a otra cuenta; no puedes reclamar su hermandad desde aquí.');
       } else if (claimRes.error?.includes('Requiere ser Miembro')) {
         // La cuenta aún no está validada como Miembro: el reclamo se
         // completará cuando quede validada (un personaje registrado basta si
         // el SV acredita maestría).
-        addWarning('Tu SV indica maestría de hermandad, pero el reclamo requiere estar validado como Miembro. Registra tu personaje y vuelve a subir tu SV.');
+        addWarning('El archivo indica maestría de hermandad, pero primero debes validar tu cuenta. Registra tu personaje y vuelve a subir el archivo.');
       } else {
-        addWarning('No se pudo reclamar la hermandad desde el SV: ' + (claimRes.error || ''));
+        addWarning(userError(claimRes.error, 'No se pudo reclamar la hermandad. Reintenta o contacta a soporte.'));
       }
     }
 
@@ -614,14 +615,14 @@ const jsonLd = [
           setStatus(msg);
           toast.success('Portal(es) actualizado(s)', msg, { duration: 5500 });
         } else {
-          const msg = 'Archivo procesado y guardado. El SV no coincide con tus hermandades registradas; usa el personaje maestro para actualizar el portal.';
+          const msg = 'Archivo procesado y guardado. El archivo no coincide con tus hermandades registradas; usa el personaje maestro para actualizar el portal.';
           setStatus(msg);
           toast.info('Portal no actualizado', msg);
         }
       } else {
-        const msg = 'Archivo procesado y guardado, pero no se pudo actualizar el portal: ' + (snap.error || '');
+        const msg = 'Archivo procesado y guardado, pero no se pudo actualizar el portal. ' + userError(snap.error, 'Inténtalo de nuevo.');
         setStatus(msg);
-        toast.warning('Portal sin actualizar', snap.error || 'Error desconocido');
+        toast.warning('Portal sin actualizar', userError(snap.error, 'No se pudo actualizar el portal. Inténtalo de nuevo.'));
       }
       enableDashboardLink();
       return;
@@ -629,7 +630,7 @@ const jsonLd = [
 
     const doneMsg = 'Archivo procesado y guardado en tu historial.';
     setStatus(doneMsg);
-    toast.success('SavedVariables procesado', doneMsg);
+    toast.success('Archivo procesado', doneMsg);
     enableDashboardLink();
   }
 
@@ -701,7 +702,7 @@ const jsonLd = [
       const reader = new FileReader();
       reader.onload = async () => {
         const text = String(reader.result || '');
-        setStatus('Parseando RaidDominion.lua…');
+        setStatus('Analizando RaidDominion.lua…');
         try {
           const result = parseSavedVariables(text);
           if (!result.ok) {
@@ -709,13 +710,13 @@ const jsonLd = [
             return;
           }
           if (result.warnings.length > 0) {
-            toast.warning(`El SV tiene ${result.warnings.length} advertencia${result.warnings.length === 1 ? '' : 's'}`, 'Revisa el bloque superior de advertencias para más detalle.');
+            toast.warning(`El archivo tiene ${result.warnings.length} advertencia${result.warnings.length === 1 ? '' : 's'}`, 'Revisa el bloque superior de advertencias para más detalle.');
           }
           result.warnings.forEach((w) => addWarning(w, { toast: false }));
           renderResult(result.data as ParsedSavedVariables);
           await persistIfLoggedIn(result.data as ParsedSavedVariables);
         } catch (e) {
-          const err = 'Error inesperado al parsear: ' + String(e);
+          const err = 'No pudimos analizar el archivo. Vuelve a intentarlo o contacta a soporte.';
           showError(err);
         } finally {
           resolve();

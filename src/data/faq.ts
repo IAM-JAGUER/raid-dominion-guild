@@ -19,7 +19,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: '¿Qué es RaidDominion?',
     answer:
-      'RaidDominion es un addon gratuito para World of Warcraft 3.3.5a (WotLK) y un portal comunitario. El addon ayuda a organizar bandas, roles, buffs, botín y reglas; el portal convierte tu SavedVariables en fichas de personaje, directorios y un portal público para tu hermandad.',
+      'RaidDominion es un addon gratuito para World of Warcraft 3.3.5a (WotLK) y un portal comunitario. El addon ayuda a organizar bandas, roles, buffs, botín y reglas; el portal convierte el archivo del addon en fichas de personaje, directorios y un portal público para tu hermandad.',
   },
   {
     question: '¿RaidDominion es gratis?',
@@ -42,19 +42,19 @@ export const HOME_FAQ: FaqItem[] = [
       'Después de usar Registrar y cerrar el juego, el archivo queda en WTF/Account/<tu cuenta>/SavedVariables/RaidDominion.lua. Ese es el archivo que se sube en el portal.',
   },
   {
-    question: '¿Qué datos se publican al subir mi SavedVariables?',
+    question: '¿Qué datos se publican al subir el archivo del addon?',
     answer:
       'El portal muestra los datos que el addon registra: personaje, equipo, iLevel, metas, instancias, bandas y hermandad. Las notas privadas no se publican salvo que actives su visibilidad. Puedes analizar el archivo sin cuenta; para guardarlo y publicar tu perfil necesitas iniciar sesión.',
   },
   {
     question: '¿Cómo consigo el portal de mi hermandad?',
     answer:
-      'Sube un SavedVariables generado con rango de maestro (isGM) y valida al menos un personaje. El portal detecta la maestría y crea la hermandad sin formularios; luego puedes publicarla desde tu dashboard para que aparezca en el directorio.',
+      'Cuando el addon acredite que diriges una hermandad, sube el archivo y valida tu cuenta. El portal reconocerá tu rango de maestro y te permitirá crear el portal de la hermandad sin formularios; luego podrás publicarlo desde tu dashboard para que aparezca en el directorio.',
   },
   {
     question: '¿Qué es el gearscore y por qué aparece en las bandas?',
     answer:
-      'El gearscore (GS) es una cifra de referencia que usa el líder para indicar el equipo mínimo de una banda. RaidDominion muestra el GS mínimo configurado en el addon; no lee ni calcula el gearscore desde el cliente.',
+      'El gearscore (GS) es una cifra de referencia que usa el líder para indicar el equipo mínimo de una banda. RaidDominion muestra el GS mínimo que define el líder de la banda.',
   },
 ];
 
@@ -67,7 +67,7 @@ export const UPLOAD_FAQ: FaqItem[] = [
   {
     question: '¿El archivo contiene datos privados?',
     answer:
-      'El SavedVariables incluye la información que el addon registra, incluidas notas. El portal no publica notas privadas salvo que actives su visibilidad; antes de guardar puedes revisar la vista previa de lo que se mostrará.',
+      'El archivo incluye la información que el addon registra, incluidas notas. El portal no publica notas privadas salvo que actives su visibilidad; antes de guardar puedes revisar la vista previa de lo que se mostrará.',
   },
   {
     question: '¿Puedo subir varios personajes o varios archivos?',
@@ -90,7 +90,7 @@ export const GLOSSARY: GlossaryItem[] = [
   {
     term: 'Roster',
     definition:
-      'Lista de miembros de una banda o hermandad, con su clase, rol y rango. RaidDominion lo genera desde el SavedVariables.',
+      'Lista de miembros de una banda o hermandad, con su clase, rol y rango. RaidDominion lo genera con los datos del addon.',
   },
   {
     term: 'Gearscore (GS)',
@@ -105,7 +105,7 @@ export const GLOSSARY: GlossaryItem[] = [
   {
     term: 'Hermandad',
     definition:
-      'Guild o comunidad de jugadores. Si su maestro sube el SavedVariables, el portal crea una página pública con roster, bandas y reglas.',
+      'Guild o comunidad de jugadores. Si su maestro sube el archivo del addon, el portal crea una página pública con roster, bandas y reglas.',
   },
   {
     term: 'iLevel',

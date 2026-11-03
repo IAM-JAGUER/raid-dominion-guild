@@ -38,7 +38,7 @@ const meta = PAGE_META['/admin'];
           <div class={`relative px-6 py-5 ${ui.plaque}`}>
             <span class={ui.cardTop} aria-hidden="true"></span>
             <h1 class={`${ui.titleHero}`}>Administración</h1>
-            <p class={`${ui.text.bodyMuted} italic mt-2`}>Gestión de usuarios y roles. El primer admin se siembra manualmente en la base de datos.</p>
+            <p class={`${ui.text.bodyMuted} italic mt-2`}>Gestión de usuarios y roles. El acceso inicial lo configura el equipo de administración.</p>
           </div>
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
@@ -213,6 +213,7 @@ const meta = PAGE_META['/admin'];
   import { ui } from '@/lib/ui/design';
   import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
   import type { RaiddominionRole } from '@/types/database';
+  import { userError } from '@/lib/ui/userError';
 
 
   const ROLE_LABELS: Record<RaiddominionRole, string> = {
@@ -224,8 +225,8 @@ const meta = PAGE_META['/admin'];
   };
   const ROLE_BADGE = ui.badgeRole;
   const AUDIT_LABELS: Record<string, string> = {
-    guild_claim_verified: 'Claim aprobado',
-    guild_claim_rejected: 'Claim rechazado',
+    guild_claim_verified: 'Verificación aprobada',
+    guild_claim_rejected: 'Verificación rechazada',
     guild_published: 'Portal republicado',
     guild_takedown: 'Portal retirado',
     user_role_changed: 'Rol cambiado',
@@ -395,7 +396,7 @@ const meta = PAGE_META['/admin'];
     const statusEl = document.getElementById('users-status') as HTMLElement;
     const r = await adminListUsers();
     if (!r.ok) {
-      statusEl.textContent = r.error || 'No se pudo cargar el listado.';
+      statusEl.textContent = userError(r.error, 'No se pudo cargar el listado. Recarga la página e inténtalo de nuevo.');
       return;
     }
     users = r.users ?? [];
@@ -616,7 +617,7 @@ const meta = PAGE_META['/admin'];
 
     const r = await adminGetUserEntities(userId);
     if (!r.ok || !r.entities) {
-      charsStatus.textContent = r.error || 'No se pudo cargar los datos.';
+      charsStatus.textContent = userError(r.error, 'No se pudieron cargar los datos. Recarga la página e inténtalo de nuevo.');
       guildsStatus.textContent = '';
       bandsStatus.textContent = '';
       return;
@@ -913,7 +914,7 @@ const meta = PAGE_META['/admin'];
           msg.textContent = '✓ guardado';
           msg.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
         } else {
-          msg.textContent = '✗ ' + (r.error || 'error');
+          msg.textContent = '✗ ' + userError(r.error, 'No se pudo guardar');
           msg.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
           saveBtn.textContent = 'Guardar estado';
         }
@@ -1028,7 +1029,7 @@ const meta = PAGE_META['/admin'];
           msg.textContent = '✓ guardado';
           msg.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
         } else {
-          msg.textContent = '✗ ' + (r.error || 'error');
+          msg.textContent = '✗ ' + userError(r.error, 'No se pudo guardar');
           msg.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
           saveBtn.textContent = 'Guardar integración';
         }
@@ -1107,7 +1108,7 @@ const meta = PAGE_META['/admin'];
       badge.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[newRole]}`;
     } else {
       msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
-      msg.textContent = r.error || 'No se pudo cambiar el rol.';
+      msg.textContent = userError(r.error, 'No se pudo cambiar el rol. Reintenta.');
       saveBtn.textContent = 'Guardar rol';
     }
   });
@@ -1228,8 +1229,7 @@ const meta = PAGE_META['/admin'];
         status.className = 'mb-5 text-sm text-gray-400 italic';
         status.textContent = 'No hay objetivos activos para mostrar.';
       }
-    } catch (err) {
-      console.error('[discord-goals]', err);
+    } catch {
       status.className = `mb-5 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
       status.textContent = 'No se pudieron cargar los objetivos. Revisa la conexión y recarga la página.';
     }
@@ -1263,7 +1263,7 @@ const meta = PAGE_META['/admin'];
         status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${data.sent ? ui.status.success : ui.status.warning}`;
         status.textContent = data.sent
           ? `Objetivo «${label}» enviado al canal ${canal === 'test' ? 'de pruebas' : 'público'}.`
-          : 'No se envió (webhook no configurado para ese canal).';
+          : 'No se envió: el canal no está configurado.';
         if (data.message) {
           preview.textContent = data.message;
           preview.classList.remove('hidden');
@@ -1271,11 +1271,11 @@ const meta = PAGE_META['/admin'];
         await loadGoals();
       } else {
         status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
-        status.textContent = data?.error || 'No se pudo generar el mensaje.';
+        status.textContent = userError(data?.error, 'No se pudo generar el mensaje. Reintenta.');
       }
     } catch {
       status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
-      status.textContent = 'Error de red al contactar el motor de mercadeo.';
+      status.textContent = 'No se pudo contactar el servicio de mensajes. Reintenta.';
     }
   }
 </script>

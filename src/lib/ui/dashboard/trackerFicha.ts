@@ -199,7 +199,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   ].forEach(([k, v]) => origen.appendChild(detailRow(String(k), v as string)));
   detalle.appendChild(sectionTitle('bandeja', 'Origen de los datos'));
   detalle.appendChild(origen);
-  detalle.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Datos de tus subidas de SavedVariables. El portal no lee el WTF ni usa GearScore.'));
+  detalle.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Datos actualizados desde los archivos del addon.'));
   panels.set('detalle', detalle);
 
   // ── Tareas ──────────────────────────────────────────────────────────────
@@ -222,8 +222,8 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   } else {
     const missingIds = pieces.filter((piece) => typeof piece.itemID !== 'number').length;
     if (missingIds > 0) {
-      const hint = el('p', `${ui.text.caption} mb-3`, 'Este personaje tiene piezas sin ID de objeto (subida anterior). Vuelve a subir tu SavedVariables para activar el tooltip.');
-      const upload = el('a', 'text-brand-300 hover:text-brand-200 underline', 'Subir SavedVariables');
+      const hint = el('p', `${ui.text.caption} mb-3`, 'Este personaje tiene piezas sin ID de objeto (subida anterior). Vuelve a subir el archivo del addon para activar el tooltip.');
+      const upload = el('a', 'text-brand-300 hover:text-brand-200 underline', 'Subir archivo del addon');
       (upload as HTMLAnchorElement).href = '/upload';
       hint.append(' ', upload);
       equip.appendChild(hint);
@@ -239,7 +239,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   const currencies = c.currencies ?? [];
   monedas.appendChild(sectionTitle('cristal', `Monedas (${currencies.length})`));
   if (currencies.length === 0) {
-    monedas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin monedas registradas. Re-subre el SV con la barra de monedas actualizada.'));
+    monedas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin monedas registradas. Vuelve a subir el archivo con la barra de monedas actualizada.'));
   } else {
     const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     currencies.forEach((currency) => {
@@ -367,7 +367,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   localWrap.append(ta, noteStatus);
   notas.appendChild(localWrap);
 
-  notas.appendChild(sectionTitle('pergamino', 'Nota del juego (SavedVariables)'));
+  notas.appendChild(sectionTitle('pergamino', 'Nota del juego'));
   const gameNote = (c.gameNote ?? '').trim();
   if (gameNote) {
     notas.appendChild(richTextEl(
@@ -376,7 +376,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
       `${ui.surf.row} rd-parchment p-4 text-sm text-gray-200 leading-relaxed whitespace-pre-line`,
     ));
   } else {
-    notas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin nota del juego. Se escribe en el addon y se sincroniza al subir el SV.'));
+    notas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin nota del juego. Se escribe en el addon y se sincroniza al subir el archivo.'));
   }
   const notePublic = document.createElement('label');
   notePublic.className = `mt-2 flex items-center gap-2 select-none text-[10px] font-black uppercase tracking-widest text-gray-400 ${gameNote ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;

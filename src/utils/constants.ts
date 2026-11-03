@@ -5,7 +5,6 @@ export const APP_URLS = {
   GUIDES: '/#addon',
   DISCORD: 'https://discord.gg/BwdpNV9sky',
   YOUTUBE: 'https://www.youtube.com/@IAM-GAMECODE',
-  GITHUB: 'https://github.com/IAM-DEV88/raid-dominion-guild',
   DOWNLOAD: 'https://github.com/IAM-DEV88/RaidDominion/archive/refs/heads/main.zip',
 };
 
@@ -42,11 +41,6 @@ export const SOCIAL_LINKS = {
     name: 'YouTube',
     url: 'https://www.youtube.com/@IAM-GAMECODE',
     icon: 'youtube',
-  },
-  github: {
-    name: 'GitHub',
-    url: 'https://github.com/IAM-DEV88/raid-dominion-guild',
-    icon: 'github',
   },
 };
 
@@ -91,7 +85,7 @@ export const ADDON_FEATURES = [
   },
   {
     title: 'Portal de hermandad',
-    description: 'Sube el SavedVariables y publica roster, bandas y reglas en una página gratuita.',
+    description: 'Sube el archivo del addon y publica roster, bandas y reglas en una página gratuita.',
     icon: 'hermandad',
   },
   {

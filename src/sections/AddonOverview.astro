@@ -15,7 +15,7 @@ const playerBenefits = [
 
 const guildBenefits = [
   'Publica un portal con roster, bandas, horarios y reglas.',
-  'Mantén el roster al día volviendo a subir el SavedVariables.',
+  'Mantén el roster al día volviendo a subir el archivo del addon.',
   'Difunde tu hermandad en el directorio público de WoW 3.3.5a.',
 ];
 
@@ -32,7 +32,7 @@ const steps = [
   },
   {
     icon: 'subir',
-    title: 'Sube el SavedVariables',
+    title: 'Sube el archivo',
     text: 'Carga RaidDominion.lua en el portal y publica tu perfil o el de tu hermandad.',
   },
 ] as const;
@@ -56,13 +56,13 @@ const steps = [
       <p class={`${ui.text.body} leading-relaxed`}>
         El portal complementa al addon: conviertes el archivo <code class="text-brand-300">RaidDominion.lua</code>
         en fichas de personaje, directorios de bandas y un portal web para tu hermandad. No tienes que
-        rellenar formularios: los datos llegan desde el SavedVariables que ya genera el juego.
+        rellenar formularios: los datos llegan desde el archivo que ya genera el juego.
       </p>
     </div>
     <div class="mt-5 flex flex-wrap gap-3">
       <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>
         <Icon name="subir" size="sm" />
-        Subir mi SavedVariables
+        Subir mi archivo del addon
       </a>
       <a href="/hermandades" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>
         <Icon name="hermandad" size="sm" />
@@ -93,7 +93,7 @@ const steps = [
   <div class="mt-14 sm:mt-16">
     <SectionHeader
       title="Para jugadores y hermandades"
-      subtitle="El mismo SavedVariables alimenta tu perfil personal y el portal de tu guild."
+      subtitle="El mismo archivo alimenta tu perfil personal y el portal de tu guild."
     />
   </div>
   <div class="grid md:grid-cols-2 gap-5">

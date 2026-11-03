@@ -275,7 +275,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
     : character.updated_at
       ? new Date(character.updated_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })
       : '—';
-  stats.appendChild(stat('Visto', seen, character.lastSeen ? 'Última conexión según el SV' : 'Última actualización en el portal'));
+  stats.appendChild(stat('Visto', seen, character.lastSeen ? 'Última conexión registrada por el addon' : 'Última actualización en el portal'));
   body.appendChild(stats);
 
   // Tareas + extras
@@ -326,7 +326,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   const noteLabel = noteText
     ? el('span', 'text-[10px] text-gray-400 truncate max-w-[12rem]', noteText)
     : el('span', 'text-[10px] text-gray-400 italic', 'Sin nota del juego');
-  noteLabel.title = noteText || 'Escribe la nota en el addon y vuelve a subir tu SV.';
+  noteLabel.title = noteText || 'Escribe la nota en el addon y vuelve a subir el archivo.';
   owner.appendChild(noteLabel);
   owner.appendChild(ownerToggle(
     `note-${id}`,

@@ -259,7 +259,7 @@ function parseTable(ctx: ParseCtx): LuaValue {
 
     // Token inesperado: avanzar para no colgar
     next(ctx);
-    ctx.warnings.push('Token inesperado en tabla: ' + tok.value);
+    ctx.warnings.push('El archivo contiene una sección que no se pudo leer; puede estar incompleto.');
   }
 
   next(ctx); // consume '}'
@@ -913,7 +913,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
     return {
       ok: false,
       data: null,
-      errors: ['No se encontró la tabla RaidDominionDB dentro del archivo (RaidDominion.lua). ¿Es un SavedVariables del addon RaidDominion?'],
+      errors: ['No encontramos los datos de RaidDominion en el archivo. Asegúrate de subir el RaidDominion.lua generado por el addon.'],
       warnings,
     };
   }
@@ -987,11 +987,11 @@ export function parseSavedVariables(rawText: string): ParseResult {
     }
   }
   if (!player) {
-    warnings.push('El archivo no trae registry.player: abre el addon en el juego y exporta tu personaje.');
+    warnings.push('El archivo no incluye los datos del personaje activo. Abre el addon en el juego, usa Registrar con el personaje que quieres publicar y vuelve a subir el archivo.');
   }
   const missingObjectives = registries.filter((registry) => registry.player && !registry.player.objectives);
   if (missingObjectives.length > 0) {
-    warnings.push('Uno o más registros son anteriores al exportador de objetivos 3.0.1. Entra con cada personaje y pulsa «Registrar» para incluir sus metas de equipo y moneda.');
+    warnings.push('Algunos personajes se registraron con una versión anterior del addon. Entra con cada personaje y pulsa «Registrar» para incluir sus metas de equipo y moneda.');
   }
   // Registros con objetivos pero sin nota/instancias: el addon es 3.0.1
   // (esquema con objetivos) y aún no 3.1.0.
@@ -999,7 +999,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
     (registry) => registry.player && registry.player.objectives && registry.player.note === undefined
   );
   if (missingProfileExtras.length > 0) {
-    warnings.push('Uno o más registros son anteriores al exportador 3.1.0. Entra con cada personaje y pulsa «Registrar» para incluir su nota y sus instancias guardadas.');
+    warnings.push('Algunos personajes se registraron con una versión anterior del addon. Entra con cada personaje y pulsa «Registrar» para incluir su nota y sus instancias guardadas.');
   }
 
   const guildRaw = asObj(root['Guild']) ?? {};
@@ -1013,7 +1013,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
   if (generatedBy) {
     const entry = members.find((m) => m.name.toLowerCase() === generatedBy.toLowerCase());
     confirmedLeaderRank = entry ? isLeaderRank(entry.rank) : false;
-    if (!entry) warnings.push(`generatedBy "${generatedBy}" no está en memberList; no se puede verificar el rango.`);
+    if (!entry) warnings.push('No se pudo verificar el rango del personaje que generó el archivo. Vuelve a registrarlo en el addon y sube el archivo actualizado.');
   }
 
   const bands = asBands(root['bands']);

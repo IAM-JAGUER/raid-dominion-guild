@@ -60,7 +60,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
   titleBox.appendChild(el('p', ui.eyebrow, 'Task Tracker'));
   const title = el('h2', `${ui.gradientTitle} text-xl sm:text-2xl font-black italic`, 'Catálogo de tareas');
   titleBox.appendChild(title);
-  titleBox.appendChild(el('p', `${ui.text.caption} mt-1`, 'Tareas manuales compartidas por todos tus personajes. No se importan del addon ni del WTF.'));
+  titleBox.appendChild(el('p', `${ui.text.caption} mt-1`, 'Tareas manuales compartidas por todos tus personajes. Son tuyas y no dependen del addon.'));
   headRow.appendChild(titleBox);
   const back = document.createElement('button');
   back.type = 'button';

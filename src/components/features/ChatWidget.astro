@@ -54,7 +54,7 @@ const { className = '' } = Astro.props;
   <div id="chat-widget-suggestions" class="flex shrink-0 flex-wrap gap-1.5 px-3 pt-3">
     <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="hermandad" size="xs" />Hermandades</button>
     <button type="button" data-suggestion="¿Qué hace el addon de RaidDominion?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="libro" size="xs" />El addon</button>
-    <button type="button" data-suggestion="¿Cómo subo mi SavedVariables?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="subir" size="xs" />Subir SV</button>
+    <button type="button" data-suggestion="¿Cómo subo el archivo del addon?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="subir" size="xs" />Subir archivo</button>
     <button type="button" data-suggestion="¿Qué bandas públicas hay?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="espadas" size="xs" />Bandas</button>
   </div>
 
@@ -222,7 +222,7 @@ const { className = '' } = Astro.props;
     } catch (err) {
       errorEl.textContent =
         err instanceof Error && err.message.startsWith('Error 4')
-          ? 'La guía no está disponible todavía (función no configurada en el servidor).'
+          ? 'La guía no está disponible en este momento. Inténtalo más tarde.'
           : 'No se pudo conectar con la guía. Intenta de nuevo en un momento.';
       errorEl.classList.remove('hidden');
       // Quita el turno del usuario para no duplicarlo al reintentar

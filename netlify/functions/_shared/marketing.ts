@@ -77,7 +77,7 @@ interface EjeCta {
 
 const EJE_CTA: Record<MarketingEje, EjeCta> = {
   jugadores: {
-    label: 'Sube tu SavedVariables y valida tu personaje',
+    label: 'Sube el archivo del addon y valida tu personaje',
     url: `${SITE_URL}/upload`,
     action: 'Activa tu perfil público para que la hermandad te encuentre',
   },
@@ -119,7 +119,7 @@ export function ejeForGoal(goalKey: string): MarketingEje {
 // inspiración para vender el beneficio real.
 const GOAL_ARGUMENTS: Record<string, string> = {
   uploads_sv:
-    'subir el SavedVariables toma un minuto y convierte tu roster en una ficha viva que la comunidad puede consultar',
+    'subir el archivo del addon toma un minuto y convierte tu roster en una ficha viva que la comunidad puede consultar',
   visitante_to_member:
     'validar tus personajes abre tu perfil público y te vuelve visible para hermandades y bandas',
   member_to_guild_master:
@@ -131,7 +131,7 @@ const GOAL_ARGUMENTS: Record<string, string> = {
   players_public:
     'un perfil público deja que hermandades y bandas te encuentren sin tener que buscar en el chat',
   players_active:
-    'mantener tu SavedVariables al día hace que tu avance y tus lockouts se vean siempre frescos',
+    'mantener tu archivo del addon al día hace que tu avance y tus lockouts se vean siempre frescos',
   visits_weekly:
     'el portal reúne hermandades, bandas y personajes con datos reales; entrar es la vía rápida para encontrar grupo',
   visitors_30d:

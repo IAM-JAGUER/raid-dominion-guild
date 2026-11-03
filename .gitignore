@@ -26,3 +26,11 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 supabase/.temp/
+
+# harness interno de agentes (local, fuera del repo público)
+AGENTS.md
+AGENTS.sections/
+.opencode/
+.vscode/
+PLAN_TRANSFORMACION.md
+scripts/check-copy.mjs

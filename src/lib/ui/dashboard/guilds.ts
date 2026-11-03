@@ -9,6 +9,7 @@ import { ui } from '@/lib/ui/design';
 import { toast } from '@/lib/ui/toast';
 import { card, cardTop } from '@/lib/ui/card';
 import { ruleKey, ruleId, escapeHtml } from '@/lib/ui/dashboard/format';
+import { userError } from '@/lib/ui/userError';
 import { supabase } from '@/lib/supabase';
 import {
   getGuildSnapshot,
@@ -93,7 +94,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     getGuildBandIntegrationRules(g.id),
   ]);
   if (!res.ok) {
-    body.innerHTML = '<p class="text-sm text-gray-400 italic">No se pudieron cargar las propuestas: ' + (res.error || '') + '</p>';
+    body.innerHTML = '<p class="text-sm text-gray-400 italic">' + escapeHtml(userError(res.error, 'No se pudieron cargar las propuestas. Recarga la página e inténtalo de nuevo.')) + '</p>';
     if (countEl) countEl.textContent = '0 pendientes';
     return;
   }
@@ -207,7 +208,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       Object.entries(selection).forEach(([bid, keys]) => { map[bid] = Array.from(keys); });
       const saved = await setGuildBandIntegrationRules(g.id, map);
       savingRules = false;
-      saving.textContent = saved.ok ? '✓' : '✗ ' + (saved.error || 'error');
+      saving.textContent = saved.ok ? '✓' : '✗ ' + userError(saved.error, 'No se pudo guardar');
       saving.className = 'text-[10px] font-bold uppercase tracking-widest ' + (saved.ok ? 'text-emerald-400' : 'text-red-400');
       window.setTimeout(() => { saving.textContent = ''; }, 1800);
     };
@@ -291,7 +292,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
           row.classList.add('border-brand-700/40');
         }
       } else {
-        toast.error('No se pudo decidir la banda', r.error || 'Error desconocido');
+        toast.error('No se pudo decidir la banda', userError(r.error, 'Inténtalo de nuevo.'));
         saving.textContent = '✗ error';
         saving.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
         window.setTimeout(() => { saving.textContent = ''; }, 2500);
@@ -506,7 +507,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
     reglasAdd.classList.toggle('hidden', opts.rulesCatalog.length === 0);
     if (opts.rulesCatalog.length === 0) {
       if (!noCatalogHint) {
-        noCatalogHint = el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un SavedVariables con reglas para asignarlas a tu portal.');
+        noCatalogHint = el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un archivo con reglas para asignarlas a tu portal.');
         reglasAddRow.appendChild(noCatalogHint);
       }
     } else if (noCatalogHint) {
@@ -541,9 +542,9 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
       toast.success('Reglas actualizadas', 'Las reglas de tu portal se guardaron correctamente.');
     } else {
       guildRules = prev;
-      reglasStatus.textContent = '✗ ' + (res.error || 'error');
+      reglasStatus.textContent = '✗ ' + userError(res.error, 'No se pudieron guardar las reglas.');
       reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
-      toast.error('No se pudieron guardar las reglas', res.error || 'Error desconocido');
+      toast.error('No se pudieron guardar las reglas', userError(res.error, 'Inténtalo de nuevo.'));
     }
     renderReglasTags();
     rebuildReglasSelect();
@@ -553,7 +554,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   reglasBox.appendChild(reglasAddRow);
   reglasAddRow.appendChild(el('span', `${ui.eyebrow} shrink-0`, 'Agregar'));
   reglasAddRow.appendChild(reglasAdd);
-  reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-400 italic', 'El catálogo proviene de tu SavedVariables (re-subir el SV lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
+  reglasBox.appendChild(el('p', 'mt-2 text-[11px] text-gray-400 italic', 'El catálogo proviene de tu archivo del addon (volver a subirlo lo actualiza sin tocar esta selección); tú decides qué reglas publica tu portal.'));
   cardEl.appendChild(reglasBox);
 
   // Carga inicial: la selección manual del maestro. Sin selección → el

@@ -27,12 +27,12 @@ const jsonLd = [
         hero="Servidores"
         panelIcon="servidor"
         heroTitleCls="rd-title rd-ornament"
-        intro="Explora servidores y reinos de WoW 3.3.5a con hermandades, personajes y bandas públicas. Los datos se derivan de los SavedVariables que la comunidad decide compartir."
+        intro="Explora servidores y reinos de WoW 3.3.5a con hermandades, personajes y bandas públicas. Los datos provienen de los archivos que la comunidad decide compartir."
         loadingText="Cargando servidores…"
         context={{
           title: '¿Qué es un servidor en RaidDominion?',
           text: 'El servidor es la dirección realmlist del cliente de WoW 3.3.5a (por ejemplo, logon.ejemplo.com). Cada servidor agrupa reinos, y cada reino reúne las hermandades, personajes y bandas públicas registradas.',
-          cta: { label: 'Subir SavedVariables', href: '/upload' },
+          cta: { label: 'Subir archivo del addon', href: '/upload' },
         }}
         gridLabel="Listado de servidores"
         empty={{
@@ -40,8 +40,8 @@ const jsonLd = [
           eyebrow: 'Directorio público',
           title: 'Aún no hay servidores con datos públicos',
           titleCls: 'font-black italic',
-          message: 'Sube tu SavedVariables para que tu reino y hermandad aparezcan en el directorio.',
-          cta: { label: 'Sube tu SavedVariables', href: '/upload' },
+          message: 'Sube el archivo del addon para que tu reino y hermandad aparezcan en el directorio.',
+          cta: { label: 'Sube el archivo del addon', href: '/upload' },
         }}
       />
     </div>

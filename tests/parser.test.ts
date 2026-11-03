@@ -123,7 +123,7 @@ test('un snapshot sin objectives avisa y no rompe', () => {
     registry = { ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena" } } },
   `);
   assert.equal(res.data?.registries?.[0]?.player.objectives, undefined);
-  assert.ok(res.warnings.some((w) => /objetivos|Registrar/i.test(w)), `esperaba aviso, hubo: ${res.warnings}`);
+  assert.ok(res.warnings.some((w) => /metas|Registrar/i.test(w)), `esperaba aviso, hubo: ${res.warnings}`);
 });
 
 // ─── Nota del personaje e instancias (addon 3.1.0) ──────────────────────────
@@ -160,7 +160,7 @@ test('un SV 3.0.1 sin nota/instancias no inventa las claves y avisa', () => {
   const player = res.data?.registries?.[0]?.player;
   assert.equal(player?.note, undefined);
   assert.equal(player?.instances, undefined);
-  assert.ok(res.warnings.some((w) => /3\.1\.0/.test(w)), `esperaba aviso 3.1.0, hubo: ${res.warnings}`);
+  assert.ok(res.warnings.some((w) => /versión anterior|Registrar/i.test(w)), `esperaba aviso de versión anterior, hubo: ${res.warnings}`);
 });
 
 test('las instancias guardadas se normalizan (difficulty/resetAt/extended)', () => {

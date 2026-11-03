@@ -52,11 +52,11 @@ const meta = PAGE_META['/dashboard'];
             <a
               href="/upload"
               class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border bg-brand-900/40 border-brand-500/40 text-brand-300 hover:bg-brand-800/50 hover:border-brand-400/70 ${ui.transition} ${ui.focusRing}`}
-              title="Sube tu SavedVariables"
-              aria-label="Sube tu SavedVariables"
+              title="Sube el archivo del addon"
+              aria-label="Sube el archivo del addon"
             >
               <Icon name="subir" size="sm" />
-              <span class="hidden sm:inline">Subir SV</span>
+              <span class="hidden sm:inline">Subir archivo</span>
             </a>
             <button
               type="button"
@@ -116,10 +116,10 @@ const meta = PAGE_META['/dashboard'];
           hidden
           icon="subir"
           eyebrow="Registro del addon"
-          title="Aún no subes ningún SavedVariables"
+          title="Aún no has subido el archivo del addon"
           gradient={false}
           message="Sube tu archivo RaidDominion.lua para ver aquí todo tu registro: personaje, hermandad y configuración del addon."
-          cta={{ label: "Ir a Subir SavedVariables", href: "/upload" }}
+          cta={{ label: "Ir a subir el archivo", href: "/upload" }}
           ctaCls="px-6 py-3 text-sm"
         >
           <div slot="body">
@@ -129,7 +129,7 @@ const meta = PAGE_META['/dashboard'];
               > para ver aquí todo tu registro: personaje, hermandad y configuración
               del addon.
             </p>
-            <a href="/upload" class={ctaVacio}>Ir a Subir SavedVariables</a>
+            <a href="/upload" class={ctaVacio}>Ir a subir el archivo</a>
             <p
               id="registro-empty-note"
               data-rd-reveal
@@ -257,7 +257,7 @@ const meta = PAGE_META['/dashboard'];
                 ¿Lideras una o más hermandades?
               </h3>
               <p class="text-sm text-gray-300 mb-4">
-                Tu SavedVariables acredita rango de liderazgo. Reclámalas y
+                El archivo del addon acredita rango de liderazgo. Reclámalas y
                 obtén el portal web gratuito de cada guild (puedes ser maestro
                 de varias):
               </p>
@@ -267,10 +267,8 @@ const meta = PAGE_META['/dashboard'];
                     class="shrink-0 w-6 h-6 rounded-full bg-brand-500/15 border border-brand-400/50 text-brand-200 text-xs font-black flex items-center justify-center"
                     >1</span
                   ><span
-                    >Sube tu SavedVariables donde el addon te reporte como
-                    Maestro (<code class="text-brand-300"
-                      >registry.guild.isGM</code
-                    >).</span>
+                    >Sube el archivo del personaje que dirige tu hermandad. El
+                    addon debe reconocerte como maestro.</span>
                 </li>
                 <li class="flex gap-3">
                   <span
@@ -308,9 +306,8 @@ const meta = PAGE_META['/dashboard'];
                cuerpo. El título y la fecha del análisis viven en el encabezado
                de la pestaña; aquí solo el contenido del registro. -->
             <div class={`${ui.sectionBody} space-y-5`}>
-              <!-- Personajes del registro: fusión de registry.player + personajes
-                 de la cuenta (characters) + registros por personaje (registries),
-                 con la card de personaje estandarizada -->
+              {/* Personajes del registro: fusión de las vistas del archivo,
+                 con la card de personaje estandarizada */}
               <div>
                 <h4 class={ui.subTitle}>
                   Personajes del registro <span
@@ -357,7 +354,7 @@ const meta = PAGE_META['/dashboard'];
             eyebrow="Personajes"
             title="Aún no registras personajes"
             gradient={false}
-            message="Sube tu SavedVariables desde el addon y aparecerán aquí."
+            message="Sube el archivo del addon y aparecerán aquí."
             cta={{ label: "Subir ahora", href: "/upload" }}
             ctaCls="px-6 py-3 text-sm"
           />
@@ -400,7 +397,7 @@ const meta = PAGE_META['/dashboard'];
                 </div>
               </div>
 
-              <!-- Ayuda al stat: detecta más personajes subiendo el SV -->
+              {/* Ayuda al stat: detecta más personajes subiendo el archivo */}
               <div class="md:w-80 shrink-0">
                 <div
                   class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
@@ -415,7 +412,7 @@ const meta = PAGE_META['/dashboard'];
                     class="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-brand-300 hover:text-brand-200 transition-colors"
                   >
                     <Icon name="subir" size="xs" />
-                    Subir SavedVariables
+                    Subir archivo del addon
                   </a>
                 </div>
               </div>
@@ -520,7 +517,7 @@ const meta = PAGE_META['/dashboard'];
 
             <!-- ── Task Tracker (adaptación del tracker wow-rd) ───────────────
                  La sección "Datos del perfil" se mantiene arriba; debajo vive
-                 el seguimiento por personaje con datos de las subidas SV. -->
+                 el seguimiento por personaje con datos de las subidas del addon. -->
             <div id="tracker-root" class={ui.tracker.shell}>
               <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div class="min-w-0">
@@ -538,8 +535,7 @@ const meta = PAGE_META['/dashboard'];
                   </h4>
                   <p class={`${ui.text.caption} mt-1`}>
                     Tareas manuales, notas locales y seguimiento del roster. Los
-                    datos del personaje vienen de tus subidas de SavedVariables;
-                    sin GearScore ni lectura del WTF.
+                    datos del personaje se actualizan al subir el archivo del addon.
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
@@ -573,7 +569,7 @@ const meta = PAGE_META['/dashboard'];
                     class={`${ui.btnBase} ${ui.btnGhost} px-3 py-2 text-[10px] font-black uppercase tracking-widest border border-brand-600/30`}
                   >
                     <Icon name="subir" size="xs" />
-                    Subir SV
+                    Subir archivo
                   </a>
                 </div>
               </div>
@@ -644,8 +640,8 @@ const meta = PAGE_META['/dashboard'];
             eyebrow="Bandas"
             title="Aún no detectamos bandas"
             gradient={false}
-            message="Sube tu SavedVariables desde el addon para que tus bandas y reglas aparezcan aquí."
-            cta={{ label: "Subir SavedVariables", href: "/upload" }}
+            message="Sube el archivo del addon para que tus bandas y reglas aparezcan aquí."
+            cta={{ label: "Subir archivo del addon", href: "/upload" }}
             ctaCls="px-6 py-3 text-sm"
           />
 
@@ -766,19 +762,19 @@ const meta = PAGE_META['/dashboard'];
           aria-labelledby="tab-hermandad"
           class="hidden space-y-8"
         >
-          <!-- Sin hermandad aún: solo vía SV (registry.guild.isGM) -->
+          {/* Sin hermandad aún: el portal se crea desde el archivo del addon */}
           <EmptyState
             id="guild-empty"
             hidden
             icon="hermandad"
             eyebrow="Hermandad"
-            title="Tu hermandad nace de tu SavedVariables"
+            title="Tu hermandad nace del archivo del addon"
             gradient={false}
             bodyAlign="start"
           >
             <div slot="body">
               <p class="text-sm text-gray-400 mb-6">
-                Sin formularios: los datos provienen del addon y cada re-upload
+                Sin formularios: los datos provienen del addon y cada nueva subida
                 los mantiene actualizados.
               </p>
               <ol class="space-y-3 mb-7 text-sm text-gray-300 list-none">
@@ -787,8 +783,8 @@ const meta = PAGE_META['/dashboard'];
                     class="shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center"
                     >1</span
                   ><span
-                    >Sube un SavedVariables generado por el personaje que dirige
-                    tu hermandad: el addon lo marca como maestro (isGM).</span>
+                    >Sube el archivo del personaje que dirige tu hermandad: el
+                    addon debe reconocerte como maestro.</span>
                 </li>
                 <li class="flex gap-3">
                   <span
@@ -807,7 +803,7 @@ const meta = PAGE_META['/dashboard'];
                 </li>
               </ol>
               <div class="text-center">
-                <a href="/upload" class={ctaVacio}>Subir SavedVariables</a>
+                <a href="/upload" class={ctaVacio}>Subir archivo del addon</a>
               </div>
             </div>
           </EmptyState>
@@ -1075,15 +1071,14 @@ const meta = PAGE_META['/dashboard'];
                 <div class="flex flex-wrap items-start justify-between gap-4">
                   <div class="max-w-md">
                     <h3 class={`${ui.text.h3} text-brand-300`}>
-                      Resetear datos del SV
+                      Restablecer datos del addon
                     </h3>
                     <p class={`${ui.text.caption} mt-1`}>
-                      Borra tu historial de uploads, los personajes detectados
+                      Borra tu historial de archivos, los personajes detectados
                       y, si la tienes, tu hermandad con su portal. Tu rol vuelve
-                      a <strong class="text-brand-300">visitante</strong> (salvo staff)
-                      y podrás re-subir tu SavedVariables para empezar desde cero.
-                      Tu cuenta, nombre visible y datos en otras apps del ecosistema
-                      se conservan.
+                      a <strong class="text-brand-300">Visitante</strong> (salvo staff)
+                      y podrás volver a subir el archivo para empezar desde cero.
+                      Tu cuenta y tu nombre visible se conservan.
                     </p>
                   </div>
                   <button
@@ -1099,7 +1094,7 @@ const meta = PAGE_META['/dashboard'];
                   class="hidden mt-4 border border-brand-800/50 bg-brand-950/20 rounded-md p-5"
                 >
                   <p class={`${ui.text.body} text-brand-100 mb-3`}>
-                    Esto borrará permanentemente tu historial de SV, personajes
+                    Esto borrará permanentemente tu historial de archivos, personajes
                     y hermandad. Escribe <span class="font-black uppercase"
                       >RESETEAR</span
                     > para confirmar.
@@ -1145,9 +1140,8 @@ const meta = PAGE_META['/dashboard'];
                       Eliminar cuenta
                     </h3>
                     <p class={`${ui.text.caption} mt-1`}>
-                      Borra permanentemente tu perfil, personajes, uploads y
-                      hermandades de RaidDominion. Tu cuenta de usuario y tus
-                      datos en otras apps del ecosistema se conservan.
+                      Borra permanentemente tu perfil, personajes, archivos y
+                      hermandades de RaidDominion. Tu cuenta de usuario se conserva.
                     </p>
                   </div>
                   <button
@@ -1308,6 +1302,7 @@ const meta = PAGE_META['/dashboard'];
     import { ui } from "@/lib/ui/design";
     import { el } from "@/lib/ui/dom";
     import { iconEl } from "@/lib/ui/icons";
+    import { userError } from "@/lib/ui/userError";
     import { toast } from "@/lib/ui/toast";
     import { renderCharacterCard } from "@/lib/ui/cards";
     import { bandDetailHref, bandNameLink } from "@/lib/ui/bandName";
@@ -1628,7 +1623,7 @@ const meta = PAGE_META['/dashboard'];
       return true;
     }
     const PUBLISH_GATE_MSG =
-      "Estás en Visitante y tus personajes aún no están validados. Para publicar personajes y bandas, sube tu SavedVariables con al menos dos personajes: tu cuenta quedará validada como Miembro y podrás activar su visibilidad pública.";
+      "Estás en Visitante y tus personajes aún no están validados. Para publicar personajes y bandas, sube el archivo con tus personajes: tu cuenta quedará validada como Miembro y podrás activar su visibilidad pública.";
     // Resuelve cuando loadProfile fija currentRole; personajes/bandas esperan
     // por él para aplicar correctamente el gate de publicación.
     let resolveProfileReady: () => void;
@@ -1860,7 +1855,7 @@ const meta = PAGE_META['/dashboard'];
         sel.selectedIndex = 0;
         hint.textContent =
           myCharacters.length === 0
-            ? "Sube tu SavedVariables para detectar tus personajes y elegir tu principal."
+            ? "Sube el archivo del addon para detectar tus personajes y elegir tu principal."
             : "Activa la visibilidad pública de al menos un personaje para elegir tu principal.";
         return;
       }
@@ -1949,7 +1944,7 @@ const meta = PAGE_META['/dashboard'];
           msgBox(
             "profile-msg",
             false,
-            "No se pudo cambiar la visibilidad: " + (res.error || ""),
+            userError(res.error, "No se pudo cambiar la visibilidad. Inténtalo de nuevo."),
             { title: "Visibilidad del perfil" },
           );
           return;
@@ -2014,7 +2009,7 @@ const meta = PAGE_META['/dashboard'];
           msgBox(
             "profile-msg",
             false,
-            "No se pudo guardar: " + (res.error || ""),
+            userError(res.error, "No se pudo guardar el perfil. Inténtalo de nuevo."),
             { title: "No se pudo guardar el perfil" },
           );
         }
@@ -2482,25 +2477,25 @@ const meta = PAGE_META['/dashboard'];
           msgBox(
             "claim-msg",
             false,
-            "El reclamo requiere al menos un personaje validado. Valida tu cuenta registrando tu personaje y vuelve a subir tu SV.",
+            "Primero valida tu personaje; después podrás reclamar la hermandad.",
             { title: "Reclamo de hermandad" },
           );
         } else if (err.includes("otra cuenta")) {
           msgBox(
             "claim-msg",
             false,
-            "Este SavedVariables pertenece a otra cuenta; no puedes reclamar su hermandad desde aquí.",
+            "Este archivo pertenece a otra cuenta; no puedes reclamar su hermandad desde aquí.",
             { title: "Reclamo de hermandad" },
           );
         } else if (err.includes("Miembro")) {
           msgBox(
             "claim-msg",
             false,
-            "La validación a Miembro requiere personajes registrados (con un SV de maestro, isGM, basta uno). El reclamo se completará cuando tu cuenta quede validada.",
+            "Primero valida tu cuenta; después podrás reclamar la hermandad. El reclamo se completará cuando tu cuenta quede validada.",
             { title: "Reclamo de hermandad" },
           );
         } else {
-          msgBox("claim-msg", false, "No se pudo reclamar: " + err, {
+          msgBox("claim-msg", false, userError(err, "No se pudo reclamar la hermandad. Reintenta o contacta a soporte."), {
             title: "Reclamo de hermandad",
           });
         }
@@ -2566,11 +2561,11 @@ const meta = PAGE_META['/dashboard'];
         svDeleteConfirm.textContent = "Eliminar";
         svDeleteMsg.className =
           "mt-3 text-sm rounded-md px-4 py-2.5 bg-red-950/40 border border-red-900/40 text-red-200";
-        const msg = "No se pudo eliminar el análisis: " + (res.error || "");
+        const msg = userError(res.error, "No se pudo eliminar el análisis. Inténtalo de nuevo.");
         svDeleteMsg.textContent = msg;
         toast.error(
           "No se pudo eliminar el análisis",
-          res.error || "Error desconocido",
+          userError(res.error, "No se pudo eliminar el análisis. Inténtalo de nuevo."),
         );
         return;
       }
@@ -2579,7 +2574,7 @@ const meta = PAGE_META['/dashboard'];
       svDeleteMsg.textContent = "Análisis eliminado.";
       toast.success(
         "Análisis eliminado",
-        "El SavedVariables seleccionado fue borrado de tu historial.",
+        "El archivo seleccionado fue borrado de tu historial.",
       );
       await loadHistory();
       closeSvDeleteModal();
@@ -2746,7 +2741,7 @@ const meta = PAGE_META['/dashboard'];
         detailEl.classList.add("hidden");
         emptyEl.classList.add("hidden");
         statusEl.textContent =
-          "No se pudieron cargar tus bandas: " + (res.error || "");
+          userError(res.error, "No se pudieron cargar tus bandas. Recarga la página e inténtalo de nuevo.");
         return;
       }
       if (memRes.ok) membershipGuilds = memRes.items ?? [];
@@ -2869,9 +2864,7 @@ const meta = PAGE_META['/dashboard'];
           msgBox(
             "password-msg",
             false,
-            error.message.includes("rate limit")
-              ? "Demasiados intentos; espera un momento."
-              : "No se pudo actualizar la contraseña.",
+            userError(error.message, "No se pudo actualizar la contraseña. Inténtalo de nuevo."),
             { title: "No se pudo cambiar la contraseña" },
           );
           return;
@@ -2943,7 +2936,7 @@ const meta = PAGE_META['/dashboard'];
         msgBox(
           "delete-account-msg",
           false,
-          "No se pudo eliminar la cuenta: " + (res.error || ""),
+          userError(res.error, "No se pudo eliminar la cuenta. Inténtalo de nuevo."),
           { title: "Eliminar cuenta" },
         );
         return;
@@ -3008,7 +3001,7 @@ const meta = PAGE_META['/dashboard'];
         msgBox(
           "reset-data-msg",
           false,
-          "No se pudo resetear: " + (res.error || ""),
+          userError(res.error, "No se pudieron restablecer tus datos. Inténtalo de nuevo."),
           { title: "Resetear datos" },
         );
         return;

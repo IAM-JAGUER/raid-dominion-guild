@@ -38,17 +38,17 @@ const meta = PAGE_META['/moderate'];
           <div class={`relative px-6 py-5 ${ui.plaque}`}>
             <span class={ui.cardTop} aria-hidden="true"></span>
             <h1 class={`${ui.titleHero}`}>Moderación</h1>
-            <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica claims de maestro, controla portales públicos y revisa la bitácora.</p>
+            <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica solicitudes de maestro, controla portales públicos y revisa la bitácora.</p>
           </div>
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
         <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
         <div class="space-y-8">
-        <!-- Cola de claims -->
+        {/* Cola de solicitudes */}
         <section class={`${ui.panel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.1s">
           <h2 class={`${ui.text.h2} text-brand-200 mb-4 flex items-center`}>
-            <Icon name="balanza" size="md" class="mr-2.5" />Claims pendientes
+            <Icon name="balanza" size="md" class="mr-2.5" />Solicitudes pendientes
           </h2>
           <p id="claims-status" class={`${ui.loading.liveText} italic`} aria-live="polite">Cargando…</p>
           <ul id="claims-list" class="space-y-4"></ul>
@@ -84,6 +84,7 @@ const meta = PAGE_META['/moderate'];
   import { ui } from '@/lib/ui/design';
   import { el } from '@/lib/ui/dom';
   import { iconEl, type IconName } from '@/lib/ui/icons';
+  import { userError } from '@/lib/ui/userError';
 
   function msgCls(ok: boolean): string {
     return ok
@@ -115,7 +116,7 @@ const meta = PAGE_META['/moderate'];
 
     const res = await staffListGuilds();
     if (!res.ok) {
-      statusEl.textContent = res.error || 'No se pudo cargar la cola.';
+      statusEl.textContent = userError(res.error, 'No se pudo cargar la cola. Recarga la página e inténtalo de nuevo.');
       vStatusEl.classList.add('hidden');
       return;
     }
@@ -124,7 +125,7 @@ const meta = PAGE_META['/moderate'];
     const pending = guilds.filter((g) => g.claim_status === 'pending');
     const verified = guilds.filter((g) => g.claim_status === 'verified');
     statusEl.classList.toggle('hidden', pending.length > 0);
-    statusEl.textContent = 'Sin claims pendientes. Todo en orden.';
+    statusEl.textContent = 'Sin solicitudes pendientes. Todo en orden.';
 
     pending.forEach((g) => listEl.appendChild(claimCard(g)));
 
@@ -190,10 +191,10 @@ const meta = PAGE_META['/moderate'];
       const r = await verifyClaim(g.id, approved);
       out.className = msgCls(r.ok);
       if (r.ok) {
-        out.textContent = approved ? 'Claim aprobado; portal publicado y roster sincronizado.' : 'Claim rechazado.';
+        out.textContent = approved ? 'Verificación aprobada; portal publicado y roster sincronizado.' : 'Verificación rechazada.';
         li.classList.add('opacity-50', 'pointer-events-none');
       } else {
-        out.textContent = r.error || 'Error.';
+        out.textContent = userError(r.error, 'No se pudo completar la verificación. Reintenta.');
         approve.disabled = false; reject.disabled = false;
       }
     }
@@ -263,8 +264,8 @@ const meta = PAGE_META['/moderate'];
     statusEl.classList.add('hidden');
 
     const LABELS: Record<string, string> = {
-      guild_claim_verified: 'Claim aprobado',
-      guild_claim_rejected: 'Claim rechazado',
+      guild_claim_verified: 'Verificación aprobada',
+      guild_claim_rejected: 'Verificación rechazada',
       guild_published: 'Portal republicado',
       guild_takedown: 'Portal retirado',
       user_role_changed: 'Rol cambiado',

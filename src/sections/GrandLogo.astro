@@ -13,7 +13,7 @@ import { APP_URLS } from '@/utils/constants';
       RaidDominion: addon de bandas y hermandades
     </h1>
     <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
-      Organiza roles, buffs, reglas y botín en tu banda. Sube el SavedVariables y publica el
+      Organiza roles, buffs, reglas y botín en tu banda. Sube el archivo del addon y publica el
       roster de tu hermandad en un portal web gratuito.
     </p>
   </div>
@@ -30,7 +30,7 @@ import { APP_URLS } from '@/utils/constants';
     />
   </div>
 
-  <!-- Call to Action — jerarquía: subir SV primario, descarga secundaria -->
+  {/* Call to Action — jerarquía: subir archivo primario, descarga secundaria */}
   <div class="flex flex-col sm:flex-row items-center gap-4 mb-4 animate-fade-in-1" style="animation-delay: 0.6s">
     <div class="flex flex-col items-center gap-2">
       <a
@@ -38,7 +38,7 @@ import { APP_URLS } from '@/utils/constants';
         class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.lg}`}
       >
         <Icon name="subir" size="md" />
-        Sube tu SavedVariables
+        Sube el archivo del addon
       </a>
     </div>
     <a

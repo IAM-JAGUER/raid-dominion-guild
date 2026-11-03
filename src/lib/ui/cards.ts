@@ -238,7 +238,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       noteEl.title = noteText;
       noteRow.appendChild(noteEl);
     } else {
-      noteRow.appendChild(el('span', 'text-[10px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir tu SV'));
+      noteRow.appendChild(el('span', 'text-[10px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir el archivo'));
     }
     const instCount = c.instances?.length ?? 0;
     if (instCount > 0) {
@@ -260,7 +260,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       noteCheck.disabled = true;
       noteCheck.className += ' opacity-40';
       noteLabel.className += ' opacity-70 cursor-not-allowed';
-      noteLabel.title = 'Primero registra una nota en el addon (Jugador > Información) y vuelve a subir tu SavedVariables.';
+      noteLabel.title = 'Primero registra una nota en el addon (Jugador > Información) y vuelve a subir el archivo.';
     } else {
       noteLabel.title = 'La nota solo se muestra si el personaje también es público.';
       noteCheck.addEventListener('change', async () => {
