@@ -58,7 +58,7 @@ const jsonLd = [
           <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 -mt-8 relative z-10 shadow-lg shadow-brand-900/20`}>
             <Icon name="subir" size="xl" />
           </div>
-          <h1 class={`${ui.titleHero}`}>
+          <h1 class={`${ui.text.hero} ${ui.titleHero} text-balance`}>
             Sube el archivo del addon
           </h1>
           <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
@@ -74,15 +74,15 @@ const jsonLd = [
         <label
           for="sv-file"
           id="dropzone"
-          class="flex flex-col items-center justify-center border-2 border-dashed border-brand-600/40 rounded-md p-8 sm:p-10 cursor-pointer hover:border-brand-500/70 hover:bg-brand-900/10 ${ui.transition}"
+          class="flex flex-col items-center justify-center border-2 border-dashed border-brand-600/40 rounded-md p-8 sm:p-10 cursor-pointer hover:border-brand-500/70 hover:bg-brand-900/10 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-400/60 ${ui.transition}"
         >
           <Icon name="subir" size="xl" class="mb-3" />
           <span class="text-sm text-brand-200 font-medium">Arrastra tu archivo aquí o haz clic para seleccionarlo</span>
           <span class="text-xs text-gray-400 mt-1">RaidDominion.lua · máx. 2 MB · uno o varios archivos</span>
-          <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="hidden" multiple />
+          <input id="sv-file" type="file" accept=".lua,.txt,text/plain" class="sr-only" multiple aria-describedby="sv-file-hint" />
         </label>
 
-        <p class={`${ui.text.caption} mt-3 text-center`}>
+        <p id="sv-file-hint" class={`${ui.text.caption} mt-3 text-center`}>
           ¿Cómo lo obtengo? En el juego abre el menú con <code class="text-brand-300">/rd</code> →
           RaidDominion &gt; Registrar y busca el archivo en tu
           <code class="text-brand-300 break-words">WTF/Account/&lt;cuenta&gt;/SavedVariables</code>
@@ -119,7 +119,7 @@ const jsonLd = [
           <span class={ui.cardTop} aria-hidden="true"></span>
           <div class={`${ui.iconTile} ${ui.iconTileMd} mb-3`}><Icon name="bloqueo-alt" size="md" /></div>
           <h2 class={`${ui.text.h3} text-brand-200 mb-2`}>Cuenta y privacidad</h2>
-          <p class={`${ui.text.caption} leading-relaxed`}>
+          <p class={`${ui.text.caption} leading-relaxed text-pretty`}>
             Puedes analizar el archivo sin cuenta; para guardarlo y publicar tu perfil necesitas
             iniciar sesión. Tú decides qué personajes y bandas son visibles.
           </p>
@@ -182,9 +182,9 @@ const jsonLd = [
              deshabilitado y se habilita solo cuando el parseo + procesamiento
              termina por completo (persistIfLoggedIn) -->
         <div class="text-center">
-          <a id="dash-link" href="/dashboard" aria-disabled="true"
+          <a id="dash-link" href="/dashboard" aria-disabled="true" tabindex="-1"
              class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 opacity-40 pointer-events-none select-none`}>Ir a Mi dashboard →</a>
-          <p class={`${ui.text.caption} mt-2`}>Se habilita al terminar el análisis del archivo.</p>
+          <p class={`${ui.text.caption} mt-2 text-pretty`}>Se habilita al terminar el análisis del archivo.</p>
         </div>
       </section>
 
@@ -271,11 +271,13 @@ const jsonLd = [
     if (!dashLink) return;
     dashLink.classList.add('opacity-40', 'pointer-events-none', 'select-none');
     dashLink.setAttribute('aria-disabled', 'true');
+    dashLink.setAttribute('tabindex', '-1');
   }
   function enableDashboardLink(): void {
     if (!dashLink) return;
     dashLink.classList.remove('opacity-40', 'pointer-events-none', 'select-none');
     dashLink.removeAttribute('aria-disabled');
+    dashLink.removeAttribute('tabindex');
   }
 
   // ── Cola de procesamiento ─────────────────────────────────────────────────

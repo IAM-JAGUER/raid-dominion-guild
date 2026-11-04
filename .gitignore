@@ -27,6 +27,9 @@ pnpm-debug.log*
 .idea/
 supabase/.temp/
 
+# Impeccable: configuración local del harness de diseño
+.impeccable/
+
 # harness interno de agentes (local, fuera del repo público)
 AGENTS.md
 AGENTS.sections/
