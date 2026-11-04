@@ -5,7 +5,7 @@
 // casi idénticos — ver AGENTS.sections/pagina-map.md §2).
 interface Props {
   id?: string;
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   // Clases del título. Default: blanco en itálico (dashboard) — los
   // directorios pasan el gradiente.
@@ -60,8 +60,8 @@ const headCls = align === 'center' ? 'flex items-center justify-center gap-3' : 
         <Icon name={icon} size="xl" />
       </div>
       <div class="min-w-0">
-        <p class={`${ui.eyebrow} mb-1`}>{eyebrow}</p>
-        <p class={`${titleTextCls} text-base`}>{title}</p>
+        {eyebrow && <p class={`${ui.eyebrow} mb-1`}>{eyebrow}</p>}
+        <h2 class={`${titleTextCls} text-base`}>{title}</h2>
       </div>
     </div>
   </div>

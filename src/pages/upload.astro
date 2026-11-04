@@ -58,7 +58,7 @@ const jsonLd = [
           <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4 -mt-8 relative z-10 shadow-lg shadow-brand-900/20`}>
             <Icon name="subir" size="xl" />
           </div>
-          <h1 class={`${ui.text.hero} ${ui.titleHero} text-balance`}>
+          <h1 class={`${ui.text.hero} ${ui.titleHero}`}>
             Sube el archivo del addon
           </h1>
           <p class={`${ui.text.bodyMuted} mt-3 max-w-lg mx-auto italic`}>
@@ -184,7 +184,7 @@ const jsonLd = [
         <div class="text-center">
           <a id="dash-link" href="/dashboard" aria-disabled="true" tabindex="-1"
              class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 opacity-40 pointer-events-none select-none`}>Ir a Mi dashboard →</a>
-          <p class={`${ui.text.caption} mt-2 text-pretty`}>Se habilita al terminar el análisis del archivo.</p>
+          <p id="dash-note" class={`${ui.text.caption} mt-2 text-pretty`}>Se habilita al terminar el análisis del archivo.</p>
         </div>
       </section>
 
@@ -253,6 +253,7 @@ const jsonLd = [
   }
 
   function showError(msg: string): void {
+    setStatus(msg);
     errorEl.classList.remove('hidden');
     errorMsg.textContent = msg;
     resultEl.classList.add('hidden');
@@ -267,17 +268,20 @@ const jsonLd = [
   // reclamos, portales) termina. Con varios archivos se vuelve a deshabilitar
   // por cada tanda y se rehabilita solo al terminar TODA la cola.
   const dashLink = document.getElementById('dash-link') as HTMLAnchorElement | null;
+  const dashNote = document.getElementById('dash-note');
   function disableDashboardLink(): void {
     if (!dashLink) return;
     dashLink.classList.add('opacity-40', 'pointer-events-none', 'select-none');
     dashLink.setAttribute('aria-disabled', 'true');
     dashLink.setAttribute('tabindex', '-1');
+    if (dashNote) dashNote.textContent = 'Se habilita al terminar el análisis del archivo.';
   }
   function enableDashboardLink(): void {
     if (!dashLink) return;
     dashLink.classList.remove('opacity-40', 'pointer-events-none', 'select-none');
     dashLink.removeAttribute('aria-disabled');
     dashLink.removeAttribute('tabindex');
+    if (dashNote) dashNote.textContent = 'Análisis completado: revisa el detalle en Mi dashboard.';
   }
 
   // ── Cola de procesamiento ─────────────────────────────────────────────────

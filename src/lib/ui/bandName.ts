@@ -29,7 +29,7 @@ export function bandDetailHref(slug?: string | null): string | null {
 export function bandDetailCta(slug: string, name: string, cls = ''): HTMLAnchorElement {
   const anchor = document.createElement('a');
   anchor.href = bandDetailHref(slug) ?? '#';
-  anchor.className = `${ui.btnBase} ${ui.btnSecondary} ${ui.focusRing} shrink-0 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${cls}`.trim();
+  anchor.className = `${ui.btnBase} ${ui.btnSecondary} ${ui.focusRing} shrink-0 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider ${cls}`.trim();
   anchor.textContent = 'Ver banda';
   anchor.title = `Abrir la banda ${name}`;
   anchor.setAttribute('aria-label', `Ver la banda ${name}`);

@@ -54,7 +54,7 @@ const meta = PAGE_META['/admin'];
               <h2 class={`${ui.text.h2} text-brand-200 flex items-center`}>
                 <Icon name="megafono" size="md" class="mr-2.5" />Discord · Mercadeo automático
               </h2>
-              <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">objetivos reales → mensaje de conversión</span>
+              <span class="text-[11px] font-black uppercase tracking-widest text-gray-400">objetivos reales → mensaje de conversión</span>
             </div>
 
             <p class="text-xs text-gray-400 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-brand-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-brand-300/80">canal de pruebas</span> (privado, sin @everyone) o al <span class="text-brand-300/80">canal público</span> (con @everyone). La campaña automática publica <span class="text-brand-300/80">2 mensajes al día</span> y solo uno de ellos, elegido al azar, usa @everyone.</p>
@@ -100,7 +100,7 @@ const meta = PAGE_META['/admin'];
           <section class={`${ui.panel} p-4 sm:p-6`}>
             <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
               <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-brand-500 mb-1">Detalle de usuario</p>
+                <p class="text-[11px] font-black uppercase tracking-widest text-brand-500 mb-1">Detalle de usuario</p>
                 <h2 id="detail-name" class={`${ui.text.h1} text-brand-200`}></h2>
                 <p id="detail-email" class={`${ui.text.bodyMuted} mt-1`}></p>
                 <p id="detail-id" class="text-xs font-mono text-gray-400 mt-1 truncate"></p>
@@ -413,14 +413,14 @@ const meta = PAGE_META['/admin'];
       const isActive = activeRole === role;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[role]} p-4 text-left ${ui.focusRing} ${ui.transition} ${isActive ? ui.active : ''}`;
+      btn.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[role]} p-4 text-left ${ui.focusRing} ${ui.transition} ${isActive ? ui.active : ''} ${role === 'admin' ? 'col-span-2 md:col-span-1' : ''}`;
       btn.setAttribute('aria-pressed', String(isActive));
       btn.appendChild(iconEl(ROLE_ICONS[role] ?? 'perfil', { size: 'md', cls: 'mb-1' }));
       const num = document.createElement('p');
       num.className = 'text-3xl font-black';
       num.textContent = String(count);
       const lbl = document.createElement('p');
-      lbl.className = 'text-[10px] font-black uppercase tracking-widest opacity-80 mt-1';
+      lbl.className = 'text-[11px] font-black uppercase tracking-widest opacity-80 mt-1';
       lbl.textContent = ROLE_LABELS[role];
       btn.append(num, lbl);
       btn.addEventListener('click', () => {
@@ -559,14 +559,14 @@ const meta = PAGE_META['/admin'];
     ];
     rows.forEach(({ k, v, mono }) => {
       const dt = document.createElement('dt');
-      dt.className = 'text-[10px] font-black uppercase tracking-widest text-gray-400';
+      dt.className = 'text-[11px] font-black uppercase tracking-widest text-gray-400';
       dt.textContent = k;
       const dd = document.createElement('dd');
       dd.className = mono ? 'text-sm font-mono text-brand-200/90 truncate' : 'text-sm text-gray-200';
       if (mono) {
         const copy = document.createElement('button');
         copy.type = 'button';
-        copy.className = 'inline-flex items-center gap-1.5 ml-2 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-widest rounded border border-brand-600/30 text-brand-300/80 hover:bg-brand-900/30 hover:border-brand-500/50 transition-colors';
+        copy.className = 'inline-flex items-center gap-1.5 ml-2 px-1.5 py-0.5 text-[11px] font-black uppercase tracking-widest rounded border border-brand-600/30 text-brand-300/80 hover:bg-brand-900/30 hover:border-brand-500/50 transition-colors';
         copy.textContent = 'copiar';
         copy.addEventListener('click', async () => {
           await navigator.clipboard.writeText(v).catch(() => undefined);
@@ -678,7 +678,7 @@ const meta = PAGE_META['/admin'];
       btn.className = `${ui.btnBase} ${ui.btnSecondary} w-full mt-2 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
       btn.textContent = 'Guardar';
       const status = document.createElement('span');
-      status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest mt-1 block text-center';
       status.setAttribute('aria-live', 'polite');
       input.addEventListener('input', () => {
         const changed = (input.value.trim() || null) !== (d.value ?? null);
@@ -689,16 +689,16 @@ const meta = PAGE_META['/admin'];
         const newVal = input.value.trim();
         btn.disabled = true;
         status.textContent = 'guardando…';
-        status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center text-brand-300';
+        status.className = 'text-[11px] font-bold uppercase tracking-widest mt-1 block text-center text-brand-300';
         const r = await adminSetProfileField(userId, d.key, newVal);
         if (r.ok) {
           d.value = newVal || null;
           input.value = newVal;
           status.textContent = '✓ guardado';
-          status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center text-emerald-400';
+          status.className = 'text-[11px] font-bold uppercase tracking-widest mt-1 block text-center text-emerald-400';
         } else {
           status.textContent = '✗ error';
-          status.className = 'text-[10px] font-bold uppercase tracking-widest mt-1 block text-center text-red-400';
+          status.className = 'text-[11px] font-bold uppercase tracking-widest mt-1 block text-center text-red-400';
           btn.disabled = false;
         }
         window.setTimeout(() => { status.textContent = ''; }, 2500);
@@ -725,7 +725,7 @@ const meta = PAGE_META['/admin'];
     const textEl = document.createElement('span');
     textEl.textContent = text;
     const status = document.createElement('span');
-    status.className = 'text-[10px] font-bold uppercase tracking-widest';
+    status.className = 'text-[11px] font-bold uppercase tracking-widest';
     status.setAttribute('aria-live', 'polite');
     label.append(input, track, textEl, status);
     input.addEventListener('change', () => onChange(input, status));
@@ -740,17 +740,17 @@ const meta = PAGE_META['/admin'];
   ): Promise<void> {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    status.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const r = await fn();
     input.disabled = false;
     if (r.ok) {
       onSuccess();
       status.textContent = '✓ hecho';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
     } else {
       input.checked = !input.checked;
       status.textContent = '✗ error';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
   }
@@ -878,21 +878,21 @@ const meta = PAGE_META['/admin'];
       saveBtn.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
       saveBtn.textContent = 'Guardar estado';
       const msg = document.createElement('span');
-      msg.className = 'text-[10px] font-bold uppercase tracking-widest';
+      msg.className = 'text-[11px] font-bold uppercase tracking-widest';
       msg.setAttribute('aria-live', 'polite');
 
       saveBtn.addEventListener('click', async () => {
         const newStatus = claimSel.value as AdminEntityGuild['claim_status'];
         if (newStatus === g.claim_status) {
           msg.textContent = 'sin cambios';
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-gray-400';
           return;
         }
         if (saveBtn.dataset.confirm !== 'yes') {
           saveBtn.dataset.confirm = 'yes';
           saveBtn.textContent = '¿Confirmar?';
           msg.textContent = `Se marcará «${claimLabel(newStatus)}».`;
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
           window.setTimeout(() => {
             if (saveBtn.dataset.confirm === 'yes') {
               saveBtn.dataset.confirm = '';
@@ -912,10 +912,10 @@ const meta = PAGE_META['/admin'];
           claimBadge.textContent = claimLabel(newStatus);
           claimBadge.className = `${ui.badge} ${ui.badgeMd} ${claimColor(newStatus)}`;
           msg.textContent = '✓ guardado';
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
         } else {
           msg.textContent = '✗ ' + userError(r.error, 'No se pudo guardar');
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
           saveBtn.textContent = 'Guardar estado';
         }
         window.setTimeout(() => { msg.textContent = ''; }, 2500);
@@ -993,21 +993,21 @@ const meta = PAGE_META['/admin'];
       saveBtn.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
       saveBtn.textContent = 'Guardar integración';
       const msg = document.createElement('span');
-      msg.className = 'text-[10px] font-bold uppercase tracking-widest';
+      msg.className = 'text-[11px] font-bold uppercase tracking-widest';
       msg.setAttribute('aria-live', 'polite');
 
       saveBtn.addEventListener('click', async () => {
         const newStatus = integSel.value as AdminEntityBand['integration_status'];
         if (newStatus === b.integration_status) {
           msg.textContent = 'sin cambios';
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-gray-400';
           return;
         }
         if (saveBtn.dataset.confirm !== 'yes') {
           saveBtn.dataset.confirm = 'yes';
           saveBtn.textContent = '¿Confirmar?';
           msg.textContent = `Se marcará «${integrationLabel({ ...b, integration_status: newStatus }, false)}».`;
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
           window.setTimeout(() => {
             if (saveBtn.dataset.confirm === 'yes') {
               saveBtn.dataset.confirm = '';
@@ -1027,10 +1027,10 @@ const meta = PAGE_META['/admin'];
           integrationBadge.textContent = integrationLabel(b, true);
           integrationBadge.className = `${ui.badge} ${ui.badgeMd} ${integrationColor(newStatus)}`;
           msg.textContent = '✓ guardado';
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
         } else {
           msg.textContent = '✗ ' + userError(r.error, 'No se pudo guardar');
-          msg.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+          msg.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
           saveBtn.textContent = 'Guardar integración';
         }
         window.setTimeout(() => { msg.textContent = ''; }, 2500);
@@ -1182,7 +1182,7 @@ const meta = PAGE_META['/admin'];
       const top = document.createElement('div');
       top.className = 'flex items-center justify-between gap-2';
       const label = document.createElement('p');
-      label.className = 'text-[10px] font-black uppercase tracking-widest text-gray-400 inline-flex items-center gap-1.5';
+      label.className = 'text-[11px] font-black uppercase tracking-widest text-gray-400 inline-flex items-center gap-1.5';
       label.appendChild(iconEl(GOAL_ICONS[g.goal_key] ?? 'trofeo', { size: 'xs', cls: 'shrink-0' }));
       label.appendChild(document.createTextNode(g.label));
       const badge = document.createElement('span');
@@ -1193,13 +1193,13 @@ const meta = PAGE_META['/admin'];
       val.className = 'text-xl font-black text-brand-200 mt-1';
       val.textContent = String(g.current_value);
       const tgt = document.createElement('p');
-      tgt.className = 'text-[10px] text-gray-400';
+      tgt.className = 'text-[11px] text-gray-400';
       tgt.textContent = `objetivo ${g.target}${g.focus_boost ? ' · priorizar' : ''}`;
       card.append(top, val, tgt);
 
       const actions = document.createElement('div');
       actions.className = 'flex items-center gap-1.5 mt-2.5 pt-2 border-t border-gray-700/40';
-      const btnCls = `${ui.btnBase} ${ui.btnSecondary} flex-1 px-2 py-1 text-[10px] font-black uppercase tracking-widest`;
+      const btnCls = `${ui.btnBase} ${ui.btnSecondary} flex-1 px-2 py-1 text-[11px] font-black uppercase tracking-widest`;
       const testBtn = document.createElement('button');
       testBtn.type = 'button';
       testBtn.className = btnCls;

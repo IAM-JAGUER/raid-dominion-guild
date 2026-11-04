@@ -30,12 +30,12 @@ const meta = PAGE_META['/dashboard'];
         <div class="flex items-start gap-4">
           <div
             id="avatar"
+            aria-hidden="true"
             class="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-black text-lg font-black shadow-lg shadow-brand-900/30 ring-2 ring-brand-500/30 select-none"
           >
             –
           </div>
           <div class="min-w-0 flex-1">
-            <p class={`${ui.eyebrow} mb-1`}>Mi cuenta</p>
             <h1
               id="account-title"
               class={`${ui.text.h1} ${ui.gradientTitle} tracking-wide leading-tight truncate`}
@@ -51,7 +51,7 @@ const meta = PAGE_META['/dashboard'];
           <div class="flex items-center gap-1.5 shrink-0">
             <a
               href="/upload"
-              class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-black uppercase tracking-widest border bg-brand-900/40 border-brand-500/40 text-brand-300 hover:bg-brand-800/50 hover:border-brand-400/70 ${ui.transition} ${ui.focusRing}`}
+              class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[11px] font-black uppercase tracking-widest border bg-brand-900/40 border-brand-500/40 text-brand-300 hover:bg-brand-800/50 hover:border-brand-400/70 ${ui.transition} ${ui.focusRing}`}
               title="Sube el archivo del addon"
               aria-label="Sube el archivo del addon"
             >
@@ -61,7 +61,7 @@ const meta = PAGE_META['/dashboard'];
             <button
               type="button"
               id="config-btn"
-              class={`inline-flex items-center justify-center w-9 h-9 rounded-md text-[10px] font-black uppercase tracking-widest border bg-brand-800/70 border-gray-600 text-gray-300 hover:text-brand-200 hover:border-brand-500/50 ${ui.transition} ${ui.focusRing}`}
+              class={`inline-flex items-center justify-center w-9 h-9 rounded-md text-[11px] font-black uppercase tracking-widest border bg-brand-800/70 border-gray-600 text-gray-300 hover:text-brand-200 hover:border-brand-500/50 ${ui.transition} ${ui.focusRing}`}
               aria-label="Configuración de perfil, seguridad y zona de peligro"
               title="Configuración de perfil, seguridad y zona de peligro"
             >
@@ -115,7 +115,6 @@ const meta = PAGE_META['/dashboard'];
           id="registro-empty"
           hidden
           icon="subir"
-          eyebrow="Registro del addon"
           title="Aún no has subido el archivo del addon"
           gradient={false}
           message="Sube tu archivo RaidDominion.lua para ver aquí todo tu registro: personaje, hermandad y configuración del addon."
@@ -351,7 +350,6 @@ const meta = PAGE_META['/dashboard'];
             hidden
             cls="mb-6"
             icon="personaje"
-            eyebrow="Personajes"
             title="Aún no registras personajes"
             gradient={false}
             message="Sube el archivo del addon y aparecerán aquí."
@@ -527,7 +525,7 @@ const meta = PAGE_META['/dashboard'];
                     <span>Tracker de personajes</span>
                     <span
                       id="tracker-personajes-count"
-                      class="inline-flex items-center px-2 py-0.5 rounded-md border border-brand-600/30 bg-brand-950/60 text-[10px] font-black text-brand-200 tabular-nums"
+                      class="inline-flex items-center px-2 py-0.5 rounded-md border border-brand-600/30 bg-brand-950/60 text-[11px] font-black text-brand-200 tabular-nums"
                       aria-live="polite"
                       aria-atomic="true"
                       >0</span
@@ -542,7 +540,7 @@ const meta = PAGE_META['/dashboard'];
                   <button
                     type="button"
                     id="tracker-filters-toggle"
-                    class={`${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                    class={`${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[11px] font-black uppercase tracking-widest`}
                     aria-expanded="false"
                     aria-controls="tracker-filtro"
                     title="Mostrar filtros y selección rápida"
@@ -551,14 +549,14 @@ const meta = PAGE_META['/dashboard'];
                     Filtros
                     <span
                       id="tracker-filters-count"
-                      class="hidden h-5 min-w-5 inline-flex items-center justify-center rounded-md border border-brand-500/50 bg-brand-500/20 px-1 text-[9px] font-black text-brand-100 tabular-nums"
+                      class="hidden h-5 min-w-5 inline-flex items-center justify-center rounded-md border border-brand-500/50 bg-brand-500/20 px-1 text-[11px] font-black text-brand-100 tabular-nums"
                       >0</span
                     >
                   </button>
                   <button
                     type="button"
                     id="tracker-catalog-btn"
-                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[11px] font-black uppercase tracking-widest`}
                     title="Gestionar el catálogo manual de tareas"
                   >
                     <Icon name="pergamino" size="xs" />
@@ -566,7 +564,7 @@ const meta = PAGE_META['/dashboard'];
                   </button>
                   <a
                     href="/upload"
-                    class={`${ui.btnBase} ${ui.btnGhost} px-3 py-2 text-[10px] font-black uppercase tracking-widest border border-brand-600/30`}
+                    class={`${ui.btnBase} ${ui.btnGhost} px-3 py-2 text-[11px] font-black uppercase tracking-widest border border-brand-600/30`}
                   >
                     <Icon name="subir" size="xs" />
                     Subir archivo
@@ -589,7 +587,7 @@ const meta = PAGE_META['/dashboard'];
                   <button
                     type="button"
                     id="tracker-catalog-empty-btn"
-                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`}
+                    class={`${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[11px] font-black uppercase tracking-widest`}
                   >
                     Crear catálogo
                   </button>
@@ -637,7 +635,6 @@ const meta = PAGE_META['/dashboard'];
             hidden
             cls="mb-6"
             icon="espadas"
-            eyebrow="Bandas"
             title="Aún no detectamos bandas"
             gradient={false}
             message="Sube el archivo del addon para que tus bandas y reglas aparezcan aquí."
@@ -667,7 +664,7 @@ const meta = PAGE_META['/dashboard'];
                   <a
                     id="hdr-band-open"
                     href="#"
-                    class={`hidden ${ui.btnBase} ${ui.btnSecondary} ${ui.focusRing} px-2.5 py-1 text-[9px] font-black uppercase tracking-wider`}
+                    class={`hidden ${ui.btnBase} ${ui.btnSecondary} ${ui.focusRing} px-2.5 py-1 text-[11px] font-black uppercase tracking-wider`}
                     >Ver banda</a
                   >
                   <span
@@ -767,7 +764,6 @@ const meta = PAGE_META['/dashboard'];
             id="guild-empty"
             hidden
             icon="hermandad"
-            eyebrow="Hermandad"
             title="Tu hermandad nace del archivo del addon"
             gradient={false}
             bodyAlign="start"
@@ -931,7 +927,7 @@ const meta = PAGE_META['/dashboard'];
                 >
                 <span class="min-w-0">
                   <span
-                    class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1"
+                    class="block text-[11px] font-black uppercase tracking-widest text-red-400 mb-1"
                     >Seguridad</span
                   >
                   <span
@@ -1035,7 +1031,7 @@ const meta = PAGE_META['/dashboard'];
                 >
                 <span class="min-w-0">
                   <span
-                    class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-1"
+                    class="block text-[11px] font-black uppercase tracking-widest text-red-400 mb-1"
                     >Zona de peligro</span
                   >
                   <span
@@ -1217,7 +1213,7 @@ const meta = PAGE_META['/dashboard'];
               class="bg-gradient-to-br from-red-950/30 to-transparent border-b border-red-900/40 px-5 py-4"
             >
               <p
-                class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-1"
+                class="text-[11px] font-black uppercase tracking-widest text-red-400 mb-1"
               >
                 Registro del addon
               </p>

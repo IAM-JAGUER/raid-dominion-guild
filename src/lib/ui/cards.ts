@@ -55,8 +55,8 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   if (chips.children.length > 0) link.appendChild(chips);
 
   const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-brand-600/15');
-  meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', g.realm || 'Reino no especificado'));
-  meta.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-brand-400 group-hover:text-brand-300 transition-colors', 'Ver portal →'));
+  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-400', g.realm || 'Reino no especificado'));
+  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-brand-400 group-hover:text-brand-300 transition-colors', 'Ver portal →'));
   link.appendChild(meta);
 
   return link;
@@ -158,7 +158,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   if (ctx.setVisibility) {
     // Toggle "Público" del dashboard con gate de publicación.
     const visLabel = document.createElement('label');
-    visLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-bold uppercase tracking-widest text-gray-400';
+    visLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-400';
     // La card es un <a>: el clic en el toggle debe cambiar visibilidad y NO
     // navegar a la ficha.
     visLabel.addEventListener('click', (ev) => ev.stopPropagation());
@@ -206,9 +206,9 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     right.appendChild(visLabel);
   }
   if (!ctx.hideStats) {
-    if (typeof c.level === 'number') right.appendChild(el('span', 'text-[10px] text-gray-400', `Nivel ${c.level}`));
+    if (typeof c.level === 'number') right.appendChild(el('span', 'text-[11px] text-gray-400', `Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
-      right.appendChild(el('span', 'text-[10px] text-brand-300', `ilvl ${c.avg_ilvl}`));
+      right.appendChild(el('span', 'text-[11px] text-brand-300', `ilvl ${c.avg_ilvl}`));
     }
   }
   if (href) {
@@ -218,7 +218,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   } else if (ctx.unregistered) {
     right.appendChild(chip('No registrado · otra cuenta', '!text-red-300 !border-red-500/40'));
   } else if (!ctx.forcePlain) {
-    right.appendChild(el('span', 'text-[10px] text-gray-400', 'Privado'));
+    right.appendChild(el('span', 'text-[11px] text-gray-400', 'Privado'));
   }
   row.appendChild(right);
 
@@ -234,11 +234,11 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     const noteRow = el('div', 'flex items-center gap-2 min-w-0 flex-1');
     const noteText = (c.note ?? '').trim();
     if (noteText) {
-      const noteEl = el('span', 'text-[10px] text-gray-400 truncate min-w-0', noteText);
+      const noteEl = el('span', 'text-[11px] text-gray-400 truncate min-w-0', noteText);
       noteEl.title = noteText;
       noteRow.appendChild(noteEl);
     } else {
-      noteRow.appendChild(el('span', 'text-[10px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir el archivo'));
+      noteRow.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir el archivo'));
     }
     const instCount = c.instances?.length ?? 0;
     if (instCount > 0) {
@@ -247,7 +247,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     extras.appendChild(noteRow);
 
     const noteLabel = document.createElement('label');
-    noteLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[10px] font-bold uppercase tracking-widest text-gray-400 shrink-0';
+    noteLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-400 shrink-0';
     const noteCheck = document.createElement('input');
     noteCheck.type = 'checkbox';
     noteCheck.checked = !!c.notes_public;

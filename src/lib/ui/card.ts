@@ -9,7 +9,7 @@
  */
 import { ui } from '@/lib/ui/design';
 import { iconEl, type IconName, type IconSize } from '@/lib/ui/icons';
-import { itemQualityColor } from '@/lib/ui/itemQuality';
+import { itemQualityColor, itemQualityTextColor } from '@/lib/ui/itemQuality';
 import { slugify } from '@/lib/routes';
 
 function node(tag: string, cls: string, text?: string): HTMLElement {
@@ -200,7 +200,7 @@ export function itemRow(o: ItemRowOptions): HTMLElement {
   const content = node('div', 'min-w-0 flex-1');
   if (o.slot) content.appendChild(node('p', ui.item.slot, o.slot));
   const name = node('p', `${ui.item.name}${o.done ? ' line-through opacity-60' : ''}`, o.name);
-  if (o.quality !== null && o.quality !== undefined) name.style.color = itemQualityColor(o.quality);
+  if (o.quality !== null && o.quality !== undefined) name.style.color = itemQualityTextColor(o.quality);
   content.appendChild(name);
   row.appendChild(content);
   if (o.valueEl) row.appendChild(o.valueEl);

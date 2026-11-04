@@ -8,7 +8,7 @@ const RESERVED_PORTAL_SLUGS = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
-  'jugadores', 'banda', 'bandas', 'guilds',
+  'jugadores', 'banda', 'bandas', 'guilds', '404',
 ]);
 
 // https://astro.build/config

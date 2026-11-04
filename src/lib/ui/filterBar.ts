@@ -272,10 +272,10 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): FilterBarContr
 
   if (hasFacets && panelMode === 'disclosure') {
     details = document.createElement('details');
-    details.className = ui.disclosure;
+    details.className = ui.filter.disclosure;
     details.open = true;
     const summary = document.createElement('summary');
-    summary.className = ui.disclosureSummary;
+    summary.className = ui.filter.disclosureSummary;
     const summaryLeft = el('span', ui.filter.summaryLeft);
     summaryLeft.appendChild(iconEl('filtrar', { size: 'xs', cls: 'shrink-0' }));
     summaryLeft.appendChild(el('span', 'min-w-0', 'Filtros'));
@@ -283,7 +283,7 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): FilterBarContr
     summaryLeft.appendChild(summaryCount);
     summary.append(summaryLeft, chevronEl());
     details.appendChild(summary);
-    const body = el('div', `${ui.disclosureBody} ${ui.filter.panelBody}`);
+    const body = el('div', ui.filter.panelBody);
     details.appendChild(body);
     mount.appendChild(details);
     filterBody = body;

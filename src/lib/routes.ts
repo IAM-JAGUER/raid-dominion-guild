@@ -17,7 +17,7 @@ export const RESERVED = new Set([
   'upload', 'login', 'dashboard', 'admin', 'moderate', 'api',
   'assets', '_astro', 'portal', 'jugador', 'personajes', 'personaje',
   'servidor', 'servidores', 'reino', 'hermandad', 'hermandades',
-  'jugadores', 'banda', 'bandas', 'guilds',
+  'jugadores', 'banda', 'bandas', 'guilds', '404',
 ]);
 
 // Segmentos de la ruta actual (sin vacíos ni barra final), p. ej.

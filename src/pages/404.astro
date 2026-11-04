@@ -4,7 +4,6 @@
 // cliente por slug conservan sus rewrites explícitos).
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
-import Icon from '@/components/ui/Icon.astro';
 import HeaderCover from '@/components/ui/HeaderCover.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
@@ -25,10 +24,6 @@ const meta = PAGE_META['/404'];
       <header class={`relative px-6 py-8 ${ui.plaque}`}>
         <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
         <HeaderCover image="/images/headers/404.webp" extraClass="-mx-6 -mt-8" />
-        <p class={`${ui.eyebrow} flex items-center justify-center`}>
-          <Icon name="brujula-alt" size="xs" class="mr-1.5" />
-          <span>Zona inexplorada</span>
-        </p>
         <h1 class={`${ui.titleFicha} ${ui.gradientTitle} mt-3`}>404</h1>
         <p class={`${ui.text.bodyMuted} mt-4`}>
           El pergamino que buscas se perdió en la ventisca: esta ruta no existe,

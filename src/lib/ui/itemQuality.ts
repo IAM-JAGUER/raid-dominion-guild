@@ -12,9 +12,22 @@ export const ITEM_QUALITY_COLORS: Record<number, string> = {
   7: '#00ccff', // Reliquia
 };
 
+// Variantes ACCESIBLES para texto sobre superficie oscura (#071321).
+// El riel y los puntos conservan el color canónico del juego; solo el nombre
+// del ítem usa esta variante para cumplir AA (raro 6.8:1, épico 7.1:1).
+const ITEM_QUALITY_TEXT_COLORS: Record<number, string> = {
+  3: '#4a9eff',
+  4: '#c084fc',
+};
+
 export function itemQualityColor(quality?: number | null): string {
   if (quality === null || quality === undefined) return '#ffffff';
   return ITEM_QUALITY_COLORS[quality] ?? '#ffffff';
+}
+
+export function itemQualityTextColor(quality?: number | null): string {
+  if (quality === null || quality === undefined) return '#ffffff';
+  return ITEM_QUALITY_TEXT_COLORS[quality] ?? itemQualityColor(quality);
 }
 
 // Nombre de calidad en plural para resúmenes de equipo ("4 épicas", "12 raras").

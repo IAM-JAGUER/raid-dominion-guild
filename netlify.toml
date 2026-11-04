@@ -19,6 +19,12 @@
   status = 200
   force = true
 
+# Página 404 directa: /404 no debe resolverse como portal de hermandad.
+[[redirects]]
+  from = "/404"
+  to = "/404.html"
+  status = 200
+
 # Portal de hermandad: raíz legacy /:slug → portal canónico /hermandad/:slug
 # (los archivos reales tienen prioridad; /guilds y demás específicos también)
 [[redirects]]

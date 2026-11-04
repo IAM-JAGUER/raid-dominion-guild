@@ -29,8 +29,8 @@
  * Solo strings de clases Tailwind: sin lógica ni render.
  */
 
-// Superficie canónica de paneles/cards: única fuente del literal borde
-// ámbar (R3/R5). Cualquier variante nueva comparte esta constante.
+// Superficie canónica de paneles/cards: única fuente del literal de borde
+// de marca (R3/R5). Cualquier variante nueva comparte esta constante.
 const SURFACE = 'bg-brand-900/60 backdrop-blur-sm border border-brand-600/30';
 
 export const ui = {
@@ -73,11 +73,11 @@ export const ui = {
     'inline-flex items-center gap-1.5 rounded-md border font-black uppercase tracking-widest',
   // Tamaños de badge: sm para chips de cards, md para badges de rol/estado
   // en headers y tablas. Componer siempre con la base ui.badge.
-  badgeSm: 'px-2 py-0.5 text-[9px]',
-  badgeMd: 'px-2.5 py-1 text-[10px]',
+  badgeSm: 'px-2 py-0.5 text-[11px]',
+  badgeMd: 'px-2.5 py-1 text-[11px]',
   // Chip de cifra clave-valor (stat del header/visor): etiqueta + valor.
   badgeStat:
-    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[10px] font-black uppercase tracking-widest text-gray-400',
+    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[11px] font-black uppercase tracking-widest text-gray-400',
   // Superficie de color del badge de rol (única fuente; la consumen
   // dashboard, admin y perfiles). El layout lo aporta ui.badge + ui.badgeMd.
   badgeRole: {
@@ -87,12 +87,12 @@ export const ui = {
     moderator: 'bg-brand-900/30 border-brand-600/50 text-brand-200',
     admin: 'bg-red-900/30 border-red-600/50 text-red-200',
   } as const,
-  sectionTitle: 'text-3xl font-bold text-brand-400',
+  sectionTitle: 'text-3xl font-bold text-brand-400 text-balance',
   sectionRule: 'mt-4 h-1 w-24 rounded-full bg-brand-500 mx-auto',
   // Subtítulo de bloque dentro de un panel (visores, fichas, listas)
   subTitle: 'text-xs font-bold uppercase tracking-widest text-brand-300/90 mb-2',
   // Chip de categoría/etiqueta (CON texto → rounded-md obligatorio); el color lo aporta colorClasses
-  chip: 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-widest',
+  chip: 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11px] font-bold uppercase tracking-widest',
   // Comando/ruta estilo tecla para material de referencia
   kbd: 'inline-block font-mono text-[11px] leading-none bg-brand-900/80 border border-brand-600/20 rounded px-1.5 py-0.5 text-brand-200',
 
@@ -100,19 +100,19 @@ export const ui = {
   // Escala única: hero (landing), h1-h3 (jerarquía de sección, SIN color:
   // lo aporta el contexto), body/bodyMuted/caption (con color calibrado).
   text: {
-    hero: 'text-3xl md:text-4xl font-bold',
-    h1: 'text-2xl md:text-3xl font-bold',
-    h2: 'text-lg font-bold',
-    h3: 'text-base font-bold',
-    body: 'text-sm text-gray-300',
-    bodyMuted: 'text-sm text-gray-400',
-    caption: 'text-xs text-gray-400',
+    hero: 'text-3xl md:text-4xl font-bold text-balance',
+    h1: 'text-2xl md:text-3xl font-bold text-balance',
+    h2: 'text-lg font-bold text-balance',
+    h3: 'text-base font-bold text-balance',
+    body: 'text-sm text-gray-300 text-pretty',
+    bodyMuted: 'text-sm text-gray-400 text-pretty',
+    caption: 'text-xs text-gray-400 text-pretty',
   },
-  // H1 de PÁGINA con gradiente de marca: título hero con degradado ámbar y
+  // H1 de PÁGINA con gradiente de marca: título hero con degradado Hielo/Energía y
   // tracking amplio (directorios, upload, login, admin, moderate). ÚNICA
   // fuente del literal del gradiente de h1 (antes duplicado en 8 páginas).
   titleHero:
-    'text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-300 to-brand-500 tracking-wider uppercase',
+    'text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-300 to-brand-500 tracking-wider uppercase text-balance',
   // H1 de FICHA/VISTA (personaje, servidor, reino, banda, jugador, portal de
   // hermandad): tamaño grande en itálico, SIN color (lo aporta ui.gradientTitle
   // o un literal de gradiente propio de la vista). Solo base tipográfica.
@@ -145,7 +145,7 @@ export const ui = {
   // y asociar el mensaje por aria-describedby → errorText.
   // helperText: ayuda opcional (aria-describedby opcional); errorText: error.
   form: {
-    label: 'block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5',
+    label: 'block text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1.5',
     input:
       'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-400 transition-colors',
     inputError: '!border-red-500/70 focus:!border-red-500 focus:!ring-red-500/30',
@@ -158,10 +158,16 @@ export const ui = {
   // "Añadir filtro u orden" + chips removibles. Lo consumen los directorios,
   // las pestañas de perfil/ficha y el tracker. ÚNICA fuente del panel.
   filter: {
-    panelBody: 'space-y-2',
+    // Barra de filtros plana dentro de la ventana de contenido: no es una
+    // card anidada (F026/auditoría Impeccable). El grupo de controles interno
+    // conserva su superficie como unidad funcional.
+    disclosure: 'group border-b border-brand-600/20',
+    disclosureSummary:
+      'cursor-pointer list-none px-0 py-2 flex items-center justify-between gap-3 text-brand-200 font-bold text-sm hover:text-brand-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400 transition-all',
+    panelBody: 'space-y-2 px-0 py-2',
     summaryLeft: 'flex min-w-0 items-center gap-2',
     summaryCount:
-      'inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-brand-500/50 bg-brand-500/20 px-1 text-[9px] font-black text-brand-100 tabular-nums',
+      'inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-brand-500/50 bg-brand-500/20 px-1 text-[11px] font-black text-brand-100 tabular-nums',
     chevron:
       'h-4 w-4 shrink-0 text-brand-300 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none',
     // Fila única de controles: buscador + organización + extras. En móvil se
@@ -177,19 +183,19 @@ export const ui = {
     searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
     // Contador de resultados ("N bandas"): live region de la barra. gray-400
     // (6.7:1 sobre la superficie de marca) — gray-500 no pasa AA (F011).
-    result: 'text-[10px] font-black uppercase tracking-widest text-gray-400 sm:text-right shrink-0',
+    result: 'text-[11px] font-black uppercase tracking-widest text-gray-400 sm:text-right shrink-0',
     // Grupo "Organización" inline: label + selector + chips + limpiar.
     org: 'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto md:flex-1',
     orgHead: 'flex w-full min-w-0 items-center gap-1.5 md:w-auto',
-    orgLabel: 'shrink-0 whitespace-nowrap text-[10px] font-black uppercase tracking-widest text-brand-300/90',
+    orgLabel: 'shrink-0 whitespace-nowrap text-[11px] font-black uppercase tracking-widest text-brand-300/90',
     select:
       'min-w-[8rem] flex-1 md:flex-none md:min-w-[8rem] max-w-full px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
     clear:
-      'ml-auto shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:bg-brand-900/40 transition-colors',
+      'ml-auto shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:bg-brand-900/40 transition-colors',
     chips:
       'flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
     chip:
-      'inline-flex max-w-full shrink-0 items-center gap-1.5 rounded-md border border-brand-500/50 bg-gradient-to-b from-brand-900/50 to-brand-950/50 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-brand-200',
+      'inline-flex max-w-full shrink-0 items-center gap-1.5 rounded-md border border-brand-500/50 bg-gradient-to-b from-brand-900/50 to-brand-950/50 px-2 py-1 text-[11px] font-black uppercase tracking-widest text-brand-200',
     chipValue: 'min-w-0 truncate',
     chipRemove:
       'inline-flex h-4 w-4 items-center justify-center rounded-md text-brand-300/80 hover:bg-white/10 hover:text-brand-100 transition-colors',
@@ -237,9 +243,9 @@ export const ui = {
     cardCollapse:
       'min-w-0 flex-1 flex items-center gap-2 text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
     cardTitle: 'font-black italic text-sm truncate',
-    cardMeta: 'text-[10px] text-gray-400 uppercase tracking-widest',
+    cardMeta: 'text-[11px] text-gray-400 uppercase tracking-widest',
     counter:
-      'shrink-0 inline-flex items-center rounded-md border border-brand-600/30 bg-brand-950/60 px-2 py-0.5 text-[10px] font-black text-brand-200 tabular-nums',
+      'shrink-0 inline-flex items-center rounded-md border border-brand-600/30 bg-brand-950/60 px-2 py-0.5 text-[11px] font-black text-brand-200 tabular-nums',
     body: 'relative z-10 px-3 pb-3',
     content:
       'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
@@ -251,12 +257,12 @@ export const ui = {
     contentInnerClosed: 'opacity-0 -translate-y-1',
     stats: 'flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2',
     stat: 'inline-flex items-baseline gap-1.5',
-    statLabel: 'text-[10px] font-black uppercase tracking-widest text-gray-400',
+    statLabel: 'text-[11px] font-black uppercase tracking-widest text-gray-400',
     statValue: 'text-xs font-bold text-brand-100 tabular-nums',
     tabs: 'flex items-center gap-1 border-b border-brand-600/20 pb-1.5 mb-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-    tab: 'inline-flex items-center gap-1 shrink-0 rounded-md border border-transparent px-1.5 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+    tab: 'inline-flex items-center gap-1 shrink-0 rounded-md border border-transparent px-1.5 py-1 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
     tabActive: 'bg-brand-950/70 text-brand-200 border-brand-500/40',
-    tabCount: 'text-[9px] font-bold opacity-70 tabular-nums',
+    tabCount: 'text-[11px] font-bold opacity-70 tabular-nums',
     list: 'space-y-1 max-h-56 overflow-y-auto pr-0.5',
     task: 'flex items-center gap-2 rounded-md border border-brand-700/30 bg-brand-950/40 px-2 py-1.5',
     taskDone: 'opacity-70',
@@ -272,18 +278,18 @@ export const ui = {
     legend:
       'flex flex-wrap items-center gap-1.5 rounded-md border border-brand-700/40 bg-brand-950/50 p-2 scroll-mt-24',
     legendBtn:
-      'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+      'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
     legendActive: 'bg-brand-900/60 text-brand-200 border-brand-500/50',
-    legendCount: 'text-[9px] font-bold opacity-70 tabular-nums',
+    legendCount: 'text-[11px] font-bold opacity-70 tabular-nums',
     dock: 'flex flex-wrap items-center gap-2 rounded-md border border-brand-500/40 bg-brand-950/90 p-2.5 shadow-lg shadow-brand-950/40',
     // Dock de selección del tracker: sticky dentro del panel, nunca fixed.
     // Al vivir en el flujo no tapa la leyenda al final del scroll.
     selectionDock:
       'sticky top-2 z-30 backdrop-blur-sm supports-[backdrop-filter]:bg-brand-950/85',
     dockCount:
-      'text-[10px] font-black uppercase tracking-widest text-brand-200 mr-auto',
+      'text-[11px] font-black uppercase tracking-widest text-brand-200 mr-auto',
     filterOptionLabel:
-      'flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer select-none',
+      'flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-gray-400 cursor-pointer select-none',
     filterCheckbox: 'w-3.5 h-3.5 accent-brand-500',
     select:
       'px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
@@ -292,7 +298,7 @@ export const ui = {
     detailRow:
       'flex items-start justify-between gap-3 border-b border-brand-700/20 py-1.5 text-xs last:border-b-0',
     detailKey:
-      'shrink-0 text-[10px] font-black uppercase tracking-widest text-gray-400',
+      'shrink-0 text-[11px] font-black uppercase tracking-widest text-gray-400',
     detailValue: 'min-w-0 text-right text-gray-200 break-words',
   },
 
@@ -346,7 +352,7 @@ export const ui = {
   // línea de acento superior (cardTop) + glow/lift al hover (cardHover).
   // Uso: card como base, cardHover solo en elementos interactivos (links).
   card: `${SURFACE} rd-card rounded-md`,
-  // Línea de acento superior: gradiente ámbar sobre la card (apéndice visual;
+  // Línea de acento superior: gradiente de marca sobre la card (apéndice visual;
   // no lleva el foco, solo decoración). Va ABSOLUTA: la card necesita
   // `relative overflow-hidden`.
   cardTop: 'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent',
@@ -356,11 +362,11 @@ export const ui = {
   // Fila de card (roster, núcleos, listas): superficie tenue, hover de borde.
   cardRow: 'rounded-md border border-brand-800/40 bg-brand-900/40 hover:border-brand-500/30 transition-colors',
   // Eyebrow: etiqueta superior de sección/card (texto, tracking amplio).
-  eyebrow: 'rd-eyebrow text-[10px] font-black uppercase tracking-[0.18em] text-brand-400/80',
+  eyebrow: 'rd-eyebrow text-[11px] font-black uppercase tracking-[0.18em] text-brand-400/80',
   // Título con degradado de marca (hero, h1/h2 de sección destacada).
   // leading despejado + padding inferior: evita que el itálico y las
   // descendentes (g, y, p) se recorten bajo bg-clip-text.
-  gradientTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em]',
+  gradientTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] text-balance',
   // Cifra destacada (stats, contadores): degradado vertical + tabular.
   // Mismo cuidado tipográfico que gradientTitle (descendentes + itálico).
   statValue: 'font-black italic tabular-nums text-transparent bg-clip-text bg-gradient-to-b from-brand-200 to-brand-500 leading-[1.4] pb-[0.15em]',
@@ -409,7 +415,7 @@ export const ui = {
   item: {
     row: 'relative overflow-hidden flex items-center gap-3 rounded-md border border-brand-700/50 bg-brand-950/80 pl-4 pr-3 py-2.5',
     rowHover: 'hover:border-brand-500/60 hover:bg-brand-950 transition-colors',
-    slot: 'text-[10px] font-black uppercase tracking-[0.16em] text-gray-400',
+    slot: 'text-[11px] font-black uppercase tracking-[0.16em] text-gray-400',
     name: 'text-sm sm:text-base font-bold leading-snug line-clamp-2 text-gray-100',
     value: 'shrink-0 text-lg',
   },
@@ -421,7 +427,7 @@ export const ui = {
   // `!px-4` (centrado simétrico) y hairline solo desde `sm`.
   statBlock: {
     cell: 'border-l border-brand-700/50 px-4 first:border-l-0 first:pl-0 last:pr-0 py-0.5',
-    label: 'text-[10px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',
+    label: 'text-[11px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',
     value: 'text-xl sm:text-3xl',
   },
   // Padding ampliable del cuerpo/cabecera de un PanelWindow protagonista
@@ -463,7 +469,7 @@ export const ui = {
   cut: 'rd-cut',
   // Corte sup-izq de la cabecera de un panel contiguo (modelo dashboard).
   cutTop: 'rd-cut-t',
-  // Estado "seleccionado": borde energético ámbar (tabs, ítems activos).
+  // Estado "seleccionado": borde energético de marca (tabs, ítems activos).
   active: 'rd-active',
   // Pulso mágico lento para elementos importantes (energía).
   glow: 'rd-glow',

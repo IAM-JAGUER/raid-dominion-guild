@@ -36,7 +36,7 @@ const meta = PAGE_META['/hermandad'];
       <!-- No encontrado -->
       <div id="not-found" data-rd-reveal class={`hidden ${ui.panel} ${ui.cut} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
         <Icon name="advertencia" size="xl" class="mx-auto mb-3" />
-        <h2 class={`${ui.text.h2} text-white mb-2`}>Portal no encontrado</h2>
+        <h1 class={`${ui.text.h2} text-white mb-2`}>Portal no encontrado</h1>
         <p id="not-found-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta hermandad no existe o su portal es privado.</p>
         <a href="/hermandades" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Ver directorio</a>
       </div>
@@ -70,7 +70,6 @@ const meta = PAGE_META['/hermandad'];
               <div class="flex-1 min-w-0">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
-                    <p class={`${ui.eyebrow} mb-2`}>Portal de hermandad</p>
                     <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle}`}></h1>
                   </div>
                   <div class="flex items-center gap-2">
@@ -78,7 +77,7 @@ const meta = PAGE_META['/hermandad'];
                     <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest"><Icon name="discord" size="sm" />Discord</a>
                   </div>
                 </div>
-                <p id="guild-description" class={`${ui.text.body} max-w-3xl leading-relaxed mt-3`}></p>
+                <p id="guild-description" class={`${ui.text.body} max-w-md leading-relaxed mt-3`}></p>
                 <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
                 <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
               </div>
@@ -105,27 +104,27 @@ const meta = PAGE_META['/hermandad'];
             <PanelWindow title="Roster" icon="jugadores" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-start mt-4">
-                  <details id="filtro-jerarquia" class={ui.disclosure}>
-                    <summary class={ui.disclosureSummary}>
+                  <details id="filtro-jerarquia" class={ui.filter.disclosure}>
+                    <summary class={ui.filter.disclosureSummary}>
                       <span class="inline-flex items-center gap-2">
                         <Icon name="corona" size="xs" />
                         Jerarquía
                       </span>
                       <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
                     </summary>
-                    <div class={ui.disclosureBody}>
+                    <div class={ui.filter.panelBody}>
                       <div id="stats-ranks" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
                     </div>
                   </details>
-                  <details id="filtro-clases" class={ui.disclosure}>
-                    <summary class={ui.disclosureSummary}>
+                  <details id="filtro-clases" class={ui.filter.disclosure}>
+                    <summary class={ui.filter.disclosureSummary}>
                       <span class="inline-flex items-center gap-2">
                         <Icon name="personaje" size="xs" />
                         Clases
                       </span>
                       <svg class="w-4 h-4 text-brand-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
                     </summary>
-                    <div class={ui.disclosureBody}>
+                    <div class={ui.filter.panelBody}>
                       <div id="stats-classes" class="grid grid-cols-2 gap-2 content-start min-w-0"></div>
                     </div>
                   </details>
@@ -215,12 +214,12 @@ const meta = PAGE_META['/hermandad'];
         <div class={`${ui.panel} p-5 sm:p-7`}>
           <span class={ui.cardTop} aria-hidden="true"></span>
           <h2 id="rd-hermandad-info" class={`${ui.text.h2} text-brand-200 mb-3`}>Sobre este portal de hermandad</h2>
-          <p class={`${ui.text.body} mb-3`}>
+          <p class={`${ui.text.body} max-w-md mb-3`}>
             Cada portal reúne el roster, las bandas, los horarios y las reglas que el maestro de la
             hermandad comparte desde el addon RaidDominion. Los datos se actualizan al volver a subir
             el archivo del addon, sin formularios ni edición manual.
           </p>
-          <p class={`${ui.text.bodyMuted}`}>
+          <p class={`${ui.text.bodyMuted} max-w-md`}>
             Explora el <a href="/hermandades" class="text-brand-300 underline hover:text-brand-200">directorio de hermandades</a>
             o descubre las <a href="/bandas" class="text-brand-300 underline hover:text-brand-200">bandas de raid</a> de WoW 3.3.5a.
             Si diriges una guild, <a href="/upload" class="text-brand-300 underline hover:text-brand-200">sube el archivo del addon</a>.
