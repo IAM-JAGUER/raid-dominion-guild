@@ -65,17 +65,16 @@ export const JUGADOR_TABS: TabDef[] = [
 ];
 
 // Pestañas de la ficha pública de personaje (/personaje/:slug): Equipamiento ·
-// Metas · Notas · Instancias · Bandas · Hermandad. Los paneles sin datos no
-// generan pestaña.
+// Metas · Notas · Bandas · Hermandad. Los paneles sin datos no generan pestaña.
 // Orden (2026-10-15, alineado al editor "Jugador" del addon): "Metas" va
 // segunda porque es el dato que el personaje publica para que la comunidad sepa
-// qué busca (registry[*].objectives); "Notas" (su nota pública opcional) y
-// "Instancias" (snapshot de lockouts) son los datos nuevos del addon 3.1.0.
+// qué busca (registry[*].objectives); "Notas" es la nota pública opcional.
+// "Instancias" NO se publica: el snapshot de lockouts vive solo en el tracker
+// privado de personajes de la cuenta (#personajes en /dashboard).
 export const PERSONAJE_TABS: TabDef[] = [
   { id: 'equipamiento', label: 'Equipamiento', href: '#equipamiento', icon: 'arma' },
   { id: 'metas', label: 'Metas', href: '#metas', icon: 'estrella' },
   { id: 'notas', label: 'Notas', href: '#notas', icon: 'nota' },
-  { id: 'instancias', label: 'Instancias', href: '#instancias', icon: 'ciudadela' },
   { id: 'bandas', label: 'Bandas', href: '#bandas', icon: 'espadas' },
   { id: 'hermandad', label: 'Hermandad', href: '#hermandad', icon: 'hermandad' },
 ];

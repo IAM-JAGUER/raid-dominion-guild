@@ -134,7 +134,7 @@ export const guides: Guide[] = [
         content: [
           'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, metas de equipo y moneda, nota, instancias guardadas, bandas y hermandad).',
           'Registra el personaje que usas en raid y repite el paso por cada uno que quieras incluir.',
-          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Los datos nuevos (metas, nota e instancias) aparecen en tu [dashboard](/dashboard) según lo que decidas publicar.',
+          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Las metas y la nota aparecen en tu [dashboard](/dashboard) según lo que decidas publicar; las instancias guardadas se consultan en el tracker de personajes.',
           'Re-subir tu ficha mantiene todo al día sin volver a configurar nada.',
         ],
       },
@@ -317,7 +317,7 @@ export const guides: Guide[] = [
         content: [
           'Lista tus mazmorras y bandas guardadas con su dificultad y el tiempo restante hasta el reinicio (o "extendido" si suspendiste el reinicio).',
           'El check general de la cabecera añade las instancias guardadas a los tooltips del botón Jugador y del minimapa.',
-          'Al registrar, las instancias viajan como snapshot y aparecen en tu ficha pública del portal (pestaña Instancias) cuando tu personaje es público.',
+          'Al registrar, las instancias viajan como snapshot y quedan disponibles en el tracker privado de personajes de tu cuenta, no en la ficha pública.',
         ],
       },
       {

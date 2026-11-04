@@ -127,7 +127,7 @@ const GOAL_ARGUMENTS: Record<string, string> = {
   guilds_public:
     'publicar el portal de tu hermandad muestra horarios, reglas y roster a posibles nuevos integrantes',
   chars_validated:
-    'un personaje validado aparece en el directorio con su equipamiento, lo que busca mejorar e instancias reales',
+    'un personaje validado aparece en el directorio con su equipamiento, lo que busca mejorar y sus bandas',
   players_public:
     'un perfil público deja que hermandades y bandas te encuentren sin tener que buscar en el chat',
   players_active:

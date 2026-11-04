@@ -1,6 +1,6 @@
 # RaidDominion
 
-> Addon gratuito para World of Warcraft 3.3.5a (WotLK) y portal comunitario para organizar bandas y publicar el roster de una hermandad. El addon registra personajes, equipo, metas, instancias, bandas y reglas; el portal convierte el archivo del addon en fichas y directorios públicos.
+> Addon gratuito para World of Warcraft 3.3.5a (WotLK) y portal comunitario para organizar bandas y publicar el roster de una hermandad. El addon registra personajes, equipo, metas, instancias, bandas y reglas; el portal convierte el archivo en fichas y directorios públicos (las instancias quedan en el tracker privado).
 
 ## Qué es
 
@@ -19,7 +19,7 @@ RaidDominion ayuda a líderes y jugadores de WoW 3.3.5a a preparar y dirigir ban
 - [Subir archivo del addon](https://raid-dominion.netlify.app/upload): análisis del archivo y creación del perfil o portal.
 - [Directorio de hermandades](https://raid-dominion.netlify.app/hermandades): portales públicos con roster, bandas y reglas.
 - [Bandas de raid](https://raid-dominion.netlify.app/bandas): bandas públicas por día, tipo, horario y gearscore mínimo.
-- [Personajes](https://raid-dominion.netlify.app/personajes): fichas con equipo, iLevel, metas e instancias.
+- [Personajes](https://raid-dominion.netlify.app/personajes): fichas con equipo, iLevel, metas y bandas.
 - [Jugadores](https://raid-dominion.netlify.app/jugadores): perfiles públicos de las cuentas.
 - [Servidores y reinos](https://raid-dominion.netlify.app/servidores): hermandades, personajes y bandas por servidor y reino.
 
@@ -30,7 +30,7 @@ RaidDominion ayuda a líderes y jugadores de WoW 3.3.5a a preparar y dirigir ban
 - ¿Para qué versión funciona? World of Warcraft 3.3.5a (WotLK) y servidores privados de esa versión.
 - ¿Cómo instalo el addon? Descomprime la carpeta en Interface/AddOns, reinicia el cliente y abre el menú con /rd.
 - ¿Dónde está el archivo? En WTF/Account/<cuenta>/SavedVariables/RaidDominion.lua.
-- ¿Qué se publica? Los datos que el addon registra; las notas privadas solo si su dueño activa su visibilidad.
+- ¿Qué se publica? Equipo, metas, bandas y hermandad; las instancias guardadas quedan en el tracker privado y las notas solo si su dueño activa su visibilidad.
 - ¿Cómo obtengo el portal de mi hermandad? Cuando el addon acredite que diriges una hermandad, sube el archivo y valida tu cuenta; el portal se crea y se publica desde el dashboard.
 - ¿Qué es el gearscore? Una cifra de referencia del equipo; el addon permite fijar un GS mínimo por banda.
 

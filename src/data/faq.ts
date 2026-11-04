@@ -44,7 +44,7 @@ export const HOME_FAQ: FaqItem[] = [
   {
     question: '¿Qué datos se publican al subir el archivo del addon?',
     answer:
-      'El portal muestra los datos que el addon registra: personaje, equipo, iLevel, metas, instancias, bandas y hermandad. Las notas privadas no se publican salvo que actives su visibilidad. Puedes analizar el archivo sin cuenta; para guardarlo y publicar tu perfil necesitas iniciar sesión.',
+      'El portal muestra los datos que el addon registra: personaje, equipo, iLevel, metas, bandas y hermandad. Las instancias guardadas se consultan solo en el tracker privado de tu cuenta. Las notas privadas no se publican salvo que actives su visibilidad. Puedes analizar el archivo sin cuenta; para guardarlo y publicar tu perfil necesitas iniciar sesión.',
   },
   {
     question: '¿Cómo consigo el portal de mi hermandad?',

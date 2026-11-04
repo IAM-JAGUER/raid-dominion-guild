@@ -64,7 +64,7 @@ export function hasUnverifiedClaims(body: string): boolean {
 const SAFE_BODIES: Record<GuardEje, string> = {
   jugadores: [
     'Tu personaje merece ser visto.',
-    '**Sube el archivo del addon** y convierte tu roster en una ficha viva con equipo, avance e instancias.',
+    '**Sube el archivo del addon** y convierte tu roster en una ficha viva con equipo, avance y bandas.',
     '**Activa tu perfil público** para que hermandades y bandas te encuentren.',
     'Entra al portal y hazte visible ahora.',
   ].join('\n\n'),

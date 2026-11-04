@@ -65,14 +65,6 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       <div id="pv-notas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-instancias" title="Instancias" icon="ciudadela" pad="lg" role="tabpanel" ariaLabelledby="tab-instancias" hidden>
-      <div slot="head">
-        <div class="mt-4" id="pv-instancias-filtro"></div>
-      </div>
-      <div id="pv-instancias"></div>
-      <div id="pv-instancias-pager" class="mt-3"></div>
-    </PanelWindow>
-
     <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Panel de filtros estándar (buscador + selector de día) del motor
@@ -114,7 +106,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
   import { ui } from '@/lib/ui/design';
   import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
   import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
-  import type { CharacterInstance, CurrencyObjective, EquipmentObjective, EquipmentPiece } from '@/types/parser';
+  import type { CurrencyObjective, EquipmentObjective, EquipmentPiece } from '@/types/parser';
   import type { WowLink } from '@/lib/wowLink';
 
   type MetaItem =
@@ -141,7 +133,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
     const slug = c.slug ?? currentSlug();
     const path = `/personaje/${slug}`;
-    const description = `Ficha de ${c.name}${c.realm ? ` de ${c.realm}` : ''}: equipo, iLevel, metas, instancias y bandas públicas en RaidDominion.`;
+    const description = `Ficha de ${c.name}${c.realm ? ` de ${c.realm}` : ''}: equipo, iLevel, metas y bandas públicas en RaidDominion.`;
     setPageMeta({
       title: `${c.name}${c.realm ? ' — ' + c.realm : ''} — Personaje | RaidDominion`,
       description,
@@ -221,8 +213,9 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       a.textContent = `Cuenta de ${label} →`;
       links.appendChild(a);
     }
-    // Paneles ventana (modelo dashboard): Equipamiento / Metas / Bandas /
+    // Paneles ventana (modelo dashboard): Equipamiento / Metas / Notas / Bandas /
     // Hermandad. Cada panel con contenido agrega su pestaña (initAvailableTabs).
+    // Las instancias NO se publican: viven solo en el tracker privado.
     const available: string[] = [];
 
     if ((c.equipment ?? []).length > 0) {
@@ -248,11 +241,6 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     if (notas) {
       (document.getElementById('pv-notas') as HTMLElement).appendChild(notas);
       available.push('notas');
-    }
-
-    if ((c.instances ?? []).length > 0) {
-      renderInstances(c);
-      available.push('instancias');
     }
 
     const bands = await getPublicBandsForCharacter(c.name, c.realm);
@@ -636,111 +624,6 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       `${ui.surf.row} rd-parchment p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-line`,
     ));
     return wrap;
-  }
-
-  // Cuenta atrás "2d 4h" / "5h 20m" / "30m" / "ahora" — mismo formato que el
-  // addon (RD_Utils_Instances.FormatRemaining).
-  function formatRemaining(seconds: number): string {
-    const secs = Math.max(0, Math.floor(seconds));
-    if (secs <= 0) return 'ahora';
-    const days = Math.floor(secs / 86400);
-    const hours = Math.floor((secs % 86400) / 3600);
-    const mins = Math.floor((secs % 3600) / 60);
-    if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
-    if (hours > 0) return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-    return `${Math.max(1, mins)}m`;
-  }
-
-  // Panel "Instancias": snapshot de los lockouts guardados (addon 3.1.0) con
-  // panel de filtros (dificultad/extendida) y paginador.
-  // `resetAt` es una época absoluta capturada al pulsar "Registrar": la cuenta
-  // atrás es una ESTIMACIÓN según ese registro (se indica en el title).
-  function instanceRow(instance: CharacterInstance, now: number): HTMLElement {
-    const slot = [instance.difficulty, instance.extended ? 'extendido' : ''].filter(Boolean).join(' · ');
-    let valueEl: HTMLElement | undefined;
-    if (!instance.extended && typeof instance.resetAt === 'number' && instance.resetAt > 0) {
-      const remaining = instance.resetAt - now;
-      if (remaining <= 0) {
-        // Ya venció: el reinicio ocurrió desde el último registro.
-        valueEl = el('span', 'shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-300', 'Reiniciado');
-      } else {
-        valueEl = el('span', `${ui.statValue} ${ui.item.value}`, formatRemaining(remaining));
-        valueEl.title = 'Cuenta atrás estimada según el último registro del addon';
-      }
-    }
-    return itemRow({
-      slot: slot || undefined,
-      name: instance.name,
-      leading: iconEl('ciudadela', { size: 'md', cls: 'shrink-0' }),
-      rail: '#0C74A8',
-      valueEl,
-    });
-  }
-
-  function renderInstances(c: CharacterRow): void {
-    const instances = [...(c.instances ?? [])];
-    const now = Date.now() / 1000;
-    // Con reloj primero, por reinicio más próximo (mismo orden que el addon).
-    instances.sort((a, b) => {
-      const ra = typeof a.resetAt === 'number' && a.resetAt > 0 ? a.resetAt : Number.POSITIVE_INFINITY;
-      const rb = typeof b.resetAt === 'number' && b.resetAt > 0 ? b.resetAt : Number.POSITIVE_INFINITY;
-      if (ra !== rb) return ra - rb;
-      return a.name.localeCompare(b.name);
-    });
-
-    const container = document.getElementById('pv-instancias') as HTMLElement;
-    const pager = document.getElementById('pv-instancias-pager') as HTMLElement | null;
-    const facets: Array<Facet<CharacterInstance>> = [
-      {
-        id: 'dificultad',
-        label: 'Filtrar instancias por dificultad',
-        getValues: (instance) => (instance.difficulty ? [instance.difficulty] : []),
-      },
-      {
-        kind: 'flag',
-        id: 'extendida',
-        label: 'Filtrar instancias extendidas',
-        getFlag: (instance) => !!instance.extended,
-        chipLabel: 'Extendida',
-        icon: 'calendario',
-      },
-    ];
-
-    createFilterBar<CharacterInstance>({
-      mount: document.getElementById('pv-instancias-filtro') as HTMLElement,
-      items: instances,
-      getSearchText: (instance) => `${instance.name} ${instance.difficulty ?? ''}`,
-      searchPlaceholder: 'Buscar instancia…',
-      searchLabel: 'Buscar instancias por nombre o dificultad',
-      facets,
-      resultNoun: (n) => `${n} instancia${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pager) pager.textContent = '';
-        if (filtered.length === 0) {
-          container.innerHTML = '';
-          const msg = state.query.trim()
-            ? `Ninguna instancia coincide con "${state.query.trim()}".`
-            : 'No hay instancias que coincidan con los filtros.';
-          container.appendChild(el('p', `${ui.text.bodyMuted} italic`, msg));
-          return;
-        }
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_GRID,
-          totalItems: filtered.length,
-          summary: `${filtered.length} instancia${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            container.innerHTML = '';
-            container.appendChild(el('p', `${ui.eyebrow} mb-3`, `Instancias guardadas · ${filtered.length}`));
-            const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-            const start = (page - 1) * PAGE_SIZE_GRID;
-            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((instance) => list.appendChild(instanceRow(instance, now)));
-            container.appendChild(list);
-          },
-        });
-        if (pager && paginator.bar) pager.appendChild(paginator.bar);
-        paginator.update();
-      },
-    });
   }
 
   // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
