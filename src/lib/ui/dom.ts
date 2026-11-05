@@ -34,7 +34,7 @@ export function iconChip(name: IconName, text: string, extra = '', size: 'sm' | 
 // Chip de cifra clave-valor (etiqueta muted + valor con degradado ui.statValue).
 export function statChip(label: string, value: string | number, extra = ''): HTMLElement {
   const c = el('span', `${ui.badge} ${ui.badgeMd} bg-brand-800/60 border-brand-600/20 flex items-baseline gap-1.5` + (extra ? ` ${extra}` : ''));
-  c.appendChild(el('span', 'text-gray-400', label));
+  c.appendChild(el('span', 'text-gray-300', label));
   c.appendChild(el('span', `${ui.statValue} text-sm`, String(value)));
   return c;
 }

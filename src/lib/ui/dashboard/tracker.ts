@@ -546,7 +546,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     legendMount.classList.toggle('hidden', characters.length === 0);
     const counts: TrackerLegendCounts = legendCounts(characters, catalog.length);
     legendMount.textContent = '';
-    const label = el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400 mr-1', 'Leyenda');
+    const label = el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 mr-1', 'Leyenda');
     legendMount.appendChild(label);
     LEGEND_TABS.forEach((tab) => {
       const btn = document.createElement('button');

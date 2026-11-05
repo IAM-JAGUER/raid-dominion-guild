@@ -122,7 +122,7 @@ const meta = PAGE_META['/dashboard'];
           ctaCls="px-6 py-3 text-sm"
         >
           <div slot="body">
-            <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">
+            <p class="text-sm text-gray-300 max-w-md mx-auto mb-6">
               Sube tu archivo <code class="text-brand-300"
                 >RaidDominion.lua</code
               > para ver aquí todo tu registro: personaje, hermandad y configuración
@@ -143,7 +143,7 @@ const meta = PAGE_META['/dashboard'];
                esquina inferior cuadrada) -->
           <div>
             <div
-              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
+              class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-arcane rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
             >
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -157,7 +157,7 @@ const meta = PAGE_META['/dashboard'];
                     <Icon name="bandeja" size="md" class="mr-2.5" />
                     <span
                       id="hdr-registro-title-text"
-                      class={`${ui.gradientTitle} font-black italic`}
+                      class={`${ui.gradientTitle} rd-tone-title font-black italic`}
                       >Registro</span
                     >
                   </h2>
@@ -201,7 +201,7 @@ const meta = PAGE_META['/dashboard'];
                     <div class="flex items-center justify-between gap-2">
                       <label
                         for="sv-select"
-                        class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
+                        class="block text-[11px] font-black uppercase tracking-widest text-gray-300"
                         >Registro</label
                       >
                       <span
@@ -401,7 +401,7 @@ const meta = PAGE_META['/dashboard'];
                   class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
                 >
                   <p
-                    class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
+                    class="block text-[11px] font-black uppercase tracking-widest text-gray-300"
                   >
                     ¿Falta algún personaje?
                   </p>
@@ -617,7 +617,7 @@ const meta = PAGE_META['/dashboard'];
               class="hidden text-xs text-brand-100/90 bg-brand-950/30 border-l-2 border-brand-500/60 px-4 py-3 rounded-md"
             >
             </p>
-            <p id="characters-status" class="hidden text-sm text-gray-400"></p>
+            <p id="characters-status" class="hidden text-sm text-gray-300"></p>
           </div>
         </section>
 
@@ -644,7 +644,7 @@ const meta = PAGE_META['/dashboard'];
 
           <div
             id="bands-sectionhead"
-            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
+            class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-ember rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
           >
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -658,7 +658,7 @@ const meta = PAGE_META['/dashboard'];
                   <Icon name="espadas" size="md" />
                   <span
                     id="hdr-band-name-text"
-                    class={`${ui.gradientTitle} min-w-0 font-black italic`}
+                    class={`${ui.gradientTitle} rd-tone-title min-w-0 font-black italic`}
                     >Mis bandas</span
                   >
                   <a
@@ -669,7 +669,7 @@ const meta = PAGE_META['/dashboard'];
                   >
                   <span
                     id="hdr-band-name-meta"
-                    class="text-xs font-normal text-gray-400"
+                    class="text-xs font-normal text-gray-300"
                   ></span>
                 </h2>
                 <!-- Indicadores de la banda seleccionada en el navegador (liberan
@@ -703,7 +703,7 @@ const meta = PAGE_META['/dashboard'];
                   <div class="flex items-center justify-between gap-2">
                     <label
                       for="band-select"
-                      class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
+                      class="block text-[11px] font-black uppercase tracking-widest text-gray-300"
                       >Bandas</label
                     >
                     <span
@@ -747,7 +747,7 @@ const meta = PAGE_META['/dashboard'];
               class="hidden text-xs text-brand-100/90 bg-brand-950/30 border-l-2 border-brand-500/60 px-4 py-3 rounded-md"
             >
             </div>
-            <p id="bands-status" class="text-sm text-gray-400" aria-live="polite">
+            <p id="bands-status" class="text-sm text-gray-300" aria-live="polite">
             </p>
           </div>
         </section>
@@ -769,7 +769,7 @@ const meta = PAGE_META['/dashboard'];
             bodyAlign="start"
           >
             <div slot="body">
-              <p class="text-sm text-gray-400 mb-6">
+              <p class="text-sm text-gray-300 mb-6">
                 Sin formularios: los datos provienen del addon y cada nueva subida
                 los mantiene actualizados.
               </p>
@@ -807,7 +807,7 @@ const meta = PAGE_META['/dashboard'];
           <!-- Gestión multi-hermandad -->
           <div id="guild-manage" data-rd-reveal class="hidden">
             <div
-              class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
+              class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-valor rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
             >
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -821,7 +821,7 @@ const meta = PAGE_META['/dashboard'];
                     <Icon name="estandarte" size="md" class="mr-2.5" />
                     <span
                       id="hdr-guild-name-text"
-                      class={`${ui.gradientTitle} font-black italic`}
+                      class={`${ui.gradientTitle} rd-tone-title font-black italic`}
                       >Tus hermandades</span
                     >
                   </h2>
@@ -863,7 +863,7 @@ const meta = PAGE_META['/dashboard'];
                     <div class="flex items-center justify-between gap-2">
                       <label
                         for="guild-select"
-                        class="block text-[11px] font-black uppercase tracking-widest text-gray-400"
+                        class="block text-[11px] font-black uppercase tracking-widest text-gray-300"
                         >Hermandad</label
                       >
                       <span
@@ -2243,7 +2243,7 @@ const meta = PAGE_META['/dashboard'];
       if (pagerEl) pagerEl.textContent = "";
       if (entries.length === 0) {
         wrap.innerHTML = "";
-        wrap.appendChild(el("p", "text-[11px] text-gray-400 italic", "Sin personajes en el registro."));
+        wrap.appendChild(el("p", "text-[11px] text-gray-300 italic", "Sin personajes en el registro."));
         return;
       }
 

@@ -1,18 +1,21 @@
 ---
 // Componente SectionHeader
 // Muestra un título de sección con estilos consistentes (tokens de src/lib/ui/design.ts)
-import { ui } from '@/lib/ui/design';
+import { ui, type Tone } from '@/lib/ui/design';
 
 export interface Props {
   title: string;
   subtitle?: string;
   align?: 'left' | 'center' | 'right';
+  // Tono ceremonial del título/ornamento (paleta v2). `steel` = marca.
+  tone?: Tone;
 }
 
 const { 
   title, 
   subtitle = '', 
-  align = 'center' 
+  align = 'center',
+  tone = 'steel',
 } = Astro.props;
 
 const textAlign = {
@@ -22,8 +25,8 @@ const textAlign = {
 }[align];
 ---
 
-<div class={`${textAlign} mb-8`}>
-  <h2 class={`${ui.sectionTitle} ${ui.gradientTitle} ${ui.ornament} mb-2`}>
+<div class={`${tone === 'steel' ? '' : ui.tone[tone]} ${textAlign} mb-8`}>
+  <h2 class={`${ui.sectionTitle} ${ui.gradientTitle} ${ui.ornament} mb-2${tone === 'steel' ? '' : ` ${ui.toneTitle}`}`}>
     {title}
   </h2>
   {subtitle && (

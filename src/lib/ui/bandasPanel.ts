@@ -154,7 +154,7 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     head.appendChild(el('h3', `${ui.subTitle} !mb-0`, title));
     // El conteo conserva el TOTAL del día (no el de la rebanada); la rebanada
     // que prosigue un día partido por la paginación lo advierte.
-    head.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-400', `· ${total} banda${total === 1 ? '' : 's'}${continuation ? ' (continuación)' : ''}`));
+    head.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-300', `· ${total} banda${total === 1 ? '' : 's'}${continuation ? ' (continuación)' : ''}`));
     section.appendChild(head);
 
     // En columna de día: cards apiladas; en full-width: grilla de cards.

@@ -57,20 +57,20 @@ const meta = PAGE_META['/hermandad'];
 
         <!-- Hero: placa de identidad (póster) con medallón héroe -->
         <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-          <div class={`${ui.plaque} p-5 sm:p-7`}>
-            <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+          <div class={`${ui.plaque} ${ui.tone.valor} ${ui.toneHead} p-5 sm:p-7`}>
+            <span class={`${ui.cardTop} ${ui.toneTop} z-20`} aria-hidden="true"></span>
             <HeaderCover
               image="/images/headers/portal-hermandad.webp"
               extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
             />
             <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
-              <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
+              <div class={`${ui.iconTile} ${ui.toneIcon} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
                 <Icon name="estandarte" size="hero" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
-                    <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle}`}></h1>
+                    <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
                   </div>
                   <div class="flex items-center gap-2">
                     <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}><Icon name="medalla" size="xs" class="self-center" />Verificada</span>
@@ -154,7 +154,7 @@ const meta = PAGE_META['/hermandad'];
           <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6 pt-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y los paneles del portal. -->
-            <PanelWindow title="Bandas" icon="espadas" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow title="Bandas" icon="espadas" tone="ember" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <!-- Panel de filtros estándar (buscador + selector de día) del
                      motor src/lib/ui/filterBar.ts, vía renderBandasPanel. -->
@@ -174,7 +174,7 @@ const meta = PAGE_META['/hermandad'];
           <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6 pt-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y Bandas. -->
-            <PanelWindow title="Reglas" icon="pergamino" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow title="Reglas" icon="pergamino" tone="parchment" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
                 <div class="mt-4" id="viewer-rules-filtro"></div>
@@ -198,7 +198,7 @@ const meta = PAGE_META['/hermandad'];
             <Icon name="cristal" size="xl" />
           </div>
           <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
-          <p class="text-sm text-gray-400">El maestro de esta hermandad aún no publica roster ni bandas.</p>
+          <p class="text-sm text-gray-300">El maestro de esta hermandad aún no publica roster ni bandas.</p>
         </div>
 
         <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
@@ -323,7 +323,7 @@ const meta = PAGE_META['/hermandad'];
               li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
               const inner = el('div', '');
               inner.appendChild(el('span', 'font-bold text-brand-200', rule.title || 'Regla'));
-              if (rule.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', rule.content));
+              if (rule.content) inner.appendChild(el('p', 'text-gray-300 text-xs mt-1', rule.content));
               li.appendChild(inner);
               box.appendChild(li);
             });
@@ -694,7 +694,7 @@ const meta = PAGE_META['/hermandad'];
           const n = t.id === 'miembros' ? members.length : t.id === 'bandas' ? merged.length : rules.length;
           const chip = document.createElement('a');
           chip.href = t.href;
-          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-400';
+          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-300';
           chip.textContent = `${t.label} · ${n}`;
           metaGroup.appendChild(chip);
           metaChips[t.id] = chip;
@@ -712,7 +712,7 @@ const meta = PAGE_META['/hermandad'];
             const on = id === active;
             chip.classList.toggle('bg-brand-500/20', on);
             chip.classList.toggle('text-brand-200', on);
-            chip.classList.toggle('text-gray-400', !on);
+            chip.classList.toggle('text-gray-300', !on);
             if (on) chip.setAttribute('aria-current', 'page');
             else chip.removeAttribute('aria-current');
           });

@@ -13,7 +13,7 @@ import PageHeader from '@/components/ui/PageHeader.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
-import { ui } from '@/lib/ui/design';
+import { ui, type Tone } from '@/lib/ui/design';
 import type { IconName } from '@/lib/ui/icons';
 
 interface EmptyConfig {
@@ -54,6 +54,8 @@ interface Props {
   heroImage?: string;
   heroImagePosition?: string;
   heroImageMode?: 'background' | 'cover';
+  // Tono ceremonial del directorio (paleta v2). `steel` = marca.
+  tone?: Tone;
 }
 
 const {
@@ -70,7 +72,10 @@ const {
   heroImage,
   heroImagePosition,
   heroImageMode,
+  tone = 'steel',
 } = Astro.props;
+const isTone = tone !== 'steel';
+const toneCls = isTone ? ui.tone[tone] : '';
 ---
 <Breadcrumb />
 
@@ -82,6 +87,7 @@ const {
   image={heroImage}
   imagePosition={heroImagePosition}
   imageMode={heroImageMode}
+  tone={tone}
 />
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
@@ -93,7 +99,7 @@ const {
      (buscador + selector dinámico + chips activos) vía
      src/lib/ui/filterBar.ts sobre #filters. -->
 <div data-rd-list-frame>
-  <PanelWindow title={panelTitle} icon={panelIcon}>
+  <PanelWindow title={panelTitle} icon={panelIcon} tone={tone}>
     <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>
     <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" aria-label={gridLabel}>
       <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
@@ -117,9 +123,9 @@ const {
 />
 
 {context && (
-  <section class={`${ui.panel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
-    <span class={ui.cardTop} aria-hidden="true"></span>
-    <h2 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>{context.title}</h2>
+  <section class={`${ui.panel} ${toneCls} ${isTone ? ui.tonePanel : ''} relative overflow-hidden mt-10 p-6 sm:p-7`}>
+    <span class={`${ui.cardTop} ${isTone ? ui.toneTop : ''}`} aria-hidden="true"></span>
+    <h2 class={`${ui.text.h1} ${ui.gradientTitle} ${isTone ? ui.toneTitle : ''} mb-2`}>{context.title}</h2>
     <p class={`${ui.text.body} leading-relaxed max-w-md`}>{context.text}</p>
     {context.cta && (
       <a href={context.cta.href} class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>

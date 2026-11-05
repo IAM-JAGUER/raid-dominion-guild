@@ -33,8 +33,8 @@ import { ui } from '@/lib/ui/design';
          de contexto (#jugador-context) del separador. -->
     <div id="profile" data-rd-reveal class="hidden">
       <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-        <div class={`${ui.plaque} p-5 sm:p-7`}>
-          <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+        <div class={`${ui.plaque} ${ui.tone.arcane} ${ui.toneHead} p-5 sm:p-7`}>
+          <span class={`${ui.cardTop} ${ui.toneTop} z-20`} aria-hidden="true"></span>
           <HeaderCover
             image="/images/headers/ficha-personaje.webp"
             extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
@@ -43,16 +43,16 @@ import { ui } from '@/lib/ui/design';
             <!-- Medallón héroe: arte nativo del sprite con halo del color de
                  clase del personaje principal. La clase va en su chip con la
                  miniatura JPG a 20px (el asset es de 18px). -->
-            <div id="avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
+            <div id="avatar" class={`${ui.iconTile} ${ui.toneIcon} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
               <Icon name="personaje" size="hero" />
             </div>
             <div class="flex-1 min-w-0 text-left">
-              <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
+              <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
               <div id="chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
               <div class="flex flex-wrap justify-start gap-2 mt-3">
                 <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}><Icon name="estrella" size="sm" class="self-center" />Maestro de hermandad</span>
               </div>
-              <p id="profile-ref" class="hidden text-sm text-gray-400 mt-3"></p>
+              <p id="profile-ref" class="hidden text-sm text-gray-300 mt-3"></p>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ import { ui } from '@/lib/ui/design';
           </div>
         </PanelWindow>
 
-        <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+        <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" tone="ember" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
           <div slot="head">
             <!-- Panel de filtros estándar (buscador + selector de día) del motor
                  src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
@@ -95,7 +95,7 @@ import { ui } from '@/lib/ui/design';
           <div id="bandas-content" class="space-y-8"></div>
         </PanelWindow>
 
-        <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+        <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" tone="valor" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
           <div slot="head">
             <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
             <div class="mt-4" id="hermandades-filtro"></div>
@@ -310,7 +310,7 @@ import { ui } from '@/lib/ui/design';
       // Perfil público sin personajes publicados: ficha vacía informativa.
       const emptyCard = card('p-6 sm:p-8 text-center');
       emptyCard.appendChild(cardTop());
-      emptyCard.appendChild(el('p', 'text-sm text-gray-400 italic', 'Este jugador aún no publica personajes.'));
+      emptyCard.appendChild(el('p', 'text-sm text-gray-300 italic', 'Este jugador aún no publica personajes.'));
       mainCard.appendChild(emptyCard);
       mainTitle.textContent = 'Personajes';
     }
@@ -460,7 +460,7 @@ import { ui } from '@/lib/ui/design';
       parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-gray-300`, p)));
       cardEl.appendChild(chips);
     }
-    cardEl.appendChild(el('p', 'text-xs text-gray-400 mt-4', 'Sin ficha pública'));
+    cardEl.appendChild(el('p', 'text-xs text-gray-300 mt-4', 'Sin ficha pública'));
     return cardEl;
   }
 

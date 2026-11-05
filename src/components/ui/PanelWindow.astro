@@ -25,6 +25,8 @@ interface Props {
   hidden?: boolean;
   // Añade ui.gradientTitle al título (default true; hermandad usa solid).
   gradient?: boolean;
+  // Tono ceremonial de la cabecera (paleta v2). `steel` = marca.
+  tone?: Tone;
   // Contenedor exterior: clases extra (p. ej. `space-y-6`, `pt-6`) y ARIA.
   wrapCls?: string;
   role?: 'tabpanel';
@@ -41,32 +43,42 @@ const {
   headCls = '',
   hidden = false,
   gradient = true,
+  tone = 'steel',
   wrapCls = '',
   role,
   ariaLabelledby,
 } = Astro.props;
 
-import { ui } from '@/lib/ui/design';
+import { ui, type Tone } from '@/lib/ui/design';
 import Icon from '@/components/ui/Icon.astro';
 import type { IconName } from '@/lib/ui/icons';
 
-const h2Cls = gradient ? `${titleCls} ${ui.gradientTitle} pb-[0.1em]` : `${titleCls} pb-[0.1em]`;
-const wrapClsFull = `${hidden ? 'hidden ' : ''}${wrapCls}`.trim();
+const isTone = tone !== 'steel';
+const toneCls = ui.tone[tone];
+const h2Cls = `${gradient ? `${titleCls} ${ui.gradientTitle}` : titleCls} pb-[0.1em]${isTone ? ` ${ui.toneTitle}` : ''}`;
+const wrapClsFull = `${hidden ? 'hidden ' : ''}${toneCls} ${wrapCls}`.trim();
 const padCls = ui.panelPad[pad];
 ---
 <div id={id} class={wrapClsFull} role={role} aria-labelledby={ariaLabelledby}>
-  <div class={`${ui.sectionHead} ${ui.cutTop} ${padCls} bg-gradient-to-br from-brand-900/20 to-transparent ${headCls}`}>
+  <div class={`${ui.sectionHead} ${ui.cutTop} ${padCls} bg-gradient-to-br from-brand-900/20 to-transparent ${isTone ? ui.toneHead : ''} ${headCls}`}>
+    {isTone && <span class={ui.toneRail} aria-hidden="true"></span>}
     <h2 class={h2Cls}>
       {icon ? (
-        <Icon name={icon} size="lg" class="mr-2.5" />
+        isTone ? (
+          <span class={`mr-2.5 inline-flex items-center justify-center rounded-md border p-1.5 ${ui.toneIcon}`}>
+            <Icon name={icon} size="lg" />
+          </span>
+        ) : (
+          <Icon name={icon} size="lg" class="mr-2.5" />
+        )
       ) : (
-        <span class="w-2 h-2 rounded-full bg-brand-500 mr-3 shadow-[0_0_8px_rgba(0,191,255,0.5)]"></span>
+        <span class={`w-2 h-2 rounded-full mr-3 ${isTone ? 'rd-tone-dot' : 'bg-brand-500 shadow-[0_0_8px_rgba(0,191,255,0.5)]'}`}></span>
       )}
       {title}
     </h2>
     <slot name="head" />
   </div>
-  <div class={`${ui.sectionBody} ${padCls} ${bodyCls}`}>
+  <div class={`${ui.sectionBody} ${padCls} ${isTone ? ui.toneBody : ''} ${bodyCls}`}>
     <slot />
   </div>
 </div>

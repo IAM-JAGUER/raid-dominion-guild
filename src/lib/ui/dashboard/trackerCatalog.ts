@@ -220,7 +220,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
       refreshBulk();
     });
 
-    const handle = el('span', 'cursor-grab text-gray-400 px-1 select-none shrink-0', '⋮⋮');
+    const handle = el('span', 'cursor-grab text-gray-300 px-1 select-none shrink-0', '⋮⋮');
     handle.title = 'Arrastrar para reordenar';
     handle.draggable = true;
     handle.setAttribute('aria-hidden', 'true');
@@ -255,7 +255,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
     });
 
     const used = usage.get(task.id) ?? { active: 0, marked: 0 };
-    const usageEl = el('span', 'text-[10px] text-gray-400 shrink-0', `${used.active} activas · ${used.marked} marcadas`);
+    const usageEl = el('span', 'text-[10px] text-gray-300 shrink-0', `${used.active} activas · ${used.marked} marcadas`);
     usageEl.title = 'Personajes que usan esta tarea (activas · marcadas)';
 
     const controls = el('div', 'flex items-center gap-1 shrink-0 ml-auto');

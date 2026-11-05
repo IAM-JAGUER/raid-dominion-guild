@@ -12,20 +12,20 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
 ---
 <section id="view-banda" class="hidden">
   <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-    <div class={`${ui.plaque} p-5 sm:p-7`}>
-      <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+    <div class={`${ui.plaque} ${ui.tone.ember} ${ui.toneHead} p-5 sm:p-7`}>
+      <span class={`${ui.cardTop} ${ui.toneTop} z-20`} aria-hidden="true"></span>
       <HeaderCover
         image="/images/headers/ficha-banda.webp"
         extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
       />
       <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
         <!-- Medallón héroe (póster): arte nativo del sprite a tamaño protagonista. -->
-        <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
+        <div class={`${ui.iconTile} ${ui.toneIcon} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
           <Icon name="espadas" size="hero" />
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex flex-wrap items-end gap-3">
-            <h1 id="bv-name" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
+            <h1 id="bv-name" class={`${ui.titleFicha} break-all ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
             <a id="bv-owner-link" href="#" class={`hidden ${ui.badge} ${ui.badgeMd} bg-brand-950/70 border-brand-600/40 text-brand-200 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`}></a>
           </div>
           <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
@@ -44,7 +44,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
          cabecera contigua (título + controles de filtro) + cuerpo con el
          roster del core. -->
-    <PanelWindow title="Core" icon="jugadores">
+    <PanelWindow title="Core" icon="jugadores" tone="ember">
       <div slot="head">
         <!-- Motor único de filtros (src/lib/ui/filterBar.ts): buscador por
              nombre + chips de rol y clase. Sin paginador: el core agrupa por
@@ -59,7 +59,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
   </div>
 
   <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
-    <PanelWindow title="Reglas" icon="pergamino">
+    <PanelWindow title="Reglas" icon="pergamino" tone="parchment">
       <div slot="head">
         <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
         <div class="mt-4" id="bv-rules-filtro"></div>
@@ -171,7 +171,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       meta.appendChild(metaChip(
         'bloqueo',
         isOwner ? 'jugadores ocultos al público' : 'jugadores ocultos',
-        '!text-gray-400',
+        '!text-gray-300',
       ));
     }
 
@@ -360,7 +360,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       if (n === null) return;
       const chip = document.createElement('a');
       chip.href = t.href;
-      chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-400';
+      chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-300';
       if (t.icon) chip.appendChild(iconEl(t.icon, { size: 'xs' }));
       chip.appendChild(document.createTextNode(`${t.label} · ${n}`));
       tabMetaGroup.appendChild(chip);
@@ -385,7 +385,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
         const on = id === active;
         chip.classList.toggle('bg-brand-500/20', on);
         chip.classList.toggle('text-brand-200', on);
-        chip.classList.toggle('text-gray-400', !on);
+        chip.classList.toggle('text-gray-300', !on);
         if (on) chip.setAttribute('aria-current', 'page');
         else chip.removeAttribute('aria-current');
       });

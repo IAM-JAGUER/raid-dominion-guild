@@ -35,9 +35,9 @@ const meta = PAGE_META['/moderate'];
       <!-- Panel -->
       <div id="panel" data-rd-reveal class="hidden">
         <header class="animate-fade-in-1">
-          <div class={`relative px-6 py-5 ${ui.plaque}`}>
-            <span class={ui.cardTop} aria-hidden="true"></span>
-            <h1 class={`${ui.text.hero} ${ui.titleHero}`}>Moderación</h1>
+          <div class={`relative px-6 py-5 ${ui.plaque} ${ui.tone.parchment} ${ui.toneHead}`}>
+            <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+            <h1 class={`${ui.text.hero} ${ui.titleHero} ${ui.toneTitle}`}>Moderación</h1>
             <p class={`${ui.text.bodyMuted} italic mt-2`}>Verifica solicitudes de maestro, controla portales públicos y revisa la bitácora.</p>
           </div>
         </header>
@@ -149,7 +149,7 @@ const meta = PAGE_META['/moderate'];
     name.className = 'font-bold text-white';
     name.textContent = g.name;
     const meta = document.createElement('p');
-    meta.className = 'text-xs text-gray-400 mt-0.5';
+    meta.className = 'text-xs text-gray-300 mt-0.5';
     meta.textContent = `/hermandad/${g.slug} · ${g.realm || 'sin reino'} · ${g.owner_email ?? 'sin correo'}`;
     title.append(name, meta);
 
@@ -161,7 +161,7 @@ const meta = PAGE_META['/moderate'];
 
     if (g.description) {
       const desc = document.createElement('p');
-      desc.className = 'text-sm text-gray-400 italic mb-3 line-clamp-2';
+      desc.className = 'text-sm text-gray-300 italic mb-3 line-clamp-2';
       desc.textContent = g.description;
       li.appendChild(desc);
     }
@@ -213,7 +213,7 @@ const meta = PAGE_META['/moderate'];
     name.className = 'text-sm font-bold text-white';
     name.textContent = g.name;
     const meta = document.createElement('p');
-    meta.className = 'text-xs text-gray-400 mt-0.5';
+    meta.className = 'text-xs text-gray-300 mt-0.5';
     meta.textContent = `/hermandad/${g.slug} · ${g.is_public ? 'Pública' : 'Retirada'}`;
     info.append(name, meta);
     li.appendChild(info);
@@ -280,7 +280,7 @@ const meta = PAGE_META['/moderate'];
 
     items.forEach((a) => {
       const li = document.createElement('li');
-      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 border-b border-brand-600/10 pb-2';
+      li.className = 'flex flex-wrap items-center justify-between gap-2 text-xs text-gray-300 border-b border-brand-600/10 pb-2';
       const action = document.createElement('span');
       action.className = 'inline-flex items-center gap-1.5 font-bold text-brand-200';
       action.appendChild(iconEl(ICON_BY_ACTION[a.action] ?? 'bandeja', { size: 'xs' }));

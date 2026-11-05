@@ -33,6 +33,7 @@ const jsonLd = [
         title="Bandas"
         icon="espadas"
         image="/images/headers/bandas.webp"
+        tone="ember"
         intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas compartidos por cada jugador."
       />
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
@@ -45,7 +46,7 @@ const jsonLd = [
            de día y tipo) vía src/lib/ui/filterBar.ts sobre #filters. -->
       <div id="directorio">
         <div data-rd-list-frame>
-          <PanelWindow title="Bandas" icon="espadas" bodyCls="space-y-8">
+          <PanelWindow title="Bandas" icon="espadas" tone="ember" bodyCls="space-y-8">
             <div slot="head" class="mt-4" id="filters" data-rd-filter-bar data-rd-reveal-cards></div>
             <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
                  funde escalonados en una sola cascada. -->
@@ -68,9 +69,9 @@ const jsonLd = [
         ctaCls="transform hover:scale-105"
         align="center"
       />
-      <section class={`${ui.panel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <h2 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>¿Cómo publicar tus bandas?</h2>
+      <section class={`${ui.panel} ${ui.tone.ember} ${ui.tonePanel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
+        <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+        <h2 class={`${ui.text.h1} ${ui.gradientTitle} ${ui.toneTitle} mb-2`}>¿Cómo publicar tus bandas?</h2>
         <p class={`${ui.text.body} leading-relaxed max-w-md`}>
           Registra tus bandas en el addon, sube el archivo y activa su visibilidad. Cada banda puede ser
           personal o pertenecer a tu hermandad, con horario, gearscore mínimo y reglas propias.

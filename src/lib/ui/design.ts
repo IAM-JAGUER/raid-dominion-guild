@@ -77,7 +77,7 @@ export const ui = {
   badgeMd: 'px-2.5 py-1 text-[11px]',
   // Chip de cifra clave-valor (stat del header/visor): etiqueta + valor.
   badgeStat:
-    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[11px] font-black uppercase tracking-widest text-gray-400',
+    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/30 bg-brand-950/50 text-[11px] font-black uppercase tracking-widest text-gray-300',
   // Superficie de color del badge de rol (única fuente; la consumen
   // dashboard, admin y perfiles). El layout lo aporta ui.badge + ui.badgeMd.
   badgeRole: {
@@ -104,9 +104,9 @@ export const ui = {
     h1: 'text-2xl md:text-3xl font-bold text-balance',
     h2: 'text-lg font-bold text-balance',
     h3: 'text-base font-bold text-balance',
-    body: 'text-sm text-gray-300 text-pretty',
-    bodyMuted: 'text-sm text-gray-400 text-pretty',
-    caption: 'text-xs text-gray-400 text-pretty',
+    body: 'text-sm text-gray-200 text-pretty',
+    bodyMuted: 'text-sm text-gray-300 text-pretty',
+    caption: 'text-xs text-gray-300 text-pretty',
   },
   // H1 de PÁGINA con gradiente de marca: título hero con degradado Hielo/Energía y
   // tracking amplio (directorios, upload, login, admin, moderate). ÚNICA
@@ -137,7 +137,7 @@ export const ui = {
   toggleTrack:
     'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-brand-600/70 peer-checked:border-brand-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white',
   // Label estándar de un toggle pill (layout + cursor).
-  toggleLabel: 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-400',
+  toggleLabel: 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-300',
 
   // ── Formularios (design.md §5/R8, P011) ─────────────────────────────────
   // label: siempre <label for> con este estilo; jamás placeholder-como-label.
@@ -145,11 +145,11 @@ export const ui = {
   // y asociar el mensaje por aria-describedby → errorText.
   // helperText: ayuda opcional (aria-describedby opcional); errorText: error.
   form: {
-    label: 'block text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1.5',
+    label: 'block text-[11px] font-black uppercase tracking-widest text-gray-300 mb-1.5',
     input:
-      'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-400 transition-colors',
+      'w-full px-3 py-2.5 rounded-md bg-brand-900/70 border border-brand-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 outline-none text-gray-100 text-sm placeholder:text-gray-300 transition-colors',
     inputError: '!border-red-500/70 focus:!border-red-500 focus:!ring-red-500/30',
-    helperText: 'mt-1.5 text-[11px] text-gray-400 italic',
+    helperText: 'mt-1.5 text-[11px] text-gray-300 italic',
     errorText: 'mt-1.5 text-[11px] text-red-300',
   },
 
@@ -181,9 +181,9 @@ export const ui = {
     searchWrap: 'relative min-w-0 flex-1',
     // Lupa temática (rd-ico) posicionada dentro del input.
     searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none',
-    // Contador de resultados ("N bandas"): live region de la barra. gray-400
-    // (6.7:1 sobre la superficie de marca) — gray-500 no pasa AA (F011).
-    result: 'text-[11px] font-black uppercase tracking-widest text-gray-400 sm:text-right shrink-0',
+    // Contador de resultados ("N bandas"): live region de la barra. gray-300
+    // (10.9:1 sobre la superficie de marca) — gray-500 no pasa AA (F011).
+    result: 'text-[11px] font-black uppercase tracking-widest text-gray-300 sm:text-right shrink-0',
     // Grupo "Organización" inline: label + selector + chips + limpiar.
     org: 'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto md:flex-1',
     orgHead: 'flex w-full min-w-0 items-center gap-1.5 md:w-auto',
@@ -191,7 +191,7 @@ export const ui = {
     select:
       'min-w-[8rem] flex-1 md:flex-none md:min-w-[8rem] max-w-full px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
     clear:
-      'ml-auto shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:bg-brand-900/40 transition-colors',
+      'ml-auto shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-black uppercase tracking-widest text-gray-300 hover:text-brand-200 hover:bg-brand-900/40 transition-colors',
     chips:
       'flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
     chip:
@@ -199,7 +199,7 @@ export const ui = {
     chipValue: 'min-w-0 truncate',
     chipRemove:
       'inline-flex h-4 w-4 items-center justify-center rounded-md text-brand-300/80 hover:bg-white/10 hover:text-brand-100 transition-colors',
-    notice: 'text-[11px] italic text-gray-400',
+    notice: 'text-[11px] italic text-gray-300',
     // Grupo extra inline de la misma fila (tracker: ocultos + selección).
     extraGroup:
       'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto',
@@ -214,7 +214,7 @@ export const ui = {
     // se apila en columna centrada.
     bar: 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3',
     // Texto del contador ("Página [sel] de Y • N ítems").
-    info: 'text-xs text-gray-400 italic',
+    info: 'text-xs text-gray-300 italic',
     // Desplegable de salto directo a cualquier página.
     select:
       'mx-1 px-1.5 py-0.5 rounded-md bg-brand-900/40 border border-brand-600/30 text-brand-200 text-xs italic cursor-pointer hover:border-brand-500/50 focus:outline-none focus:ring-1 focus:ring-brand-500/50 transition-colors',
@@ -243,7 +243,7 @@ export const ui = {
     cardCollapse:
       'min-w-0 flex-1 flex items-center gap-2 text-left rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
     cardTitle: 'font-black italic text-sm truncate',
-    cardMeta: 'text-[11px] text-gray-400 uppercase tracking-widest',
+    cardMeta: 'text-[11px] text-gray-300 uppercase tracking-widest',
     counter:
       'shrink-0 inline-flex items-center rounded-md border border-brand-600/30 bg-brand-950/60 px-2 py-0.5 text-[11px] font-black text-brand-200 tabular-nums',
     body: 'relative z-10 px-3 pb-3',
@@ -257,10 +257,10 @@ export const ui = {
     contentInnerClosed: 'opacity-0 -translate-y-1',
     stats: 'flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2',
     stat: 'inline-flex items-baseline gap-1.5',
-    statLabel: 'text-[11px] font-black uppercase tracking-widest text-gray-400',
+    statLabel: 'text-[11px] font-black uppercase tracking-widest text-gray-300',
     statValue: 'text-xs font-bold text-brand-100 tabular-nums',
     tabs: 'flex items-center gap-1 border-b border-brand-600/20 pb-1.5 mb-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-    tab: 'inline-flex items-center gap-1 shrink-0 rounded-md border border-transparent px-1.5 py-1 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+    tab: 'inline-flex items-center gap-1 shrink-0 rounded-md border border-transparent px-1.5 py-1 text-[11px] font-black uppercase tracking-widest text-gray-300 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
     tabActive: 'bg-brand-950/70 text-brand-200 border-brand-500/40',
     tabCount: 'text-[11px] font-bold opacity-70 tabular-nums',
     list: 'space-y-1 max-h-56 overflow-y-auto pr-0.5',
@@ -278,7 +278,7 @@ export const ui = {
     legend:
       'flex flex-wrap items-center gap-1.5 rounded-md border border-brand-700/40 bg-brand-950/50 p-2 scroll-mt-24',
     legendBtn:
-      'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
+      'inline-flex items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-[11px] font-black uppercase tracking-widest text-gray-300 hover:text-brand-200 hover:border-brand-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 transition-colors',
     legendActive: 'bg-brand-900/60 text-brand-200 border-brand-500/50',
     legendCount: 'text-[11px] font-bold opacity-70 tabular-nums',
     dock: 'flex flex-wrap items-center gap-2 rounded-md border border-brand-500/40 bg-brand-950/90 p-2.5 shadow-lg shadow-brand-950/40',
@@ -289,7 +289,7 @@ export const ui = {
     dockCount:
       'text-[11px] font-black uppercase tracking-widest text-brand-200 mr-auto',
     filterOptionLabel:
-      'flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-gray-400 cursor-pointer select-none',
+      'flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-gray-300 cursor-pointer select-none',
     filterCheckbox: 'w-3.5 h-3.5 accent-brand-500',
     select:
       'px-2 py-1.5 rounded-md bg-brand-950/80 border border-brand-700/50 text-xs text-brand-100 focus:border-brand-500/70 focus:outline-none focus:ring-2 focus:ring-brand-500/20',
@@ -298,7 +298,7 @@ export const ui = {
     detailRow:
       'flex items-start justify-between gap-3 border-b border-brand-700/20 py-1.5 text-xs last:border-b-0',
     detailKey:
-      'shrink-0 text-[11px] font-black uppercase tracking-widest text-gray-400',
+      'shrink-0 text-[11px] font-black uppercase tracking-widest text-gray-300',
     detailValue: 'min-w-0 text-right text-gray-200 break-words',
   },
 
@@ -338,7 +338,7 @@ export const ui = {
     skeleton: 'animate-pulse rounded-md bg-gray-800/60',
     spinner: 'inline-block w-4 h-4 border-2 border-brand-500/30 border-t-brand-300 rounded-full animate-spin',
     spinnerLg: 'inline-block w-8 h-8 border-2 border-brand-500/30 border-t-brand-300 rounded-full animate-spin',
-    liveText: 'text-sm text-gray-400',
+    liveText: 'text-sm text-gray-300',
   },
 
   // ── Interacción (design.md §5/P011) ─────────────────────────────────────
@@ -418,7 +418,7 @@ export const ui = {
   item: {
     row: 'relative overflow-hidden flex items-center gap-3 rounded-md border border-brand-700/50 bg-brand-950/80 pl-4 pr-3 py-2.5',
     rowHover: 'hover:border-brand-500/60 hover:bg-brand-950 transition-colors',
-    slot: 'text-[11px] font-black uppercase tracking-[0.16em] text-gray-400',
+    slot: 'text-[11px] font-black uppercase tracking-[0.16em] text-gray-300',
     name: 'text-sm sm:text-base font-bold leading-snug line-clamp-2 text-gray-100',
     value: 'shrink-0 text-lg',
   },
@@ -430,9 +430,29 @@ export const ui = {
   // `!px-4` (centrado simétrico) y hairline solo desde `sm`.
   statBlock: {
     cell: 'border-l border-brand-700/50 px-4 first:border-l-0 first:pl-0 last:pr-0 py-0.5',
-    label: 'text-[11px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',
+    label: 'text-[11px] font-black uppercase tracking-[0.14em] text-gray-300 mb-0.5',
     value: 'text-xl sm:text-3xl',
   },
+  // ── Tonos ceremoniales (2026-11-04, paleta v2) ─────────────────────────
+  // Cada tono tiñe cabeceras, paneles, iconos y ornamentos con una familia
+  // del ecosistema WoW. `steel` es la marca (sin override). El material vive
+  // en material.css (.rd-tone*), no en utilidades Tailwind sueltas.
+  tone: {
+    steel: '',
+    valor: 'rd-tone rd-tone-valor',
+    ember: 'rd-tone rd-tone-ember',
+    arcane: 'rd-tone rd-tone-arcane',
+    parchment: 'rd-tone rd-tone-parchment',
+  },
+  toneHead: 'rd-tone-head',
+  toneBody: 'rd-tone-body',
+  toneTitle: 'rd-tone-title',
+  toneIcon: 'rd-tone-icon',
+  toneTop: 'rd-tone-top',
+  toneRail: 'rd-tone-rail',
+  tonePanel: 'rd-tone-panel',
+  toneHover: 'rd-tone-hover',
+
   // ── Presentación de personaje (2026-11-04, Bloody Roar sobrio) ──────────
   // Acento de clase como identidad (`--class-color` + `--class-tint`):
   // riel, velo, emblema de raza y gauge. El arte del sprite NUNCA se
@@ -513,3 +533,5 @@ export const ui = {
   // Ítem de navegación tipo barra de habilidades (estados por CSS).
   navItem: 'rd-nav-item',
 } as const;
+
+export type Tone = keyof typeof ui.tone;

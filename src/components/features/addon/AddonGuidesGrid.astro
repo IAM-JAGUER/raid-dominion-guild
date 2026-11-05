@@ -53,7 +53,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 ---
 
 <div class="mt-8" id="addon-guides">
-  <p class="text-gray-400 text-sm text-center mb-8 italic">
+  <p class="text-gray-300 text-sm text-center mb-8 italic">
     Aprende a usar RaidDominion en WoW 3.3.5a: menú flotante, bandas, botín, spammers y comandos.
   </p>
 
@@ -94,7 +94,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 
           <!-- Contenido (accordion de secciones) -->
           <div class="p-2 sm:p-6">
-            <p class="text-gray-400 text-sm italic mb-6">{guide.description}</p>
+            <p class="text-gray-300 text-sm italic mb-6">{guide.description}</p>
             <div class="space-y-4">
               {guide.sections.map((section, sIdx) => (
                 <details
@@ -134,7 +134,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 
             <!-- Micro-CTA común a todos los paneles -->
             <div class="mt-6 pt-4 border-t border-brand-600/20 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-xs text-gray-400">¿Ya usas el addon? Sube tu RaidDominion.lua.</p>
+              <p class="text-xs text-gray-300">¿Ya usas el addon? Sube tu RaidDominion.lua.</p>
               <a href="/upload" class={`${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-transparent`}>Subir archivo del addon</a>
             </div>
 
@@ -200,7 +200,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
             <h3 class={`text-base font-black italic mb-4 leading-[1.35] ${ui.gradientTitle}`}>
               <span class="text-brand-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
             </h3>
-            <p class="text-gray-400 text-xs leading-relaxed mb-4 flex-grow italic text-pretty">
+            <p class="text-gray-300 text-xs leading-relaxed mb-4 flex-grow italic text-pretty">
               {guide.description}
             </p>
             <div class="pt-3 border-t border-brand-600/20">

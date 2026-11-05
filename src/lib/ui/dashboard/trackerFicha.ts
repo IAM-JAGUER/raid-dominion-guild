@@ -205,7 +205,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
       ticks: false,
       interactive: true,
     }));
-    if (tier) detalle.appendChild(el('p', 'text-[11px] text-gray-400', `Tier alcanzado: ${tier.label}`));
+    if (tier) detalle.appendChild(el('p', 'text-[11px] text-gray-300', `Tier alcanzado: ${tier.label}`));
   }
 
   const origen = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-x-8');
@@ -219,7 +219,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   ].forEach(([k, v]) => origen.appendChild(detailRow(String(k), v as string)));
   detalle.appendChild(sectionTitle('bandeja', 'Origen de los datos'));
   detalle.appendChild(origen);
-  detalle.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Datos actualizados desde los archivos del addon.'));
+  detalle.appendChild(el('p', 'text-[11px] text-gray-300 italic', 'Datos actualizados desde los archivos del addon.'));
   panels.set('detalle', detalle);
 
   // ── Tareas ──────────────────────────────────────────────────────────────
@@ -238,7 +238,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   const pieces = ((c.equipment ?? []) as EquipmentPiece[]).slice().sort((a, b) => a.slot - b.slot);
   equip.appendChild(sectionTitle('arma', `Equipamiento (${pieces.length} piezas)`));
   if (pieces.length === 0) {
-    equip.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin equipamiento registrado en tus subidas.'));
+    equip.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin equipamiento registrado en tus subidas.'));
   } else {
     const missingIds = pieces.filter((piece) => typeof piece.itemID !== 'number').length;
     if (missingIds > 0) {
@@ -259,7 +259,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   const currencies = c.currencies ?? [];
   monedas.appendChild(sectionTitle('cristal', `Monedas (${currencies.length})`));
   if (currencies.length === 0) {
-    monedas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin monedas registradas. Vuelve a subir el archivo con la barra de monedas actualizada.'));
+    monedas.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin monedas registradas. Vuelve a subir el archivo con la barra de monedas actualizada.'));
   } else {
     const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     currencies.forEach((currency) => {
@@ -289,7 +289,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   const currencyGoals = [...(objectives.currencies ?? [])];
   metas.appendChild(sectionTitle('estrella', `Objetivos de equipo (${equipmentGoals.length})`));
   if (equipmentGoals.length === 0) {
-    metas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin objetivos de equipo registrados.'));
+    metas.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin objetivos de equipo registrados.'));
   } else {
     const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     equipmentGoals.forEach((goal) => list.appendChild(metaRow({ kind: 'equipment', goal })));
@@ -297,7 +297,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   }
   metas.appendChild(sectionTitle('cristal', `Objetivos de moneda (${currencyGoals.length})`));
   if (currencyGoals.length === 0) {
-    metas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin objetivos de moneda registrados.'));
+    metas.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin objetivos de moneda registrados.'));
   } else {
     const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     currencyGoals.forEach((goal) => list.appendChild(metaRow({ kind: 'currency', goal })));
@@ -312,7 +312,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   const mine = ctx.bands.filter((band) => matchBandCharacter(band, c.name, c.realm) !== null);
   bandas.appendChild(sectionTitle('espadas', `Bandas del personaje (${mine.length})`));
   if (mine.length === 0) {
-    bandas.appendChild(el('p', 'text-xs text-gray-400 italic', 'El personaje no está en ninguna banda registrada.'));
+    bandas.appendChild(el('p', 'text-xs text-gray-300 italic', 'El personaje no está en ninguna banda registrada.'));
   } else {
     mine.forEach((band) => bandas.appendChild(bandRow(band, c)));
   }
@@ -329,7 +329,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   });
   instancias.appendChild(sectionTitle('ciudadela', `Instancias guardadas (${instances.length})`));
   if (instances.length === 0) {
-    instancias.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin instancias registradas en tus subidas.'));
+    instancias.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin instancias registradas en tus subidas.'));
   } else {
     const list = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
     instances.forEach((instance) => {
@@ -396,17 +396,17 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
       `${ui.surf.row} rd-parchment p-4 text-sm text-gray-200 leading-relaxed whitespace-pre-line`,
     ));
   } else {
-    notas.appendChild(el('p', 'text-xs text-gray-400 italic', 'Sin nota del juego. Se escribe en el addon y se sincroniza al subir el archivo.'));
+    notas.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin nota del juego. Se escribe en el addon y se sincroniza al subir el archivo.'));
   }
   const notePublic = document.createElement('label');
-  notePublic.className = `mt-2 flex items-center gap-2 select-none text-[10px] font-black uppercase tracking-widest text-gray-400 ${gameNote ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
+  notePublic.className = `mt-2 flex items-center gap-2 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${gameNote ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
   const noteCheck = document.createElement('input');
   noteCheck.type = 'checkbox';
   noteCheck.checked = c.notes_public;
   noteCheck.disabled = !gameNote;
   noteCheck.className = 'w-3.5 h-3.5 accent-brand-500';
   noteCheck.setAttribute('aria-label', 'Publicar la nota del juego');
-  const noteCheckStatus = el('span', 'text-gray-400');
+  const noteCheckStatus = el('span', 'text-gray-300');
   noteCheck.addEventListener('change', async () => {
     noteCheck.disabled = true;
     noteCheckStatus.textContent = '· guardando…';
@@ -460,7 +460,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
 
   const controls = el('div', 'flex flex-wrap items-center gap-2');
   const hiddenLabel = document.createElement('label');
-  hiddenLabel.className = 'flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-400 cursor-pointer';
+  hiddenLabel.className = 'flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 cursor-pointer';
   hiddenLabel.title = 'Oculta este personaje de tu lista del tracker (no afecta su visibilidad pública).';
   const hiddenCheck = document.createElement('input');
   hiddenCheck.type = 'checkbox';
@@ -476,7 +476,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
   hiddenLabel.append(hiddenCheck, document.createTextNode('Oculto del tracker'));
 
   const publicLabel = document.createElement('label');
-  publicLabel.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-400 ${ctx.handlers.canPublish ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
+  publicLabel.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${ctx.handlers.canPublish ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
   publicLabel.title = ctx.handlers.canPublish ? 'Visible en el directorio público.' : 'Requiere cuenta Miembro validada (2+ personajes).';
   const publicCheck = document.createElement('input');
   publicCheck.type = 'checkbox';
@@ -521,7 +521,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
       btn.classList.toggle('border-brand-400', active);
       btn.classList.toggle('text-brand-200', active);
       btn.classList.toggle('border-transparent', !active);
-      btn.classList.toggle('text-gray-400', !active);
+      btn.classList.toggle('text-gray-300', !active);
     });
     panels.forEach((panel, id) => panel.classList.toggle('hidden', id !== valid));
     ctx.handlers.onTabChange?.(valid);

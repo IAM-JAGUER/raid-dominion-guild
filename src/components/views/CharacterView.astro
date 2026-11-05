@@ -32,20 +32,32 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
           <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
         </div>
       </div>
+
+      <!-- Dock de secciones: las pestañas viven DENTRO de la placa de
+           identidad, separadas por la línea espectral del color de clase.
+           Solo aparece con 2+ paneles (initAvailableTabs); con 0/1 el dock se
+           oculta y el divisor de respaldo sigue separando la ficha. -->
+      <div
+        id="pv-tab-dock"
+        class="rd-character-tab-dock relative z-10 hidden -mx-5 -mb-5 mt-6 px-5 py-2.5 sm:-mx-7 sm:-mb-7 sm:px-7"
+      >
+        <nav
+          id="pv-tab-bar"
+          role="tablist"
+          aria-label="Secciones del personaje"
+          class="rd-character-tabs hidden min-w-0"
+        ></nav>
+      </div>
     </div>
   </header>
 
   <!-- Esqueleto de página (modelo dashboard): separador central + separador
-       izquierdo. Con 2+ paneles el separador izquierdo lo aporta la barra de
-       tabs (rd-tabbar); con 0/1 paneles se muestra el divisor de respaldo. -->
+       izquierdo de respaldo (con 2+ paneles el dock ya aporta la separación;
+       con 0/1 el divisor izquierdo mantiene el ritmo de la ficha). -->
   <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-  <div id="pv-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+  <div id="pv-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8`} aria-hidden="true"></div>
 
-  <!-- Navegación entre paneles (modelo dashboard): solo las secciones con
-       contenido generan pestaña (initAvailableTabs). -->
-  <nav id="pv-tab-bar" role="tablist" aria-label="Secciones del personaje" class={`hidden flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 ${ui.zone.tabs} animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}></nav>
-
-  <div id="pv-panels" class={ui.zone.body}>
+  <div id="pv-panels" class="mt-8">
     <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
       <div slot="head">
         <div id="pv-equip-summary" class="hidden mt-4"></div>
@@ -56,7 +68,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       <div id="pv-equip-pager" class="mt-3"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-metas" title="Metas" icon="estrella" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+    <PanelWindow id="panel-metas" title="Metas" icon="estrella" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
       <div slot="head">
         <div class="mt-4" id="pv-metas-filtro"></div>
       </div>
@@ -64,11 +76,11 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       <div id="pv-metas-pager" class="mt-3"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-notas" title="Notas" icon="nota" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
+    <PanelWindow id="panel-notas" title="Notas" icon="nota" tone="parchment" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
       <div id="pv-notas"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" tone="ember" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
       <div slot="head">
         <!-- Panel de filtros estándar (buscador + selector de día) del motor
              src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
@@ -77,7 +89,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       <div id="pv-bandas" class="space-y-8"></div>
     </PanelWindow>
 
-    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
+    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
       <div id="pv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
     </PanelWindow>
   </div>
@@ -199,7 +211,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
         ticks: false,
         interactive: true,
       }));
-      if (tier) gauge.appendChild(el('p', 'text-[11px] text-gray-400 mt-1.5', `Tier alcanzado: ${tier.label}`));
+      if (tier) gauge.appendChild(el('p', 'text-[11px] text-gray-300 mt-1.5', `Tier alcanzado: ${tier.label}`));
       gauge.classList.remove('hidden');
     }
 
@@ -260,6 +272,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     // Hermandad. Cada panel con contenido agrega su pestaña (initAvailableTabs).
     // Las instancias NO se publican: viven solo en el tracker privado.
     const available: string[] = [];
+    const tabCounts: Record<string, number> = {};
 
     if ((c.equipment ?? []).length > 0) {
       // Resumen de calidades en la cabecera del panel (dimensión que el héroe
@@ -272,18 +285,21 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       }
       renderEquipment(c);
       available.push('equipamiento');
+      tabCounts.equipamiento = pieces;
     }
 
     const metaCount = (c.objectives?.equipment?.length ?? 0) + (c.objectives?.currencies?.length ?? 0);
     if (metaCount > 0) {
       renderObjectives(c);
       available.push('metas');
+      tabCounts.metas = metaCount;
     }
 
     const notas = notePanel(c);
     if (notas) {
       (document.getElementById('pv-notas') as HTMLElement).appendChild(notas);
       available.push('notas');
+      tabCounts.notas = 1;
     }
 
     const bands = await getPublicBandsForCharacter(c.name, c.realm);
@@ -308,6 +324,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
         renderCard: (b) => bandCard(b, owners.get((b.guildId || b.ownerId) ?? '')),
       });
       available.push('bandas');
+      tabCounts.bandas = bandList.length;
     }
 
     // Panel "Hermandad": solo si ESTE personaje es rango 0 de la hermandad a
@@ -320,10 +337,19 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       if (gRes.ok && gRes.guild?.is_public && gRes.guild.name.trim().toLowerCase() === myGuildName) {
         (document.getElementById('pv-guilds') as HTMLElement).appendChild(renderGuildCard(gRes.guild));
         available.push('hermandad');
+        tabCounts.hermandad = 1;
       }
     }
 
-    initAvailableTabs({ barId: 'pv-tab-bar', tabs: PERSONAJE_TABS, available, leftSepId: 'pv-left-sep' });
+    initAvailableTabs({
+      barId: 'pv-tab-bar',
+      tabs: PERSONAJE_TABS,
+      available,
+      counts: tabCounts,
+      variant: 'character',
+      dockId: 'pv-tab-dock',
+      leftSepId: 'pv-left-sep',
+    });
 
     wireParticleTheme(c);
 
@@ -694,7 +720,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-gray-300`, p)));
       cardEl.appendChild(chips);
     }
-    cardEl.appendChild(el('p', 'text-xs text-gray-400 mt-4', 'Sin ficha pública'));
+    cardEl.appendChild(el('p', 'text-xs text-gray-300 mt-4', 'Sin ficha pública'));
     return cardEl;
   }
 </script>

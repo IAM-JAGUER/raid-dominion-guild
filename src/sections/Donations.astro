@@ -26,19 +26,19 @@ const accounts = [
 ---
 
 <section class="mt-8 mb-8 py-6">
-  <SectionHeader title="¡Apóyanos!" subtitle="Tu contribución nos ayuda a seguir mejorando" />
+  <SectionHeader title="¡Apóyanos!" subtitle="Tu contribución nos ayuda a seguir mejorando" tone="valor" />
   <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {accounts.map((account) => (
       <div
-        class={`group relative overflow-hidden ${ui.card} ${account.link ? ui.cardHover : ''} p-5 flex flex-col`}
+        class={`group relative overflow-hidden ${ui.card} ${ui.tone.valor} ${ui.tonePanel} ${account.link ? ui.cardHover : ''} p-5 flex flex-col`}
       >
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <h3 class={`text-lg sm:text-xl font-black italic mb-4 text-center ${ui.gradientTitle}`}>{account.name}</h3>
+        <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+        <h3 class={`text-lg sm:text-xl font-black italic mb-4 text-center ${ui.gradientTitle} ${ui.toneTitle}`}>{account.name}</h3>
 
         <div class="flex-grow flex flex-col items-center">
           {account.qr ? (
             <div class="mb-4">
-              <p class="text-sm text-gray-400 mb-2">Escanea el código QR</p>
+              <p class="text-sm text-gray-300 mb-2">Escanea el código QR</p>
               <div class="bg-white p-2 rounded-md">
                 <ImageComponent
                   classes="w-32 h-32 sm:w-36 sm:h-36 object-contain"

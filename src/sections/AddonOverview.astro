@@ -19,6 +19,9 @@ const guildBenefits = [
   'Difunde tu hermandad en el directorio público de WoW 3.3.5a.',
 ];
 
+const FEATURE_TONES = ['valor', 'arcane', 'ember', 'steel'] as const;
+const STEP_TONES = ['valor', 'arcane', 'ember'] as const;
+
 const steps = [
   {
     icon: 'descargar',
@@ -42,10 +45,11 @@ const steps = [
   <SectionHeader
     title="¿Qué es RaidDominion?"
     subtitle="Un addon para organizar bandas en World of Warcraft 3.3.5a y un portal para compartir el roster de tu hermandad."
+    tone="valor"
   />
 
-  <div class={`${ui.panel} relative overflow-hidden p-6 sm:p-8`}>
-    <span class={ui.cardTop} aria-hidden="true"></span>
+  <div class={`${ui.panel} ${ui.tone.valor} ${ui.tonePanel} relative overflow-hidden p-6 sm:p-8`}>
+    <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
     <div class="grid lg:grid-cols-2 gap-6">
       <p class={`${ui.text.body} leading-relaxed`}>
         RaidDominion reúne en una sola interfaz las herramientas que un líder de banda usa
@@ -75,29 +79,35 @@ const steps = [
     <SectionHeader
       title="Funciones del addon"
       subtitle="Herramientas concretas para preparar, dirigir y compartir una banda de raid."
+      tone="arcane"
     />
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    {ADDON_FEATURES.map((feature) => (
-      <article class={`${ui.card} relative overflow-hidden p-5`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <div class={`${ui.iconTile} ${ui.iconTileMd} mb-4`}>
-          <Icon name={feature.icon} size="md" />
-        </div>
-        <h3 class={`${ui.text.h3} text-brand-200 mb-2 leading-snug`}>{feature.title}</h3>
-        <p class={`${ui.text.caption} leading-relaxed`}>{feature.description}</p>
-      </article>
-    ))}
+    {ADDON_FEATURES.map((feature, index) => {
+      const featureTone = FEATURE_TONES[index % FEATURE_TONES.length];
+      const featureToneCls = ui.tone[featureTone];
+      return (
+        <article class={`${ui.card} ${featureToneCls} ${featureTone !== 'steel' ? ui.tonePanel : ''} relative overflow-hidden p-5`}>
+          <span class={`${ui.cardTop} ${featureTone !== 'steel' ? ui.toneTop : ''}`} aria-hidden="true"></span>
+          <div class={`${ui.iconTile} ${ui.iconTileMd} ${featureTone !== 'steel' ? ui.toneIcon : ''} mb-4`}>
+            <Icon name={feature.icon} size="md" />
+          </div>
+          <h3 class={`${ui.text.h3} ${featureTone !== 'steel' ? ui.toneTitle : 'text-brand-200'} mb-2 leading-snug`}>{feature.title}</h3>
+          <p class={`${ui.text.caption} leading-relaxed`}>{feature.description}</p>
+        </article>
+      );
+    })}
   </div>
 
   <div class="mt-14 sm:mt-16">
     <SectionHeader
       title="Para jugadores y hermandades"
       subtitle="El mismo archivo alimenta tu perfil personal y el portal de tu guild."
+      tone="parchment"
     />
   </div>
   <div class="grid md:grid-cols-2 gap-5">
-    <article class={`${ui.panel} relative overflow-hidden p-6`}>
+    <article class={`${ui.panel} ${ui.tone.steel} relative overflow-hidden p-6`}>
       <span class={ui.cardTop} aria-hidden="true"></span>
       <div class="flex items-center gap-3 mb-4">
         <div class={`${ui.iconTile} ${ui.iconTileMd}`}><Icon name="perfil-alt" size="md" /></div>
@@ -116,11 +126,11 @@ const steps = [
       </a>
     </article>
 
-    <article class={`${ui.panel} relative overflow-hidden p-6`}>
-      <span class={ui.cardTop} aria-hidden="true"></span>
+    <article class={`${ui.panel} ${ui.tone.valor} ${ui.tonePanel} relative overflow-hidden p-6`}>
+      <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
       <div class="flex items-center gap-3 mb-4">
-        <div class={`${ui.iconTile} ${ui.iconTileMd}`}><Icon name="estandarte" size="md" /></div>
-        <h3 class={`${ui.text.h1} ${ui.gradientTitle}`}>Para hermandades</h3>
+        <div class={`${ui.iconTile} ${ui.iconTileMd} ${ui.toneIcon}`}><Icon name="estandarte" size="md" /></div>
+        <h3 class={`${ui.text.h1} ${ui.gradientTitle} ${ui.toneTitle}`}>Para hermandades</h3>
       </div>
       <ul class="space-y-2.5">
         {guildBenefits.map((item) => (
@@ -140,22 +150,26 @@ const steps = [
     <SectionHeader
       title="Cómo funciona en 3 pasos"
       subtitle="Del addon al portal sin formularios ni configuraciones extra."
+      tone="valor"
     />
   </div>
   <ol class="grid md:grid-cols-3 gap-4">
-    {steps.map((step, index) => (
-      <li class={`${ui.card} relative overflow-hidden p-5`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
-        <div class="flex items-center justify-between mb-4">
-          <div class={`${ui.iconTile} ${ui.iconTileMd}`}>
-            <Icon name={step.icon} size="md" />
+    {steps.map((step, index) => {
+      const stepTone = STEP_TONES[index % STEP_TONES.length];
+      return (
+        <li class={`${ui.card} ${ui.tone[stepTone]} ${ui.tonePanel} relative overflow-hidden p-5`}>
+          <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+          <div class="flex items-center justify-between mb-4">
+            <div class={`${ui.iconTile} ${ui.iconTileMd} ${ui.toneIcon}`}>
+              <Icon name={step.icon} size="md" />
+            </div>
+            <span class={`${ui.statValue} ${ui.toneTitle} text-3xl`} aria-hidden="true">{index + 1}</span>
           </div>
-          <span class={`${ui.statValue} text-3xl`} aria-hidden="true">{index + 1}</span>
-        </div>
-        <h3 class={`${ui.text.h3} text-brand-200 mb-2`}>{step.title}</h3>
-        <p class={`${ui.text.caption} leading-relaxed`}>{step.text}</p>
-      </li>
-    ))}
+          <h3 class={`${ui.text.h3} ${ui.toneTitle} mb-2`}>{step.title}</h3>
+          <p class={`${ui.text.caption} leading-relaxed`}>{step.text}</p>
+        </li>
+      );
+    })}
   </ol>
   <p class={`${ui.text.bodyMuted} text-center mt-6`}>
     ¿Prefieres empezar por la descarga? <a href={APP_URLS.DOWNLOAD} target="_blank" rel="noopener noreferrer" class="text-brand-300 underline hover:text-brand-200">Descarga el addon</a>

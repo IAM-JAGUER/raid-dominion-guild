@@ -11,8 +11,8 @@ import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
 <section id="addon" class="scroll-mt-16 py-8">
   <div class="w-full">
       <div class="w-full">
-        <div class={`${ui.card} ${ui.cut} rounded-none relative overflow-hidden p-4 sm:p-6 md:p-8`}>
-          <span class={ui.cardTop} aria-hidden="true"></span>
+        <div class={`${ui.card} ${ui.cut} ${ui.tone.parchment} ${ui.tonePanel} rounded-none relative overflow-hidden p-4 sm:p-6 md:p-8`}>
+          <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
           <!-- Textura de la sección (addonBg): bajo el contenido y sobre la
                superficie de la card (rd-card aísla el contexto de apilado). -->
           <div
@@ -26,7 +26,7 @@ import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
             <div class="mb-6">
               <ImageComponent classes="h-16 w-16 mx-auto drop-shadow-lg" imageName="logo.png" altText="Logo de RaidDominion" width={64} height={64} />
             </div>
-            <SectionHeader title="Guía del addon" subtitle="Instalación, menú flotante, bandas, botín y comandos de RaidDominion en WoW 3.3.5a." />
+            <SectionHeader title="Guía del addon" subtitle="Instalación, menú flotante, bandas, botín y comandos de RaidDominion en WoW 3.3.5a." tone="parchment" />
           </div>
 
           <!-- Guías del Addon -->
@@ -34,7 +34,7 @@ import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
           <div id="addon-video" class="mt-10 w-full max-w-lg mx-auto scroll-mt-16">
             <article class="animate-blurred-fade-in rounded-md overflow-hidden">
               <!-- Header -->
-              <div class="bg-gradient-to-r from-brand-600/80 to-brand-800/80 px-6 py-2">
+              <div class="bg-gradient-to-r from-valor-600/80 to-valor-800/80 px-6 py-2">
                 <h2 class="text-center text-sm font-bold text-white tracking-wider">
                   ADDON WOW 3.3.5A
                 </h2>
@@ -43,7 +43,7 @@ import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
               <!-- Video del addon (se reproduce aquí mismo al hacer clic) -->
               <div class="p-3 sm:p-4">
                 <VideoEmbed videoId={ADDON_VIDEO.id} title={ADDON_VIDEO.title} />
-                <p class="mt-3 text-xs text-gray-400 text-center max-w-sm mx-auto italic">
+                <p class="mt-3 text-xs text-gray-300 text-center max-w-sm mx-auto italic">
                   Aprende a aprovechar al máximo el addon con nuestros tutoriales.
                 </p>
                 <p class="mt-1.5 text-center">
@@ -73,7 +73,7 @@ import { ADDON_VIDEO, APP_URLS } from '@/utils/constants';
                 </div>
                 <div>
                   <span class="block text-lg font-semibold text-brand-300 group-hover:text-brand-200 transition-colors duration-300">Únete a Discord</span>
-                  <span class="text-xs text-gray-400">Soporte y actualizaciones</span>
+                  <span class="text-xs text-gray-300">Soporte y actualizaciones</span>
                 </div>
               </a>
             </article>

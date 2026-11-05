@@ -182,18 +182,28 @@ export function resolveAdminHash(hash: string): { kind: 'list' } | { kind: 'user
 // deep-link por hash y navegación ARIA (flechas/Home/End). Es el mismo patrón
 // visual que la barra del dashboard (tab-btn + rounded-t-lg).
 
+export type TabBarVariant = 'default' | 'character';
+
 export interface TabBarConfig {
   tabs: TabDef[];
   barId: string;
   defaultId: string;
+  // `character` dibuja el dock integrado de la ficha de personaje (icono en
+  // medallón, contador y acento de clase); `default` conserva la barra
+  // genérica de dashboard/portal/banda.
+  variant?: TabBarVariant;
+  // Contadores opcionales por tab (solo se pintan en la variante character).
+  counts?: Record<string, number | undefined>;
 }
 
 export function createTabBar(config: TabBarConfig): { activate: (id: string, updateHash?: boolean) => void } {
   const bar = document.getElementById(config.barId) as HTMLElement | null;
   if (!bar) return { activate: () => undefined };
 
-  const tabBtnCls =
-    'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
+  const isCharacter = config.variant === 'character';
+  const tabBtnCls = isCharacter
+    ? 'rd-character-tab'
+    : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
     const btn = document.createElement('button');
@@ -203,13 +213,29 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     btn.setAttribute('aria-controls', `panel-${t.id}`);
     btn.className = tabBtnCls;
     // Icono temático decorativo + label (el nombre accesible es el texto).
-    // Tamaño de densidad `md` (20px): las pestañas marcan jerarquía con el
-    // arte, no con viñetas diminutas (design.md §10/§12).
+    // En la ficha de personaje el arte vive en un medallón de clase; en el
+    // resto se usa el icono suelto de densidad `md` (design.md §10/§12).
     if (t.icon) {
-      btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
-      btn.appendChild(iconEl(t.icon, { size: 'md' }));
+      if (isCharacter) {
+        const iconWrap = document.createElement('span');
+        iconWrap.className = 'rd-character-tab__icon';
+        iconWrap.appendChild(iconEl(t.icon, { size: 'sm' }));
+        btn.appendChild(iconWrap);
+      } else {
+        btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
+        btn.appendChild(iconEl(t.icon, { size: 'md' }));
+      }
     }
     btn.appendChild(document.createTextNode(t.label));
+    const count = config.counts?.[t.id];
+    if (isCharacter && typeof count === 'number' && count > 0) {
+      const countEl = document.createElement('span');
+      countEl.className = 'rd-character-tab__count';
+      countEl.textContent = String(count);
+      countEl.setAttribute('aria-hidden', 'true');
+      btn.setAttribute('aria-label', `${t.label} (${count})`);
+      btn.appendChild(countEl);
+    }
     bar.appendChild(btn);
     return btn;
   });
@@ -221,11 +247,13 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
       const active = b.dataset.tab === target;
       b.setAttribute('aria-selected', String(active));
       b.tabIndex = active ? 0 : -1;
-      // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
-      b.classList.toggle('border-brand-400', active);
-      b.classList.toggle('text-brand-200', active);
-      b.classList.toggle('border-transparent', !active);
-      b.classList.toggle('text-gray-400', !active);
+      if (!isCharacter) {
+        // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
+        b.classList.toggle('border-brand-400', active);
+        b.classList.toggle('text-brand-200', active);
+        b.classList.toggle('border-transparent', !active);
+        b.classList.toggle('text-gray-300', !active);
+      }
     });
     config.tabs.forEach((t) => {
       document.getElementById(`panel-${t.id}`)?.classList.toggle('hidden', t.id !== target);
@@ -276,13 +304,19 @@ export function initAvailableTabs(config: {
   tabs: TabDef[];
   available: string[];
   // Separador izquierdo de respaldo: se muestra cuando la barra queda oculta
-  // (0/1 paneles). Con 2+ paneles la hairline interna de `rd-tabbar` ya hace
-  // de separador izquierdo y este divisor se oculta.
+  // (0/1 paneles). Con 2+ paneles la barra visible ya hace de separador.
   leftSepId?: string;
+  // Contenedor del dock integrado (ficha de personaje): se oculta si no hay
+  // barra (0/1 paneles) para no dejar una banda vacía bajo la identidad.
+  dockId?: string;
+  variant?: TabBarVariant;
+  counts?: Record<string, number | undefined>;
 }): void {
   const shown = config.tabs.filter((t) => config.available.includes(t.id));
   const leftSep = config.leftSepId ? document.getElementById(config.leftSepId) : null;
+  const dock = config.dockId ? document.getElementById(config.dockId) : null;
   const hasBar = shown.length > 1;
+  dock?.classList.toggle('hidden', !hasBar);
   leftSep?.classList.toggle('hidden', hasBar);
   if (shown.length === 0) return;
   if (shown.length === 1) {
@@ -291,5 +325,11 @@ export function initAvailableTabs(config: {
   }
   const bar = document.getElementById(config.barId) as HTMLElement | null;
   bar?.classList.remove('hidden');
-  createTabBar({ barId: config.barId, tabs: shown, defaultId: shown[0].id });
+  createTabBar({
+    barId: config.barId,
+    tabs: shown,
+    defaultId: shown[0].id,
+    variant: config.variant,
+    counts: config.counts,
+  });
 }

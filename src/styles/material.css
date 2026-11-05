@@ -273,7 +273,7 @@
 .rd-medallion-hero {
   box-shadow:
     var(--shadow-inner),
-    0 0 34px -6px var(--rd-hero-tint, rgba(0, 191, 255, 0.55)),
+    0 0 34px -6px var(--rd-hero-tint, var(--rd-tone-strong, rgba(0, 191, 255, 0.55))),
     0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
@@ -790,6 +790,244 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   DOCK DE SECCIONES DE LA FICHA DE PERSONAJE (2026-11-04)
+   Las pestañas de Equipamiento/Metas/Notas/Bandas/Hermandad viven dentro de
+   la placa de identidad, no en una barra genérica debajo del encabezado.
+   El acento es el color de clase; el dock solo aparece con 2+ paneles.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-character-tab-dock {
+  position: relative;
+  border-top: 1px solid rgba(92, 169, 232, 0.14);
+  background: linear-gradient(180deg, var(--class-tint, transparent), rgba(7, 17, 30, 0.62));
+}
+.rd-character-tab-dock::before {
+  content: "";
+  position: absolute;
+  inset: -1px 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--class-color, var(--accent-primary)) 18%,
+    var(--class-color, var(--accent-primary)) 82%,
+    transparent
+  );
+  opacity: 0.55;
+  pointer-events: none;
+}
+.rd-character-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rd-character-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.rd-character-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  color: #d1d5db;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease;
+}
+.rd-character-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(92, 169, 232, 0.18);
+}
+.rd-character-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(92, 169, 232, 0.55);
+}
+.rd-character-tab[aria-selected="true"] {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
+  border-color: rgba(92, 169, 232, 0.22);
+}
+.rd-character-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--class-color, var(--accent-primary));
+  box-shadow: 0 0 10px var(--class-color, var(--accent-primary));
+}
+.rd-character-tab__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(92, 169, 232, 0.18);
+  background: rgba(7, 17, 30, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.rd-character-tab[aria-selected="true"] .rd-character-tab__icon {
+  border-color: var(--class-color, var(--accent-primary));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(7, 17, 30, 0.35));
+  box-shadow: 0 0 14px -6px var(--class-color, var(--accent-primary));
+}
+.rd-character-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(92, 169, 232, 0.22);
+  background: rgba(7, 17, 30, 0.5);
+  color: #e5e7eb;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.rd-character-tab[aria-selected="true"] .rd-character-tab__count {
+  border-color: var(--class-color, var(--accent-primary));
+  color: var(--class-color, var(--accent-primary));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TONOS CEREMONIALES · PALETA V2 (2026-11-04)
+   Familias de color por contexto (bronce, ascuas, arcano, pergamino) sobre
+   la base azul/acero. Tiñen cabeceras, paneles, iconos, ornamentos y líneas
+   de acento; la superficie sigue siendo la del tema. El arte de los iconos
+   no se recolorea: solo se tiñe el contenedor.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rd-tone-valor {
+  --rd-tone-line: rgba(212, 162, 71, 0.36);
+  --rd-tone-soft: rgba(212, 162, 71, 0.14);
+  --rd-tone-300: #E2BC6B;
+  --rd-tone-200: #EED595;
+  --rd-tone-400: #D4A247;
+  --rd-tone-600: #9C6725;
+  --rd-tone-strong: #D4A247;
+}
+.rd-tone-ember {
+  --rd-tone-line: rgba(217, 92, 69, 0.36);
+  --rd-tone-soft: rgba(217, 92, 69, 0.14);
+  --rd-tone-300: #EB8C77;
+  --rd-tone-200: #F4B8A9;
+  --rd-tone-400: #D95C45;
+  --rd-tone-600: #972D22;
+  --rd-tone-strong: #D95C45;
+}
+.rd-tone-arcane {
+  --rd-tone-line: rgba(143, 117, 210, 0.38);
+  --rd-tone-soft: rgba(143, 117, 210, 0.16);
+  --rd-tone-300: #B29FE4;
+  --rd-tone-200: #D0C4F0;
+  --rd-tone-400: #8F75D2;
+  --rd-tone-600: #574097;
+  --rd-tone-strong: #8F75D2;
+}
+.rd-tone-parchment {
+  --rd-tone-line: rgba(195, 162, 100, 0.36);
+  --rd-tone-soft: rgba(195, 162, 100, 0.13);
+  --rd-tone-300: #D8BE85;
+  --rd-tone-200: #E8D7AE;
+  --rd-tone-400: #C3A264;
+  --rd-tone-600: #896438;
+  --rd-tone-strong: #C3A264;
+}
+
+/* Cabecera de panel/placa: borde + baño de tono sobre la superficie.
+   Las clases funcionan con el tono en un ANCESTRO o en el propio elemento;
+   los fallbacks conservan la marca si no hay tono declarado. */
+.rd-tone-head {
+  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0) 62%);
+}
+.rd-tone-panel {
+  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0) 58%);
+}
+.rd-tone-body {
+  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
+}
+.rd-tone-hover:hover {
+  border-color: var(--rd-tone-strong, var(--accent-primary));
+}
+
+/* Título: gradiente de la familia; los títulos sólidos (sin bg-clip-text)
+   reciben el color claro del tono. */
+.rd-tone-title.bg-clip-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--rd-tone-200, #B8D7F1),
+    var(--rd-tone-300, #93C4EE) 55%,
+    var(--rd-tone-400, #5CA9E8)
+  );
+}
+.rd-tone-title:not(.bg-clip-text) {
+  background-image: none;
+  color: var(--rd-tone-200, #B8D7F1);
+}
+
+/* Medallón de la cabecera: contenedor teñido, arte intacto. */
+.rd-tone-icon {
+  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0.18) 72%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px -10px var(--rd-tone-strong, transparent);
+}
+
+/* Punto de cabecera cuando el panel no lleva icono. */
+.rd-tone-dot {
+  background: var(--rd-tone-strong, var(--accent-primary));
+  box-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-primary));
+}
+
+/* Línea de acento superior (cardTop) y riel de la cabecera. */
+.rd-tone-top {
+  background-image: linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-primary)), transparent);
+}
+.rd-tone-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--rd-tone-strong, var(--accent-primary)), transparent);
+  box-shadow: 0 0 12px -2px var(--rd-tone-strong, var(--accent-primary));
+  pointer-events: none;
+}
+
+/* Ornamento (doble línea + diamante): la familia del tono manda. */
+.rd-tone .rd-ornament::before {
+  color: var(--rd-tone-strong, var(--accent-primary));
+  text-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-primary));
+}
+.rd-tone .rd-ornament::after {
+  background:
+    linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-primary)) 18%, var(--rd-tone-strong, var(--accent-primary)) 82%, transparent) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, var(--rd-tone-line, rgba(92, 169, 232, 0.35)) 30%, var(--rd-tone-line, rgba(92, 169, 232, 0.35)) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    PRESENTACIÓN DE PERSONAJE · ACENTO DE CLASE (2026-11-04)
    Lenguaje select screen sobrio: riel, velo, emblema de raza y gauge usan
    `--class-color` (identidad) y `--class-tint` (alfa precalculada en JS).
@@ -989,7 +1227,8 @@
   .rd-card.rd-lift,
   .rd-class-hover,
   .rd-beast-gauge__fill,
-  .rd-beast-gauge__tip {
+  .rd-beast-gauge__tip,
+  .rd-character-tab {
     transition: none;
     transform: none;
   }

@@ -90,7 +90,7 @@ export function trackerTabsOf(
 }
 
 function emptyList(label: string): HTMLElement {
-  return el('p', 'px-2 py-2 text-[11px] italic text-gray-400', label);
+  return el('p', 'px-2 py-2 text-[11px] italic text-gray-300', label);
 }
 
 function taskRow(

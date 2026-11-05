@@ -67,7 +67,7 @@ const headCls = align === 'center' ? 'flex items-center justify-center gap-3' : 
   </div>
   <div class={`${ui.sectionBody} ${bodyAlign === 'center' ? 'text-center' : ''}`}>
     <slot name="body">
-      {message && <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">{message}</p>}
+      {message && <p class="text-sm text-gray-300 max-w-md mx-auto mb-6">{message}</p>}
       {cta && <a href={cta.href} class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest ${ctaCls}`}>{cta.label}</a>}
     </slot>
   </div>

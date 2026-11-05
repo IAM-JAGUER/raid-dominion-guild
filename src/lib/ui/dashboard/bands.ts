@@ -59,7 +59,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     on: (input: HTMLInputElement, status: HTMLElement) => Promise<void>,
   ): HTMLElement => {
     const label = document.createElement('label');
-    label.className = 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-400';
+    label.className = 'flex items-center gap-2.5 cursor-pointer select-none text-xs text-gray-300';
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.className = 'peer sr-only';
@@ -74,7 +74,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       label.classList.add('opacity-70', 'cursor-not-allowed');
       label.title = 'Requiere cuenta Miembro validada (2+ personajes).';
       status.textContent = 'bloqueado';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-400';
+      status.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-300';
     } else {
       input.addEventListener('change', () => void on(input, status));
     }
@@ -200,7 +200,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     select.disabled = true;
     select.className += ' opacity-40';
     gStatus.textContent = 'bloqueado';
-    gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-400';
+    gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-300';
   } else {
     select.addEventListener('change', async () => {
       select.disabled = true;
@@ -244,7 +244,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   // Checkbox "proponer integración" — solo si la banda está asignada a una
   // hermandad y aún no está integrada/aprobada. El maestro la valida.
   const propLabel = document.createElement('label');
-  propLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
+  propLabel.className = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-300';
   const prop = document.createElement('input');
   prop.type = 'checkbox';
   prop.className = 'w-4 h-4 accent-brand-500';
@@ -256,7 +256,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   const refreshPropose = (): void => {
     const effG = b.integration_target_guild_id ?? b.guild_id;
     const canPropose = !blocked && !!effG && b.integration_status !== 'approved';
-    const baseLabelCls = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-400';
+    const baseLabelCls = 'flex items-center gap-2 cursor-pointer select-none text-xs text-gray-300';
     if (!canPropose) {
       prop.disabled = true;
       prop.className = 'w-4 h-4 accent-brand-500 opacity-40';
@@ -310,7 +310,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   // estas reglas son el CONTENIDO que el GM activa/desactiva.
   const genderJ = b.integration_target_guild_id || b.guild_id;
   if (genderJ) {
-    rulesBox.appendChild(el('p', 'text-[10px] text-gray-400 italic', 'Integrada a una hermandad: el maestro decide cuáles de estas reglas se publican en el portal (visor "Bandas propuestas"). Aquí solo editas el contenido del catálogo.'));
+    rulesBox.appendChild(el('p', 'text-[10px] text-gray-300 italic', 'Integrada a una hermandad: el maestro decide cuáles de estas reglas se publican en el portal (visor "Bandas propuestas"). Aquí solo editas el contenido del catálogo.'));
   }
 
   const tagsWrap = el('div', 'flex flex-wrap gap-2');
@@ -320,7 +320,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     tagsWrap.innerHTML = '';
     const assigned = bandAssignedRules(b, opts.rulesCatalog);
     if (assigned.length === 0) {
-      tagsWrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin reglas asignadas a esta banda.'));
+      tagsWrap.appendChild(el('p', 'text-[11px] text-gray-300 italic', 'Sin reglas asignadas a esta banda.'));
       return;
     }
     assigned.forEach((r) => {
@@ -417,11 +417,11 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
   addRow.appendChild(addSelect);
   if (opts.rulesCatalog.length === 0) {
     addSelect.classList.add('hidden');
-    addRow.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'Sin reglas disponibles: sube un archivo con reglas para asignarlas a esta banda.'));
+    addRow.appendChild(el('span', 'text-[11px] text-gray-300 italic', 'Sin reglas disponibles: sube un archivo con reglas para asignarlas a esta banda.'));
   }
   cardEl.appendChild(rulesBox);
 
-  cardEl.appendChild(el('p', 'mt-3 text-[11px] text-gray-400 italic', 'Jugadores y horario se actualizan al volver a subir el archivo; las reglas de esta banda las eliges tú aquí.'));
+  cardEl.appendChild(el('p', 'mt-3 text-[11px] text-gray-300 italic', 'Jugadores y horario se actualizan al volver a subir el archivo; las reglas de esta banda las eliges tú aquí.'));
 
   return cardEl;
 }

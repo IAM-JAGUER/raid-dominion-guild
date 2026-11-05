@@ -51,7 +51,7 @@ function instancesContent(character: TrackerCharacter): HTMLElement {
     const row = el('div', `${ui.tracker.task} justify-between`);
     const left = el('div', 'min-w-0');
     left.appendChild(el('p', 'text-[11px] text-gray-200 truncate', instance.name));
-    if (instance.difficulty) left.appendChild(el('p', 'text-[9px] uppercase tracking-widest text-gray-400', instance.difficulty));
+    if (instance.difficulty) left.appendChild(el('p', 'text-[9px] uppercase tracking-widest text-gray-300', instance.difficulty));
     const remaining = !instance.extended && typeof instance.resetAt === 'number'
       ? instance.resetAt - now
       : null;
@@ -119,7 +119,7 @@ function ownerToggle(
   onSave: (next: boolean) => Promise<{ ok: boolean }>,
 ): HTMLElement {
   const wrap = document.createElement('label');
-  wrap.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-400 ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`;
+  wrap.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`;
   wrap.title = title;
   const input = document.createElement('input');
   input.type = 'checkbox';
@@ -127,7 +127,7 @@ function ownerToggle(
   input.disabled = disabled;
   input.className = 'w-3.5 h-3.5 accent-brand-500 shrink-0';
   input.setAttribute('aria-label', label);
-  const status = el('span', 'text-gray-400');
+  const status = el('span', 'text-gray-300');
   input.addEventListener('change', async () => {
     input.disabled = true;
     status.textContent = '· guardando…';
@@ -294,7 +294,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
 
   // Nota local del tracker (exclusiva, nunca la del juego).
   const notes = el('div', 'mt-2');
-  const label = el('label', 'block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1', 'Nota local del tracker');
+  const label = el('label', 'block text-[10px] font-black uppercase tracking-widest text-gray-300 mb-1', 'Nota local del tracker');
   const ta = document.createElement('textarea');
   ta.rows = 2;
   ta.value = character.trackerNote;
@@ -324,8 +324,8 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   ));
   const noteText = (character.gameNote ?? '').trim();
   const noteLabel = noteText
-    ? el('span', 'text-[10px] text-gray-400 truncate max-w-[12rem]', noteText)
-    : el('span', 'text-[10px] text-gray-400 italic', 'Sin nota del juego');
+    ? el('span', 'text-[10px] text-gray-300 truncate max-w-[12rem]', noteText)
+    : el('span', 'text-[10px] text-gray-300 italic', 'Sin nota del juego');
   noteLabel.title = noteText || 'Escribe la nota en el addon y vuelve a subir el archivo.';
   owner.appendChild(noteLabel);
   owner.appendChild(ownerToggle(

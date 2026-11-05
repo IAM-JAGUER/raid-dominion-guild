@@ -55,7 +55,7 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
   if (chips.children.length > 0) link.appendChild(chips);
 
   const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-brand-600/15');
-  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-400', g.realm || 'Reino no especificado'));
+  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-300', g.realm || 'Reino no especificado'));
   meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-brand-400 group-hover:text-brand-300 transition-colors', 'Ver portal →'));
   link.appendChild(meta);
 
@@ -158,7 +158,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   if (ctx.setVisibility) {
     // Toggle "Público" del dashboard con gate de publicación.
     const visLabel = document.createElement('label');
-    visLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-400';
+    visLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-300';
     // La card es un <a>: el clic en el toggle debe cambiar visibilidad y NO
     // navegar a la ficha.
     visLabel.addEventListener('click', (ev) => ev.stopPropagation());
@@ -174,7 +174,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
       visLabel.className += ' opacity-70 cursor-not-allowed';
       visLabel.title = 'Requiere cuenta Miembro validada (2+ personajes).';
       visStatus.textContent = 'bloqueado';
-      visStatus.className = 'text-gray-400';
+      visStatus.className = 'text-gray-300';
     } else {
       visCheck.addEventListener('change', async () => {
         visCheck.disabled = true;
@@ -206,7 +206,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     right.appendChild(visLabel);
   }
   if (!ctx.hideStats) {
-    if (typeof c.level === 'number') right.appendChild(el('span', 'text-[11px] text-gray-400', `Nivel ${c.level}`));
+    if (typeof c.level === 'number') right.appendChild(el('span', 'text-[11px] text-gray-300', `Nivel ${c.level}`));
     if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) {
       right.appendChild(el('span', 'text-[11px] text-brand-300', `ilvl ${c.avg_ilvl}`));
     }
@@ -218,7 +218,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   } else if (ctx.unregistered) {
     right.appendChild(chip('No registrado · otra cuenta', '!text-red-300 !border-red-500/40'));
   } else if (!ctx.forcePlain) {
-    right.appendChild(el('span', 'text-[11px] text-gray-400', 'Privado'));
+    right.appendChild(el('span', 'text-[11px] text-gray-300', 'Privado'));
   }
   row.appendChild(right);
 
@@ -234,26 +234,26 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     const noteRow = el('div', 'flex items-center gap-2 min-w-0 flex-1');
     const noteText = (c.note ?? '').trim();
     if (noteText) {
-      const noteEl = el('span', 'text-[11px] text-gray-400 truncate min-w-0', noteText);
+      const noteEl = el('span', 'text-[11px] text-gray-300 truncate min-w-0', noteText);
       noteEl.title = noteText;
       noteRow.appendChild(noteEl);
     } else {
-      noteRow.appendChild(el('span', 'text-[11px] text-gray-400 italic', 'Sin nota: escríbela en el addon y vuelve a subir el archivo'));
+      noteRow.appendChild(el('span', 'text-[11px] text-gray-300 italic', 'Sin nota: escríbela en el addon y vuelve a subir el archivo'));
     }
     const instCount = c.instances?.length ?? 0;
     if (instCount > 0) {
-      noteRow.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 bg-brand-800/60 border-brand-600/20 text-gray-400`, `${instCount} inst.`));
+      noteRow.appendChild(el('span', `${ui.badge} ${ui.badgeSm} shrink-0 bg-brand-800/60 border-brand-600/20 text-gray-300`, `${instCount} inst.`));
     }
     extras.appendChild(noteRow);
 
     const noteLabel = document.createElement('label');
-    noteLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-400 shrink-0';
+    noteLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold uppercase tracking-widest text-gray-300 shrink-0';
     const noteCheck = document.createElement('input');
     noteCheck.type = 'checkbox';
     noteCheck.checked = !!c.notes_public;
     noteCheck.className = 'w-3.5 h-3.5 accent-brand-500 shrink-0';
     const noteStatus = document.createElement('span');
-    noteStatus.className = 'text-gray-400';
+    noteStatus.className = 'text-gray-300';
     noteLabel.append(noteCheck, document.createTextNode('Nota pública'), noteStatus);
     if (!noteText) {
       // Sin nota no hay nada que publicar: el gate evita promesas falsas.
@@ -349,7 +349,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   if (band.schedule) meta.appendChild(chip(band.schedule));
   if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(chip(`GS ${band.min_gs}`, '!text-brand-300 !border-brand-500/40'));
   if (band.hide_players) {
-    meta.appendChild(chip('jugadores ocultos', '!text-gray-400'));
+    meta.appendChild(chip('jugadores ocultos', '!text-gray-300'));
   } else if (typeof opts?.playerCount === 'number') {
     meta.appendChild(chip(`${opts.playerCount} jugador${opts.playerCount === 1 ? '' : 'es'}`));
   }
@@ -368,7 +368,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   // personaje PRINCIPAL del dueño; a falta de principal público, queda el
   // handle @hex (resolveBandOwners).
   if (opts?.owner?.href && opts.owner.label) {
-    const foot = el('p', 'text-xs text-gray-400 mt-4');
+    const foot = el('p', 'text-xs text-gray-300 mt-4');
     foot.appendChild(el('span', 'text-brand-300 hover:text-brand-200 transition-colors', opts.owner.kind === 'guild' ? opts.owner.label : `Por ${opts.owner.label}`));
     cardEl.appendChild(foot);
   }

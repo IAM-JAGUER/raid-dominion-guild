@@ -24,6 +24,8 @@ interface Props {
   // `background`: la imagen llena la placa y el texto va encima con velo.
   // `cover`: banda superior a sangre y texto sobre la superficie sólida.
   imageMode?: 'background' | 'cover';
+  // Tono ceremonial de la placa (paleta v2). `steel` = marca.
+  tone?: Tone;
 }
 
 const {
@@ -35,18 +37,21 @@ const {
   image,
   imagePosition = 'center',
   imageMode = 'cover',
+  tone = 'steel',
 } = Astro.props;
 
-import { ui } from '@/lib/ui/design';
+import { ui, type Tone } from '@/lib/ui/design';
 import Icon from '@/components/ui/Icon.astro';
 import HeaderCover from '@/components/ui/HeaderCover.astro';
 import type { IconName } from '@/lib/ui/icons';
 
 const isCover = !!image && imageMode === 'cover';
 const isBackground = !!image && imageMode === 'background';
+const isTone = tone !== 'steel';
+const toneCls = isTone ? `${ui.tone[tone]} ${ui.toneHead}` : '';
 ---
 <header
-  class={`${ui.plaque} max-w-3xl mx-auto text-center px-6 animate-fade-in-1 ${
+  class={`${ui.plaque} ${toneCls} max-w-3xl mx-auto text-center px-6 animate-fade-in-1 ${
     isCover
       ? 'pt-0 pb-8 sm:pb-10'
       : isBackground
@@ -54,7 +59,7 @@ const isBackground = !!image && imageMode === 'background';
         : 'py-8 sm:py-10'
   }`}
 >
-  <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+  <span class={`${ui.cardTop} ${isTone ? ui.toneTop : ''} z-20`} aria-hidden="true"></span>
   {isCover && (
     <HeaderCover image={image ?? ''} position={imagePosition} extraClass="-mx-6" />
   )}
@@ -83,12 +88,12 @@ const isBackground = !!image && imageMode === 'background';
   )}
   <div class="relative z-10">
     {icon && (
-      <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto ${isCover ? '-mt-8 mb-4' : 'mb-4'}`}>
+      <div class={`${ui.iconTile} ${ui.iconTileLg} ${isTone ? ui.toneIcon : ''} mx-auto ${isCover ? '-mt-8 mb-4' : 'mb-4'}`}>
         <Icon name={icon} size="xl" />
       </div>
     )}
     {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
-    <h1 class={`${ui.text.hero} ${ui.titleHero} ${titleCls}`}>{title}</h1>
+    <h1 class={`${ui.text.hero} ${ui.titleHero} ${isTone ? ui.toneTitle : ''} ${titleCls}`}>{title}</h1>
     {intro && (
       <p
         class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto ${

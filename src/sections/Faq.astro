@@ -11,6 +11,7 @@ import { GLOSSARY, HOME_FAQ } from '@/data/faq';
   <SectionHeader
     title="Preguntas frecuentes"
     subtitle="Lo esencial del addon, el archivo y los portales de hermandad."
+    tone="arcane"
   />
 
   <div class="grid lg:grid-cols-2 gap-4 items-start">
@@ -34,20 +35,21 @@ import { GLOSSARY, HOME_FAQ } from '@/data/faq';
     <SectionHeader
       title="Glosario de banda"
       subtitle="Los términos que aparecen en el addon y en los directorios."
+      tone="parchment"
     />
     <dl class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {GLOSSARY.map((item) => (
-        <div class={`${ui.surf.row} p-5`}>
-          <dt class={`${ui.text.h3} text-brand-200 mb-2`}>{item.term}</dt>
+        <div class={`${ui.surf.row} ${ui.tone.parchment} rd-parchment p-5`}>
+          <dt class={`${ui.text.h3} ${ui.toneTitle} mb-2`}>{item.term}</dt>
           <dd class={`${ui.text.caption} leading-relaxed`}>{item.definition}</dd>
         </div>
       ))}
     </dl>
   </div>
 
-  <div class={`${ui.panel} relative overflow-hidden mt-10 p-6 text-center`}>
-    <span class={ui.cardTop} aria-hidden="true"></span>
-    <h3 class={`${ui.text.h1} ${ui.gradientTitle} mb-2`}>¿Listo para probarlo?</h3>
+  <div class={`${ui.panel} ${ui.tone.valor} ${ui.tonePanel} relative overflow-hidden mt-10 p-6 text-center`}>
+    <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+    <h3 class={`${ui.text.h1} ${ui.gradientTitle} ${ui.toneTitle} mb-2`}>¿Listo para probarlo?</h3>
     <p class={`${ui.text.bodyMuted} max-w-xl mx-auto mb-5`}>
       Descarga el addon para WoW 3.3.5a o sube el archivo que ya tienes y mira tu roster en el portal.
     </p>

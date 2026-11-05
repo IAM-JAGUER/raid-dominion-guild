@@ -28,7 +28,7 @@ export interface RosterMember {
 function chip(text: string, extra = ''): HTMLElement {
   return el(
     'span',
-    `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20` + (extra ? ` ${extra}` : ''),
+    `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20` + (extra ? ` ${extra}` : ''),
     text,
   );
 }
@@ -55,12 +55,12 @@ export function renderBand(
   header.appendChild(bandTitle(band));
 
   const meta = el('div', 'flex flex-wrap gap-2');
-  if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, band.schedule));
-  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `GS ${band.minGS}`));
+  if (band.schedule) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20`, band.schedule));
+  if (typeof band.minGS === 'number' && band.minGS > 0) meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20`, `GS ${band.minGS}`));
   if (hidePlayers) {
-    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, 'jugadores ocultos'));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20`, 'jugadores ocultos'));
   } else {
-    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `${band.players.length} jugadores`));
+    meta.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20`, `${band.players.length} jugadores`));
   }
   header.appendChild(meta);
   cardEl.appendChild(header);
@@ -90,15 +90,15 @@ export function renderBand(
       left.appendChild(el('span', 'font-bold text-white', p.name));
       const badges = el('div', 'flex flex-wrap gap-1.5 mt-0.5');
       if (p.role) badges.appendChild(el('span', 'text-[11px] text-brand-300', p.role));
-      if (p.dual) badges.appendChild(el('span', 'text-[11px] text-gray-400', `dual: ${p.dual}`));
+      if (p.dual) badges.appendChild(el('span', 'text-[11px] text-gray-300', `dual: ${p.dual}`));
       if (p.leader) badges.appendChild(el('span', 'text-[11px] text-emerald-300', `líder: ${p.leader}`));
       if (p.banned) badges.appendChild(el('span', 'text-[11px] text-red-300', 'baneado'));
       if (p.sanction) badges.appendChild(el('span', 'text-[11px] text-brand-300', `sanción: ${p.sanction}`));
-      if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[11px] text-gray-400', `${p.points} pts`));
-      if (p.notes) badges.appendChild(el('span', 'text-[11px] text-gray-400 italic', p.notes));
+      if (typeof p.points === 'number') badges.appendChild(el('span', 'text-[11px] text-gray-300', `${p.points} pts`));
+      if (p.notes) badges.appendChild(el('span', 'text-[11px] text-gray-300 italic', p.notes));
       left.appendChild(badges);
       row.appendChild(left);
-      if (p.class) row.appendChild(el('span', 'text-gray-400 whitespace-nowrap', p.class));
+      if (p.class) row.appendChild(el('span', 'text-gray-300 whitespace-nowrap', p.class));
       grid.appendChild(row);
     });
     players.append(summary, grid);
@@ -106,7 +106,7 @@ export function renderBand(
   }
 
   if (band.spammer) {
-    const spam = el('div', 'mt-3 text-xs text-gray-400 bg-brand-900/40 border border-gray-700/50 rounded-md px-3 py-2');
+    const spam = el('div', 'mt-3 text-xs text-gray-300 bg-brand-900/40 border border-gray-700/50 rounded-md px-3 py-2');
     let txt = 'Spammer';
     if (typeof band.spammer.duration === 'number') txt += ` · ${band.spammer.duration}s`;
     const channels = band.spammer.channels
@@ -114,7 +114,7 @@ export function renderBand(
       : '';
     if (channels) txt += ` · canales: ${channels}`;
     spam.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-brand-300/80', txt));
-    if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-400 italic', band.spammer.message));
+    if (band.spammer.message) spam.appendChild(el('p', 'mt-1 text-gray-300 italic', band.spammer.message));
     cardEl.appendChild(spam);
   }
 
@@ -138,12 +138,12 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
 
   const meta = el('div', 'flex flex-wrap gap-1.5 mt-1');
   if (p.role) meta.appendChild(el('span', 'text-[11px] text-brand-300', p.role));
-  if (p.dual) meta.appendChild(el('span', 'text-[11px] text-gray-400', `dual: ${p.dual}`));
+  if (p.dual) meta.appendChild(el('span', 'text-[11px] text-gray-300', `dual: ${p.dual}`));
   if (p.sanction) meta.appendChild(el('span', 'text-[11px] text-brand-300', `sanción: ${p.sanction}`));
-  if (typeof p.points === 'number') meta.appendChild(el('span', 'text-[11px] text-gray-400', `${p.points} pts`));
-  if (p.class) meta.appendChild(el('span', 'text-gray-400', p.class));
+  if (typeof p.points === 'number') meta.appendChild(el('span', 'text-[11px] text-gray-300', `${p.points} pts`));
+  if (p.class) meta.appendChild(el('span', 'text-gray-300', p.class));
   row.appendChild(meta);
-  if (p.notes) row.appendChild(el('p', 'mt-1 text-gray-400 italic', p.notes));
+  if (p.notes) row.appendChild(el('p', 'mt-1 text-gray-300 italic', p.notes));
   return row;
 }
 
@@ -156,9 +156,9 @@ function renderSpammer(spammer: NonNullable<ParsedSavedVariables['bands'][number
   const enabled = channels.filter(([, v]) => v).map(([c]) => c);
   const disabled = channels.filter(([, v]) => !v).map(([c]) => c);
   if (enabled.length > 0) details.appendChild(chip(`Canales: ${enabled.join(', ')}`, '!text-brand-300 !border-brand-500/40'));
-  if (disabled.length > 0) details.appendChild(el('span', 'text-[11px] text-gray-400', `(inactivos: ${disabled.join(', ')})`));
+  if (disabled.length > 0) details.appendChild(el('span', 'text-[11px] text-gray-300', `(inactivos: ${disabled.join(', ')})`));
   box.appendChild(details);
-  if (spammer.message) box.appendChild(el('p', 'mt-2 text-gray-400 italic', spammer.message));
+  if (spammer.message) box.appendChild(el('p', 'mt-2 text-gray-300 italic', spammer.message));
   return box;
 }
 
@@ -170,7 +170,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
   const header = el('div', 'flex flex-wrap items-center justify-between gap-2 mb-3');
   const titleWrap = el('div', 'flex flex-wrap items-center gap-2');
   titleWrap.appendChild(bandTitle(band));
-  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-400 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
+  if (band.icon) titleWrap.appendChild(el('span', `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-900/60 border-brand-600/20`, `icon ${band.icon}`));
   header.appendChild(titleWrap);
 
   const meta = el('div', 'flex flex-wrap gap-2');
@@ -198,7 +198,7 @@ export function renderBandExpanded(band: ParsedSavedVariables['bands'][number]):
     band.players.forEach((p) => grid.appendChild(renderBandPlayerRow(p)));
     cardEl.appendChild(grid);
   } else {
-    cardEl.appendChild(el('p', 'text-[11px] text-gray-400 italic mt-3', 'Sin jugadores en esta banda.'));
+    cardEl.appendChild(el('p', 'text-[11px] text-gray-300 italic mt-3', 'Sin jugadores en esta banda.'));
   }
 
   if (band.spammer) cardEl.appendChild(renderSpammer(band.spammer));
@@ -271,7 +271,7 @@ function renderCoreLegend(): HTMLElement {
   footer.appendChild(el('p', 'text-[11px] font-black uppercase tracking-widest text-brand-300/80 mb-2', 'Leyenda'));
   const list = el('ul', 'flex flex-wrap gap-x-4 gap-y-2');
   CORE_LEGEND.forEach(({ icon, label }) => {
-    const li = el('li', 'inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-gray-400');
+    const li = el('li', 'inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-gray-300');
     li.appendChild(iconEl(icon, { size: 'xs', cls: 'shrink-0' }));
     li.appendChild(document.createTextNode(label));
     list.appendChild(li);
@@ -341,7 +341,7 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   ident.appendChild(nameRow);
   // Solo aparece si el líder publicó las notas: si no, ni siquiera viajan en el
   // row público (la DB las guarda aparte), así que aquí no hay nada que filtrar.
-  if (p.notes) ident.appendChild(el('p', 'text-[11px] italic text-gray-400 truncate', p.notes));
+  if (p.notes) ident.appendChild(el('p', 'text-[11px] italic text-gray-300 truncate', p.notes));
   left.appendChild(ident);
   row.appendChild(left);
 
@@ -404,7 +404,7 @@ export function renderBandCore(players: MergePlayer[], opts?: BandCoreOpts): HTM
     wrap.appendChild(renderCoreSection(cfg.title, rows.length, cfg.color, CORE_ICONS[cfg.key], rows));
   });
 
-  if (!any) return el('p', 'text-sm text-gray-400 italic', 'Esta banda aún no tiene jugadores asignados.');
+  if (!any) return el('p', 'text-sm text-gray-300 italic', 'Esta banda aún no tiene jugadores asignados.');
   wrap.appendChild(renderCoreLegend());
   return wrap;
 }
@@ -449,14 +449,14 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
 
     const meta = el('div', 'flex flex-wrap gap-1.5');
     if (u.roles.size) meta.appendChild(el('span', 'text-[11px] text-brand-300', Array.from(u.roles).join(', ')));
-    if (u.classes.size) meta.appendChild(el('span', 'text-gray-400', Array.from(u.classes).join(', ')));
-    meta.appendChild(el('span', 'text-[11px] text-gray-400', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
+    if (u.classes.size) meta.appendChild(el('span', 'text-gray-300', Array.from(u.classes).join(', ')));
+    meta.appendChild(el('span', 'text-[11px] text-gray-300', u.bands > 1 ? `${u.bands} bandas` : '1 banda'));
     row.appendChild(meta);
     grid.appendChild(row);
   });
 
   if (unique.size === 0) {
-    return el('p', 'text-[11px] text-gray-400 italic', 'Sin jugadores en las bandas.');
+    return el('p', 'text-[11px] text-gray-300 italic', 'Sin jugadores en las bandas.');
   }
   return grid;
 }
@@ -476,7 +476,7 @@ function rankBadgeClass(rank: string | undefined): string {
 // arriba) con cabeceras de grupo; si no, queda plano como antes.
 export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?: GuildRank[]): void {
   if (!members || members.length === 0) {
-    wrap.innerHTML = '<p class="text-sm text-gray-400 italic">Sin roster exportado.</p>';
+    wrap.innerHTML = '<p class="text-sm text-gray-300 italic">Sin roster exportado.</p>';
     return;
   }
 
@@ -573,7 +573,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
         // del contenedor descentra la fila (justify-center centra fila+gap+0).
         if (m.publicNote) {
           const meta = el('div', 'flex flex-wrap gap-1.5');
-          meta.appendChild(el('span', 'text-[11px] text-gray-400 italic truncate', m.publicNote));
+          meta.appendChild(el('span', 'text-[11px] text-gray-300 italic truncate', m.publicNote));
           cardEl.appendChild(meta);
         }
 
@@ -605,7 +605,7 @@ export function renderParsedSections(
     li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
     const inner = el('div', '');
     inner.appendChild(el('span', 'font-bold text-brand-200', r.title || 'Regla'));
-    if (r.content) inner.appendChild(el('p', 'text-gray-400 text-xs mt-1', r.content));
+    if (r.content) inner.appendChild(el('p', 'text-gray-300 text-xs mt-1', r.content));
     li.appendChild(inner);
     containers.rules.appendChild(li);
   });

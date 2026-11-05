@@ -61,7 +61,7 @@ export function collectRegistryGuilds(d: ParsedSavedVariables): RegistryGuildCar
 export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuildCard[]): void {
   wrap.innerHTML = '';
   if (guilds.length === 0) {
-    wrap.appendChild(el('p', 'text-[11px] text-gray-400 italic', 'Sin hermandad en el registro.'));
+    wrap.appendChild(el('p', 'text-[11px] text-gray-300 italic', 'Sin hermandad en el registro.'));
     return;
   }
   guilds.forEach((g) => {
@@ -92,7 +92,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     // (0 = líder). El rango del propio usuario se marca si está disponible.
     if (g.ranks.length > 0) {
       const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
-      hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-400', 'Rangos:'));
+      hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300', 'Rangos:'));
       g.ranks.forEach((r) => {
         const isMine = ownIndex !== undefined
           ? r.index === ownIndex
@@ -102,14 +102,14 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
           ? 'text-brand-300 border-brand-500/50 bg-brand-900/30'
           : r.index === 0
             ? 'text-brand-200/90 border-brand-600/30 bg-brand-900/60'
-            : 'text-gray-400 border-gray-700/40 bg-brand-900/60';
+            : 'text-gray-300 border-gray-700/40 bg-brand-900/60';
         hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border ${cls}`,
           `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
       });
       cardEl.appendChild(hier);
     }
     if (g.characters.length > 0) {
-      cardEl.appendChild(el('p', 'text-[11px] text-gray-400 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
+      cardEl.appendChild(el('p', 'text-[11px] text-gray-300 mt-1.5', `Personajes: ${g.characters.join(', ')}`));
     }
     wrap.appendChild(cardEl);
   });
