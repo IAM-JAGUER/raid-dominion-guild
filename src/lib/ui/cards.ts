@@ -6,9 +6,9 @@
  */
 import { supabase } from '@/lib/supabase';
 import type { PublicAccountNames } from '@/lib/api';
-import { classColor } from '@/lib/ui/classColors';
+import { classTextColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
-import { cardLink, card as cardBox, cardTop, cardTitle, iconTileEl, arrowIcon } from '@/lib/ui/card';
+import { applyClassAccent, cardLink, card as cardBox, cardTop, cardTitle, iconTileEl, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { chip, el, iconChip } from '@/lib/ui/dom';
 import { iconEl } from '@/lib/ui/icons';
@@ -125,16 +125,16 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
   const charHref = c.slug ? `/personaje/${c.slug}` : null;
   const profHref = profile?.slug ? `/jugador/${profile.slug}` : null;
   const href = ctx.unregistered ? null : (charHref ?? profHref);
-  const color = classColor(c.class, c.class_file);
   const link: HTMLElement = href
-    ? cardLink(href, 'px-4 py-3 group')
+    ? cardLink(href, `px-4 py-3 group ${ui.character.cardHover}`)
     : cardBox(ctx.forcePlain || ctx.unregistered ? 'px-4 py-3' : 'px-4 py-3 opacity-80');
   if (!href && !ctx.forcePlain && !ctx.unregistered) link.title = 'El jugador mantiene su perfil privado';
   if (ctx.unregistered) link.title = 'Pertenece a otra cuenta o no se registró en tu historial';
 
-  const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
-  accent.style.backgroundColor = color;
-  link.appendChild(accent);
+  // Acento de clase (riel + velo) y color de texto con contraste AA.
+  applyClassAccent(link, c.class, c.class_file);
+  link.appendChild(el('span', ui.character.rail));
+  link.appendChild(el('span', ui.character.veil));
 
   const row = el('div', 'flex items-center justify-between gap-3 min-w-0');
   const left = el('div', 'flex items-center gap-2.5 min-w-0');
@@ -145,8 +145,8 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     left.appendChild(num);
   }
   left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-md shrink-0 shadow border border-gray-700/50 object-cover'));
-  const name = el('span', 'font-black italic truncate text-sm');
-  name.style.color = color;
+  const name = el('span', 'font-black italic truncate text-sm tracking-tight');
+  name.style.color = classTextColor(c.class, c.class_file);
   name.textContent = `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`;
   left.appendChild(name);
   if (c.sv_is_gm) {

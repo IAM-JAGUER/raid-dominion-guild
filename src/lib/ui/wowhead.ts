@@ -37,8 +37,8 @@ let refreshTries = 0;
 
 // Inyecta power.js una sola vez. Al cargar, UltimoWoW procesa los enlaces ya
 // presentes; `refreshWowhead` cubre los que se montan después (datos async).
-export function ensureWowhead(): void {
-  if (typeof document === 'undefined') return;
+export function ensureWowhead(): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve();
   const win = window as unknown as WowheadGlobals;
   // Misma configuración que wow-rd antes de cargar power.js.
   if (!win.aowow_tooltips) {
@@ -46,7 +46,7 @@ export function ensureWowhead(): void {
   }
   if (loader) {
     void loader.then(refreshWowhead);
-    return;
+    return loader;
   }
   loader = new Promise<void>((resolve) => {
     const script = document.createElement('script');
@@ -58,6 +58,7 @@ export function ensureWowhead(): void {
     document.head.appendChild(script);
   });
   void loader.then(refreshWowhead);
+  return loader;
 }
 
 // Reprocesa enlaces montados dinámicamente (API pública de power.js).

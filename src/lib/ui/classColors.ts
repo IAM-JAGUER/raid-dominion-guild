@@ -75,3 +75,42 @@ export function classColor(className?: string | null, classFile?: string | null)
   const color = file ? CLASS_COLORS[file] : undefined;
   return color ?? DEFAULT_CLASS_COLOR;
 }
+
+// Convierte un color de clase a rgba con alfa (hero halo, velo de card).
+export function hexToRgba(hex: string, alpha: number): string {
+  const h = String(hex || '').replace('#', '');
+  const n = h.length === 3 ? h.split('').map((ch) => ch + ch).join('') : h;
+  const r = parseInt(n.substring(0, 2), 16) || 0;
+  const g = parseInt(n.substring(2, 4), 16) || 0;
+  const b = parseInt(n.substring(4, 6), 16) || 0;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function relativeLuminance(hex: string): number {
+  const h = String(hex).replace('#', '');
+  const n = h.length === 3 ? h.split('').map((ch) => ch + ch).join('') : h;
+  const channel = (offset: number): number => {
+    const v = (parseInt(n.substring(offset, offset + 2), 16) || 0) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+}
+
+// Color de clase para TEXTO sobre superficie Abismo: si el color puro no
+// alcanza contraste AA (DK, brujo), se aclara hacia blanco. El riel/halo
+// conserva el color puro; solo el texto se ajusta.
+export function classTextColor(className?: string | null, classFile?: string | null): string {
+  const base = classColor(className, classFile);
+  const target = 0.42;
+  if (relativeLuminance(base) >= target) return base;
+  const h = base.replace('#', '');
+  const n = h.length === 3 ? h.split('').map((ch) => ch + ch).join('') : h;
+  const rgb = [0, 2, 4].map((offset) => parseInt(n.substring(offset, offset + 2), 16) || 0);
+  for (let step = 1; step <= 12; step++) {
+    const t = (step / 12) * 0.6;
+    const mixed = rgb.map((v) => Math.round(v + (255 - v) * t));
+    const hex = `#${mixed.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+    if (relativeLuminance(hex) >= target) return hex;
+  }
+  return '#E8F4FF';
+}

@@ -1,11 +1,11 @@
 import type { ParsedSavedVariables, GuildRank, BandPlayer } from '@/types/parser';
 import type { MergePlayer } from '@/lib/bandMerge';
-import { classColor } from '@/lib/ui/classColors';
+import { classColor, classTextColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { resolveRankName, sortRanks } from '@/lib/ui/ranks';
 import { roleLabel } from '@/lib/ui/itemQuality';
 import { bandNameLink } from '@/lib/ui/bandName';
-import { cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
+import { applyClassAccent, cardLink, card, cardTop, cardRow, cardTitle, arrowIcon } from '@/lib/ui/card';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
 import { createPaginator } from '@/lib/ui/paginator';
@@ -310,21 +310,20 @@ function renderCoreSection(title: string, count: number, color: string, icon: Ic
 }
 
 function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTMLElement {
-  const color = classColor(p.class);
   // Mismo lenguaje que la card de personaje (renderCharacterCard): la tarjeta
   // COMPLETA es el enlace a /personaje/:slug cuando existe; nombre como texto
   // plano y, a la derecha, el rol/cifras y la flecha indicadora.
   let row: HTMLElement;
   if (slug) {
-    row = cardLink(`/personaje/${slug}`, 'px-4 py-3 flex items-center justify-between gap-3 group');
+    row = cardLink(`/personaje/${slug}`, `px-4 py-3 flex items-center justify-between gap-3 group ${ui.character.cardHover}`);
   } else {
     row = card('px-4 py-3 flex items-center justify-between gap-3');
   }
 
-  // Borde izquierdo coloreado por clase (mismo lenguaje que renderCharacterCard).
-  const accent = el('div', 'absolute top-0 left-0 w-1 h-full');
-  accent.style.backgroundColor = color;
-  row.appendChild(accent);
+  // Acento de clase (riel + velo), mismo lenguaje que renderCharacterCard.
+  applyClassAccent(row, p.class);
+  row.appendChild(el('span', ui.character.rail));
+  row.appendChild(el('span', ui.character.veil));
 
   const left = el('div', 'flex items-center gap-2.5 min-w-0');
   // Identidad (icono + nombre + badges) y nota en columna: la nota es texto
@@ -332,8 +331,8 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   const ident = el('div', 'flex flex-col min-w-0');
   const nameRow = el('div', 'flex items-center gap-2 min-w-0');
   nameRow.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-md border border-gray-700/50 shrink-0 object-cover'));
-  const name = el('span', 'font-black italic truncate text-sm');
-  name.style.color = color;
+  const name = el('span', 'font-black italic truncate text-sm tracking-tight');
+  name.style.color = classTextColor(p.class);
   name.textContent = p.name || '?';
   nameRow.appendChild(name);
   if (isSource) nameRow.appendChild(coreBadge('integración', 'text-brand-300 bg-brand-950/40 border-brand-600/40', 'enlace'));

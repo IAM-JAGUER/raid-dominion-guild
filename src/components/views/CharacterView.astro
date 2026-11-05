@@ -8,22 +8,26 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
 ---
 <section id="view-personaje" class="hidden">
   <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-    <div class={`${ui.plaque} p-5 sm:p-7`}>
+    <div id="pv-plaque" class={`${ui.plaque} isolate p-5 sm:p-7`}>
       <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+      <span class={ui.character.veil} aria-hidden="true"></span>
       <HeaderCover
         image="/images/headers/ficha-personaje.webp"
         extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
       />
-      <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+      <div class="relative z-10 flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
         <!-- Medallón héroe: arte NATIVO del sprite (nítido hasta 80px) con halo
              del color de clase. La clase como tal vive en su chip, con la
-             miniatura JPG a 20px (el asset es de 18px: a 96px se veía borroso). -->
-        <div id="pv-avatar" class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
+             miniatura JPG a 20px (el asset es de 18px: a 96px se veía borroso).
+             En la ficha el retrato sube un paso (select screen). -->
+        <div id="pv-avatar" class={`${ui.iconTile} ${ui.character.avatar} rd-medallion-hero ${ui.iconTileHeroLg} -mt-8 relative z-10`}>
           <Icon name="personaje" size="hero" />
         </div>
         <div class="flex-1 min-w-0 text-left">
-          <h1 id="pv-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle}`}></h1>
+          <h1 id="pv-name" class={`${ui.character.nameDisplay} break-words`}></h1>
+          <span class={`${ui.character.underline} mt-2 max-w-md`} aria-hidden="true"></span>
           <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
+          <div id="pv-gauge" class="hidden mt-4 max-w-md"></div>
           <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
           <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
         </div>
@@ -90,13 +94,13 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
   import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
   import { profilePageSchema, setPageMeta } from '@/lib/seo';
   import { classIconEl } from '@/lib/ui/classIcon';
-  import { classColor } from '@/lib/ui/classColors';
+  import { classColor, classTextColor, hexToRgba } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
-  import { itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
+  import { WOTLK_ILVL_TIERS, WOTLK_MAX_ILVL, ilvlTierFor, itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
   import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
-  import { card, cardTop, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
+  import { applyClassAccent, card, cardTop, classEmblem, classGauge, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
   import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
-  import { iconEl } from '@/lib/ui/icons';
+  import { iconEl, raceIconFor } from '@/lib/ui/icons';
   import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
   import { bandNameLink } from '@/lib/ui/bandName';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
@@ -145,14 +149,28 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       ],
       jsonLd: profilePageSchema(`${c.name} — RaidDominion`, description, path),
     });
-    (document.getElementById('pv-name') as HTMLElement).textContent = c.name;
+    const nameEl = document.getElementById('pv-name') as HTMLElement;
+    nameEl.textContent = c.name;
+    // Nombre con el color propio de la clase (variante AA para texto).
+    nameEl.style.color = classTextColor(c.class, c.class_file);
     setBreadcrumb(c.name);
+
+    // Acento de clase: riel, velo, emblema y gauge comparten `--class-color`.
+    const plaque = document.getElementById('pv-plaque') as HTMLElement;
+    applyClassAccent(plaque, c.class, c.class_file);
+
+    // Emblema de raza de fondo (la «forma bestia» del select screen): sprite
+    // nativo a baja opacidad, sin recolorear.
+    const race = c.race_file || c.race;
+    if (race) plaque.appendChild(classEmblem(raceIconFor(race)));
 
     // Halo del medallón héroe con el color de clase (el arte no se recolorea).
     const avatar = document.getElementById('pv-avatar') as HTMLElement;
     const tint = classColor(c.class, c.class_file);
     if (tint) {
       avatar.style.setProperty('--rd-hero-tint', tint);
+      avatar.style.setProperty('--rd-hero-bg', hexToRgba(tint, 0.26));
+      avatar.style.setProperty('--rd-hero-bg-deep', hexToRgba(tint, 0.07));
       avatar.style.borderColor = tint;
     }
 
@@ -163,7 +181,34 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     const pieces = (c.equipment ?? []).length;
     if (pieces > 0) stats.appendChild(statCell('Piezas', pieces));
 
+    // Gauge de energía por iLvl medio sobre el máximo de WotLK (284).
+    // Interactivo: hover/focus muestra el detalle y los hitos alcanzados.
+    const ilvl = c.avg_ilvl;
+    if (typeof ilvl === 'number' && ilvl > 0) {
+      const gauge = document.getElementById('pv-gauge') as HTMLElement;
+      const tier = ilvlTierFor(ilvl);
+      const pct = Math.round((ilvl / WOTLK_MAX_ILVL) * 100);
+      gauge.appendChild(classGauge({
+        label: 'Nivel de objeto',
+        valueText: `${ilvl}/${WOTLK_MAX_ILVL}`,
+        value: ilvl,
+        max: WOTLK_MAX_ILVL,
+        ariaLabel: `Nivel de objeto medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
+        tooltip: `iLvl medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
+        milestones: WOTLK_ILVL_TIERS,
+        ticks: false,
+        interactive: true,
+      }));
+      if (tier) gauge.appendChild(el('p', 'text-[11px] text-gray-400 mt-1.5', `Tier alcanzado: ${tier.label}`));
+      gauge.classList.remove('hidden');
+    }
+
     const chips = document.getElementById('pv-chips') as HTMLElement;
+    if (race) {
+      // Espacio de raza: icono temático + nombre (el emblema de fondo repite
+      // la identidad sin competir con el texto).
+      chips.appendChild(iconChip(raceIconFor(race), c.race || 'Raza', '', 'md'));
+    }
     if (c.class) {
       // La clase lleva su miniatura JPG a 20px (el asset es de 18px: nítido
       // a este tamaño; a 96px se veía borroso). El chip nombra la clase, la
@@ -174,7 +219,6 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       clsChip.insertBefore(clsImg, clsChip.firstChild);
       chips.appendChild(clsChip);
     }
-    if (c.member_verified) chips.appendChild(iconChip('validado', 'Validado', '!text-emerald-300 !border-emerald-600/40', 'md'));
     if (c.sv_guild_name) {
       chips.appendChild(iconChip(
         c.sv_is_gm ? 'estrella' : 'hermandad',

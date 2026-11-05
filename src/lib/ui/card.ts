@@ -10,6 +10,8 @@
 import { ui } from '@/lib/ui/design';
 import { iconEl, type IconName, type IconSize } from '@/lib/ui/icons';
 import { itemQualityColor, itemQualityTextColor } from '@/lib/ui/itemQuality';
+import { classColor, hexToRgba } from '@/lib/ui/classColors';
+import { itemIconEl } from '@/lib/ui/itemIcon';
 import { slugify } from '@/lib/routes';
 
 function node(tag: string, cls: string, text?: string): HTMLElement {
@@ -17,6 +19,16 @@ function node(tag: string, cls: string, text?: string): HTMLElement {
   n.className = cls;
   if (text !== undefined) n.textContent = text;
   return n;
+}
+
+// ID de objeto a partir del enlace de UltimoWoW (`?item=123`). Permite que
+// itemRow resuelva el icono sin exigir el dato a cada caller.
+function itemIdFromHref(href?: string): number | null {
+  if (!href) return null;
+  const match = /[?&]item=(\d+)/.exec(href);
+  if (!match) return null;
+  const id = Number(match[1]);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
 // Línea de acento superior (decorativa, aria-hidden). La card anfitriona debe
@@ -146,6 +158,124 @@ export function heroMedallion(name: IconName, tint?: string | null): HTMLElement
   return tile;
 }
 
+// Acento de clase en un anfitrión: fija `--class-color` y `--class-tint`
+// (alfa precalculado para el velo). Devuelve el color puro de la clase.
+export function applyClassAccent(
+  host: HTMLElement,
+  className?: string | null,
+  classFile?: string | null,
+): string {
+  const color = classColor(className, classFile);
+  host.style.setProperty('--class-color', color);
+  host.style.setProperty('--class-tint', hexToRgba(color, 0.10));
+  return color;
+}
+
+// Emblema de raza de fondo (la «forma bestia»): sprite nativo con opacidad
+// reducida; nunca se recolorea (§10).
+export function classEmblem(name: IconName): HTMLElement {
+  const span = node('span', ui.character.emblem);
+  span.setAttribute('aria-hidden', 'true');
+  span.appendChild(iconEl(name, { size: 'hero' }));
+  return span;
+}
+
+export interface GaugeMilestone {
+  value: number;
+  label: string;
+}
+
+export interface ClassGaugeOptions {
+  // Etiqueta corta (omitir en barras de progreso compactas).
+  label?: string;
+  // Texto de la cifra a la derecha (p. ej. «12/18»).
+  valueText?: string;
+  value: number;
+  max: number;
+  // Descripción accesible; por defecto etiqueta + cifra.
+  ariaLabel?: string;
+  // Texto del tooltip visible al pasar el cursor o enfocar el gauge.
+  tooltip?: string;
+  // Hitos de progresión (iLvl, rangos…): marcas dentro de la pista. Los ya
+  // alcanzados se pintan con el acento de clase.
+  milestones?: GaugeMilestone[];
+  // Marcas segmentadas genéricas (por defecto true). El gauge de iLvl usa
+  // hitos en su lugar para no duplicar líneas.
+  ticks?: boolean;
+  // Hace el gauge enfocable y muestra el tooltip (hover/focus).
+  interactive?: boolean;
+}
+
+let gaugeTipSeq = 0;
+
+// Gauge de energía (design.md §12): pista oscura con relleno de clase,
+// glow, marcas segmentadas e hitos. SIEMPRE expone role="progressbar" con
+// rango; con `interactive` es enfocable y describe el valor en un tooltip.
+export function classGauge(o: ClassGaugeOptions): HTMLElement {
+  const wrap = node('div', 'min-w-0');
+  const max = Math.max(1, o.max);
+  const value = Math.max(0, Math.min(max, o.value));
+  const pct = Math.round((value / max) * 100);
+  const valueText = o.valueText ?? `${value}/${max}`;
+
+  if (o.label || o.valueText) {
+    const head = node('div', 'flex items-baseline justify-between gap-3 mb-1.5');
+    if (o.label) head.appendChild(node('span', ui.statBlock.label, o.label));
+    if (o.valueText) head.appendChild(node('span', 'text-xs font-bold text-brand-200 tabular-nums shrink-0', valueText));
+    wrap.appendChild(head);
+  }
+
+  const trackWrap = node('div', ui.character.gauge.wrap);
+  const track = node(
+    'div',
+    `${ui.character.gauge.track}${o.interactive ? ' rd-beast-gauge--interactive' : ''}`,
+  );
+  track.setAttribute('role', 'progressbar');
+  track.setAttribute('aria-valuemin', '0');
+  track.setAttribute('aria-valuemax', String(max));
+  track.setAttribute('aria-valuenow', String(value));
+  track.setAttribute('aria-valuetext', o.tooltip ?? o.ariaLabel ?? valueText);
+  track.setAttribute('aria-label', o.ariaLabel ?? `${o.label ?? 'Progreso'}: ${valueText}`);
+  if (o.interactive) track.tabIndex = 0;
+
+  const fill = node('span', ui.character.gauge.fill);
+  fill.style.width = `${pct}%`;
+  track.appendChild(fill);
+
+  if (o.ticks !== false) {
+    const ticks = node('span', ui.character.gauge.ticks);
+    ticks.setAttribute('aria-hidden', 'true');
+    track.appendChild(ticks);
+  }
+
+  (o.milestones ?? []).forEach((milestone) => {
+    if (milestone.value <= 0 || milestone.value >= max) return;
+    const reached = milestone.value <= value;
+    const mark = node(
+      'span',
+      `${ui.character.gauge.milestone}${reached ? ' is-passed' : ''}`,
+    );
+    mark.style.left = `${(milestone.value / max) * 100}%`;
+    mark.title = `${milestone.value} · ${milestone.label}`;
+    mark.setAttribute('aria-hidden', 'true');
+    track.appendChild(mark);
+  });
+
+  trackWrap.appendChild(track);
+
+  if (o.tooltip) {
+    gaugeTipSeq += 1;
+    const tip = node('span', ui.character.gauge.tip, o.tooltip);
+    tip.id = `rd-gauge-tip-${gaugeTipSeq}`;
+    tip.setAttribute('role', 'tooltip');
+    trackWrap.appendChild(tip);
+    track.setAttribute('aria-describedby', tip.id);
+  }
+
+  wrap.appendChild(trackWrap);
+  return wrap;
+}
+
 // Celda de la tira de cifras del héroe: etiqueta + valor grande (statValue).
 export function statCell(label: string, value: string | number): HTMLElement {
   const cell = node('div', ui.statBlock.cell);
@@ -163,6 +293,8 @@ export interface ItemRowOptions {
   quality?: number | null;
   // Cifra a la derecha (ilvl, objetivo, cuenta atrás).
   value?: string;
+  // ID del objeto (si se conoce): alimenta el icono nativo del tooltip.
+  itemID?: number | null;
   // Cifra como nodo propio (estados que no son statValue, p. ej. «Reiniciado»).
   valueEl?: HTMLElement;
   // Marcador inicial (check/reloj/icono de tipo).
@@ -196,6 +328,8 @@ export function itemRow(o: ItemRowOptions): HTMLElement {
   const rail = node('span', 'rd-quality-rail');
   rail.setAttribute('aria-hidden', 'true');
   row.appendChild(rail);
+  const icon = itemIconEl(o.itemID ?? itemIdFromHref(o.href));
+  if (icon) row.appendChild(icon);
   if (o.leading) row.appendChild(o.leading);
   const content = node('div', 'min-w-0 flex-1');
   if (o.slot) content.appendChild(node('p', ui.item.slot, o.slot));

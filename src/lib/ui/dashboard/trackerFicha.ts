@@ -10,9 +10,9 @@ import type {
   EquipmentPiece,
 } from '@/types/parser';
 import { inferFactionFromRace } from '@/lib/parser/savedVariables';
-import { classColor } from '@/lib/ui/classColors';
+import { classTextColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
-import { itemRow } from '@/lib/ui/card';
+import { applyClassAccent, classGauge, itemRow } from '@/lib/ui/card';
 import { TRACKER_FICHA_TABS } from '@/lib/ui/tabs';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
@@ -25,7 +25,10 @@ import { bandDetailCta, bandNameLink } from '@/lib/ui/bandName';
 import { matchBandCharacter } from '@/lib/bandMerge';
 import {
   equipmentSlotLabel,
+  ilvlTierFor,
   roleLabel,
+  WOTLK_ILVL_TIERS,
+  WOTLK_MAX_ILVL,
 } from '@/lib/ui/itemQuality';
 
 export interface TrackerFichaHandlers {
@@ -187,6 +190,23 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
   ].forEach(([k, v]) => datos.appendChild(detailRow(String(k), v as string | number | null | undefined)));
   detalle.appendChild(sectionTitle('personaje', 'Datos'));
   detalle.appendChild(datos);
+  const ilvl = c.avg_ilvl;
+  if (typeof ilvl === 'number' && ilvl > 0) {
+    const tier = ilvlTierFor(ilvl);
+    const pct = Math.round((ilvl / WOTLK_MAX_ILVL) * 100);
+    detalle.appendChild(classGauge({
+      label: 'Nivel de objeto',
+      valueText: `${ilvl}/${WOTLK_MAX_ILVL}`,
+      value: ilvl,
+      max: WOTLK_MAX_ILVL,
+      ariaLabel: `Nivel de objeto medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
+      tooltip: `iLvl medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
+      milestones: WOTLK_ILVL_TIERS,
+      ticks: false,
+      interactive: true,
+    }));
+    if (tier) detalle.appendChild(el('p', 'text-[11px] text-gray-400', `Tier alcanzado: ${tier.label}`));
+  }
 
   const origen = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-x-8');
   [
@@ -417,21 +437,24 @@ export interface TrackerFichaView {
 
 export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
   const c = ctx.character;
-  const color = classColor(c.class, c.class_file);
   const root = el('section', '');
   root.dataset.trackerFicha = c.id;
 
-  // Cabecera (ventana del dashboard: sectionHead + sectionBody).
+  // Cabecera (ventana del dashboard: sectionHead + sectionBody) con acento
+  // de clase: riel + velo, mismo lenguaje que la ficha pública.
   const head = el('div', `${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`);
+  applyClassAccent(head, c.class, c.class_file);
+  head.appendChild(el('span', ui.character.rail));
+  head.appendChild(el('span', ui.character.veil));
   const headRow = el('div', 'flex flex-wrap items-start justify-between gap-4');
   const ident = el('div', 'flex items-start gap-3 min-w-0');
   ident.appendChild(classIconEl(c.class, c.class_file, 'w-12 h-12 rounded-md border border-gray-700/50 object-cover shrink-0'));
   const identText = el('div', 'min-w-0');
   identText.appendChild(el('p', ui.eyebrow, 'Personaje · Ficha del tracker'));
-  const h2 = el('h2', `${ui.gradientTitle} text-xl sm:text-2xl font-black italic truncate`, c.name);
-  h2.style.color = color;
+  const h2 = el('h2', 'text-xl sm:text-2xl font-black italic uppercase tracking-tight truncate', c.name);
+  h2.style.color = classTextColor(c.class, c.class_file);
   identText.appendChild(h2);
-  identText.appendChild(el('p', `${ui.text.caption} mt-0.5`, [c.realm, c.class, c.level ? `Nivel ${c.level}` : '', c.sv_guild_name].filter(Boolean).join(' · ')));
+  identText.appendChild(el('p', `${ui.text.caption} mt-0.5`, [c.realm, c.race, c.class, c.level ? `Nivel ${c.level}` : '', c.sv_guild_name].filter(Boolean).join(' · ')));
   ident.appendChild(identText);
   headRow.appendChild(ident);
 

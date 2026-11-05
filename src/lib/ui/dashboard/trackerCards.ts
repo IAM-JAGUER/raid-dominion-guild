@@ -3,10 +3,11 @@
 // tareas/instancias/monedas, nota LOCAL y controles del dueño. Sin GearScore.
 
 import type { CharacterInstance, AccountCurrency } from '@/types/parser';
-import { classColor } from '@/lib/ui/classColors';
+import { classColor, classTextColor, hexToRgba } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { ui } from '@/lib/ui/design';
 import { el } from '@/lib/ui/dom';
+import { classGauge } from '@/lib/ui/card';
 import { formatMoney, fmtEpoch, formatRemaining } from '@/lib/ui/dashboard/format';
 import type { TrackerCharacter } from '@/lib/ui/dashboard/trackerLogic';
 import { renderTrackerTasks, setTrackerTab } from '@/lib/ui/dashboard/trackerTasks';
@@ -31,15 +32,6 @@ export interface TrackerCardHandlers {
   onSaveLocalNote: (characterId: string, note: string) => Promise<boolean>;
   setVisibility: (characterId: string, visible: boolean) => Promise<{ ok: boolean }>;
   setNotesPublic: (characterId: string, visible: boolean) => Promise<{ ok: boolean }>;
-}
-
-function hexToRgba(hex: string, alpha: number): string {
-  const h = String(hex || '').replace('#', '');
-  const n = h.length === 3 ? h.split('').map((ch) => ch + ch).join('') : h;
-  const r = parseInt(n.substring(0, 2), 16) || 0;
-  const g = parseInt(n.substring(2, 4), 16) || 0;
-  const b = parseInt(n.substring(4, 6), 16) || 0;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function badge(icon: Parameters<typeof iconEl>[0], label: string, cls = ''): HTMLElement {
@@ -161,6 +153,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   const id = character.id;
   const color = classColor(character.class, character.class_file);
   const tint = hexToRgba(color, 0.24);
+  const veil = hexToRgba(color, 0.10);
   const border = hexToRgba(color, 0.38);
   const collapsed = h.collapsed.has(id);
   const selected = h.selected.has(id);
@@ -172,8 +165,10 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   ].filter(Boolean).join(' '));
   card.dataset.characterId = id;
   card.style.setProperty('--class-color', color);
+  card.style.setProperty('--class-tint', veil);
   if (!selected) card.style.borderColor = border;
   card.appendChild(watermark(character));
+  card.appendChild(el('span', ui.character.rail));
 
   // ── Cabecera ────────────────────────────────────────────────────────────
   const header = el('div', ui.tracker.cardHeader);
@@ -203,7 +198,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   collapseBtn.append(chevron, classIconEl(character.class, character.class_file, 'w-6 h-6 rounded-md border border-gray-700/50 object-cover shrink-0'));
   const titleGroup = el('span', 'min-w-0 flex flex-col');
   const title = el('span', `${ui.tracker.cardTitle} block`, character.name);
-  title.style.color = color;
+  title.style.color = classTextColor(character.class, character.class_file);
   titleGroup.appendChild(title);
   const meta = [
     typeof character.level === 'number' && character.level > 0 ? `Nv ${character.level}` : '',
@@ -240,12 +235,17 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   inner.appendChild(body);
   content.appendChild(inner);
 
-  // Progreso
-  const progress = el('div', `${ui.tracker.progress} mt-1 mb-1`);
-  const progressBar = el('span', ui.tracker.progressBar);
-  progressBar.style.width = `${Math.max(0, Math.min(100, character.progress.percent))}%`;
-  progress.appendChild(progressBar);
-  body.appendChild(progress);
+  // Progreso como gauge de energía (pista + relleno de clase + marcas).
+  // Sin tareas activas no hay gauge: el contador de la cabecera ya informa.
+  if (character.progress.active > 0) {
+    const progress = classGauge({
+      value: character.progress.done,
+      max: character.progress.active,
+      ariaLabel: `Progreso de tareas de ${character.name}: ${character.progress.done} de ${character.progress.active}`,
+    });
+    progress.classList.add('mt-1', 'mb-1');
+    body.appendChild(progress);
+  }
 
   // Badges
   const badges = el('div', 'flex flex-wrap items-center gap-2 mt-2');

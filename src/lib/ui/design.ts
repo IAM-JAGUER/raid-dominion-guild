@@ -381,6 +381,9 @@ export const ui = {
   // Se compone con ui.iconTile + ui.icon.hero y el halo .rd-medallion-hero
   // (material.css), tintado por contexto con `--rd-hero-tint`.
   iconTileHero: 'w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28',
+  // Medallón héroe de la FICHA de personaje (2026-11-04): un paso más para
+  // que el retrato domine la placa de identidad (lenguaje select screen).
+  iconTileHeroLg: 'w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32',
 
   // ── Póster: zonas, superficies y jerarquía (2026-10-17, design.md §12) ──
   // Ritmo de zonas de una ficha: el héroe respira, las pestañas y el cuerpo
@@ -429,6 +432,37 @@ export const ui = {
     cell: 'border-l border-brand-700/50 px-4 first:border-l-0 first:pl-0 last:pr-0 py-0.5',
     label: 'text-[11px] font-black uppercase tracking-[0.14em] text-gray-400 mb-0.5',
     value: 'text-xl sm:text-3xl',
+  },
+  // ── Presentación de personaje (2026-11-04, Bloody Roar sobrio) ──────────
+  // Acento de clase como identidad (`--class-color` + `--class-tint`):
+  // riel, velo, emblema de raza y gauge. El arte del sprite NUNCA se
+  // recolorea (§10): el emblema solo baja opacidad y el halo ilumina fuera.
+  character: {
+    // Riel vertical de 3px con glow de clase (equivalente al de calidad).
+    rail: 'rd-class-rail',
+    // Velo radial de clase sobre la placa/card (.rd-class-veil).
+    veil: 'rd-class-veil',
+    // Emblema de raza de fondo, la «forma bestia» del select screen.
+    emblem: 'rd-select-emblem',
+    // Hover de card de personaje: borde + halo con el color de clase.
+    cardHover: 'rd-class-hover',
+    // Fondo del medallón héroe teñido con el color de clase (ficha).
+    avatar: 'rd-medallion-class',
+    // Nombre display de ficha: mayúsculas itálicas (select screen). El dato
+    // original del DOM no cambia (SEO/lectores conservan el nombre real).
+    nameDisplay: 'font-black italic uppercase tracking-tight leading-[1.3] text-4xl sm:text-5xl lg:text-6xl text-balance',
+    // Tira de energía bajo el nombre (hairline de clase con glow).
+    underline: 'rd-class-underline',
+    // Gauge de energía: relleno + marcas segmentadas con `--class-color`.
+    // `wrap` ancla el tooltip; `milestone` marca los hitos de progresión.
+    gauge: {
+      wrap: 'relative rd-beast-gauge-wrap',
+      track: 'rd-beast-gauge',
+      fill: 'rd-beast-gauge__fill',
+      ticks: 'rd-beast-gauge__ticks',
+      milestone: 'rd-beast-gauge__milestone',
+      tip: 'rd-beast-gauge__tip',
+    },
   },
   // Padding ampliable del cuerpo/cabecera de un PanelWindow protagonista
   // (prop `pad="lg"`): overrides explícitos sobre el padding del token.

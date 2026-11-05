@@ -71,6 +71,32 @@ export function itemQualityCountLabel(quality: number, count: number): string {
   return `${count} ${label ?? ''}`.trim();
 }
 
+// iLvl máximo de World of Warcraft 3.3.5a (Ruby Sanctum 25H / Shadowmourne).
+// Fuente única del denominador del gauge de nivel de objeto.
+export const WOTLK_MAX_ILVL = 284;
+
+export interface IlvlTier {
+  value: number;
+  label: string;
+}
+
+// Hitos de progresión de equipo en WotLK (el gauge marca los alcanzados).
+export const WOTLK_ILVL_TIERS: IlvlTier[] = [
+  { value: 200, label: 'Naxxramas 10' },
+  { value: 213, label: 'Naxxramas 25' },
+  { value: 226, label: 'Ulduar 25' },
+  { value: 245, label: 'Prueba del Cruzado 25' },
+  { value: 264, label: 'ICC 25 normal / ICC 10 heroico' },
+  { value: 277, label: 'ICC 25 heroico' },
+  { value: 284, label: 'Ruby Sanctum 25 heroico' },
+];
+
+// Tier alcanzado por un iLvl (el hito más alto que no lo supera).
+export function ilvlTierFor(ilvl?: number | null): IlvlTier | undefined {
+  if (typeof ilvl !== 'number' || ilvl <= 0) return undefined;
+  return [...WOTLK_ILVL_TIERS].reverse().find((tier) => ilvl >= tier.value);
+}
+
 const EQUIPMENT_SLOTS: Record<number, string> = {
   1: 'Cabeza',
   2: 'Cuello',
