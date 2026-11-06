@@ -16,6 +16,18 @@ const meta = PAGE_META['/login'];
   particles="frost"
 >
   <Navigation currentPath="/login" />
+  <!-- Captura el tipo de callback ANTES de que supabase-js consuma el hash
+       de recuperación (el SDK limpia la URL al inicializarse). -->
+  <script is:inline>
+    try {
+      var authParams = new URLSearchParams(window.location.hash.slice(1));
+      if (authParams.get('type') === 'recovery') {
+        document.documentElement.dataset.rdAuthRecovery = '1';
+      }
+    } catch (e) {
+      /* sin hash válido */
+    }
+  </script>
   <main class="relative py-16">
     <div class="max-w-md mx-auto">
       <Breadcrumb />
@@ -31,7 +43,7 @@ const meta = PAGE_META['/login'];
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
-      <section class={`${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
+      <section id="auth-panel" class={`${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
         <!-- Alternancia de modo -->
         <div class="grid grid-cols-2 border-b border-brand-600/20" role="tablist" aria-label="Modo de acceso">
           <button id="tab-signin" type="button" role="tab" aria-selected="true"
@@ -107,6 +119,36 @@ const meta = PAGE_META['/login'];
         <p id="auth-ok" class={`hidden mx-6 mb-4 ${ui.status.success} ${ui.alert}`} role="status"></p>
       </section>
 
+      <!-- Nueva contraseña (callback de recuperación) -->
+      <section id="recovery-panel" class={`hidden ${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} p-4 sm:p-6 shadow-xl shadow-black/30`}>
+        <p class={`${ui.text.body} mb-4`}>
+          Elige una nueva contraseña para tu cuenta. Después volverás a tu dashboard.
+        </p>
+        <div class="space-y-4">
+          <div>
+            <label for="recovery-password" class={ui.form.label}>Nueva contraseña</label>
+            <input id="recovery-password" type="password" autocomplete="new-password" required
+              class={`${ui.form.input} ${ui.focusRing}`} aria-describedby="recovery-error" />
+            <ul class="mt-2 space-y-1">
+              <li data-rule="len" class="flex items-center gap-1.5 text-[11px] text-gray-300"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Mínimo 8 caracteres</li>
+              <li data-rule="letter" class="flex items-center gap-1.5 text-[11px] text-gray-300"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Al menos una letra</li>
+              <li data-rule="num" class="flex items-center gap-1.5 text-[11px] text-gray-300"><span class="rule-dot w-1.5 h-1.5 rounded-full bg-gray-500"></span>Al menos un número</li>
+            </ul>
+          </div>
+          <div>
+            <label for="recovery-confirm" class={ui.form.label}>Confirmar contraseña</label>
+            <input id="recovery-confirm" type="password" autocomplete="new-password" required
+              class={`${ui.form.input} ${ui.focusRing}`} />
+          </div>
+          <button id="recovery-save" type="button"
+            class={`${ui.btnBase} ${ui.btnPrimary} w-full px-4 py-3 text-sm font-bold uppercase tracking-widest disabled:opacity-50 disabled:pointer-events-none`}>
+            Guardar contraseña
+          </button>
+          <p id="recovery-error" class={`hidden ${ui.status.error} ${ui.alert}`} role="alert"></p>
+          <p id="recovery-ok" class={`hidden ${ui.status.success} ${ui.alert}`} role="status"></p>
+        </div>
+      </section>
+
       <p class={`${ui.text.caption} text-center mt-6`}>
         Portal comunitario del addon RaidDominion para WoW 3.3.5a.<br />
         <a href="/" class={`hover:text-brand-300 ${ui.transition}`}>← Volver al portal</a>
@@ -141,8 +183,16 @@ const meta = PAGE_META['/login'];
   const passwordInput = document.getElementById('password') as HTMLInputElement;
   const errorBox = document.getElementById('auth-error') as HTMLElement;
   const okBox = document.getElementById('auth-ok') as HTMLElement;
+  const authPanel = document.getElementById('auth-panel') as HTMLElement;
+  const recoveryPanel = document.getElementById('recovery-panel') as HTMLElement;
+  const recoveryPassword = document.getElementById('recovery-password') as HTMLInputElement;
+  const recoveryConfirm = document.getElementById('recovery-confirm') as HTMLInputElement;
+  const recoverySave = document.getElementById('recovery-save') as HTMLButtonElement;
+  const recoveryError = document.getElementById('recovery-error') as HTMLElement;
+  const recoveryOk = document.getElementById('recovery-ok') as HTMLElement;
 
   let mode: 'signin' | 'signup' | 'reset' = 'signin';
+  const isRecoveryFlow = document.documentElement.dataset.rdAuthRecovery === '1';
 
   // Destino tras autenticar (?next=%2Fruta); solo rutas internas seguras
   function nextPath(): string {
@@ -269,9 +319,80 @@ const meta = PAGE_META['/login'];
     resetSend.textContent = 'Enviar enlace de recuperación';
   });
 
-  // ── Sesión previa → destino directo ────────────────────────────────────
+  // ── Recuperación: mostrar el formulario de nueva contraseña ────────────
+  function showRecovery(): void {
+    authPanel.classList.add('hidden');
+    recoveryPanel.classList.remove('hidden');
+    formTitle.textContent = 'Nueva contraseña';
+    recoveryPassword.focus();
+  }
+
+  function showRecoveryError(msg: string): void {
+    recoveryError.textContent = msg;
+    recoveryError.classList.remove('hidden');
+    recoveryOk.classList.add('hidden');
+  }
+
+  if (isRecoveryFlow) showRecovery();
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') showRecovery();
+  });
+
+  function syncRecoveryRules(): void {
+    const rules = passRules(recoveryPassword.value);
+    recoveryPanel.querySelectorAll<HTMLElement>('li[data-rule]').forEach((li) => {
+      const key = li.dataset.rule as keyof typeof rules;
+      const dot = li.querySelector('.rule-dot') as HTMLElement;
+      const ok = rules[key];
+      li.classList.toggle('text-emerald-400', ok);
+      li.classList.toggle('text-gray-300', !ok);
+      dot.classList.toggle('bg-emerald-400', ok);
+      dot.classList.toggle('bg-gray-500', !ok);
+    });
+  }
+  recoveryPassword.addEventListener('input', syncRecoveryRules);
+
+  recoverySave.addEventListener('click', async () => {
+    recoveryError.classList.add('hidden');
+    recoveryOk.classList.add('hidden');
+    const rules = passRules(recoveryPassword.value);
+    if (!rules.len || !rules.letter || !rules.num) {
+      showRecoveryError('La contraseña no cumple los requisitos marcados.');
+      return;
+    }
+    if (recoveryPassword.value !== recoveryConfirm.value) {
+      showRecoveryError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    recoverySave.disabled = true;
+    recoverySave.setAttribute('aria-busy', 'true');
+    recoverySave.textContent = 'Guardando…';
+    try {
+      const { error } = await supabase.auth.updateUser({ password: recoveryPassword.value });
+      if (error) {
+        showRecoveryError(userError(error.message, 'No se pudo guardar la contraseña. Solicita un enlace nuevo.'));
+        return;
+      }
+      recoveryOk.textContent = 'Contraseña actualizada. Entrando a tu dashboard…';
+      recoveryOk.classList.remove('hidden');
+      history.replaceState(null, '', window.location.pathname);
+      window.setTimeout(() => window.location.assign(nextPath()), 900);
+    } catch {
+      showRecoveryError('Error de red; verifica tu conexión e inténtalo de nuevo.');
+    } finally {
+      recoverySave.disabled = false;
+      recoverySave.removeAttribute('aria-busy');
+      recoverySave.textContent = 'Guardar contraseña';
+    }
+  });
+
+  // ── Sesión previa → destino directo (nunca durante recuperación) ───────
   supabase.auth.getSession().then(({ data }) => {
-    if (data.session?.user) window.location.replace(nextPath());
+    if (!isRecoveryFlow && data.session?.user) window.location.replace(nextPath());
+    if (isRecoveryFlow && !data.session) {
+      showRecoveryError('El enlace de recuperación caducó o no es válido. Solicita uno nuevo.');
+    }
   });
 
   // ── Envío principal ────────────────────────────────────────────────────
