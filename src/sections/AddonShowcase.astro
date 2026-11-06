@@ -1,0 +1,87 @@
+---
+// Prueba visual del addon: capturas reales de la interfaz en WoW 3.3.5a.
+// Las imágenes ya viven en public/images/addon (no se duplican binarios).
+// Es contenido estático indexable y la prueba que falta en la landing:
+// el visitante ve el producto antes de descargarlo o subir su archivo.
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { ui } from '@/lib/ui/design';
+import { APP_URLS } from '@/utils/constants';
+
+const shots = [
+  {
+    src: '/images/addon/ListaJugadoresBanda.jpg',
+    width: 802,
+    height: 595,
+    title: 'Roster y roles de la banda',
+    text: 'Jugadores, clase, rol, estado y puntos en una sola vista.',
+    tone: 'arcane',
+  },
+  {
+    src: '/images/addon/GestorBotin.jpg',
+    width: 448,
+    height: 422,
+    title: 'Gestor de botín',
+    text: 'Reparte el loot con reglas claras y sin hojas de cálculo.',
+    tone: 'valor',
+  },
+  {
+    src: '/images/addon/Sanciones.jpg',
+    width: 807,
+    height: 597,
+    title: 'Sanciones y seguimiento',
+    text: 'Deja constancia de incidencias y mantén la banda alineada.',
+    tone: 'ember',
+  },
+  {
+    src: '/images/addon/ConfiguracionBandas.jpg',
+    width: 884,
+    height: 306,
+    title: 'Reglas y configuración',
+    text: 'Buffs, habilidades y mecánicas listos antes del primer pull.',
+    tone: 'parchment',
+  },
+] as const;
+---
+
+<section id="capturas" class="scroll-mt-16 py-8">
+  <SectionHeader
+    title="Así se ve el addon"
+    subtitle="Capturas reales de RaidDominion dentro de World of Warcraft 3.3.5a."
+    tone="ember"
+  />
+
+  <div class="grid sm:grid-cols-2 gap-5">
+    {shots.map((shot) => (
+      <figure class={`${ui.card} ${ui.tone[shot.tone]} ${ui.tonePanel} relative overflow-hidden group`}>
+        <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
+        <div class="relative aspect-[4/3] bg-brand-950/70 p-2 sm:p-3">
+          <img
+            src={shot.src}
+            alt={`${shot.title}: ${shot.text}`}
+            width={shot.width}
+            height={shot.height}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-contain rounded-sm transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        </div>
+        <figcaption class="px-5 pb-5 pt-1">
+          <h3 class={`${ui.text.h3} ${ui.toneTitle} mb-1`}>{shot.title}</h3>
+          <p class={`${ui.text.caption} leading-relaxed`}>{shot.text}</p>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+
+  <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+    <a href={APP_URLS.DOWNLOAD} target="_blank" rel="noopener noreferrer" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.md}`}>
+      <Icon name="descargar" size="sm" />
+      Descargar el addon
+    </a>
+    <a href="/#addon" class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}>
+      <Icon name="libro" size="sm" />
+      Ver la guía completa
+    </a>
+  </div>
+</section>

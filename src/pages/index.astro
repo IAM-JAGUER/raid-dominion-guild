@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import GrandLogo from '@/sections/GrandLogo.astro';
+import AddonShowcase from '@/sections/AddonShowcase.astro';
 import AddonOverview from '@/sections/AddonOverview.astro';
 import Donations from '@/sections/Donations.astro';
 import AddonSection from '@/sections/AddonSection.astro';
@@ -40,6 +41,11 @@ const jsonLd = [
 				     separador izquierdo (la landing no tiene barra de tabs). -->
 				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 				<div class={`${ui.dividerFadeRight} my-8`} aria-hidden="true"></div>
+
+				<!-- Prueba visual: capturas reales del addon -->
+				<AddonShowcase />
+
+				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 
 				<!-- Presentación editorial: qué es, funciones, audiencias y pasos -->
 				<AddonOverview />

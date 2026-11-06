@@ -53,6 +53,11 @@ import StatCell from '@/components/ui/StatCell.astro';
     </a>
   </div>
 
+  <a href="#capturas" class={`${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} mb-2`}>
+    <Icon name="visibilidad" size="sm" />
+    Ver el addon en acción
+  </a>
+
   <!-- Cifras del producto en placa (ui.statBlock). El span cardTop vive FUERA
        de la tira: dentro seria el primer hijo del flex y los `first:`/`last:`
        del token no alcanzarian a las celdas. Celdas centradas (label y cifra):
@@ -60,21 +65,19 @@ import StatCell from '@/components/ui/StatCell.astro';
        que un wrap estrecho no deje un separador suelto al inicio de fila. -->
   <div class={`relative mx-4 max-w-2xl px-6 py-4 mb-10 animate-fade-in-1 ${ui.plaque} ${ui.tone.valor} ${ui.toneHead}`} style="animation-delay: 0.7s">
     <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
-    <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:gap-x-0 max-sm:[&>*]:border-l-0">
-      <StatCell label="cliente WoW" value="3.3.5a" cellCls="!px-4 text-center" valueCls={ui.toneTitle} />
-      <StatCell label="gratis" value="100%" cellCls="!px-4 text-center" valueCls={ui.toneTitle} />
+    <div class="flex items-center justify-center sm:gap-x-0 max-sm:grid max-sm:grid-cols-3 max-sm:gap-0 max-sm:[&>*]:border-l-0">
+      <StatCell label="cliente" value="3.3.5a" cellCls="!px-2 sm:!px-4 text-center" valueCls={ui.toneTitle} />
+      <StatCell label="gratis" value="100%" cellCls="!px-2 sm:!px-4 text-center" valueCls={ui.toneTitle} />
+      <StatCell label="formularios" value="0" cellCls="!px-2 sm:!px-4 text-center" valueCls={ui.toneTitle} />
     </div>
   </div>
 
-  <!-- Inicio de sesión -->
-  <div class="flex justify-center mb-12 animate-fade-in-1" style="animation-delay: 0.8s">
-    <a
-      href="/login"
-      class={`${ui.btnBase} ${ui.btnSecondary} ${ui.btnSizes.md}`}
-    >
-      <Icon name="perfil-alt" size="md" />
-      Iniciar Sesión
+  <!-- Acceso secundario: el CTA principal es subir el archivo; login vive en la nav -->
+  <p class="text-xs text-gray-300 mb-12 animate-fade-in-1" style="animation-delay: 0.8s">
+    ¿Ya tienes cuenta?
+    <a href="/login" class="text-brand-300 font-bold underline decoration-brand-600/60 underline-offset-2 hover:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-sm">
+      Inicia sesión
     </a>
-  </div>
+  </p>
 
 </section>

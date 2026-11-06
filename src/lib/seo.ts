@@ -204,7 +204,12 @@ export function softwareApplicationSchema(features: string[] = []): JsonLdNode {
       priceCurrency: 'USD',
     },
     featureList: features,
-    screenshot: absoluteUrl('/images/addon/ListaJugadoresBanda.jpg'),
+    screenshot: [
+      absoluteUrl('/images/addon/ListaJugadoresBanda.jpg'),
+      absoluteUrl('/images/addon/GestorBotin.jpg'),
+      absoluteUrl('/images/addon/Sanciones.jpg'),
+      absoluteUrl('/images/addon/ConfiguracionBandas.jpg'),
+    ],
   };
 }
 
