@@ -128,6 +128,9 @@ export const ui = {
     error: 'text-red-300 bg-red-950/40 border border-red-600/40',
     info: 'text-brand-200 bg-gray-900/60 border border-brand-600/30',
   },
+  // Layout estándar de una caja de estado async (se compone con ui.status.*):
+  // mensajes de guardado/error bajo formularios y acciones del dashboard/admin.
+  alert: 'text-sm rounded-md px-4 py-2.5',
 
   // ── Switch ON/OFF tipo pill (toggles de visibilidad/estado) ─────────────
   // Patrón replicado del dashboard (bands.ts makeSwitch): input peer sr-only
@@ -393,7 +396,16 @@ export const ui = {
     hero: 'mb-8 lg:mb-10',
     tabs: 'mb-8',
     body: 'space-y-8 lg:space-y-10',
+    // Barra de pestañas del esqueleto de página (dashboard, admin, fichas y
+    // portal): layout + scroll horizontal oculto. Los márgenes (`mt-8`,
+    // `mb-8`), `hidden` y `animate-fade-in-1` los aporta cada contexto.
+    tabBar:
+      'flex flex-nowrap items-center gap-1 rd-tabbar relative overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
   },
+  // Grilla estándar de cards de directorio/ficha (3 columnas → 2 → 1).
+  gridCards: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3',
+  // Bleed del cover de una placa héroe que usa padding `p-5 sm:p-7`.
+  heroCoverBleed: '-mx-5 -mt-5 sm:-mx-7 sm:-mt-7',
   // Placa de IDENTIDAD de la ficha (póster, design.md §12): superficie real
   // para la zona héroe — sobre la imagen de atmósfera, el texto suelto se
   // disolvía en las zonas claras del fondo. Hermana de la VENTANA DE

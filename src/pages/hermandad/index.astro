@@ -9,8 +9,10 @@ import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import EmptyState from '@/components/ui/EmptyState.astro';
 import Icon from '@/components/ui/Icon.astro';
-import HeaderCover from '@/components/ui/HeaderCover.astro';
+import StatusCard from '@/components/ui/StatusCard.astro';
+import FichaHero from '@/components/ui/FichaHero.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
 
@@ -34,12 +36,16 @@ const meta = PAGE_META['/hermandad'];
       <LoadingBlock id="loading" text="Invocando el portal…" />
 
       <!-- No encontrado -->
-      <div id="not-found" data-rd-reveal class={`hidden ${ui.panel} ${ui.cut} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
-        <Icon name="advertencia" size="xl" class="mx-auto mb-3" />
-        <h1 class={`${ui.text.h2} text-white mb-2`}>Portal no encontrado</h1>
-        <p id="not-found-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta hermandad no existe o su portal es privado.</p>
-        <a href="/hermandades" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Ver directorio</a>
-      </div>
+      <StatusCard
+        id="not-found"
+        cut
+        icon="advertencia"
+        title="Portal no encontrado"
+        titleTag="h1"
+        message="Esta hermandad no existe o su portal es privado."
+        messageId="not-found-msg"
+        cta={{ label: 'Ver directorio', href: '/hermandades' }}
+      />
 
       <!-- Portal. Ritmo de zonas póster: cada hijo trae su margen (header
            zone.hero, banner mb-8); sin `space-y` aquí, que pisaba el `mt-12`
@@ -56,34 +62,20 @@ const meta = PAGE_META['/hermandad'];
         </div>
 
         <!-- Hero: placa de identidad (póster) con medallón héroe -->
-        <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-          <div class={`${ui.plaque} ${ui.tone.valor} ${ui.toneHead} p-5 sm:p-7`}>
-            <span class={`${ui.cardTop} ${ui.toneTop} z-20`} aria-hidden="true"></span>
-            <HeaderCover
-              image="/images/headers/portal-hermandad.webp"
-              extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
-            />
-            <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
-              <div class={`${ui.iconTile} ${ui.toneIcon} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
-                <Icon name="estandarte" size="hero" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                  <div>
-                    <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}><Icon name="medalla" size="xs" class="self-center" />Verificada</span>
-                    <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest"><Icon name="discord" size="sm" />Discord</a>
-                  </div>
-                </div>
-                <p id="guild-description" class={`${ui.text.body} max-w-md leading-relaxed mt-3`}></p>
-                <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
-                <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
-              </div>
+        <FichaHero image="/images/headers/portal-hermandad.webp" icon="estandarte" tone="valor">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h1 id="guild-name" class={`${ui.titleFicha} ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="verified-badge" class={`hidden ${ui.badge} ${ui.badgeMd} ${ui.status.success}`}><Icon name="medalla" size="xs" class="self-center" />Verificada</span>
+              <a id="discord-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 text-indigo-300 hover:bg-indigo-900/40 transition-all text-xs font-black uppercase tracking-widest"><Icon name="discord" size="sm" />Discord</a>
             </div>
           </div>
-        </header>
+          <p id="guild-description" class={`${ui.text.body} max-w-md leading-relaxed mt-3`}></p>
+          <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
+          <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
+        </FichaHero>
 
         <!-- Esqueleto de página (modelo dashboard): separador central +
              separador izquierdo (la barra de tabs lo aporta cuando hay paneles;
@@ -93,7 +85,7 @@ const meta = PAGE_META['/hermandad'];
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" data-rd-reveal class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class="flex flex-nowrap items-center gap-1 rd-tabbar relative mt-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="animation-delay: 0.15s"></nav>
+          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class={`${ui.zone.tabBar} mt-8 animate-fade-in-1`} style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
@@ -161,13 +153,18 @@ const meta = PAGE_META['/hermandad'];
                 <div class="mt-4" id="viewer-bands-filtro" data-rd-reveal-cards></div>
               </div>
               <div id="viewer-bands" class="space-y-8"></div>
-              <div id="bandas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
-                <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
-                  <Icon name="espadas" size="xl" />
-                </div>
-                <p class="font-bold text-white mb-1">Sin bandas publicadas</p>
-                <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica bandas.</p>
-              </div>
+              <EmptyState
+                id="bandas-empty"
+                hidden
+                variant="panel"
+                pad="lg"
+                cut
+                icon="espadas"
+                title="Sin bandas publicadas"
+                message="Esta hermandad aún no publica bandas."
+                gradient={false}
+                titleCls="font-bold text-white"
+              />
             </PanelWindow>
           </div>
 
@@ -181,25 +178,35 @@ const meta = PAGE_META['/hermandad'];
               </div>
               <div id="viewer-rules" class="space-y-2 [&>li]:flex [&>li]:items-start [&>li]:text-sm [&>li]:text-gray-300 [&>li]:bg-brand-800/30 [&>li]:border [&>li]:border-brand-600/15 [&>li]:rounded-md [&>li]:px-3 [&>li]:py-2.5 [&>li]:transition-colors [&>li:hover]:border-brand-500/30"></div>
               <div id="viewer-rules-pager" class="mt-3"></div>
-              <div id="reglas-empty" class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 text-center`}>
-                <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
-                  <Icon name="pergamino" size="xl" />
-                </div>
-                <p class="font-bold text-white mb-1">Sin reglas publicadas</p>
-                <p class={`${ui.text.bodyMuted} italic`}>Esta hermandad aún no publica reglas.</p>
-              </div>
+              <EmptyState
+                id="reglas-empty"
+                hidden
+                variant="panel"
+                cut
+                icon="pergamino"
+                title="Sin reglas publicadas"
+                message="Esta hermandad aún no publica reglas."
+                gradient={false}
+                titleCls="font-bold text-white"
+              />
             </PanelWindow>
           </div>
         </div>
 
         <!-- Sin snapshot -->
-        <div id="no-snapshot" data-rd-reveal class={`hidden ${ui.panel} ${ui.cut} relative overflow-hidden p-6 sm:p-8 text-center`}>
-          <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
-            <Icon name="cristal" size="xl" />
-          </div>
-          <p class="font-bold text-white mb-1">Sin análisis público todavía</p>
-          <p class="text-sm text-gray-300">El maestro de esta hermandad aún no publica roster ni bandas.</p>
-        </div>
+        <EmptyState
+          id="no-snapshot"
+          hidden
+          variant="panel"
+          pad="lg"
+          cut
+          icon="cristal"
+          title="Sin análisis público todavía"
+          message="El maestro de esta hermandad aún no publica roster ni bandas."
+          messageCls="text-sm text-gray-300"
+          gradient={false}
+          titleCls="font-bold text-white"
+        />
 
         <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
         <!-- Contexto del portal (servidor/reino): van DESPUÉS del separador
@@ -254,8 +261,9 @@ const meta = PAGE_META['/hermandad'];
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
-  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
-  import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
+  import { type Facet } from '@/lib/ui/filterBar';
+  import { PAGE_SIZE_LIST } from '@/lib/ui/paginator';
+  import { mountPagedList } from '@/lib/ui/list';
 
   function showNotFound(msg?: string): void {
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
@@ -293,45 +301,34 @@ const meta = PAGE_META['/hermandad'];
       },
     ];
 
-    createFilterBar<ContentItem>({
+    mountPagedList<ContentItem>({
       mount: document.getElementById('viewer-rules-filtro') as HTMLElement,
       items: rules,
+      pageSize: PAGE_SIZE_LIST,
+      pager,
+      clear: () => { box.innerHTML = ''; },
+      renderEmpty: (message) => { box.innerHTML = ''; box.appendChild(el('li', `${ui.text.bodyMuted} italic`, message)); },
+      renderPage: (_pageItems, page, filtered) => {
+        box.innerHTML = '';
+        const start = (page - 1) * PAGE_SIZE_LIST;
+        filtered.slice(start, start + PAGE_SIZE_LIST).forEach((rule) => {
+          const li = el('li', 'flex items-start text-sm text-gray-300');
+          li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
+          const inner = el('div', '');
+          inner.appendChild(el('span', 'font-bold text-brand-200', rule.title || 'Regla'));
+          if (rule.content) inner.appendChild(el('p', 'text-gray-300 text-xs mt-1', rule.content));
+          li.appendChild(inner);
+          box.appendChild(li);
+        });
+      },
       getSearchText: (rule) => `${rule.title ?? ''} ${rule.content ?? ''}`,
       searchPlaceholder: 'Buscar regla…',
       searchLabel: 'Buscar reglas por título o contenido',
       facets,
       resultNoun: (n) => `${n} regla${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pager) pager.textContent = '';
-        if (filtered.length === 0) {
-          box.innerHTML = '';
-          const msg = state.query.trim()
-            ? `Ninguna regla coincide con "${state.query.trim()}".`
-            : 'No hay reglas que coincidan con los filtros.';
-          box.appendChild(el('li', `${ui.text.bodyMuted} italic`, msg));
-          return;
-        }
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_LIST,
-          totalItems: filtered.length,
-          summary: `${filtered.length} regla${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            box.innerHTML = '';
-            const start = (page - 1) * PAGE_SIZE_LIST;
-            filtered.slice(start, start + PAGE_SIZE_LIST).forEach((rule) => {
-              const li = el('li', 'flex items-start text-sm text-gray-300');
-              li.appendChild(el('span', 'text-brand-600 mr-2 mt-0.5', '›'));
-              const inner = el('div', '');
-              inner.appendChild(el('span', 'font-bold text-brand-200', rule.title || 'Regla'));
-              if (rule.content) inner.appendChild(el('p', 'text-gray-300 text-xs mt-1', rule.content));
-              li.appendChild(inner);
-              box.appendChild(li);
-            });
-          },
-        });
-        if (pager && paginator.bar) pager.appendChild(paginator.bar);
-        paginator.update();
-      },
+      emptyMessage: (state) => state.query.trim()
+        ? `Ninguna regla coincide con "${state.query.trim()}".`
+        : 'No hay reglas que coincidan con los filtros.',
     });
   }
 

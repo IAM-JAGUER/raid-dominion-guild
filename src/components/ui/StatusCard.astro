@@ -1,0 +1,82 @@
+---
+// Tarjeta de estado (no encontrado / acceso restringido): fuente única del
+// bloque que antes se repetía en fichas, portal, moderación y admin.
+import { ui } from '@/lib/ui/design';
+import Icon from '@/components/ui/Icon.astro';
+import type { IconName } from '@/lib/ui/icons';
+
+interface Props {
+  id?: string;
+  hidden?: boolean;
+  // `danger`: borde rojo (404 / acceso restringido); `neutral`: superficie normal.
+  tone?: 'danger' | 'neutral';
+  // Superficie: panel de página o card de ficha.
+  surface?: 'panel' | 'card';
+  // Corte diagonal sup-izq (ui.cut) y línea de acento superior.
+  cut?: boolean;
+  showTop?: boolean;
+  // Medallón de icono (ficha de jugador) o icono suelto.
+  medallion?: boolean;
+  icon?: IconName;
+  title: string;
+  titleTag?: 'h1' | 'h2';
+  titleId?: string;
+  titleCls?: string;
+  message?: string;
+  messageId?: string;
+  messageCls?: string;
+  cta?: { label: string; href: string } | null;
+  ctaId?: string;
+  ctaCls?: string;
+  cls?: string;
+}
+
+const {
+  id,
+  hidden = true,
+  tone = 'danger',
+  surface = 'panel',
+  cut = false,
+  showTop = false,
+  medallion = false,
+  icon = 'advertencia',
+  title,
+  titleTag = 'h2',
+  titleId,
+  titleCls = `${ui.text.h2} text-white mb-2`,
+  message,
+  messageId,
+  messageCls = `${ui.text.bodyMuted} max-w-md mx-auto mb-6`,
+  cta = null,
+  ctaId,
+  ctaCls = `${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`,
+  cls = '',
+} = Astro.props;
+
+const surfaceCls = surface === 'card' ? ui.card : ui.panel;
+const classes = [
+  hidden ? 'hidden' : '',
+  surfaceCls,
+  cut ? `${ui.cut} rounded-md` : '',
+  tone === 'danger' ? '!border-red-900/40' : '',
+  'relative overflow-hidden p-8 sm:p-10 text-center',
+  cls,
+].filter(Boolean).join(' ');
+const Title = titleTag;
+---
+
+<div id={id} data-rd-reveal class={classes}>
+  {showTop && <span class={ui.cardTop} aria-hidden="true"></span>}
+  {medallion ? (
+    <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`}>
+      <Icon name={icon} size="xl" />
+    </div>
+  ) : (
+    <Icon name={icon} size="xl" class="mx-auto mb-3" />
+  )}
+  <Title id={titleId} class={titleCls}>{title}</Title>
+  {message && <p id={messageId} class={messageCls}>{message}</p>}
+  {cta && (
+    <a id={ctaId} href={cta.href} class={ctaCls}>{cta.label}</a>
+  )}
+</div>

@@ -103,8 +103,8 @@ const meta = PAGE_META['/login'];
           </button>
         </form>
 
-        <p id="auth-error" class={`hidden mx-6 mb-4 ${ui.status.error} text-sm rounded-md px-4 py-2.5`} role="alert"></p>
-        <p id="auth-ok" class={`hidden mx-6 mb-4 ${ui.status.success} text-sm rounded-md px-4 py-2.5`} role="status"></p>
+        <p id="auth-error" class={`hidden mx-6 mb-4 ${ui.status.error} ${ui.alert}`} role="alert"></p>
+        <p id="auth-ok" class={`hidden mx-6 mb-4 ${ui.status.success} ${ui.alert}`} role="status"></p>
       </section>
 
       <p class={`${ui.text.caption} text-center mt-6`}>

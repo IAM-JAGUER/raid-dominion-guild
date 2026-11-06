@@ -171,8 +171,9 @@ export function tabFromHash(hash: string): string {
 export function resolveAdminHash(hash: string): { kind: 'list' } | { kind: 'user'; id: string } {
   const clean = (hash ?? '').replace(/^#/, '');
   const [head, ...rest] = clean.split('/');
-  if (head === ADMIN_PANELS.USER && rest.length > 0) {
-    return { kind: 'user', id: rest.join('/') };
+  const id = rest.join('/');
+  if (head === ADMIN_PANELS.USER && id) {
+    return { kind: 'user', id };
   }
   return { kind: 'list' };
 }
@@ -184,6 +185,8 @@ export function resolveAdminHash(hash: string): { kind: 'list' } | { kind: 'user
 
 export type TabBarVariant = 'default' | 'character';
 
+export type TabActivateSource = 'click' | 'keyboard' | 'hash' | 'api';
+
 export interface TabBarConfig {
   tabs: TabDef[];
   barId: string;
@@ -194,23 +197,53 @@ export interface TabBarConfig {
   variant?: TabBarVariant;
   // Contadores opcionales por tab (solo se pintan en la variante character).
   counts?: Record<string, number | undefined>;
+  // Id del panel por tab (default `panel-${id}`).
+  panelIds?: Record<string, string>;
+  // Gestiona visibilidad de paneles al activar (default true). Admin lo apaga
+  // porque sus vistas no siguen el patrón `panel-<id>`.
+  managePanels?: boolean;
+  // Paneles extra que se ocultan al activar un tab (p. ej. configuración).
+  hidePanels?: string[];
+  // Clases completas del botón (default según variante).
+  btnCls?: string;
+  // Clase del estado inactivo (default `text-gray-300`).
+  inactiveCls?: string;
+  // aria-controls por tab (default `panel-${id}`).
+  ariaControls?: (tab: TabDef) => string;
+  // Sincroniza los tabs con `location.hash` (default true).
+  syncHash?: boolean;
+  // Traduce un hash a id de tab; null = no corresponde a esta barra.
+  resolveHash?: (hash: string) => string | null;
+  // Notifica la activación (click, teclado, hash o llamada API).
+  onActivate?: (id: string, source: TabActivateSource) => void;
 }
 
-export function createTabBar(config: TabBarConfig): { activate: (id: string, updateHash?: boolean) => void } {
+export interface TabBarController {
+  activate: (id: string, updateHash?: boolean, source?: TabActivateSource) => void;
+  // Desmarca todos los tabs y oculta sus paneles (panel externo, p. ej. config).
+  deactivate: () => void;
+}
+
+export function createTabBar(config: TabBarConfig): TabBarController {
   const bar = document.getElementById(config.barId) as HTMLElement | null;
-  if (!bar) return { activate: () => undefined };
+  if (!bar) {
+    return { activate: () => undefined, deactivate: () => undefined };
+  }
 
   const isCharacter = config.variant === 'character';
-  const tabBtnCls = isCharacter
+  const tabBtnCls = config.btnCls ?? (isCharacter
     ? 'rd-character-tab'
-    : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
+    : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400');
+  const inactiveClasses = (config.inactiveCls ?? 'text-gray-300').split(/\s+/).filter(Boolean);
+  const panelId = (tab: TabDef): string => config.panelIds?.[tab.id] ?? `panel-${tab.id}`;
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.id = `tab-${t.id}`;
     btn.dataset.tab = t.id;
     btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-controls', `panel-${t.id}`);
+    btn.setAttribute('aria-controls', config.ariaControls?.(t) ?? panelId(t));
     btn.className = tabBtnCls;
     // Icono temático decorativo + label (el nombre accesible es el texto).
     // En la ficha de personaje el arte vive en un medallón de clase; en el
@@ -240,7 +273,7 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     return btn;
   });
 
-  const activate = (name: string, updateHash = true): void => {
+  const activate = (name: string, updateHash = true, source: TabActivateSource = 'api'): void => {
     const valid = config.tabs.some((t) => t.id === name);
     const target = valid ? name : config.defaultId;
     buttons.forEach((b) => {
@@ -252,12 +285,15 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
         b.classList.toggle('border-brand-400', active);
         b.classList.toggle('text-brand-200', active);
         b.classList.toggle('border-transparent', !active);
-        b.classList.toggle('text-gray-300', !active);
+        inactiveClasses.forEach((cls) => b.classList.toggle(cls, !active));
       }
     });
-    config.tabs.forEach((t) => {
-      document.getElementById(`panel-${t.id}`)?.classList.toggle('hidden', t.id !== target);
-    });
+    if (config.managePanels !== false) {
+      config.tabs.forEach((t) => {
+        document.getElementById(panelId(t))?.classList.toggle('hidden', t.id !== target);
+      });
+      config.hidePanels?.forEach((id) => document.getElementById(id)?.classList.add('hidden'));
+    }
     if (updateHash) {
       const targetHash = `#${target}`;
       if (window.location.hash !== targetHash) {
@@ -265,15 +301,33 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
         window.history.replaceState(null, '', targetHash);
       }
     }
+    config.onActivate?.(target, source);
   };
 
-  buttons.forEach((btn) => btn.addEventListener('click', () => activate(btn.dataset.tab ?? config.defaultId)));
+  const deactivate = (): void => {
+    buttons.forEach((b) => {
+      b.setAttribute('aria-selected', 'false');
+      b.tabIndex = -1;
+      if (!isCharacter) {
+        b.classList.remove('border-brand-400', 'text-brand-200');
+        b.classList.add('border-transparent', ...inactiveClasses);
+      }
+    });
+    if (config.managePanels !== false) {
+      config.tabs.forEach((t) => document.getElementById(panelId(t))?.classList.add('hidden'));
+    }
+  };
+
+  buttons.forEach((btn) => btn.addEventListener('click', () => activate(btn.dataset.tab ?? config.defaultId, true, 'click')));
 
   const syncFromHash = (): void => {
-    const id = tabFromHash(window.location.hash);
-    activate(id, false);
+    const id = config.resolveHash
+      ? config.resolveHash(window.location.hash)
+      : tabFromHash(window.location.hash);
+    if (id === null) return;
+    activate(id, false, 'hash');
   };
-  window.addEventListener('hashchange', syncFromHash);
+  if (config.syncHash !== false) window.addEventListener('hashchange', syncFromHash);
   bar.addEventListener('keydown', (e) => {
     const ev = e as KeyboardEvent;
     const idx = buttons.indexOf(ev.target as HTMLButtonElement);
@@ -287,11 +341,11 @@ export function createTabBar(config: TabBarConfig): { activate: (id: string, upd
     ev.preventDefault();
     const target = buttons[next];
     target.focus();
-    activate(target.dataset.tab ?? config.defaultId);
+    activate(target.dataset.tab ?? config.defaultId, true, 'keyboard');
   });
-  syncFromHash();
+  if (config.syncHash !== false) syncFromHash();
 
-  return { activate };
+  return { activate, deactivate };
 }
 
 // Barra de pestañas para vistas públicas (jugador/personaje/reino): construye

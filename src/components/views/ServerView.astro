@@ -4,42 +4,23 @@
 // Muestra la dirección realmlist del servidor y los reinos que aloja, cada
 // uno enlazando a su vista anidada /servidor/:server/reino/:realm.
 import { ui } from '@/lib/ui/design';
-import Icon from '@/components/ui/Icon.astro';
-import HeaderCover from '@/components/ui/HeaderCover.astro';
+import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 ---
 <section id="view-servidor" class="hidden">
-  <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-    <div class={`${ui.plaque} p-5 sm:p-7`}>
-      <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
-      <HeaderCover
-        image="/images/headers/server-realm.webp"
-        extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
-      />
-      <div class="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
-        <!-- Medallón héroe (póster): arte nativo del sprite a tamaño protagonista. -->
-        <div class={`${ui.iconTile} rd-medallion-hero ${ui.iconTileHero} -mt-8 relative z-10`}>
-          <Icon name="servidor" size="hero" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <h1 id="sv-server" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-          <p id="sv-summary" class={`${ui.text.body} italic mt-3 max-w-3xl`}></p>
-        </div>
-      </div>
-    </div>
-  </header>
+  <FichaHero image="/images/headers/server-realm.webp" icon="servidor">
+    <h1 id="sv-server" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
+    <p id="sv-summary" class={`${ui.text.body} italic mt-3 max-w-3xl`}></p>
+  </FichaHero>
 
-  <!-- Esqueleto de página (modelo dashboard): separador central + separador
-       izquierdo (esta vista no tiene barra de tabs). -->
-  <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-  <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
-
-  <PanelWindow title="Reinos" icon="vientos">
-    <div slot="head" class="mt-4" id="sv-realms-filtro"></div>
-    <div id="sv-realms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    <div id="sv-realms-pager" class="mt-3"></div>
-  </PanelWindow>
-  <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+  <FichaSkeleton showBar={false}>
+    <PanelWindow title="Reinos" icon="vientos">
+      <div slot="head" class="mt-4" id="sv-realms-filtro"></div>
+      <div id="sv-realms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <div id="sv-realms-pager" class="mt-3"></div>
+    </PanelWindow>
+  </FichaSkeleton>
 </section>
 
 <script>
@@ -49,8 +30,8 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
   import { cardLink, cardTitle, iconTileEl } from '@/lib/ui/card';
   import { ui } from '@/lib/ui/design';
   import { el, setBreadcrumb } from '@/lib/ui/dom';
-  import { createFilterBar } from '@/lib/ui/filterBar';
-  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import { mountPagedList } from '@/lib/ui/list';
+  import { PAGE_SIZE_GRID } from '@/lib/ui/paginator';
 
   const seg = currentSegments();
   if (seg[0]?.toLowerCase() === 'servidor' && seg.length === 2) {
@@ -92,38 +73,20 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const realmsEl = document.getElementById('sv-realms') as HTMLElement;
     const pagerEl = document.getElementById('sv-realms-pager') as HTMLElement | null;
 
-    createFilterBar({
+    mountPagedList({
       mount: document.getElementById('sv-realms-filtro') as HTMLElement,
       items: realms,
+      pageSize: PAGE_SIZE_GRID,
+      pager: pagerEl,
+      container: realmsEl,
+      renderItem: (realm) => realmCard(server, realm),
       getSearchText: (realm) => realm,
       searchPlaceholder: 'Buscar reino…',
       searchLabel: 'Buscar reinos por nombre',
       resultNoun: (n) => `${n} reino${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pagerEl) pagerEl.textContent = '';
-        realmsEl.innerHTML = '';
-        if (filtered.length === 0) {
-          const msg = state.query.trim()
-            ? `Ningún reino coincide con "${state.query.trim()}".`
-            : 'No hay reinos que coincidan con los filtros.';
-          realmsEl.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
-          return;
-        }
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_GRID,
-          totalItems: filtered.length,
-          summary: `${filtered.length} reino${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            realmsEl.innerHTML = '';
-            const start = (page - 1) * PAGE_SIZE_GRID;
-            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((realm) => {
-              realmsEl.appendChild(realmCard(server, realm));
-            });
-          },
-        });
-        if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
-        paginator.update();
-      },
+      emptyMessage: (state) => state.query.trim()
+        ? `Ningún reino coincide con "${state.query.trim()}".`
+        : 'No hay reinos que coincidan con los filtros.',
     });
 
     showView('view-servidor');

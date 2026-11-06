@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import StatusCard from '@/components/ui/StatusCard.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
@@ -25,12 +26,14 @@ const meta = PAGE_META['/moderate'];
       <LoadingBlock id="loading" text="Verificando permisos…" />
 
       <!-- Sin autorización -->
-      <div id="denied" data-rd-reveal class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
-        <Icon name="bloqueo" size="xl" class="mx-auto mb-3" />
-        <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
-        <p id="denied-msg" class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es solo para moderadores y administradores.</p>
-        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
-      </div>
+      <StatusCard
+        id="denied"
+        icon="bloqueo"
+        title="Acceso restringido"
+        message="Esta área es solo para moderadores y administradores."
+        messageId="denied-msg"
+        cta={{ label: 'Volver al inicio', href: '/' }}
+      />
 
       <!-- Panel -->
       <div id="panel" data-rd-reveal class="hidden">

@@ -1,0 +1,25 @@
+---
+// Celda de la tira de cifras (ui.statBlock): etiqueta + valor. Fuente única
+// del patrón estático que antes se repetía en fichas y landing.
+import { ui } from '@/lib/ui/design';
+
+interface Props {
+  label: string;
+  value?: string | number;
+  // Id del valor cuando el consumidor lo actualiza por JS.
+  valueId?: string;
+  // Clases extra de la celda (p. ej. `!px-4 text-center` en la landing).
+  cellCls?: string;
+  // Clases extra del valor (p. ej. `ui.toneTitle`).
+  valueCls?: string;
+}
+
+const { label, value = '0', valueId, cellCls = '', valueCls = '' } = Astro.props;
+const cell = `${ui.statBlock.cell}${cellCls ? ` ${cellCls}` : ''}`;
+const valueClasses = `${ui.statValue} ${ui.statBlock.value}${valueCls ? ` ${valueCls}` : ''}`;
+---
+
+<div class={cell}>
+  <p class={ui.statBlock.label}>{label}</p>
+  <p id={valueId} class={valueClasses}>{value}</p>
+</div>

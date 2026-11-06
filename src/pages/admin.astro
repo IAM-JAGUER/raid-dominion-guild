@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
+import StatusCard from '@/components/ui/StatusCard.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
@@ -25,12 +26,13 @@ const meta = PAGE_META['/admin'];
       <LoadingBlock id="loading" text="Verificando permisos…" />
 
       <!-- Sin autorización -->
-      <div id="denied" data-rd-reveal class={`hidden ${ui.panel} !border-red-900/40 rounded-md p-8 sm:p-10 text-center`}>
-        <Icon name="bloqueo" size="xl" class="mx-auto mb-3" />
-        <h2 class={`${ui.text.h2} text-white mb-2`}>Acceso restringido</h2>
-        <p class={`${ui.text.bodyMuted} max-w-md mx-auto mb-6`}>Esta área es exclusiva para administradores.</p>
-        <a href="/" class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105`}>Volver al inicio</a>
-      </div>
+      <StatusCard
+        id="denied"
+        icon="bloqueo"
+        title="Acceso restringido"
+        message="Esta área es exclusiva para administradores."
+        cta={{ label: 'Volver al inicio', href: '/' }}
+      />
 
       <!-- Panel -->
       <div id="panel" data-rd-reveal class="hidden space-y-8">
@@ -45,7 +47,7 @@ const meta = PAGE_META['/admin'];
 
         <!-- Pestañas de sección (Usuarios · Discord): barra del esqueleto de
              página (rd-tabbar) con su separador interno izquierdo. -->
-        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class="flex flex-nowrap items-center gap-1 rd-tabbar relative mb-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
+        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class={`${ui.zone.tabBar} mb-8 animate-fade-in-1`}></div>
 
         <!-- Vista: Discord (mercadeo automático) -->
         <div id="view-discord" data-rd-reveal class="hidden space-y-8">
@@ -63,7 +65,7 @@ const meta = PAGE_META['/admin'];
             <h3 class={`${ui.subTitle}`}>Objetivos de conversión</h3>
             <div id="discord-goals" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mb-5"></div>
             <p id="discord-goals-status" class={`${ui.loading.liveText} italic mb-5`} aria-live="polite">Cargando objetivos…</p>
-            <p id="discord-status" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status" aria-live="polite"></p>
+            <p id="discord-status" class={`hidden mt-3 ${ui.alert}`} role="status" aria-live="polite"></p>
             <pre id="discord-preview" class="hidden mt-3 whitespace-pre-wrap rounded-md bg-brand-900/70 border border-brand-600/20 p-3 text-xs text-gray-300"></pre>
           </section>
         </div>
@@ -115,7 +117,7 @@ const meta = PAGE_META['/admin'];
           <section class={`${ui.panel} p-4 sm:p-6`}>
             <h2 class="text-lg font-bold text-brand-200 flex items-center mb-4">
               <Icon name="editar-perfil" size="md" class="mr-2.5" />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Estado del perfil</span>
+              <span class={`${ui.gradientTitle} font-black italic`}>Estado del perfil</span>
             </h2>
             <div class="flex flex-wrap items-center justify-between gap-3">
               <p class="text-sm text-gray-300">
@@ -124,7 +126,7 @@ const meta = PAGE_META['/admin'];
               <div id="detail-profile-toggle"></div>
             </div>
             <div id="detail-profile-fields" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3"></div>
-            <p id="detail-profile-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
+            <p id="detail-profile-msg" class={`hidden mt-3 ${ui.alert}`} role="status"></p>
           </section>
 
           <!-- Gestión de rol (solo admin) -->
@@ -139,14 +141,14 @@ const meta = PAGE_META['/admin'];
                 Guardar rol
               </button>
             </div>
-            <p id="detail-role-msg" class="hidden mt-3 text-sm rounded-md px-4 py-2.5" role="status"></p>
+            <p id="detail-role-msg" class={`hidden mt-3 ${ui.alert}`} role="status"></p>
           </section>
 
           <!-- Personajes del usuario -->
           <section class={`${ui.panel} p-4 sm:p-6`}>
             <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
               <Icon name="personaje" size="md" class="mr-2.5" />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Personajes</span>
+              <span class={`${ui.gradientTitle} font-black italic`}>Personajes</span>
             </h2>
             <p id="detail-chars-status" class="text-sm text-gray-300 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-chars-list" class="space-y-2"></ul>
@@ -156,7 +158,7 @@ const meta = PAGE_META['/admin'];
           <section class={`${ui.panel} p-4 sm:p-6`}>
             <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
               <Icon name="hermandad" size="md" class="mr-2.5" />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Hermandades</span>
+              <span class={`${ui.gradientTitle} font-black italic`}>Hermandades</span>
             </h2>
             <p id="detail-guilds-status" class="text-sm text-gray-300 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-guilds-list" class="space-y-2"></ul>
@@ -166,7 +168,7 @@ const meta = PAGE_META['/admin'];
           <section class={`${ui.panel} p-4 sm:p-6`}>
             <h2 class="text-lg font-bold text-brand-200 flex items-center mb-2">
               <Icon name="espadas" size="md" class="mr-2.5" />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-400 to-brand-600 leading-[1.3] pb-[0.1em] font-black italic">Bandas</span>
+              <span class={`${ui.gradientTitle} font-black italic`}>Bandas</span>
             </h2>
             <p id="detail-bands-status" class="text-sm text-gray-300 italic mb-3" aria-live="polite">Cargando…</p>
             <ul id="detail-bands-list" class="space-y-2"></ul>
@@ -209,7 +211,7 @@ const meta = PAGE_META['/admin'];
   import { supabase } from '@/lib/supabase';
   import { iconEl, type IconName } from '@/lib/ui/icons';
   import { bandDetailCta, bandNameLink } from '@/lib/ui/bandName';
-  import { ADMIN_PANELS, ADMIN_TABS, tabFromHash, resolveAdminHash } from '@/lib/ui/tabs';
+  import { ADMIN_PANELS, ADMIN_TABS, createTabBar, tabFromHash, resolveAdminHash, type TabBarController } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
   import type { RaiddominionRole } from '@/types/database';
@@ -267,6 +269,7 @@ const meta = PAGE_META['/admin'];
   let users: AdminUserRow[] = [];
   let audit: AuditRow[] = [];
   let activeRole: RaiddominionRole | null = null;
+  let adminTabs: TabBarController | null = null;
   const rpcAdmin = supabase.rpc.bind(supabase) as unknown as (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
   const searchEl = document.getElementById('search') as HTMLInputElement;
   searchEl.addEventListener('input', render);
@@ -298,59 +301,17 @@ const meta = PAGE_META['/admin'];
   // lo reparte route(): route() es quien muestra/oculta las vistas y marca el
   // tab activo; el click solo fija el hash.
   function initAdminTabs(): void {
-    const bar = document.getElementById('admin-tabs') as HTMLElement;
-    if (!bar) return;
-    bar.innerHTML = '';
-    ADMIN_TABS.forEach((t, i) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.id = `admin-tab-${t.id}`;
-      btn.dataset.adminTab = t.id;
-      btn.setAttribute('role', 'tab');
-      btn.setAttribute('aria-controls', t.id === 'discord' ? 'view-discord' : 'view-list');
-      btn.className = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400';
-      // Icono temático de la pestaña (contrato src/lib/ui/icons.ts): toda tab
-      // de navegación lleva icono, igual que createTabBar.
-      if (t.icon) {
-        btn.classList.add('inline-flex', 'items-center', 'gap-1.5');
-        btn.appendChild(iconEl(t.icon, { size: 'md' }));
-      }
-      btn.appendChild(document.createTextNode(t.label));
-      btn.addEventListener('click', () => {
-        window.history.replaceState(null, '', t.href);
-        route();
-      });
-      if (i === 0) btn.tabIndex = 0; else btn.tabIndex = -1;
-      bar.appendChild(btn);
-    });
-    bar.addEventListener('keydown', (e) => {
-      const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('button[data-admin-tab]'));
-      const idx = buttons.indexOf(e.target as HTMLButtonElement);
-      if (idx === -1) return;
-      const ev = e as KeyboardEvent;
-      let next: number | null = null;
-      if (ev.key === 'ArrowRight') next = (idx + 1) % buttons.length;
-      else if (ev.key === 'ArrowLeft') next = (idx - 1 + buttons.length) % buttons.length;
-      else if (ev.key === 'Home') next = 0;
-      else if (ev.key === 'End') next = buttons.length - 1;
-      if (next === null) return;
-      ev.preventDefault();
-      const target = buttons[next];
-      target.focus();
-      window.history.replaceState(null, '', ADMIN_TABS[next].href);
-      route();
-    });
-  }
-
-  function setTabActive(id: string): void {
-    document.querySelectorAll<HTMLButtonElement>('[data-admin-tab]').forEach((b) => {
-      const active = b.dataset.adminTab === id;
-      b.setAttribute('aria-selected', String(active));
-      b.tabIndex = active ? 0 : -1;
-      b.classList.toggle('border-brand-400', active);
-      b.classList.toggle('text-brand-200', active);
-      b.classList.toggle('border-transparent', !active);
-      b.classList.toggle('text-gray-400', !active);
+    adminTabs = createTabBar({
+      tabs: ADMIN_TABS,
+      barId: 'admin-tabs',
+      defaultId: ADMIN_PANELS.LIST,
+      managePanels: false,
+      syncHash: false,
+      inactiveCls: 'text-gray-400',
+      ariaControls: (t) => (t.id === 'discord' ? 'view-discord' : 'view-list'),
+      onActivate: (_id, source) => {
+        if (source === 'click' || source === 'keyboard') route();
+      },
     });
   }
 
@@ -365,14 +326,14 @@ const meta = PAGE_META['/admin'];
       listView.classList.add('hidden');
       discordView.classList.add('hidden');
       detailView.classList.remove('hidden');
-      setTabActive(ADMIN_PANELS.LIST);
+      adminTabs?.activate(ADMIN_PANELS.LIST, false);
       if (u) renderDetail(u); else renderDetailMissing();
     } else {
       detailView.classList.add('hidden');
       const isDiscord = tabFromHash(window.location.hash) === ADMIN_TABS[1].id;
       listView.classList.toggle('hidden', isDiscord);
       discordView.classList.toggle('hidden', !isDiscord);
-      setTabActive(isDiscord ? 'discord' : ADMIN_PANELS.LIST);
+      adminTabs?.activate(isDiscord ? 'discord' : ADMIN_PANELS.LIST, false);
     }
   }
   window.addEventListener('hashchange', route);
@@ -1069,7 +1030,7 @@ const meta = PAGE_META['/admin'];
 
     const newRole = sel.value as RaiddominionRole;
     if (newRole === u.role) {
-      msg.className = 'mt-3 text-sm rounded-md px-4 py-2.5 bg-brand-800/60 border border-gray-600/40 text-gray-300';
+      msg.className = `mt-3 ${ui.alert} bg-brand-800/60 border border-gray-600/40 text-gray-300`;
       msg.textContent = 'El rol seleccionado ya es el actual; no hay cambios.';
       return;
     }
@@ -1078,7 +1039,7 @@ const meta = PAGE_META['/admin'];
     if (saveBtn.dataset.confirm !== 'yes') {
       saveBtn.dataset.confirm = 'yes';
       saveBtn.textContent = '¿Confirmar cambio?';
-      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.warning}`;
+      msg.className = `mt-3 ${ui.alert} ${ui.status.warning}`;
       msg.textContent = `Se cambiará el rol de ${u.email ?? u.id} a «${ROLE_LABELS[newRole]}».`;
       window.setTimeout(() => {
         if (saveBtn.dataset.confirm === 'yes') {
@@ -1097,7 +1058,7 @@ const meta = PAGE_META['/admin'];
     saveBtn.disabled = false;
     if (r.ok) {
       u.role = newRole;
-      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.success}`;
+      msg.className = `mt-3 ${ui.alert} ${ui.status.success}`;
       msg.textContent = 'Rol actualizado.';
       saveBtn.textContent = 'Guardar rol';
       renderStats();
@@ -1107,7 +1068,7 @@ const meta = PAGE_META['/admin'];
       badge.textContent = ROLE_LABELS[newRole];
       badge.className = `${ui.badge} ${ui.badgeMd} ${ROLE_BADGE[newRole]}`;
     } else {
-      msg.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+      msg.className = `mt-3 ${ui.alert} ${ui.status.error}`;
       msg.textContent = userError(r.error, 'No se pudo cambiar el rol. Reintenta.');
       saveBtn.textContent = 'Guardar rol';
     }
@@ -1230,7 +1191,7 @@ const meta = PAGE_META['/admin'];
         status.textContent = 'No hay objetivos activos para mostrar.';
       }
     } catch {
-      status.className = `mb-5 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+      status.className = `mb-5 ${ui.alert} ${ui.status.error}`;
       status.textContent = 'No se pudieron cargar los objetivos. Revisa la conexión y recarga la página.';
     }
   }
@@ -1242,7 +1203,7 @@ const meta = PAGE_META['/admin'];
     status.classList.remove('hidden');
     preview.classList.add('hidden');
 
-    status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.loading.liveText}`;
+    status.className = `mt-3 ${ui.alert} ${ui.loading.liveText}`;
     status.textContent = `Generando y enviando «${label}»…`;
 
     try {
@@ -1260,7 +1221,7 @@ const meta = PAGE_META['/admin'];
       } | null;
 
       if (data?.ok) {
-        status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${data.sent ? ui.status.success : ui.status.warning}`;
+        status.className = `mt-3 ${ui.alert} ${data.sent ? ui.status.success : ui.status.warning}`;
         status.textContent = data.sent
           ? `Objetivo «${label}» enviado al canal ${canal === 'test' ? 'de pruebas' : 'público'}.`
           : 'No se envió: el canal no está configurado.';
@@ -1270,11 +1231,11 @@ const meta = PAGE_META['/admin'];
         }
         await loadGoals();
       } else {
-        status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+        status.className = `mt-3 ${ui.alert} ${ui.status.error}`;
         status.textContent = userError(data?.error, 'No se pudo generar el mensaje. Reintenta.');
       }
     } catch {
-      status.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ui.status.error}`;
+      status.className = `mt-3 ${ui.alert} ${ui.status.error}`;
       status.textContent = 'No se pudo contactar el servicio de mensajes. Reintenta.';
     }
   }

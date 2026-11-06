@@ -376,6 +376,40 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   return cardEl;
 }
 
+// Banda sin ficha pública (sin slug): misma superficie y jerarquía que
+// renderBandCard, pero no enlazable. Fuente única para perfil y personaje.
+export interface BandFallbackInput {
+  name: string;
+  nameLink?: WowLink | null;
+  schedule?: string | null;
+  minGS?: number | null;
+}
+
+export function renderBandFallbackCard(b: BandFallbackInput): HTMLElement {
+  const cardEl = cardBox('p-5');
+  cardEl.appendChild(cardTop());
+
+  const head = el('div', 'flex items-center gap-3 mb-3');
+  head.appendChild(iconTileEl('espadas'));
+  const title = el('h3', 'font-black italic text-base leading-[1.3] text-white');
+  const name = bandNameLink(b.name, b.nameLink);
+  if (name.anchor) title.appendChild(name.anchor);
+  else title.textContent = name.label;
+  head.appendChild(title);
+  cardEl.appendChild(head);
+
+  const parts: string[] = [];
+  if (b.schedule) parts.push(b.schedule);
+  if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
+  if (parts.length > 0) {
+    const chips = el('div', 'flex flex-wrap gap-1.5');
+    parts.forEach((part) => chips.appendChild(chip(part)));
+    cardEl.appendChild(chips);
+  }
+  cardEl.appendChild(el('p', 'text-xs text-gray-300 mt-4', 'Sin ficha pública'));
+  return cardEl;
+}
+
 // ── Helpers de datos compartidos (directorio y vistas) ─────────────────────
 // Perfil dueño de una lista de personajes (id → slug/display/character_name).
 export async function loadCharacterProfiles(userIds: string[]): Promise<Map<string, { slug: string | null; display_name: string | null; character_name: string | null }>> {

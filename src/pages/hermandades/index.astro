@@ -53,9 +53,8 @@ const jsonLd = [
 <script>
   import { listPublicGuilds } from '@/lib/api';
   import { renderGuildCard } from '@/lib/ui/cards';
-  import { createFilterBar } from '@/lib/ui/filterBar';
-  import { createPaginator, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
-  import { resolveAsyncList, settleAsyncList, clearListItems } from '@/lib/ui/list';
+  import { PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import { resolveAsyncList, settleAsyncList, clearListItems, mountPagedList } from '@/lib/ui/list';
 
   // Ítems por página del directorio (grilla 3 columnas × 4 filas).
 
@@ -78,9 +77,13 @@ const jsonLd = [
       // Panel estándar (src/lib/ui/filterBar.ts): buscador (nombre, reino,
       // servidor, descripción) + selector dinámico de facción, reino,
       // Verificada y Discord. Cards vía renderGuildCard (src/lib/ui/cards.ts).
-      createFilterBar({
+      mountPagedList({
         mount: filtersEl,
         items: guilds,
+        pageSize: PAGE_SIZE_GRID,
+        pager: pagerEl,
+        container: gridEl,
+        renderItem: (g) => renderGuildCard(g),
         getSearchText: (g) => `${g.name} ${g.realm ?? ''} ${g.server ?? ''} ${g.description ?? ''}`,
         searchPlaceholder: 'Buscar por nombre, reino o descripción…',
         searchLabel: 'Buscar hermandades por nombre, reino o descripción',
@@ -117,33 +120,12 @@ const jsonLd = [
           },
         ],
         resultNoun: (n) => `${n} hermandad${n === 1 ? '' : 'es'}`,
-        onChange: (filtered, state) => {
-          // La barra del paginador se descarta entera en los estados de aviso.
-          pagerEl.textContent = '';
-          if (filtered.length === 0) {
-            clearListItems(list);
-            settleAsyncList(list, 'notice', state.query.trim()
-              ? `Ninguna hermandad coincide con "${state.query.trim()}".`
-              : 'Sin resultados con los filtros aplicados.');
-            return;
-          }
-          // Paginación (paginator.ts): 12 por página; la barra se monta en #pager
-          // solo cuando hay más de una página. El render de cada página limpia
-          // los ítems previos (el bloque de carga se conserva hasta el ready).
-          const paginator = createPaginator({
-            pageSize: PAGE_SIZE_GRID,
-            totalItems: filtered.length,
-            summary: `${filtered.length} hermandad${filtered.length === 1 ? '' : 'es'}`,
-            renderPage: (page) => {
-              clearListItems(list);
-              const start = (page - 1) * PAGE_SIZE_GRID;
-              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((g) => gridEl.appendChild(renderGuildCard(g)));
-            },
-          });
-          if (paginator.bar) pagerEl.appendChild(paginator.bar);
-          paginator.update();
-          settleAsyncList(list, 'ready');
-        },
+        clear: () => clearListItems(list),
+        emptyMessage: (state) => state.query.trim()
+          ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+          : 'Sin resultados con los filtros aplicados.',
+        renderEmpty: (message) => settleAsyncList(list, 'notice', message),
+        onReady: () => settleAsyncList(list, 'ready'),
       });
     }
   }

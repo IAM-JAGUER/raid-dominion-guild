@@ -27,6 +27,15 @@ interface Props {
   hidden?: boolean;
   // Clases extra del contenedor (p. ej. `mb-6`).
   cls?: string;
+  // `window`: cabecera + cuerpo (directorios/dashboard). `panel`: tarjeta
+  // simple dentro de un panel (estados vacíos del portal de hermandad).
+  variant?: 'window' | 'panel';
+  // Padding del variant `panel`.
+  pad?: 'md' | 'lg';
+  // Corte diagonal sup-izq en el variant `panel`.
+  cut?: boolean;
+  // Clases del mensaje en el variant `panel`.
+  messageCls?: string;
 }
 
 const {
@@ -43,6 +52,10 @@ const {
   icon = 'personaje',
   hidden = false,
   cls = '',
+  variant = 'window',
+  pad = 'md',
+  cut = false,
+  messageCls = `${ui.text.bodyMuted} italic`,
 } = Astro.props;
 
 import { ui } from '@/lib/ui/design';
@@ -50,25 +63,41 @@ import Icon from '@/components/ui/Icon.astro';
 import type { IconName } from '@/lib/ui/icons';
 
 const titleTextCls = gradient ? `${titleCls} ${ui.gradientTitle}` : titleCls;
-const wrapCls = `${hidden ? 'hidden ' : ''}max-w-2xl mx-auto ${cls}`.trim();
+const isPanel = variant === 'panel';
+const wrapCls = isPanel
+  ? `${hidden ? 'hidden ' : ''}${ui.panel}${cut ? ` ${ui.cut}` : ''} relative overflow-hidden ${pad === 'lg' ? 'p-6 sm:p-8' : 'p-6'} text-center ${cls}`.trim()
+  : `${hidden ? 'hidden ' : ''}max-w-2xl mx-auto ${cls}`.trim();
 const headCls = align === 'center' ? 'flex items-center justify-center gap-3' : 'flex items-center gap-3';
 ---
 <div id={id} data-rd-reveal data-rd-list-empty class={wrapCls}>
-  <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}>
-    <div class={headCls}>
-      <div class={`${ui.iconTile} ${ui.iconTileLg}`}>
+  {isPanel ? (
+    <>
+      <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
         <Icon name={icon} size="xl" />
       </div>
-      <div class="min-w-0">
-        {eyebrow && <p class={`${ui.eyebrow} mb-1`}>{eyebrow}</p>}
-        <h2 class={`${titleTextCls} text-base`}>{title}</h2>
+      <p class={`${titleTextCls} mb-1`}>{title}</p>
+      {message && <p class={messageCls}>{message}</p>}
+      <slot name="body" />
+    </>
+  ) : (
+    <>
+      <div class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}>
+        <div class={headCls}>
+          <div class={`${ui.iconTile} ${ui.iconTileLg}`}>
+            <Icon name={icon} size="xl" />
+          </div>
+          <div class="min-w-0">
+            {eyebrow && <p class={`${ui.eyebrow} mb-1`}>{eyebrow}</p>}
+            <h2 class={`${titleTextCls} text-base`}>{title}</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class={`${ui.sectionBody} ${bodyAlign === 'center' ? 'text-center' : ''}`}>
-    <slot name="body">
-      {message && <p class="text-sm text-gray-300 max-w-md mx-auto mb-6">{message}</p>}
-      {cta && <a href={cta.href} class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest ${ctaCls}`}>{cta.label}</a>}
-    </slot>
-  </div>
+      <div class={`${ui.sectionBody} ${bodyAlign === 'center' ? 'text-center' : ''}`}>
+        <slot name="body">
+          {message && <p class="text-sm text-gray-300 max-w-md mx-auto mb-6">{message}</p>}
+          {cta && <a href={cta.href} class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest ${ctaCls}`}>{cta.label}</a>}
+        </slot>
+      </div>
+    </>
+  )}
 </div>

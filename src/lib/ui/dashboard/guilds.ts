@@ -23,8 +23,9 @@ import {
   resolveRules,
   type GuildBandProposal,
 } from '@/lib/api';
-import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
-import { createPaginator, PAGE_SIZE_LIST } from '@/lib/ui/paginator';
+import { type Facet } from '@/lib/ui/filterBar';
+import { PAGE_SIZE_LIST } from '@/lib/ui/paginator';
+import { mountPagedList } from '@/lib/ui/list';
 import type { GuildRow } from '@/types/database';
 import type { ContentItem } from '@/types/parser';
 
@@ -342,9 +343,20 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       },
     ];
 
-    createFilterBar<GuildBandProposal>({
+    mountPagedList<GuildBandProposal>({
       mount: filterMount,
       items,
+      pageSize: PAGE_SIZE_LIST,
+      pager: pagerMount,
+      clear: () => { body.innerHTML = ''; },
+      renderEmpty: (message) => {
+        body.innerHTML = '';
+        body.appendChild(el('p', 'text-sm text-gray-300 italic', message));
+      },
+      renderPage: (_pageItems, page, filtered) => {
+        const start = (page - 1) * PAGE_SIZE_LIST;
+        filtered.slice(start, start + PAGE_SIZE_LIST).forEach((bp, idx) => body.appendChild(buildRow(bp, start + idx)));
+      },
       getSearchText: (bp) => [
         bp.name,
         bp.proposer?.character_name,
@@ -355,29 +367,9 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       searchLabel: 'Buscar propuestas por banda, proponente o regla',
       facets,
       resultNoun: (n) => `${n} propuesta${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pagerMount) pagerMount.innerHTML = '';
-        if (filtered.length === 0) {
-          body.innerHTML = '';
-          const msg = state.query.trim()
-            ? `Ninguna propuesta coincide con "${state.query.trim()}".`
-            : 'No hay propuestas que coincidan con los filtros.';
-          body.appendChild(el('p', 'text-sm text-gray-300 italic', msg));
-          return;
-        }
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_LIST,
-          totalItems: filtered.length,
-          summary: `${filtered.length} propuesta${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            body.innerHTML = '';
-            const start = (page - 1) * PAGE_SIZE_LIST;
-            filtered.slice(start, start + PAGE_SIZE_LIST).forEach((bp, idx) => body.appendChild(buildRow(bp, start + idx)));
-          },
-        });
-        if (pagerMount && paginator.bar) pagerMount.appendChild(paginator.bar);
-        paginator.update();
-      },
+      emptyMessage: (state) => state.query.trim()
+        ? `Ninguna propuesta coincide con "${state.query.trim()}".`
+        : 'No hay propuestas que coincidan con los filtros.',
     });
   }
 

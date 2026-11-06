@@ -94,7 +94,7 @@ const meta = PAGE_META['/dashboard'];
            navegación con ←/→/Home/End; activación automática al enfocar) -->
       <nav
         id="tab-bar"
-        class="flex flex-nowrap items-center gap-1 rd-tabbar relative mb-8 animate-fade-in-1 overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        class={`${ui.zone.tabBar} mb-8 animate-fade-in-1`}
         style="animation-delay: 0.15s"
         role="tablist"
         aria-label="Secciones del panel"
@@ -295,7 +295,7 @@ const meta = PAGE_META['/dashboard'];
               >
               <p
                 id="claim-msg"
-                class="hidden mt-3 text-sm rounded-md px-4 py-2.5"
+                class={`hidden mt-3 ${ui.alert}`}
                 role="status"
               >
               </p>
@@ -317,7 +317,7 @@ const meta = PAGE_META['/dashboard'];
                 <div id="viewer-chars-filtro" class="mt-3"></div>
                 <div
                   id="viewer-characters"
-                  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2"
+                  class={`${ui.gridCards} mt-2`}
                 >
                 </div>
                 <div id="viewer-chars-pager" class="mt-3"></div>
@@ -505,7 +505,7 @@ const meta = PAGE_META['/dashboard'];
               </div>
               <p
                 id="profile-msg"
-                class="hidden mt-3 text-sm rounded-md px-4 py-2.5"
+                class={`hidden mt-3 ${ui.alert}`}
                 role="status"
               >
               </p>
@@ -905,7 +905,7 @@ const meta = PAGE_META['/dashboard'];
         <!-- ── Panel oculto de configuración (seguridad + zona de peligro) ────
            No es una pestaña de la barra: se abre con el ícono de engranaje del
            encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta). El hash
-           histórico #perfil se redirige a #cuenta (syncTabFromHash). -->
+           histórico #perfil se redirige a #cuenta (syncConfigFromHash). -->
         <section
           id="panel-cuenta"
           role="region"
@@ -991,7 +991,7 @@ const meta = PAGE_META['/dashboard'];
                 </button>
                 <p
                   id="password-msg"
-                  class="hidden text-sm rounded-md px-4 py-2.5"
+                  class={`hidden ${ui.alert}`}
                   role="status"
                 >
                 </p>
@@ -1119,7 +1119,7 @@ const meta = PAGE_META['/dashboard'];
                   </div>
                   <p
                     id="reset-data-msg"
-                    class="hidden mt-3 text-sm rounded-md px-4 py-2.5"
+                    class={`hidden mt-3 ${ui.alert}`}
                     role="status"
                   >
                   </p>
@@ -1182,7 +1182,7 @@ const meta = PAGE_META['/dashboard'];
                   </div>
                   <p
                     id="delete-account-msg"
-                    class="hidden mt-3 text-sm rounded-md px-4 py-2.5"
+                    class={`hidden mt-3 ${ui.alert}`}
                     role="status"
                   >
                   </p>
@@ -1234,7 +1234,7 @@ const meta = PAGE_META['/dashboard'];
               </p>
               <p
                 id="sv-delete-msg"
-                class="hidden mt-3 text-sm rounded-md px-4 py-2.5"
+                class={`hidden mt-3 ${ui.alert}`}
                 role="status"
               >
               </p>
@@ -1290,22 +1290,22 @@ const meta = PAGE_META['/dashboard'];
     import {
       DASHBOARD_TABS,
       DASHBOARD_CONFIG,
+      createTabBar,
       tabFromHash,
       dashboardTabHead,
-      tabHash,
     } from "@/lib/ui/tabs";
     import { isVisitor } from "@/lib/roles";
     import { ui } from "@/lib/ui/design";
     import { el } from "@/lib/ui/dom";
-    import { iconEl } from "@/lib/ui/icons";
     import { userError } from "@/lib/ui/userError";
     import { toast } from "@/lib/ui/toast";
     import { renderCharacterCard } from "@/lib/ui/cards";
     import { bandDetailHref, bandNameLink } from "@/lib/ui/bandName";
     import { initTracker, type TrackerController } from "@/lib/ui/dashboard/tracker";
     import { computeProgress, type TrackerCharacter } from "@/lib/ui/dashboard/trackerLogic";
-    import { createFilterBar, type Facet } from "@/lib/ui/filterBar";
-    import { createPaginator, PAGE_SIZE_GRID, PAGE_SIZE_LIST } from "@/lib/ui/paginator";
+    import { type Facet } from "@/lib/ui/filterBar";
+    import { PAGE_SIZE_GRID, PAGE_SIZE_LIST } from "@/lib/ui/paginator";
+    import { mountPagedList } from "@/lib/ui/list";
     import { svLabel } from "@/lib/ui/dashboard/format";
     import {
       collectMergedCharacters,
@@ -1324,9 +1324,6 @@ const meta = PAGE_META['/dashboard'];
     import { bandMergeKey, mergeBandPlayers } from "@/lib/bandMerge";
     import type { ParsedSavedVariables, ContentItem } from "@/types/parser";
     import type { RaiddominionRole, GuildRow } from "@/types/database";
-
-    const PANELS = DASHBOARD_TABS.map((t) => t.id) as string[];
-    type PanelName = (typeof PANELS)[number];
 
     const emailEl = document.getElementById("user-email") as HTMLElement;
     const avatarEl = document.getElementById("avatar") as HTMLElement;
@@ -1634,7 +1631,7 @@ const meta = PAGE_META['/dashboard'];
     function msgBox(id: string, ok: boolean, text: string, opts?: MsgBoxOpts): void {
       const box = document.getElementById(id) as HTMLElement;
       box.textContent = text;
-      box.className = `mt-3 text-sm rounded-md px-4 py-2.5 ${ok ? ui.status.success : ui.status.error}`;
+      box.className = `mt-3 ${ui.alert} ${ok ? ui.status.success : ui.status.error}`;
       if (opts?.toast === false) return;
       const title = opts?.title ?? (ok ? "Operación exitosa" : "Ocurrió un error");
       if (ok) toast.success(title, text);
@@ -1682,87 +1679,43 @@ const meta = PAGE_META['/dashboard'];
     }
 
     // ── Pestañas ─────────────────────────────────────────────────────────────
-    // La barra de pestañas se genera desde src/lib/ui/tabs.ts (contrato único):
-    // ids, labels y hashes salen SOLO de ahí, nunca hardcodeados aquí.
-    const tabBar = document.getElementById("tab-bar") as HTMLElement;
+    // La barra se genera desde src/lib/ui/tabs.ts (contrato único): ids,
+    // labels y hashes salen SOLO de ahí. La configuración (#cuenta) NO es un
+    // tab: se abre con el engranaje y se resuelve fuera de la barra.
+    const panels = DASHBOARD_TABS.map((t) => t.id);
     const tabBtnCls =
       "tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 hover:text-brand-200";
-    const tabs: HTMLButtonElement[] = DASHBOARD_TABS.map((t) => {
-      const btn = document.createElement("button");
-      btn.id = `tab-${t.id}`;
-      btn.dataset.tab = t.id;
-      btn.setAttribute("role", "tab");
-      btn.setAttribute("aria-controls", `panel-${t.id}`);
-      // Contrato de barra: todas las pestañas alineadas a la izquierda; el
-      // scroll horizontal (oculto) deja ver el resto en pantallas estrechas.
-      btn.className = tabBtnCls;
-      // Icono temático de la pestaña (contrato src/lib/ui/icons.ts): toda tab
-      // de navegación lleva icono, igual que createTabBar.
-      if (t.icon) {
-        btn.classList.add("inline-flex", "items-center", "gap-1.5");
-        btn.appendChild(iconEl(t.icon, { size: "md" }));
-      }
-      btn.appendChild(document.createTextNode(t.label));
-      tabBar.appendChild(btn);
-      return btn;
+
+    const tabs = createTabBar({
+      tabs: DASHBOARD_TABS,
+      barId: "tab-bar",
+      defaultId: panels[0],
+      btnCls: tabBtnCls,
+      inactiveCls: "text-gray-400",
+      hidePanels: [`panel-${DASHBOARD_CONFIG.id}`],
+      resolveHash: (hash) => {
+        let id = tabFromHash(hash);
+        if (id === "perfil") {
+          id = DASHBOARD_CONFIG.id;
+          if (window.location.hash !== DASHBOARD_CONFIG.hash) {
+            window.history.replaceState(null, "", DASHBOARD_CONFIG.hash);
+          }
+        }
+        if (id === DASHBOARD_CONFIG.id) return null;
+        // Subvistas anidadas del tracker (#personajes/ficha/<slug>,
+        // #personajes/catalogo): la pestaña activa es el primer segmento; el
+        // tracker resuelve la subvista con su propio listener de hash.
+        const head = dashboardTabHead(hash);
+        const target = panels.includes(head) ? head : id;
+        return panels.includes(target) ? target : panels[0];
+      },
     });
 
-    function activateTab(name: PanelName, updateHash = true): void {
-      // El panel oculto de configuración no es una pestaña: al activar cualquier
-      // pestaña se cierra (se reabre SOLO con su ícono de engranaje).
-      document
-        .getElementById(`panel-${DASHBOARD_CONFIG.id}`)
-        ?.classList.add("hidden");
-      tabs.forEach((b) => {
-        const active = b.dataset.tab === name;
-        b.setAttribute("aria-selected", String(active));
-        b.tabIndex = active ? 0 : -1;
-        // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
-        b.classList.toggle("border-brand-400", active);
-        b.classList.toggle("text-brand-200", active);
-        b.classList.toggle("border-transparent", !active);
-        b.classList.toggle("text-gray-400", !active);
-      });
-      PANELS.forEach((p) => {
-        document
-          .getElementById(`panel-${p}`)
-          ?.classList.toggle("hidden", p !== name);
-      });
-      if (updateHash) {
-        const target = tabHash(name);
-        if (window.location.hash !== target) {
-          // replaceState evita saltar y no ensucia el historial con cada click
-          window.history.replaceState(null, "", target);
-        }
-      }
-    }
-
-    tabs.forEach((btn) =>
-      btn.addEventListener("click", () =>
-        activateTab((btn.dataset.tab ?? PANELS[0]) as PanelName),
-      ),
-    );
-    document
-      .querySelectorAll<HTMLButtonElement>(".goto-btn")
-      .forEach((b) =>
-        b.addEventListener("click", () =>
-          activateTab((b.dataset.goto ?? PANELS[0]) as PanelName),
-        ),
-      );
-
     // "Pestaña oculta" de configuración (seguridad y zona de peligro): desactiva
-    // la barra y muestra SOLO su panel. Se abre desde el ícono de engranaje del
+    // la barra y muestra SOLO su panel. Se abre desde el engranaje del
     // encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta).
     function openConfigPanel(updateHash = true): void {
-      tabs.forEach((b) => {
-        b.setAttribute("aria-selected", "false");
-        b.tabIndex = -1;
-        b.classList.remove("border-brand-400", "text-brand-200");
-        b.classList.add("border-transparent", "text-gray-400");
-      });
-      PANELS.forEach((p) =>
-        document.getElementById(`panel-${p}`)?.classList.add("hidden"),
-      );
+      tabs.deactivate();
       document
         .getElementById(`panel-${DASHBOARD_CONFIG.id}`)
         ?.classList.remove("hidden");
@@ -1778,10 +1731,9 @@ const meta = PAGE_META['/dashboard'];
     ) as HTMLButtonElement | null;
     configBtn?.addEventListener("click", () => openConfigPanel());
 
-    // Deep-link: #cuenta abre la configuración (el hash histórico #perfil se
-    // redirige a #cuenta); cualquier otro hash cae a la pestaña correspondiente
-    // de la barra (o la primera si no existe).
-    function syncTabFromHash(): void {
+    // Deep-link de configuración: #cuenta (el hash histórico #perfil se
+    // redirige a #cuenta). La barra ignora ese hash (resolveHash → null).
+    function syncConfigFromHash(): void {
       let id = tabFromHash(window.location.hash);
       if (id === "perfil") {
         id = DASHBOARD_CONFIG.id;
@@ -1789,37 +1741,18 @@ const meta = PAGE_META['/dashboard'];
           window.history.replaceState(null, "", DASHBOARD_CONFIG.hash);
         }
       }
-      if (id === DASHBOARD_CONFIG.id) {
-        openConfigPanel(false);
-        return;
-      }
-      // Subvistas anidadas del tracker (#personajes/ficha/<slug>,
-      // #personajes/catalogo): la pestaña activa es el primer segmento; el
-      // tracker resuelve la subvista con su propio listener de hash.
-      const head = dashboardTabHead(window.location.hash);
-      const target = PANELS.includes(head) ? head : id;
-      activateTab((PANELS.includes(target) ? target : PANELS[0]) as PanelName, false);
+      if (id === DASHBOARD_CONFIG.id) openConfigPanel(false);
     }
-    window.addEventListener("hashchange", syncTabFromHash);
-    syncTabFromHash();
+    window.addEventListener("hashchange", syncConfigFromHash);
+    syncConfigFromHash();
 
-    // Patrón ARIA tabs: ←/→ mueven foco (con activación), Home/End saltan a los extremos
-    tabBar.addEventListener("keydown", (e) => {
-      const ev = e as KeyboardEvent;
-      const idx = tabs.indexOf(ev.target as HTMLButtonElement);
-      if (idx === -1) return;
-      let next: number | null = null;
-      if (ev.key === "ArrowRight") next = (idx + 1) % tabs.length;
-      else if (ev.key === "ArrowLeft")
-        next = (idx - 1 + tabs.length) % tabs.length;
-      else if (ev.key === "Home") next = 0;
-      else if (ev.key === "End") next = tabs.length - 1;
-      if (next === null) return;
-      ev.preventDefault();
-      const target = tabs[next];
-      target.focus();
-      activateTab((target.dataset.tab ?? PANELS[0]) as PanelName);
-    });
+    document
+      .querySelectorAll<HTMLButtonElement>(".goto-btn")
+      .forEach((b) =>
+        b.addEventListener("click", () =>
+          tabs.activate(b.dataset.goto ?? panels[0]),
+        ),
+      );
 
     // ── Perfil ───────────────────────────────────────────────────────────────
 
@@ -2284,39 +2217,21 @@ const meta = PAGE_META['/dashboard'];
         },
       ];
 
-      createFilterBar<MergedRegistryCharacter>({
+      mountPagedList<MergedRegistryCharacter>({
         mount: filterEl,
         items: entries,
+        pageSize: PAGE_SIZE_GRID,
+        pager: pagerEl,
+        container: wrap,
+        renderItem: (entry) => renderCharacterCard(entry.character, { forcePlain: true, unregistered: entry.unregistered }),
         getSearchText: (e) => `${e.character.name} ${e.character.realm ?? ""} ${e.character.class ?? ""}`,
         searchPlaceholder: "Buscar personaje del registro…",
         searchLabel: "Buscar personajes del registro por nombre, clase o reino",
         facets,
         resultNoun: (n) => `${n} personaje${n === 1 ? "" : "s"}`,
-        onChange: (filtered, state) => {
-          if (pagerEl) pagerEl.textContent = "";
-          if (filtered.length === 0) {
-            wrap.innerHTML = "";
-            const msg = state.query.trim()
-              ? `Ningún personaje coincide con "${state.query.trim()}".`
-              : "No hay personajes que coincidan con los filtros.";
-            wrap.appendChild(el("p", `${ui.text.bodyMuted} italic col-span-full`, msg));
-            return;
-          }
-          const paginator = createPaginator({
-            pageSize: PAGE_SIZE_GRID,
-            totalItems: filtered.length,
-            summary: `${filtered.length} personaje${filtered.length === 1 ? "" : "s"}`,
-            renderPage: (page) => {
-              wrap.innerHTML = "";
-              const start = (page - 1) * PAGE_SIZE_GRID;
-              filtered.slice(start, start + PAGE_SIZE_GRID).forEach((entry) => {
-                wrap.appendChild(renderCharacterCard(entry.character, { forcePlain: true, unregistered: entry.unregistered }));
-              });
-            },
-          });
-          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
-          paginator.update();
-        },
+        emptyMessage: (state) => state.query.trim()
+          ? `Ningún personaje coincide con "${state.query.trim()}".`
+          : "No hay personajes que coincidan con los filtros.",
       });
     }
 
@@ -2380,36 +2295,28 @@ const meta = PAGE_META['/dashboard'];
         },
       ];
 
-      createFilterBar({
+      mountPagedList({
         mount: filterEl,
         items: guilds,
+        pageSize: PAGE_SIZE_LIST,
+        pager: pagerEl,
+        clear: () => { wrap.innerHTML = ""; },
+        renderPage: (_pageItems, page, filtered) => {
+          const start = (page - 1) * PAGE_SIZE_LIST;
+          renderRegistryGuildCards(wrap, filtered.slice(start, start + PAGE_SIZE_LIST));
+        },
+        renderEmpty: (message) => {
+          wrap.innerHTML = "";
+          wrap.appendChild(el("p", `${ui.text.bodyMuted} italic`, message));
+        },
         getSearchText: (g) => `${g.name} ${g.ownRank ?? ""} ${g.characters.join(" ")}`,
         searchPlaceholder: "Buscar hermandad del registro…",
         searchLabel: "Buscar hermandades del registro por nombre, rango o personaje",
         facets,
         resultNoun: (n) => `${n} hermandad${n === 1 ? "" : "es"}`,
-        onChange: (filtered, state) => {
-          if (pagerEl) pagerEl.textContent = "";
-          if (filtered.length === 0) {
-            wrap.innerHTML = "";
-            const msg = state.query.trim()
-              ? `Ninguna hermandad coincide con "${state.query.trim()}".`
-              : "No hay hermandades que coincidan con los filtros.";
-            wrap.appendChild(el("p", `${ui.text.bodyMuted} italic`, msg));
-            return;
-          }
-          const paginator = createPaginator({
-            pageSize: PAGE_SIZE_LIST,
-            totalItems: filtered.length,
-            summary: `${filtered.length} hermandad${filtered.length === 1 ? "" : "es"}`,
-            renderPage: (page) => {
-              const start = (page - 1) * PAGE_SIZE_LIST;
-              renderRegistryGuildCards(wrap, filtered.slice(start, start + PAGE_SIZE_LIST));
-            },
-          });
-          if (pagerEl && paginator.bar) pagerEl.appendChild(paginator.bar);
-          paginator.update();
-        },
+        emptyMessage: (state) => state.query.trim()
+          ? `Ninguna hermandad coincide con "${state.query.trim()}".`
+          : "No hay hermandades que coincidan con los filtros.",
       });
     }
 
@@ -2556,7 +2463,7 @@ const meta = PAGE_META['/dashboard'];
         svDeleteConfirm.disabled = false;
         svDeleteConfirm.textContent = "Eliminar";
         svDeleteMsg.className =
-          "mt-3 text-sm rounded-md px-4 py-2.5 bg-red-950/40 border border-red-900/40 text-red-200";
+          `mt-3 ${ui.alert} bg-red-950/40 border border-red-900/40 text-red-200`;
         const msg = userError(res.error, "No se pudo eliminar el análisis. Inténtalo de nuevo.");
         svDeleteMsg.textContent = msg;
         toast.error(
@@ -2566,7 +2473,7 @@ const meta = PAGE_META['/dashboard'];
         return;
       }
       svDeleteMsg.className =
-        "mt-3 text-sm rounded-md px-4 py-2.5 bg-emerald-950/40 border border-emerald-900/40 text-emerald-200";
+        `mt-3 ${ui.alert} bg-emerald-950/40 border border-emerald-900/40 text-emerald-200`;
       svDeleteMsg.textContent = "Análisis eliminado.";
       toast.success(
         "Análisis eliminado",

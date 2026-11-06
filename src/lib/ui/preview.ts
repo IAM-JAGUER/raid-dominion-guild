@@ -296,7 +296,7 @@ function renderCoreSection(title: string, count: number, color: string, icon: Ic
   chevron.innerHTML = '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
   header.appendChild(chevron);
 
-  const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3');
+  const grid = el('div', ui.gridCards);
   rows.forEach((r) => grid.appendChild(r));
 
   header.addEventListener('click', () => {

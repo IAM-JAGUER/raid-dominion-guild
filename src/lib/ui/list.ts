@@ -1,3 +1,8 @@
+import { ui } from '@/lib/ui/design';
+import { el } from '@/lib/ui/dom';
+import { createFilterBar, type Facet, type FilterBarState, type FilterBarController } from '@/lib/ui/filterBar';
+import { createPaginator } from '@/lib/ui/paginator';
+
 // Contrato ÚNICO de LISTA ASÍNCRONA del portal (directorios y bandas): el paso
 // spinner → contenido → vacío SIEMPRE se hace aquí, con los mismos estados y
 // los mismos atributos en todas las páginas.
@@ -68,4 +73,108 @@ export function settleAsyncList(list: AsyncList, state: AsyncListState, message?
   }
   frame?.classList.toggle('hidden', state === 'empty');
   empty?.classList.toggle('hidden', state !== 'empty');
+}
+
+// ── Lista filtrada + paginada ──────────────────────────────────────────────
+// Une el motor de filtros (filterBar.ts) con el paginador (paginator.ts) para
+// que cada panel no repita el cableado: limpiar → estado vacío → rebanada de
+// página → montar barra. El consumidor solo aporta sus ítems y cómo pintarlos.
+export interface PagedListOptions<T> {
+  // Contenedor de la barra de filtros.
+  mount: HTMLElement;
+  items: T[];
+  pageSize: number;
+  // Contenedor de los ítems (render por defecto).
+  container?: HTMLElement;
+  renderItem?: (item: T) => Node;
+  // Render alternativo de una página (sustituye a container + renderItem).
+  renderPage?: (pageItems: T[], page: number, filtered: T[], state: FilterBarState) => void;
+  // Fuerza el número de páginas (listas empaquetadas por secciones).
+  pageCount?: (filtered: T[], state: FilterBarState) => number;
+  // Contenedor de la barra del paginador.
+  pager?: HTMLElement | null;
+  // Limpieza previa a cada página y al estado vacío.
+  clear?: () => void;
+  // Mensaje del estado vacío (por defecto, según la búsqueda).
+  emptyMessage?: (state: FilterBarState) => string;
+  // Render propio del estado vacío (por defecto, párrafo en `container`).
+  renderEmpty?: (message: string, state: FilterBarState) => void;
+  // Callback tras pintar una página (p. ej. settleAsyncList ready).
+  onReady?: () => void;
+  // Resumen del paginador (por defecto, resultNoun).
+  summary?: (n: number) => string;
+  // Passthrough a createFilterBar.
+  getSearchText?: (item: T) => string;
+  searchPlaceholder?: string;
+  searchLabel?: string;
+  facets?: Array<Facet<T>>;
+  resultNoun?: (n: number) => string;
+  panel?: 'disclosure' | 'inline';
+  extra?: HTMLElement;
+  minFacetValues?: number;
+}
+
+export function mountPagedList<T>(options: PagedListOptions<T>): FilterBarController<T> {
+  const { mount, items, pageSize, pager = null, container } = options;
+  // Limpieza por defecto: vacía los ítems pero CONSERVA el bloque de carga
+  // (`data-rd-list-status`) si vive dentro del contenedor. Un `innerHTML = ''`
+  // destruiría la referencia que `settleAsyncList` reutiliza para los avisos.
+  const clear = options.clear ?? (container ? () => {
+    Array.from(container.children).forEach((child) => {
+      if (!child.hasAttribute('data-rd-list-status')) child.remove();
+    });
+  } : undefined);
+
+  return createFilterBar<T>({
+    mount,
+    items,
+    getSearchText: options.getSearchText,
+    searchPlaceholder: options.searchPlaceholder,
+    searchLabel: options.searchLabel,
+    facets: options.facets,
+    resultNoun: options.resultNoun,
+    panel: options.panel,
+    extra: options.extra,
+    minFacetValues: options.minFacetValues,
+    onChange: (filtered, state) => {
+      if (pager) pager.textContent = '';
+      if (filtered.length === 0) {
+        clear?.();
+        const message = options.emptyMessage?.(state) ?? (
+          state.query.trim()
+            ? `Ningún resultado coincide con "${state.query.trim()}".`
+            : 'No hay resultados con los filtros aplicados.'
+        );
+        if (options.renderEmpty) options.renderEmpty(message, state);
+        else if (container) {
+          container.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, message));
+        }
+        return;
+      }
+
+      const paginator = createPaginator({
+        pageSize,
+        totalItems: filtered.length,
+        pageCount: options.pageCount?.(filtered, state),
+        summary: options.summary?.(filtered.length)
+          ?? options.resultNoun?.(filtered.length)
+          ?? `${filtered.length}`,
+        renderPage: (page) => {
+          const start = (page - 1) * pageSize;
+          const pageItems = filtered.slice(start, start + pageSize);
+          clear?.();
+          if (options.renderPage) {
+            options.renderPage(pageItems, page, filtered, state);
+            return;
+          }
+          if (container && options.renderItem) {
+            pageItems.forEach((item) => container.appendChild(options.renderItem!(item)));
+          }
+        },
+      });
+      if (pager && paginator.bar) pager.appendChild(paginator.bar);
+      paginator.update();
+      options.onReady?.();
+    },
+  });
 }

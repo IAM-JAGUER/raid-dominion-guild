@@ -3,60 +3,47 @@
 // Auto-gate: solo actúa cuando el primer segmento de la ruta es "personaje".
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
-import Icon from '@/components/ui/Icon.astro';
-import HeaderCover from '@/components/ui/HeaderCover.astro';
+import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 ---
 <section id="view-personaje" class="hidden">
-  <header class={`animate-fade-in-1 ${ui.zone.hero}`}>
-    <div id="pv-plaque" class={`${ui.plaque} isolate p-5 sm:p-7`}>
-      <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
-      <span class={ui.character.veil} aria-hidden="true"></span>
-      <HeaderCover
-        image="/images/headers/ficha-personaje.webp"
-        extraClass="-mx-5 -mt-5 sm:-mx-7 sm:-mt-7"
-      />
-      <div class="relative z-10 flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
-        <!-- Medallón héroe: arte NATIVO del sprite (nítido hasta 80px) con halo
-             del color de clase. La clase como tal vive en su chip, con la
-             miniatura JPG a 20px (el asset es de 18px: a 96px se veía borroso).
-             En la ficha el retrato sube un paso (select screen). -->
-        <div id="pv-avatar" class={`${ui.iconTile} ${ui.character.avatar} rd-medallion-hero ${ui.iconTileHeroLg} -mt-8 relative z-10`}>
-          <Icon name="personaje" size="hero" />
-        </div>
-        <div class="flex-1 min-w-0 text-left">
-          <h1 id="pv-name" class={`${ui.character.nameDisplay} break-words`}></h1>
-          <span class={`${ui.character.underline} mt-2 max-w-md`} aria-hidden="true"></span>
-          <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
-          <div id="pv-gauge" class="hidden mt-4 max-w-md"></div>
-          <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
-          <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
-        </div>
-      </div>
+  <FichaHero
+    image="/images/headers/ficha-personaje.webp"
+    icon="personaje"
+    avatarSize="heroLg"
+    avatarCls={ui.character.avatar}
+    avatarId="pv-avatar"
+    plaqueId="pv-plaque"
+    plaqueCls="isolate"
+    identityCls="relative z-10"
+    veil
+  >
+    <h1 id="pv-name" class={`${ui.character.nameDisplay} break-words`}></h1>
+    <span class={`${ui.character.underline} mt-2 max-w-md`} aria-hidden="true"></span>
+    <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
+    <div id="pv-gauge" class="hidden mt-4 max-w-md"></div>
+    <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
+    <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
 
-      <!-- Dock de secciones: las pestañas viven DENTRO de la placa de
-           identidad, separadas por la línea espectral del color de clase.
-           Solo aparece con 2+ paneles (initAvailableTabs); con 0/1 el dock se
-           oculta y el divisor de respaldo sigue separando la ficha. -->
-      <div
-        id="pv-tab-dock"
-        class="rd-character-tab-dock relative z-10 hidden -mx-5 -mb-5 mt-6 px-5 py-2.5 sm:-mx-7 sm:-mb-7 sm:px-7"
-      >
-        <nav
-          id="pv-tab-bar"
-          role="tablist"
-          aria-label="Secciones del personaje"
-          class="rd-character-tabs hidden min-w-0"
-        ></nav>
-      </div>
+    <!-- Dock de secciones: las pestañas viven DENTRO de la placa de
+         identidad, separadas por la línea espectral del color de clase.
+         Solo aparece con 2+ paneles (initAvailableTabs); con 0/1 el dock se
+         oculta y el divisor de respaldo sigue separando la ficha. -->
+    <div
+      slot="dock"
+      id="pv-tab-dock"
+      class="rd-character-tab-dock relative z-10 hidden -mx-5 -mb-5 mt-6 px-5 py-2.5 sm:-mx-7 sm:-mb-7 sm:px-7"
+    >
+      <nav
+        id="pv-tab-bar"
+        role="tablist"
+        aria-label="Secciones del personaje"
+        class="rd-character-tabs hidden min-w-0"
+      ></nav>
     </div>
-  </header>
+  </FichaHero>
 
-  <!-- Esqueleto de página (modelo dashboard): separador central + separador
-       izquierdo de respaldo (con 2+ paneles el dock ya aporta la separación;
-       con 0/1 el divisor izquierdo mantiene el ritmo de la ficha). -->
-  <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-  <div id="pv-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8`} aria-hidden="true"></div>
-
+  <FichaSkeleton showBar={false} leftSepId="pv-left-sep" leftSepHidden leftSepCls="mt-8">
   <div id="pv-panels" class="mt-8">
     <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
       <div slot="head">
@@ -90,11 +77,10 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     </PanelWindow>
 
     <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
-      <div id="pv-guilds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      <div id="pv-guilds" class={ui.gridCards}></div>
     </PanelWindow>
   </div>
-
-  <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
+  </FichaSkeleton>
   <!-- Contexto del personaje (servidor/reino): va DESPUÉS del separador
        final para liberar el encabezado. -->
   <div id="pv-context" class={ui.contextStrip}></div>
@@ -105,24 +91,23 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
   import type { ProfileRow } from '@/types/database';
   import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
   import { profilePageSchema, setPageMeta } from '@/lib/seo';
-  import { classIconEl } from '@/lib/ui/classIcon';
   import { classColor, classTextColor, hexToRgba } from '@/lib/ui/classColors';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
   import { WOTLK_ILVL_TIERS, WOTLK_MAX_ILVL, ilvlTierFor, itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
   import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
-  import { applyClassAccent, card, cardTop, classEmblem, classGauge, iconTileEl, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
-  import { chip, el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
+  import { applyClassAccent, classEmblem, classGauge, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
+  import { el, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl, raceIconFor } from '@/lib/ui/icons';
-  import { renderBandCard, renderGuildCard } from '@/lib/ui/cards';
-  import { bandNameLink } from '@/lib/ui/bandName';
+  import { renderBandCard, renderGuildCard, renderBandFallbackCard } from '@/lib/ui/cards';
+  import { appendCharacterChips } from '@/lib/ui/characterChips';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
-  import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
+  import { resolveBandOwners } from '@/lib/bandListing';
   import { PERSONAJE_TABS, initAvailableTabs } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
-  import { createFilterBar, type Facet } from '@/lib/ui/filterBar';
-  import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import { type Facet } from '@/lib/ui/filterBar';
+  import { packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginator';
+  import { mountPagedList } from '@/lib/ui/list';
   import type { CurrencyObjective, EquipmentObjective, EquipmentPiece } from '@/types/parser';
-  import type { WowLink } from '@/lib/wowLink';
 
   type MetaItem =
     | { kind: 'equipment'; goal: EquipmentObjective }
@@ -216,29 +201,7 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     }
 
     const chips = document.getElementById('pv-chips') as HTMLElement;
-    if (race) {
-      // Espacio de raza: icono temático + nombre (el emblema de fondo repite
-      // la identidad sin competir con el texto).
-      chips.appendChild(iconChip(raceIconFor(race), c.race || 'Raza', '', 'md'));
-    }
-    if (c.class) {
-      // La clase lleva su miniatura JPG a 20px (el asset es de 18px: nítido
-      // a este tamaño; a 96px se veía borroso). El chip nombra la clase, la
-      // imagen es decorativa.
-      const clsChip = chip(c.class, '', 'md');
-      const clsImg = classIconEl(c.class, c.class_file, 'w-5 h-5 rounded-[3px] border border-brand-600/30 object-cover shrink-0');
-      clsImg.alt = '';
-      clsChip.insertBefore(clsImg, clsChip.firstChild);
-      chips.appendChild(clsChip);
-    }
-    if (c.sv_guild_name) {
-      chips.appendChild(iconChip(
-        c.sv_is_gm ? 'estrella' : 'hermandad',
-        c.sv_is_gm ? `${c.sv_guild_name} · Maestro` : `${c.sv_guild_name}${c.sv_guild_rank ? ' · ' + c.sv_guild_rank : ''}`,
-        c.sv_is_gm ? '!text-fuchsia-300 !border-fuchsia-500/40' : '!text-brand-200 !border-brand-600/30',
-        'md'
-      ));
-    }
+    appendCharacterChips(chips, c, { race: true });
 
     // Servidor/reino viven en la tira de contexto tras el separador final
     // (#pv-context), no en el encabezado. Sin datos no se desoculta (la fila
@@ -321,7 +284,15 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
           b.role ?? '',
           owners.get((b.guildId || b.ownerId) ?? '')?.label,
         ].filter(Boolean).join(' '),
-        renderCard: (b) => bandCard(b, owners.get((b.guildId || b.ownerId) ?? '')),
+        renderCard: (b) => {
+          const owner = owners.get((b.guildId || b.ownerId) ?? '');
+          return b.slug
+            ? renderBandCard(
+                { slug: b.slug, name: b.name, nameLink: b.nameLink ?? null, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null },
+                { integrated: b.integrated, owner },
+              )
+            : renderBandFallbackCard(b);
+        },
       });
       available.push('bandas');
       tabCounts.bandas = bandList.length;
@@ -467,37 +438,21 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       },
     ];
 
-    createFilterBar<EquipmentPiece>({
+    mountPagedList<EquipmentPiece>({
       mount: document.getElementById('pv-equip-filtro') as HTMLElement,
       items: equipment,
+      pageSize: PAGE_SIZE_GRID,
+      pager,
+      container: list,
+      renderItem: (piece) => equipmentPieceRow(piece),
       getSearchText: (piece) => `${piece.name} ${equipmentSlotLabel(piece.slot)}`,
       searchPlaceholder: 'Buscar objeto o ranura…',
       searchLabel: 'Buscar equipamiento por nombre o ranura',
       facets,
       resultNoun: (n) => `${n} pieza${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pager) pager.textContent = '';
-        if (filtered.length === 0) {
-          list.innerHTML = '';
-          const msg = state.query.trim()
-            ? `Ningún objeto coincide con "${state.query.trim()}".`
-            : 'No hay objetos que coincidan con los filtros.';
-          list.appendChild(el('p', `${ui.text.bodyMuted} italic col-span-full`, msg));
-          return;
-        }
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_GRID,
-          totalItems: filtered.length,
-          summary: `${filtered.length} pieza${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            list.innerHTML = '';
-            const start = (page - 1) * PAGE_SIZE_GRID;
-            filtered.slice(start, start + PAGE_SIZE_GRID).forEach((piece) => list.appendChild(equipmentPieceRow(piece)));
-          },
-        });
-        if (pager && paginator.bar) pager.appendChild(paginator.bar);
-        paginator.update();
-      },
+      emptyMessage: (state) => state.query.trim()
+        ? `Ningún objeto coincide con "${state.query.trim()}".`
+        : 'No hay objetos que coincidan con los filtros.',
     });
   }
 
@@ -620,59 +575,53 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
       },
     ];
 
-    createFilterBar<MetaItem>({
+    const buildPages = (filtered: MetaItem[]) => {
+      const filteredEquipment = filtered.filter((item) => item.kind === 'equipment');
+      const filteredCurrencies = filtered.filter((item) => item.kind === 'currency');
+      const sections: Array<{ key: string; header: { label: string; kind: 'equipment' | 'currency' }; items: MetaItem[] }> = [];
+      if (filteredEquipment.length > 0) {
+        sections.push({ key: 'equipment', header: { label: 'Equipo buscado', kind: 'equipment' as const }, items: filteredEquipment });
+      }
+      if (filteredCurrencies.length > 0) {
+        sections.push({ key: 'currency', header: { label: 'Monedas', kind: 'currency' as const }, items: filteredCurrencies });
+      }
+      return { pages: packSections(sections, PAGE_SIZE_GRID), filteredEquipment, filteredCurrencies };
+    };
+
+    mountPagedList<MetaItem>({
       mount: document.getElementById('pv-metas-filtro') as HTMLElement,
       items,
+      pageSize: PAGE_SIZE_GRID,
+      pager,
+      clear: () => { container.innerHTML = ''; },
+      pageCount: (filtered) => buildPages(filtered).pages.length,
+      renderEmpty: (message) => {
+        container.innerHTML = '';
+        container.appendChild(el('p', `${ui.text.bodyMuted} italic`, message));
+      },
+      renderPage: (_pageItems, page, filtered) => {
+        const { pages, filteredEquipment, filteredCurrencies } = buildPages(filtered);
+        container.innerHTML = '';
+        const wrap = el('div', 'space-y-8');
+        (pages[page - 1] ?? []).forEach((slice) => {
+          const full = slice.header.kind === 'equipment' ? filteredEquipment : filteredCurrencies;
+          const section = el('div', '');
+          section.appendChild(sectionHead(slice.header.label, pendingOf(full), full.length, slice.continuation));
+          const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
+          slice.items.forEach((item) => grid.appendChild(metaRow(item)));
+          section.appendChild(grid);
+          wrap.appendChild(section);
+        });
+        container.appendChild(wrap);
+      },
       getSearchText: (item) => item.goal.name,
       searchPlaceholder: 'Buscar meta…',
       searchLabel: 'Buscar metas por nombre',
       facets,
       resultNoun: (n) => `${n} meta${n === 1 ? '' : 's'}`,
-      onChange: (filtered, state) => {
-        if (pager) pager.textContent = '';
-        if (filtered.length === 0) {
-          container.innerHTML = '';
-          const msg = state.query.trim()
-            ? `Ninguna meta coincide con "${state.query.trim()}".`
-            : 'No hay metas que coincidan con los filtros.';
-          container.appendChild(el('p', `${ui.text.bodyMuted} italic`, msg));
-          return;
-        }
-
-        const filteredEquipment = filtered.filter((item) => item.kind === 'equipment');
-        const filteredCurrencies = filtered.filter((item) => item.kind === 'currency');
-        const sections: Array<{ key: string; header: { label: string; kind: 'equipment' | 'currency' }; items: MetaItem[] }> = [];
-        if (filteredEquipment.length > 0) {
-          sections.push({ key: 'equipment', header: { label: 'Equipo buscado', kind: 'equipment' as const }, items: filteredEquipment });
-        }
-        if (filteredCurrencies.length > 0) {
-          sections.push({ key: 'currency', header: { label: 'Monedas', kind: 'currency' as const }, items: filteredCurrencies });
-        }
-        const pages = packSections(sections, PAGE_SIZE_GRID);
-
-        const paginator = createPaginator({
-          pageSize: PAGE_SIZE_GRID,
-          totalItems: filtered.length,
-          pageCount: pages.length,
-          summary: `${filtered.length} meta${filtered.length === 1 ? '' : 's'}`,
-          renderPage: (page) => {
-            container.innerHTML = '';
-            const wrap = el('div', 'space-y-8');
-            (pages[page - 1] ?? []).forEach((slice) => {
-              const full = slice.header.kind === 'equipment' ? filteredEquipment : filteredCurrencies;
-              const section = el('div', '');
-              section.appendChild(sectionHead(slice.header.label, pendingOf(full), full.length, slice.continuation));
-              const grid = el('div', 'grid grid-cols-1 md:grid-cols-2 gap-2');
-              slice.items.forEach((item) => grid.appendChild(metaRow(item)));
-              section.appendChild(grid);
-              wrap.appendChild(section);
-            });
-            container.appendChild(wrap);
-          },
-        });
-        if (pager && paginator.bar) pager.appendChild(paginator.bar);
-        paginator.update();
-      },
+      emptyMessage: (state) => state.query.trim()
+        ? `Ninguna meta coincide con "${state.query.trim()}".`
+        : 'No hay metas que coincidan con los filtros.',
     });
   }
 
@@ -695,32 +644,4 @@ import HeaderCover from '@/components/ui/HeaderCover.astro';
     return wrap;
   }
 
-  // Card de banda con el modelo estándar del directorio /bandas (renderBandCard);
-  // distingue si está integrada a una hermandad. Sin slug (banda pública sin
-  // ficha) se muestra una card no enlazable con el mismo modelo visual.
-  function bandCard(b: { name: string; nameLink?: WowLink | null; slug?: string; schedule?: string; minGS?: number; role?: string; integrated?: boolean; guildId?: string | null; ownerId?: string }, owner?: OwnerRef): HTMLElement {
-    if (b.slug) {
-      return renderBandCard({ slug: b.slug, name: b.name, nameLink: b.nameLink ?? null, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null }, { integrated: b.integrated, owner });
-    }
-    const cardEl = card('p-5');
-    cardEl.appendChild(cardTop());
-    const head = el('div', 'flex items-center gap-3 mb-3');
-    head.appendChild(iconTileEl('espadas'));
-    const title = el('h3', 'font-black italic text-base leading-[1.3] text-white');
-    const name = bandNameLink(b.name, b.nameLink);
-    if (name.anchor) title.appendChild(name.anchor);
-    else title.textContent = name.label;
-    head.appendChild(title);
-    cardEl.appendChild(head);
-    const parts: string[] = [];
-    if (b.schedule) parts.push(b.schedule);
-    if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-    if (parts.length > 0) {
-      const chips = el('div', 'flex flex-wrap gap-1.5');
-      parts.forEach((p) => chips.appendChild(el('span', `${ui.badge} ${ui.badgeSm} bg-brand-800/60 border-brand-600/20 text-gray-300`, p)));
-      cardEl.appendChild(chips);
-    }
-    cardEl.appendChild(el('p', 'text-xs text-gray-300 mt-4', 'Sin ficha pública'));
-    return cardEl;
-  }
 </script>

@@ -2,6 +2,7 @@
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 import { APP_URLS } from '@/utils/constants';
+import StatCell from '@/components/ui/StatCell.astro';
 ---
 
 <section class="flex flex-col justify-center items-center relative py-16">
@@ -60,14 +61,8 @@ import { APP_URLS } from '@/utils/constants';
   <div class={`relative mx-4 max-w-2xl px-6 py-4 mb-10 animate-fade-in-1 ${ui.plaque} ${ui.tone.valor} ${ui.toneHead}`} style="animation-delay: 0.7s">
     <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
     <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:gap-x-0 max-sm:[&>*]:border-l-0">
-      <div class={`${ui.statBlock.cell} !px-4 text-center`}>
-        <p class={ui.statBlock.label}>cliente WoW</p>
-        <p class={`${ui.statValue} ${ui.statBlock.value} ${ui.toneTitle}`}>3.3.5a</p>
-      </div>
-      <div class={`${ui.statBlock.cell} !px-4 text-center`}>
-        <p class={ui.statBlock.label}>gratis</p>
-        <p class={`${ui.statValue} ${ui.statBlock.value} ${ui.toneTitle}`}>100%</p>
-      </div>
+      <StatCell label="cliente WoW" value="3.3.5a" cellCls="!px-4 text-center" valueCls={ui.toneTitle} />
+      <StatCell label="gratis" value="100%" cellCls="!px-4 text-center" valueCls={ui.toneTitle} />
     </div>
   </div>
 
