@@ -92,6 +92,8 @@ const { className = '' } = Astro.props;
         name="mensaje"
         placeholder="Ej.: ¿Qué bandas públicas hay ahora?"
         autocomplete="off"
+        maxlength="2000"
+        enterkeyhint="send"
         class={`${ui.form.input} ${ui.focusRing} flex-1`}
       />
       <button type="submit" id="chat-widget-send" class={`${ui.btnBase} ${ui.btnPrimary} px-4`}>
@@ -202,6 +204,7 @@ const { className = '' } = Astro.props;
     if (!text || sendBtn.disabled) return;
 
     history.push({ role: 'user', content: text });
+    history = history.slice(-12);
     addBubble('user', text);
     inputEl.value = '';
     setBusy(true);
@@ -219,6 +222,7 @@ const { className = '' } = Astro.props;
       }
 
       history.push({ role: 'assistant', content: data.reply });
+      history = history.slice(-12);
       addBubble('assistant', data.reply);
     } catch (err) {
       errorEl.textContent =

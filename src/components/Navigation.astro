@@ -42,7 +42,7 @@ const LOGOUT_ICON =
       <div class="flex-shrink-0">
         <a 
           href="/" 
-          class="site-logo flex items-center"
+          class="site-logo flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-900"
           aria-label="Ir al inicio"
         >
           <img
@@ -66,7 +66,7 @@ const LOGOUT_ICON =
           {NAV_ITEMS.map((item) => (
             <a
               href={item.href}
-              class="nav-link px-4 py-2.5 rounded-md text-sm font-medium text-brand-200 hover:bg-brand-800/40 hover:text-white transition-all duration-200 hover:scale-105 relative group"
+              class="nav-link px-4 py-2.5 rounded-md text-sm font-medium text-brand-200 hover:bg-brand-800/40 hover:text-white transition-all duration-200 hover:scale-105 relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               <span class="relative z-10">{item.name}</span>
@@ -79,7 +79,7 @@ const LOGOUT_ICON =
             <a
               href={item.href}
               data-directory={item.href}
-              class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-brand-800/40 hover:text-brand-200 transition-all duration-200"
+              class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-brand-800/40 hover:text-brand-200 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               <span class="relative z-10">{item.name}</span>
@@ -194,7 +194,7 @@ const LOGOUT_ICON =
         return (
           <a 
             href={item.href}
-            class="mobile-nav-link group relative flex items-center gap-3 w-full px-3 py-3 rounded-md text-[15px] font-medium text-gray-200 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:bg-brand-950/40 aria-[current=page]:text-brand-200"
+            class="mobile-nav-link group relative flex items-center gap-3 w-full px-3 py-3 rounded-md text-[15px] font-medium text-gray-200 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:bg-brand-950/40 aria-[current=page]:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
             <span class="w-8 h-8 shrink-0 rounded-md flex items-center justify-center bg-brand-500/10 border border-brand-600/25 text-brand-300 group-hover:bg-brand-500/20 group-hover:border-brand-500/40 transition-colors">
@@ -212,7 +212,7 @@ const LOGOUT_ICON =
           <a
             href={item.href}
             data-directory={item.href}
-            class="mobile-nav-link group flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:text-brand-200"
+            class="mobile-nav-link group flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
             <Icon name={item.icon} size="sm" class="shrink-0" />
@@ -279,13 +279,13 @@ const LOGOUT_ICON =
 
 <!-- Botones de navegación flotantes -->
 <div class="fixed right-2 bottom-2 z-40 flex flex-col space-y-3">
-  <button id="scroll-up" aria-label="Ir arriba" class="bg-brand-600 hover:bg-brand-500 text-brand-950 p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <button id="scroll-up" aria-label="Ir arriba" class="h-11 w-11 inline-flex items-center justify-center bg-brand-600 hover:bg-brand-500 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
     </svg>
   </button>
-  <button id="scroll-down" aria-label="Ir abajo" class="bg-brand-600 hover:bg-brand-500 text-brand-950 p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <button id="scroll-down" aria-label="Ir abajo" class="h-11 w-11 inline-flex items-center justify-center bg-brand-600 hover:bg-brand-500 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
     </svg>
   </button>
@@ -375,20 +375,33 @@ const LOGOUT_ICON =
     const upButton = scrollUpBtn;
     const downButton = scrollDownBtn;
 
-    // Mostrar/ocultar menú móvil
+    // Mostrar/ocultar menú móvil sincronizando el estado accesible.
+    function setMobileMenuOpen(open: boolean): void {
+      mobileMenu!.classList.toggle('hidden', !open);
+      mobileMenu!.classList.toggle('block', open);
+      mobileMenuButton!.setAttribute('aria-expanded', String(open));
+      mobileMenu!.setAttribute('aria-hidden', String(!open));
+      if (open) {
+        mobileMenu!.querySelector<HTMLAnchorElement>('a')?.focus();
+      }
+    }
+
     mobileMenuButton.addEventListener('click', () => {
-      const isHidden = mobileMenu.classList.contains('hidden');
-      mobileMenu.classList.toggle('hidden', !isHidden);
-      mobileMenu.classList.toggle('block', isHidden);
+      setMobileMenuOpen(mobileMenu!.classList.contains('hidden'));
     });
 
     // Cerrar menú móvil al hacer clic en un enlace
     const mobileMenuLinks = document.querySelectorAll<HTMLAnchorElement>('#mobile-menu a');
     mobileMenuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-        mobileMenu.classList.remove('block');
-      });
+      link.addEventListener('click', () => setMobileMenuOpen(false));
+    });
+
+    // Escape cierra el menú móvil y devuelve el foco al botón.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !mobileMenu!.classList.contains('hidden')) {
+        setMobileMenuOpen(false);
+        mobileMenuButton!.focus();
+      }
     });
 
     // Función para desplazamiento suave
@@ -610,7 +623,19 @@ const LOGOUT_ICON =
     const guestLinks = document.querySelectorAll<HTMLAnchorElement>('[data-auth-link="guest"]');
     const userDropdowns = document.querySelectorAll<HTMLElement>('[data-auth-dropdown="user"]');
     const logoutButtons = document.querySelectorAll<HTMLButtonElement>('[data-auth-action="logout"]');
-    if (guestLinks.length > 0 || userDropdowns.length > 0 || logoutButtons.length > 0) {
+    // Rendimiento: el visitante anónimo (mayoría del tráfico) no descarga
+    // supabase-js (~220 KB) solo para pintar la nav. Solo se importa si hay
+    // una sesión guardada o un callback de auth en la URL.
+    const hasAuthHint = (() => {
+      try {
+        const hasToken = Object.keys(window.localStorage).some((k) => k.startsWith('sb-') && k.includes('-auth-token'));
+        const callback = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
+        return hasToken || callback;
+      } catch {
+        return false;
+      }
+    })();
+    if ((guestLinks.length > 0 || userDropdowns.length > 0 || logoutButtons.length > 0) && hasAuthHint) {
       import('@/lib/supabase').then(({ supabase }) => {
         void supabase.auth.getSession().then(async ({ data }) => {
           const logged = Boolean(data.session);
