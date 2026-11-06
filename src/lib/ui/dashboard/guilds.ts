@@ -15,6 +15,8 @@ import {
   getGuildSnapshot,
   listGuildPortalBands,
   getGuildRules,
+  getGuildMemberCountPublic,
+  setGuildMemberCountPublic,
   getGuildBandProposals,
   getGuildBandIntegrationRules,
   setGuildBandIntegrationRules,
@@ -416,7 +418,65 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   msg.className = 'hidden mt-3 text-sm rounded-md px-4 py-2.5';
   msg.setAttribute('role', 'status');
   portal.appendChild(msg);
+
+  // Preferencia independiente del portal: ocultar SOLO el número de
+  // integrantes (total y conteos del roster). Jerarquías, reglas y bandas
+  // siguen visibles.
+  const countBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3');
+  const countLabel = document.createElement('label');
+  countLabel.className = 'flex items-start gap-3 cursor-pointer select-none';
+  const countInput = document.createElement('input');
+  countInput.type = 'checkbox';
+  countInput.className = 'mt-0.5 w-4 h-4 accent-brand-500 shrink-0';
+  countInput.checked = true;
+  const countText = document.createElement('span');
+  countText.className = 'text-sm text-gray-300 font-medium';
+  countText.innerHTML = 'Mostrar roster y número de integrantes <span class="block text-xs text-gray-300 italic mt-0.5">Si lo desactivas, el portal publica solo la jerarquía. Reglas y bandas no cambian.</span>';
+  countLabel.append(countInput, countText);
+  countBox.appendChild(countLabel);
+  const countStatus = el('p', 'hidden mt-2 text-[11px] font-bold uppercase tracking-widest');
+  countStatus.setAttribute('role', 'status');
+  countBox.appendChild(countStatus);
+  portal.appendChild(countBox);
   cardEl.appendChild(portal);
+
+  countInput.disabled = true;
+  void (async () => {
+    const res = await getGuildMemberCountPublic(g.id);
+    if (res.ok) {
+      countInput.checked = res.public !== false;
+    } else {
+      countStatus.className = 'mt-2 text-[11px] font-bold uppercase tracking-widest text-red-400';
+      countStatus.textContent = '✗ no se pudo leer la preferencia';
+      countStatus.classList.remove('hidden');
+    }
+    countInput.disabled = false;
+  })();
+
+  countInput.addEventListener('change', async () => {
+    countInput.disabled = true;
+    countStatus.className = 'mt-2 text-[11px] font-bold uppercase tracking-widest text-brand-300';
+    countStatus.textContent = 'guardando…';
+    countStatus.classList.remove('hidden');
+    const res = await setGuildMemberCountPublic(g.id, countInput.checked);
+    countInput.disabled = false;
+    if (res.ok) {
+      countStatus.className = 'mt-2 text-[11px] font-bold uppercase tracking-widest text-emerald-400';
+      countStatus.textContent = '✓ guardado';
+      toast.success(
+        countInput.checked ? 'Roster público' : 'Roster privado',
+        countInput.checked
+          ? 'El portal vuelve a mostrar el roster y el total de integrantes.'
+          : 'El portal publica solo la jerarquía; reglas y bandas siguen visibles.',
+      );
+    } else {
+      countInput.checked = !countInput.checked;
+      countStatus.className = 'mt-2 text-[11px] font-bold uppercase tracking-widest text-red-400';
+      countStatus.textContent = '✗ ' + userError(res.error, 'No se pudo guardar la preferencia.');
+      toast.error('No se pudo guardar la preferencia', userError(res.error, 'Inténtalo de nuevo.'));
+    }
+    window.setTimeout(() => { countStatus.textContent = ''; countStatus.classList.add('hidden'); }, 3000);
+  });
 
   // ── Reglas del portal: el catálogo proviene del SV pero la selección la
   // hace el maestro aquí (mismo patrón que el panel de bandas). Se guarda

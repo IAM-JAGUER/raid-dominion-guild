@@ -9,6 +9,8 @@
 interface Props {
   id?: string;
   title: string;
+  // Id del span del título cuando el consumidor lo renombra en cliente.
+  titleId?: string;
   // Icono temático de la cabecera (contrato src/lib/ui/icons.ts). Si no se
   // pasa, la cabecera conserva el punto ámbar clásico.
   icon?: IconName;
@@ -36,6 +38,7 @@ interface Props {
 const {
   id,
   title,
+  titleId,
   icon,
   pad = 'md',
   titleCls = 'text-lg font-bold flex items-center',
@@ -74,7 +77,7 @@ const padCls = ui.panelPad[pad];
       ) : (
         <span class={`w-2 h-2 rounded-full mr-3 ${isTone ? 'rd-tone-dot' : 'bg-brand-500 shadow-[0_0_8px_rgba(0,191,255,0.5)]'}`}></span>
       )}
-      {title}
+      <span id={titleId}>{title}</span>
     </h2>
     <slot name="head" />
   </div>

@@ -94,7 +94,7 @@ const meta = PAGE_META['/hermandad'];
                  la lista de jugadores de abajo (renderRoster). Mismo modelo de
                  ventana que los paneles del dashboard — cabecera contigua
                  (título + controles de filtro) + cuerpo con el roster. -->
-            <PanelWindow title="Roster" icon="jugadores" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow title="Roster" titleId="roster-panel-title" icon="jugadores" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-start mt-4">
                   <details id="filtro-jerarquia" class={ui.filter.disclosure}>
@@ -139,6 +139,9 @@ const meta = PAGE_META['/hermandad'];
               </div>
               <p id="roster-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center bg-brand-900/40 border border-brand-600/20 rounded-md p-4`}>
                 Ningún jugador coincide con estos filtros.
+              </p>
+              <p id="roster-private" class={`hidden ${ui.text.bodyMuted} italic text-center ${ui.surf.row} p-4`}>
+                El roster de jugadores es privado. Esta hermandad publica solo su jerarquía.
               </p>
               <div id="viewer-roster-wrap"></div>
             </PanelWindow>
@@ -245,7 +248,7 @@ const meta = PAGE_META['/hermandad'];
 </Layout>
 
 <script>
-  import { getPublicGuildBySlug, getGuildSnapshot, getGuildRules, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
+  import { getPublicGuildBySlug, getGuildSnapshot, getGuildRules, getGuildMemberCountPublic, listGuildPortalBands, getPublicCharactersByUser, getPublicCharacterSlugsByNames, type GuildPortalSnapshot } from '@/lib/api';
   import type { BandRow } from '@/types/database';
   import type { ContentItem } from '@/types/parser';
   import { RESERVED, currentSlug } from '@/lib/routes';
@@ -427,13 +430,15 @@ const meta = PAGE_META['/hermandad'];
       // players[] ya viene vacío y el contador se omite.
       let snapshot: GuildPortalSnapshot | undefined;
       let manualRules: ContentItem[] | undefined;
-      const [snapRes, bandsRes, rulesRes] = await Promise.all([
+      const [snapRes, bandsRes, rulesRes, countRes] = await Promise.all([
         getGuildSnapshot(g.id),
         listGuildPortalBands(g.id),
         getGuildRules(g.id),
+        getGuildMemberCountPublic(g.id),
       ]);
       if (snapRes.ok) snapshot = snapRes.snapshot;
       if (rulesRes.ok && Array.isArray(rulesRes.items)) manualRules = rulesRes.items;
+      const memberCountPublic = countRes.ok ? countRes.public !== false : true;
       const portalBands = bandsRes.ok ? bandsRes.bands ?? [] : [];
 
       const loading = document.getElementById('loading') as HTMLElement;
@@ -443,7 +448,7 @@ const meta = PAGE_META['/hermandad'];
       // Las reglas publicadas son SOLO las que eligió el maestro en su
       // dashboard (#hermandad). Subir un SV no llena reglas del portal:
       // si el maestro no eligió ninguna, no hay sección de reglas.
-      const hasSnapshotContent = (!!snapshot && snapshot.members.length > 0) || (manualRules?.length ?? 0) > 0;
+      const hasSnapshotContent = (!!snapshot && (snapshot.members.length > 0 || (snapshot.ranks?.length ?? 0) > 0)) || (manualRules?.length ?? 0) > 0;
       if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
         // Sin barra de pestañas, el separador izquierdo del esqueleto lo
@@ -486,21 +491,70 @@ const meta = PAGE_META['/hermandad'];
           upd.classList.remove('hidden');
         }
 
-        // Filtros del roster: rangos y clases comparten el mismo chip de
-        // barra de progreso (las clases conservan su ícono) y, debajo, un
-        // buscador de texto. Los tres filtran la lista de jugadores vía
-        // renderRoster; un clic aplica el filtro y otro lo quita.
-        if (members.length > 0) {
+        // Modo privado: el portal oculta roster y conteos, pero conserva la
+        // jerarquía declarada. El resto del panel (reglas/bandas) no cambia.
+        const ranksBox = document.getElementById('stats-ranks') as HTMLElement;
+        const classesBox = document.getElementById('stats-classes') as HTMLElement;
+        const ranksFilter = document.getElementById('filtro-jerarquia') as HTMLElement;
+        const classesFilter = document.getElementById('filtro-clases') as HTMLElement;
+        const rosterWrap = document.getElementById('viewer-roster-wrap') as HTMLElement;
+        const emptyFilter = document.getElementById('roster-empty-filter') as HTMLElement;
+        const searchInput = document.getElementById('roster-search') as HTMLInputElement;
+        const rosterPrivate = document.getElementById('roster-private') as HTMLElement;
+        const rosterTitle = document.getElementById('roster-panel-title');
+        if (rosterTitle) rosterTitle.textContent = memberCountPublic ? 'Roster' : 'Jerarquía';
+
+        if (!memberCountPublic) {
+          searchInput.value = '';
+          document.getElementById('roster-search-wrap')?.classList.add('hidden');
+          classesFilter.classList.add('hidden');
+          classesBox.innerHTML = '';
+          emptyFilter.classList.add('hidden');
+          rosterWrap.classList.add('hidden');
+          rosterWrap.innerHTML = '';
+          rosterPrivate.classList.remove('hidden');
+          ranksFilter.classList.remove('hidden');
+          ranksFilter.classList.add('md:col-span-2');
+          ranksFilter.querySelector('summary')?.classList.add('hidden');
+          (ranksFilter as HTMLDetailsElement).open = true;
+
+          // Jerarquía sin cifras: nombres de rango ordenados; si el snapshot
+          // no declara ranks, se derivan los nombres únicos del roster (sin
+          // contar miembros). Nunca se muestran cantidades.
+          const hierarchy: Array<{ label: string; leader: boolean }> = [];
+          const declaredHidden = sortRanks([...(ranks ?? [])]);
+          if (declaredHidden.length > 0) {
+            declaredHidden.forEach((r, i) => {
+              hierarchy.push({
+                label: `${i + 1}. ${(r.name || '').trim() || (r.index === 0 ? 'Líder' : `Rango ${r.index}`)}`,
+                leader: r.index === 0,
+              });
+            });
+          } else {
+            const seen = new Set<string>();
+            members.forEach((m) => {
+              const name = (m.rank || '').trim() || 'Sin rango';
+              if (seen.has(name.toLowerCase())) return;
+              seen.add(name.toLowerCase());
+              hierarchy.push({ label: name, leader: false });
+            });
+          }
+
+          ranksBox.className = 'space-y-1.5 min-w-0';
+          ranksBox.innerHTML = '';
+          if (hierarchy.length === 0) {
+            ranksBox.appendChild(el('p', 'text-xs text-gray-300 italic', 'La hermandad no publica su jerarquía.'));
+          } else {
+            hierarchy.forEach((row) => {
+              const item = el('div', 'flex items-center gap-2 rounded-md border border-brand-600/20 bg-brand-950/30 px-3 py-2');
+              if (row.leader) item.appendChild(iconEl('corona', { size: 'xs', cls: 'shrink-0 text-brand-300', label: 'Líder' }));
+              item.appendChild(el('span', 'text-xs font-bold text-brand-200', row.label));
+              ranksBox.appendChild(item);
+            });
+          }
+        } else if (members.length > 0) {
           const total = members.length;
-          const ranksBox = document.getElementById('stats-ranks') as HTMLElement;
-          const classesBox = document.getElementById('stats-classes') as HTMLElement;
-          // Colapsables que agrupan los chips de filtro: se ocultan completos
-          // cuando su grupo queda vacío (sin rangos o sin clases).
-          const ranksFilter = document.getElementById('filtro-jerarquia') as HTMLElement;
-          const classesFilter = document.getElementById('filtro-clases') as HTMLElement;
-          const rosterWrap = document.getElementById('viewer-roster-wrap') as HTMLElement;
-          const emptyFilter = document.getElementById('roster-empty-filter') as HTMLElement;
-          const searchInput = document.getElementById('roster-search') as HTMLInputElement;
+          rosterPrivate.classList.add('hidden');
 
           // Clave de agrupación de rango: su índice si está declarado en la
           // jerarquía; huérfanos y sin rankIndex comparten el grupo "Otros".
@@ -532,14 +586,19 @@ const meta = PAGE_META['/hermandad'];
             }
             nameRow.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest truncate flex-1 min-w-0', o.label));
             btn.appendChild(nameRow);
-            const barRow = el('div', 'flex items-center gap-2 min-w-0');
-            const barWrap = el('div', 'flex-1 min-w-0 h-1.5 rounded-full bg-brand-900/60 overflow-hidden');
-            const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-gradient-to-r from-brand-400 to-brand-300' : 'bg-gradient-to-r from-brand-600 to-brand-400'));
-            bar.style.width = `${Math.max(2, o.pct)}%`;
-            barWrap.appendChild(bar);
-            barRow.appendChild(barWrap);
-            barRow.appendChild(el('span', `${ui.statValue} text-[11px] shrink-0`, `${o.count} (${o.pct}%)`));
-            btn.appendChild(barRow);
+            // Con el número de integrantes oculto, la jerarquía y las clases
+            // siguen visibles como etiquetas, pero sin barras ni conteos que
+            // permitan reconstruir el total.
+            if (memberCountPublic) {
+              const barRow = el('div', 'flex items-center gap-2 min-w-0');
+              const barWrap = el('div', 'flex-1 min-w-0 h-1.5 rounded-full bg-brand-900/60 overflow-hidden');
+              const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-gradient-to-r from-brand-400 to-brand-300' : 'bg-gradient-to-r from-brand-600 to-brand-400'));
+              bar.style.width = `${Math.max(2, o.pct)}%`;
+              barWrap.appendChild(bar);
+              barRow.appendChild(barWrap);
+              barRow.appendChild(el('span', `${ui.statValue} text-[11px] shrink-0`, `${o.count} (${o.pct}%)`));
+              btn.appendChild(barRow);
+            }
             return btn;
           };
 
@@ -603,7 +662,7 @@ const meta = PAGE_META['/hermandad'];
               if (q && !(m.name || '').toLowerCase().includes(q)) return false;
               return true;
             });
-            renderRoster(rosterWrap, filtered, ranks);
+            renderRoster(rosterWrap, filtered, ranks, { showMemberCount: memberCountPublic });
             const any = state.rank !== undefined || state.cls !== undefined || q !== '';
             emptyFilter.classList.toggle('hidden', !(any && filtered.length === 0));
           };
@@ -633,14 +692,18 @@ const meta = PAGE_META['/hermandad'];
           renderStats();
           applyFilters();
         }
-        renderParsedSections(
-          { guild: { members }, bands: [], rules: [], ranks } as never,
-          {
-            bands: document.getElementById('viewer-bands') as HTMLElement,
-            rules: document.getElementById('viewer-rules') as HTMLElement,
-            rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
-          },
-        );
+        // En modo privado no se renderiza el roster: el bloque de jerarquía
+        // anterior es el único contenido de la pestaña.
+        if (memberCountPublic) {
+          renderParsedSections(
+            { guild: { members }, bands: [], rules: [], ranks } as never,
+            {
+              bands: document.getElementById('viewer-bands') as HTMLElement,
+              rules: document.getElementById('viewer-rules') as HTMLElement,
+              rosterWrap: document.getElementById('viewer-roster-wrap') as HTMLElement,
+            },
+          );
+        }
 
         // Panel Reglas: buscador + chip "con contenido" + paginador (sin el
         // tope silencioso de 20 que aplicaba renderParsedSections).
@@ -701,7 +764,8 @@ const meta = PAGE_META['/hermandad'];
           const chip = document.createElement('a');
           chip.href = t.href;
           chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-300';
-          chip.textContent = `${t.label} · ${n}`;
+          const chipLabel = t.id === 'miembros' && !memberCountPublic ? 'Jerarquía' : t.label;
+          chip.textContent = t.id === 'miembros' && !memberCountPublic ? chipLabel : `${chipLabel} · ${n}`;
           metaGroup.appendChild(chip);
           metaChips[t.id] = chip;
         });
@@ -727,6 +791,7 @@ const meta = PAGE_META['/hermandad'];
           tabs: PORTAL_TABS,
           barId: 'portal-tab-bar',
           defaultId: 'miembros',
+          labels: memberCountPublic ? undefined : { miembros: 'Jerarquía' },
         });
         syncMetaChips();
         window.addEventListener('hashchange', syncMetaChips);

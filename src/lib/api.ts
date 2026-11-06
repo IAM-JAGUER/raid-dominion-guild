@@ -960,6 +960,39 @@ export async function getGuildRules(guildId: string): Promise<{ ok: boolean; ite
   };
 }
 
+// ─── Preferencias de presentación del portal ─────────────────────────────
+// El número de integrantes se puede ocultar sin afectar al roster, las
+// jerarquías, las reglas ni las bandas. Se guarda en guild_config como
+// booleano independiente; sin fila = visible (comportamiento histórico).
+export async function getGuildMemberCountPublic(
+  guildId: string,
+): Promise<{ ok: boolean; public?: boolean; error?: string }> {
+  const res = await supabase
+    .from('raiddominion_guild_config')
+    .select('config_value')
+    .eq('guild_id', guildId)
+    .eq('config_key', 'member_count_public')
+    .maybeSingle();
+
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, public: res.data?.config_value !== false };
+}
+
+export async function setGuildMemberCountPublic(
+  guildId: string,
+  isPublic: boolean,
+): Promise<{ ok: boolean; error?: string }> {
+  const upsert = await supabase
+    .from('raiddominion_guild_config')
+    .upsert(
+      { guild_id: guildId, config_key: 'member_count_public', config_value: isPublic },
+      { onConflict: 'guild_id,config_key' },
+    );
+
+  if (upsert.error) return { ok: false, error: upsert.error.message };
+  return { ok: true };
+}
+
 // El maestro fija qué reglas del catálogo aplican al portal de su hermandad.
 export async function setGuildRules(guildId: string, rules: ContentItem[]): Promise<{ ok: boolean; error?: string }> {
   const upsert = await supabase

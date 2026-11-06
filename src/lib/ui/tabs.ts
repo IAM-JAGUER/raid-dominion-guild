@@ -197,6 +197,9 @@ export interface TabBarConfig {
   variant?: TabBarVariant;
   // Contadores opcionales por tab (solo se pintan en la variante character).
   counts?: Record<string, number | undefined>;
+  // Etiquetas visibles por tab cuando el contexto cambia el nombre (p. ej.
+  // Miembros → Jerarquía si el roster es privado). El id/hash no cambia.
+  labels?: Record<string, string | undefined>;
   // Id del panel por tab (default `panel-${id}`).
   panelIds?: Record<string, string>;
   // Gestiona visibilidad de paneles al activar (default true). Admin lo apaga
@@ -238,6 +241,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
   const panelId = (tab: TabDef): string => config.panelIds?.[tab.id] ?? `panel-${tab.id}`;
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
+    const label = config.labels?.[t.id] ?? t.label;
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.id = `tab-${t.id}`;
@@ -259,14 +263,14 @@ export function createTabBar(config: TabBarConfig): TabBarController {
         btn.appendChild(iconEl(t.icon, { size: 'md' }));
       }
     }
-    btn.appendChild(document.createTextNode(t.label));
+    btn.appendChild(document.createTextNode(label));
     const count = config.counts?.[t.id];
     if (isCharacter && typeof count === 'number' && count > 0) {
       const countEl = document.createElement('span');
       countEl.className = 'rd-character-tab__count';
       countEl.textContent = String(count);
       countEl.setAttribute('aria-hidden', 'true');
-      btn.setAttribute('aria-label', `${t.label} (${count})`);
+      btn.setAttribute('aria-label', `${label} (${count})`);
       btn.appendChild(countEl);
     }
     bar.appendChild(btn);

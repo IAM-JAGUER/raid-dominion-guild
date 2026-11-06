@@ -474,7 +474,19 @@ function rankBadgeClass(rank: string | undefined): string {
 // controles prev/next. Cuando hay jerarquía de rangos (ranks) y
 // los miembros traen rankIndex, el roster se ORGANIZA por rango (0 = líder
 // arriba) con cabeceras de grupo; si no, queda plano como antes.
-export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?: GuildRank[]): void {
+export interface RosterRenderOptions {
+  // false → el portal oculta el total de integrantes en el resumen del
+  // paginador (la lista y la jerarquía siguen visibles).
+  showMemberCount?: boolean;
+}
+
+export function renderRoster(
+  wrap: HTMLElement,
+  members: RosterMember[],
+  ranks?: GuildRank[],
+  options: RosterRenderOptions = {},
+): void {
+  const showMemberCount = options.showMemberCount !== false;
   if (!members || members.length === 0) {
     wrap.innerHTML = '<p class="text-sm text-gray-300 italic">Sin roster exportado.</p>';
     return;
@@ -529,7 +541,7 @@ export function renderRoster(wrap: HTMLElement, members: RosterMember[], ranks?:
   const paginator = createPaginator({
     pageSize: PAGE_SIZE,
     totalItems: entries.length,
-    summary: `${members.length} miembros`,
+    summary: showMemberCount ? `${members.length} miembros` : 'Miembros',
     renderPage: (page) => {
       grid.innerHTML = '';
       const start = (page - 1) * PAGE_SIZE;
