@@ -505,3 +505,14 @@ test('la nota conserva tokens ricos para los enlaces del juego', () => {
     { type: 'text', text: ' y busco grupo' },
   ]);
 });
+
+test('una anidación extrema no desborda la pila y avisa', () => {
+  const depth = 500;
+  const nested = `${'{'.repeat(depth)}1${'}'.repeat(depth)}`;
+  const res = parseLua(`x = ${nested}`);
+  assert.ok(res.data, 'el parser debe devolver datos aunque omita la sección profunda');
+  assert.ok(
+    res.warnings.some((w) => w.includes('anidada')),
+    'debe avisar de la sección omitida',
+  );
+});

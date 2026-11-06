@@ -186,7 +186,22 @@ function next(ctx: ParseCtx): Token | undefined {
   return ctx.tokens[ctx.pos++];
 }
 
-function parseValue(ctx: ParseCtx): LuaValue {
+// Límite de anidación: un SV corrupto o malicioso de 2 MB puede encadenar
+// miles de tablas y desbordar la pila del navegador. Al superar el límite se
+// salta la tabla completa sin recursión y se avisa una sola vez.
+const MAX_PARSE_DEPTH = 200;
+
+function skipTable(ctx: ParseCtx): void {
+  let level = 1;
+  while (level > 0) {
+    const tok = next(ctx);
+    if (!tok) return;
+    if (tok.type === 'lbrace') level++;
+    else if (tok.type === 'rbrace') level--;
+  }
+}
+
+function parseValue(ctx: ParseCtx, depth = 0): LuaValue {
   const tok = peek(ctx);
   if (!tok) return null;
 
@@ -208,13 +223,20 @@ function parseValue(ctx: ParseCtx): LuaValue {
     return null;
   }
   if (tok.type === 'lbrace') {
-    return parseTable(ctx);
+    return parseTable(ctx, depth);
   }
   return null;
 }
 
-function parseTable(ctx: ParseCtx): LuaValue {
+function parseTable(ctx: ParseCtx, depth = 0): LuaValue {
   next(ctx); // consume '{'
+
+  if (depth >= MAX_PARSE_DEPTH) {
+    skipTable(ctx);
+    const msg = 'El archivo tiene una estructura demasiado anidada; se omitió una sección.';
+    if (!ctx.warnings.includes(msg)) ctx.warnings.push(msg);
+    return null;
+  }
 
   const strKeys: Record<string, unknown> = {};
   const arrKeys: unknown[] = [];
@@ -229,7 +251,7 @@ function parseTable(ctx: ParseCtx): LuaValue {
       next(ctx); // consume la clave
       if (peek(ctx)?.type === 'bracket') next(ctx); // consume ']'
       if (peek(ctx)?.type === 'name' && peek(ctx)!.value === '=') next(ctx);
-      const value = parseValue(ctx);
+      const value = parseValue(ctx, depth + 1);
       if (keyTok) {
         const key = keyTok.value;
         if (keyTok.type === 'number') {
@@ -244,7 +266,7 @@ function parseTable(ctx: ParseCtx): LuaValue {
 
     // Elemento sin clave explícita (array)
     if (tok.type === 'string' || tok.type === 'number' || tok.type === 'boolean' || tok.type === 'lbrace') {
-      const value = parseValue(ctx);
+      const value = parseValue(ctx, depth + 1);
       arrKeys.push(value);
       continue;
     }
@@ -252,7 +274,7 @@ function parseTable(ctx: ParseCtx): LuaValue {
     if (tok.type === 'name') {
       next(ctx); // consume la clave
       if (peek(ctx)?.type === 'name' && peek(ctx)!.value === '=') next(ctx);
-      const value = parseValue(ctx);
+      const value = parseValue(ctx, depth + 1);
       strKeys[tok.value] = value;
       continue;
     }
@@ -289,7 +311,7 @@ function parseTable(ctx: ParseCtx): LuaValue {
 
 // ─── Extracción de la tabla RaidDominionDB ────────────────────────────────
 
-function extractRoot(input: string): Record<string, unknown> | null {
+function extractRoot(input: string, warnings: string[]): Record<string, unknown> | null {
   const idx = input.indexOf('RaidDominionDB');
   if (idx === -1) return null;
 
@@ -298,7 +320,7 @@ function extractRoot(input: string): Record<string, unknown> | null {
   if (braceIdx === -1) return null;
 
   const tokens = tokenize(after.slice(braceIdx));
-  const ctx: ParseCtx = { tokens, pos: 0, warnings: [] };
+  const ctx: ParseCtx = { tokens, pos: 0, warnings };
   const root = parseTable(ctx);
 
   if (root === null || Array.isArray(root)) {
@@ -908,7 +930,7 @@ export function parseSavedVariables(rawText: string): ParseResult {
     };
   }
 
-  const root = extractRoot(rawText);
+  const root = extractRoot(rawText, warnings);
   if (!root) {
     return {
       ok: false,
