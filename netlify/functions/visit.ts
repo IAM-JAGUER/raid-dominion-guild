@@ -16,12 +16,34 @@
 // Devuelve: { ok, notify } | { ok: true, skipped: true }
 import { rpc } from './_shared/supabase';
 import { env } from './_shared/env';
+import { rateLimit } from './_shared/rateLimit';
 
 const SITE_URL = env('SITE_URL') || 'https://raid-dominion.netlify.app';
 
 function clean(value: unknown, max: number): string {
   return typeof value === 'string' ? value.slice(0, max) : '';
 }
+
+// Etiquetas que el beacon de Layout puede enviar. Cualquier otro valor se
+// normaliza para que no pueda inyectar texto/menciones en el embed de Discord.
+const ALLOWED_PAGES = new Set([
+  'Subir archivo del addon',
+  'Directorio de hermandades',
+  'Portal de hermandad',
+  'Directorio de jugadores',
+  'Perfil de jugador',
+  'Directorio de bandas',
+  'Ficha de banda',
+  'Directorio de personajes',
+  'Ficha de personaje',
+  'Directorio de servidores',
+  'Ficha de servidor',
+  'Dashboard',
+  'Login',
+  'Panel de admin',
+  'Moderación',
+  'Portada',
+]);
 
 // IPs extra a ignorar (env RD_IGNORED_IPS, separadas por coma): p. ej. tu IP
 // pública para que tu navegación a producción tampoco cuente.
@@ -130,6 +152,13 @@ export default async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (Number(req.headers.get('content-length') ?? 0) > 16_000) {
+      return new Response(JSON.stringify({ ok: true, skipped: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const body = (await req.json().catch(() => null)) as {
       path?: string;
       page?: string;
@@ -137,11 +166,14 @@ export default async (req: Request): Promise<Response> => {
     } | null;
 
     const path = clean(body?.path, 512);
-    const page = clean(body?.page, 128);
+    const rawPage = clean(body?.page, 128);
+    const page = ALLOWED_PAGES.has(rawPage) ? rawPage : 'Otra sección';
     const visitorId = clean(body?.visitorId, 64) || undefined;
 
-    if (!path) {
-      return new Response(JSON.stringify({ ok: false, error: 'path es requerido' }), {
+    // Solo rutas internas del portal. Evita URLs absolutas y rutas de API
+    // usadas para inflar métricas desde fuera.
+    if (!path || !path.startsWith('/') || path.startsWith('//') || path.startsWith('/api')) {
+      return new Response(JSON.stringify({ ok: false, error: 'path inválido' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -153,6 +185,14 @@ export default async (req: Request): Promise<Response> => {
     const ignored = ignoredIps();
     if (ip && (isLocalIp(ip) || ignored.includes(ip))) {
       return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'local' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Best-effort: frena ráfagas de visitas falsas y avisos al canal admin.
+    if (!rateLimit(`visit:${ip ?? 'unknown'}`, 60, 10 * 60_000)) {
+      return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'rate' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       });

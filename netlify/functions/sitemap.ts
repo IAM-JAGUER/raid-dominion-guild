@@ -58,7 +58,7 @@ export default async (_req: Request): Promise<Response> => {
       'select=slug,updated_at&is_public=eq.true&slug=not.is.null&order=updated_at.desc&limit=1000',
     ),
     safeSelect<SlugRow>(
-      'raiddominion_bands',
+      'raiddominion_bands_public',
       'select=slug,updated_at&is_public=eq.true&slug=not.is.null&order=updated_at.desc&limit=1000',
     ),
     safeSelect<SlugRow>(

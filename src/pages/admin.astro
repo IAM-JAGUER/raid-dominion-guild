@@ -1207,10 +1207,20 @@ const meta = PAGE_META['/admin'];
     status.textContent = `Generando y enviando «${label}»…`;
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        status.className = `mt-3 ${ui.alert} ${ui.status.error}`;
+        status.textContent = 'Tu sesión caducó. Vuelve a iniciar sesión para enviar a Discord.';
+        return;
+      }
       const r = await fetch('/api/discord-send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal_key: goalKey, canal }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ goal_key: goalKey, canal, auth_token: token }),
       });
       const data = (await r.json().catch(() => null)) as {
         ok?: boolean;

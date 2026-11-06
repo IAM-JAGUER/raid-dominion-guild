@@ -9,6 +9,20 @@
 // raiddominion_bands, stats) para que las respuestas reflejen datos reales.
 import { buildCommunityContext, contextToText } from './_shared/context';
 import { groqChat, type GroqMessage } from './_shared/groq';
+import { rateLimit } from './_shared/rateLimit';
+
+const MAX_BODY_BYTES = 64_000;
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 10 * 60_000;
+
+function clientIp(req: Request): string {
+  return (
+    req.headers.get('x-nf-client-connection-ip') ||
+    req.headers.get('client-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0] ||
+    'unknown'
+  ).trim();
+}
 
 const SYSTEM_BASE = `Eres la guía de la comunidad de RaidDominion, un addon para World of Warcraft 3.3.5a (WotLK) que ayuda a liderar bandas.
 
@@ -47,6 +61,19 @@ export default async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) {
+      return new Response(JSON.stringify({ error: 'Solicitud demasiado grande' }), {
+        status: 413,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    if (!rateLimit(`chat:${clientIp(req)}`, RATE_LIMIT, RATE_WINDOW_MS)) {
+      return new Response(JSON.stringify({ error: 'Demasiadas consultas. Intenta más tarde.' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': '600' },
+      });
+    }
+
     const body = (await req.json().catch(() => null)) as {
       messages?: Array<{ role?: string; content?: string }> | null;
     } | null;

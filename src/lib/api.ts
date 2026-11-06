@@ -446,7 +446,7 @@ export async function getRealmBands(
 ): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
   const [byRealmRes, charsRes, handlesRes] = await Promise.all([
     supabase
-      .from('raiddominion_bands')
+      .from('raiddominion_bands_public')
       .select('*')
       .eq('is_public', true)
       .eq('hide_players', false)
@@ -480,7 +480,7 @@ export async function getRealmBands(
   ]));
   if (ownerIds.length > 0) {
     const byOwnerRes = await supabase
-      .from('raiddominion_bands')
+      .from('raiddominion_bands_public')
       .select('*')
       .eq('is_public', true)
       .eq('hide_players', false)
@@ -494,12 +494,12 @@ export async function getRealmBands(
   return { ok: true, bands: [...byRealm, ...extra] };
 }
 
-// ─── Bandas públicas (tabla raiddominion_bands) ─────────────────────────
+// ─── Bandas públicas (vista raiddominion_bands_public) ───────────────────
 
 // Bandas públicas (espejo de visibilidad de su guild o del perfil del dueño).
 export async function listPublicBands(): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
   const res = await supabase
-    .from('raiddominion_bands')
+    .from('raiddominion_bands_public')
     .select('*')
     .eq('is_public', true)
     .order('name', { ascending: true })
@@ -516,7 +516,8 @@ export async function listPublicBands(): Promise<{ ok: boolean; bands?: BandRow[
 }
 
 // Banda visible por slug: públicas para cualquiera + privadas para su dueño.
-// La RLS de raiddominion_bands ya resuelve el acceso (owner OR is_public);
+// La vista raiddominion_bands_public ya resuelve el acceso (owner OR is_public)
+// y enmascara players[] cuando hide_players y el llamador no es el dueño;
 // no se filtra is_public aquí o el dueño perdería su propia banda privada.
 export async function getBandBySlug(
   slug: string,
@@ -525,7 +526,7 @@ export async function getBandBySlug(
   const me = sessionData.session?.user?.id ?? null;
 
   const res = await supabase
-    .from('raiddominion_bands')
+    .from('raiddominion_bands_public')
     .select('*')
     .eq('slug', slug)
     .maybeSingle();
@@ -543,7 +544,8 @@ export async function getBandBySlug(
 
 // ─── Gestión de bandas propias ──────────────────────────────────────────
 
-// Bandas del usuario autenticado (RLS: solo las propias).
+// Bandas del usuario autenticado (vista pública: solo las propias o públicas;
+// el dueño recibe players[] completo).
 // Las notas NO vienen en players[] si la banda no las publica: se leen del
 // almacén privado (RLS: solo el dueño) y se inyectan aquí para que el líder
 // vea y edite SIEMPRE sus notas, publique o no la banda.
@@ -553,7 +555,7 @@ export async function getMyBands(): Promise<{ ok: boolean; items?: BandRow[]; er
   if (!user) return { ok: false, error: 'sin sesión' };
 
   const res = await supabase
-    .from('raiddominion_bands')
+    .from('raiddominion_bands_public')
     .select('*')
     .eq('owner_id', user.id)
     .order('name', { ascending: true });
@@ -848,7 +850,7 @@ export async function getGuildBandProposals(guildId: string): Promise<{ ok: bool
 // Si hide_players, se quita players[] para que no se exponga número ni lista.
 export async function listGuildPortalBands(guildId: string): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
   const res = await supabase
-    .from('raiddominion_bands')
+    .from('raiddominion_bands_public')
     .select('*')
     .eq('guild_id', guildId)
     .eq('is_rank_integrated', true)
@@ -1864,7 +1866,7 @@ export async function getPublicBandsForCharacter(
   const MAX = 2000;
   for (let start = 0; start < MAX; start += PAGE) {
     const res = await supabase
-      .from('raiddominion_bands')
+      .from('raiddominion_bands_public')
       .select('*')
       .order('name', { ascending: true })
       .range(start, start + PAGE - 1);

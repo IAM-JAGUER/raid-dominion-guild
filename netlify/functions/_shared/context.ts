@@ -24,7 +24,7 @@ export async function buildCommunityContext(): Promise<CommunityContext> {
       'select=name,realm,class,avg_ilvl&is_public=eq.true&order=avg_ilvl.desc.nullslast&limit=10',
     ),
     selectFrom<{ name: string; character_realm: string | null; schedule: string | null; min_gs: number | null }>(
-      'raiddominion_bands',
+      'raiddominion_bands_public',
       'select=name,character_realm,schedule,min_gs&is_public=eq.true&limit=10',
     ),
   ]);

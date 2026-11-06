@@ -11,6 +11,7 @@
 // body: { goal_key: string, canal: 'test' | 'prod' }
 // Devuelve: { ok, sent?, message?, goals?, eje?, goal_key?, error? }
 import { runMarketing, ejeForGoal, type MarketingEje, type MarketingCanal } from './_shared/marketing';
+import { getAuthenticatedRole } from './_shared/supabase';
 
 const VALID_CANALES = new Set<MarketingCanal>(['test', 'prod']);
 
@@ -35,10 +36,30 @@ export default async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (Number(req.headers.get('content-length') ?? 0) > 16_000) {
+      return new Response(JSON.stringify({ ok: false, error: 'Solicitud demasiado grande' }), {
+        status: 413,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const body = (await req.json().catch(() => null)) as {
       goal_key?: string;
       canal?: string;
+      auth_token?: string;
     } | null;
+
+    // Solo un admin autenticado puede publicar en Discord. El JWT viaja en
+    // Authorization (producción) o en auth_token (fallback del middleware de
+    // astro dev, que no reenvía cabeceras tras cambiar la config). Se valida
+    // contra Supabase y el rol se lee de raiddominion_profiles (RLS propia).
+    const role = await getAuthenticatedRole(req, body?.auth_token);
+    if (role !== 'admin') {
+      return new Response(JSON.stringify({ ok: false, error: 'Requiere sesión de administrador' }), {
+        status: role ? 403 : 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     const goalKey = String(body?.goal_key ?? '').trim();
     if (!goalKey) {

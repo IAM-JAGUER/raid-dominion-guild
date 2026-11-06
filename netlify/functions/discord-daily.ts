@@ -23,7 +23,7 @@
 //   4. Nunca lanza: ante fallo responde { ok: false } y loguea.
 import { runMarketing, type MarketingOutcome } from './_shared/marketing';
 import { env } from './_shared/env';
-import { rpc, deleteFrom } from './_shared/supabase';
+import { rpc } from './_shared/supabase';
 
 // Slot de idempotencia: clave YYYYMMDD-HH (UTC). Garantiza que aunque
 // Netlify reintente la función (at-least-once) dentro de una misma ventana
@@ -121,7 +121,7 @@ export default async (): Promise<Response> => {
     // la ventana no quede quemada sin mensaje publicado.
     const releaseSlot = async () => {
       try {
-        await deleteFrom('raiddominion_cron_slots', `slot_key=eq.${encodeURIComponent(key)}`);
+        await rpc('raiddominion_cron_release_slot', { p_key: key });
       } catch (err) {
         console.warn('discord-daily: no se pudo liberar el slot tras un envío fallido:', err);
       }

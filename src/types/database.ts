@@ -365,10 +365,17 @@ type PublicFunctions = {
   };
 };
 
+export type PublicViews = Record<string, never> & {
+  raiddominion_bands_public: {
+    Row: BandRow;
+    Relationships: [];
+  };
+};
+
 export type Database = {
   public: {
     Tables: PublicSchema;
-    Views: Record<string, never>;
+    Views: PublicViews;
     Functions: PublicFunctions;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

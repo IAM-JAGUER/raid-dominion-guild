@@ -58,13 +58,24 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
   return (await res.json()) as T;
 }
 
-// DELETE tipado a una tabla pública. `params` es la query string de PostgREST
-// (p. ej. slot_key=eq.20261006-10). Pensado para compensar el lock del cron
-// cuando el envío no se concreta (ver discord-daily.ts).
-export async function deleteFrom(table: string, params: string): Promise<void> {
-  const res = await fetch(`${getUrl()}/rest/v1/${table}?${params}`, {
-    method: 'DELETE',
-    headers: { ...headers(), Prefer: 'return=minimal' },
+// Rol del usuario dueño del bearer token. La consulta va con el JWT del
+// usuario (no con la anon key), así RLS solo puede devolver su propia fila.
+// Devuelve null si no hay token válido o el perfil no existe.
+export async function getAuthenticatedRole(req: Request, tokenOverride?: string | null): Promise<string | null> {
+  const raw = req.headers.get('authorization') ?? '';
+  const headerToken = raw.toLowerCase().startsWith('bearer ') ? raw.slice(7).trim() : '';
+  const token = (tokenOverride ?? '').trim() || headerToken;
+  if (!token) return null;
+
+  const res = await fetch(`${getUrl()}/rest/v1/raiddominion_profiles?select=role&limit=1`, {
+    headers: {
+      apikey: getKey(),
+      Authorization: `Bearer ${token}`,
+      'Accept-Profile': 'public',
+    },
   });
-  await check(res, `DELETE ${table}`);
+  if (!res.ok) return null;
+  const rows = (await res.json().catch(() => [])) as Array<{ role?: string }>;
+  return rows[0]?.role ?? null;
 }
+

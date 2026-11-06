@@ -95,7 +95,10 @@ export default defineConfig({
               const body = Buffer.concat(chunks).toString('utf8');
               const request = new Request('http://localhost/api/discord-send', {
                 method: 'POST',
-                headers: { 'Content-Type': req.headers['content-type'] ?? 'application/json' },
+                headers: {
+                  'Content-Type': req.headers['content-type'] ?? 'application/json',
+                  ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+                },
                 body,
               });
               const response = await handler(request);
