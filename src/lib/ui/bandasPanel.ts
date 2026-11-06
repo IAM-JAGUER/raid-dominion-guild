@@ -73,6 +73,19 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     });
   }
 
+  // Muchas bandas del addon usan el template "DIA 20:00" (sin día concreto).
+  // Sin esta bandera, el panel podía quedarse sin ningún filtro disponible.
+  if (items.some((item) => parseSchedule(getSchedule(item)).days.length === 0)) {
+    facets.push({
+      kind: 'flag',
+      id: 'sin-dia',
+      label: 'Filtrar bandas sin día fijado',
+      getFlag: (item) => parseSchedule(getSchedule(item)).days.length === 0,
+      chipLabel: 'Sin día fijado',
+      icon: 'calendario',
+    });
+  }
+
   createFilterBar<T>({
     mount: filtro,
     items,

@@ -49,6 +49,7 @@ import { ui } from '@/lib/ui/design';
           <span id="role-badge" class={`hidden ${ui.badge} ${ui.badgeMd} bg-gradient-to-b from-fuchsia-950/60 to-fuchsia-950/25 border-fuchsia-500/40 text-fuchsia-300`}><Icon name="estrella" size="sm" class="self-center" />Maestro de hermandad</span>
         </div>
         <p id="profile-ref" class="hidden text-sm text-gray-300 mt-3"></p>
+        <div id="profile-actions" class="flex flex-wrap justify-start gap-2 mt-3"></div>
       </FichaHero>
 
       <FichaSkeleton
@@ -145,6 +146,7 @@ import { ui } from '@/lib/ui/design';
   import { classColor } from '@/lib/ui/classColors';
   import { renderCharacterCard, renderGuildCard, renderBandCard, renderBandFallbackCard } from '@/lib/ui/cards';
   import { characterChips } from '@/lib/ui/characterChips';
+  import { shareLinkButton } from '@/lib/ui/share';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners, type OwnerRef } from '@/lib/bandListing';
   import { JUGADOR_TABS, initAvailableTabs } from '@/lib/ui/tabs';
@@ -245,6 +247,13 @@ import { ui } from '@/lib/ui/design';
       avatar.style.borderColor = tint;
     }
     (document.getElementById('display-name') as HTMLElement).textContent = displayName;
+    (document.getElementById('profile-actions') as HTMLElement).appendChild(
+      shareLinkButton({
+        title: `${displayName} | RaidDominion`,
+        text: `Perfil público de ${displayName} en RaidDominion.`,
+        url: window.location.href,
+      }),
+    );
 
     const chipsEl = document.getElementById('chips') as HTMLElement;
     const ctxEl = document.getElementById('jugador-context') as HTMLElement;

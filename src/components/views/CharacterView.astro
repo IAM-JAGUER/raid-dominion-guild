@@ -100,6 +100,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
   import { iconEl, raceIconFor } from '@/lib/ui/icons';
   import { renderBandCard, renderGuildCard, renderBandFallbackCard } from '@/lib/ui/cards';
   import { appendCharacterChips } from '@/lib/ui/characterChips';
+  import { shareLinkButton } from '@/lib/ui/share';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners } from '@/lib/bandListing';
   import { PERSONAJE_TABS, initAvailableTabs } from '@/lib/ui/tabs';
@@ -213,6 +214,24 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
     }
 
     const links = document.getElementById('pv-links') as HTMLElement;
+    links.appendChild(
+      shareLinkButton({
+        title: `${c.name}${c.realm ? ` — ${c.realm}` : ''} | RaidDominion`,
+        text: `Ficha de ${c.name} en RaidDominion: equipo, iLevel, metas y bandas.`,
+        url: window.location.href,
+      }),
+    );
+    if (c.updated_at) {
+      const updated = document.createElement('span');
+      updated.className = `${ui.badge} ${ui.badgeMd} bg-brand-950/50 border-brand-700/30 text-gray-300`;
+      updated.textContent = `Actualizado ${new Date(c.updated_at).toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })}`;
+      updated.title = 'Última sincronización del archivo del addon';
+      links.appendChild(updated);
+    }
     // Nombres públicos + ¿hay un personaje maestro PÚBLICO?
     const namesRes = await getPublicAccountNames([c.user_id]);
     const info = namesRes.get(c.user_id);

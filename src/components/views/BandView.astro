@@ -17,6 +17,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       <a id="bv-owner-link" href="#" class={`hidden ${ui.badge} ${ui.badgeMd} bg-brand-950/70 border-brand-600/40 text-brand-200 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`}></a>
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
+    <div id="bv-actions" class="flex flex-wrap gap-2 mt-3"></div>
   </FichaHero>
 
   <FichaSkeleton barId="band-tab-bar" barLabel="Secciones de la banda" showLeftSep={false}>
@@ -68,6 +69,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
   import { PAGE_SIZE_LIST } from '@/lib/ui/paginator';
   import { mountPagedList } from '@/lib/ui/list';
   import { bandNameLink } from '@/lib/ui/bandName';
+  import { shareLinkButton } from '@/lib/ui/share';
 
   if (isBandRoute()) {
     const slug = currentSlug();
@@ -116,9 +118,23 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
     const nameEl = document.getElementById('bv-name') as HTMLElement;
     nameEl.textContent = '';
     const name = bandNameLink(band.name, band.name_link);
-    if (name.anchor) nameEl.appendChild(name.anchor);
-    else nameEl.textContent = name.label;
+    if (name.anchor) {
+      // El h1 usa bg-clip-text + text-transparent (gradiente). El enlace de
+      // Wowhead trae color propio y heredaría el text-fill transparente del
+      // padre: se restaura para que el nombre sea legible.
+      name.anchor.style.setProperty('-webkit-text-fill-color', 'currentColor');
+      nameEl.appendChild(name.anchor);
+    } else {
+      nameEl.textContent = name.label;
+    }
     setBreadcrumb(band.name || 'Banda');
+    (document.getElementById('bv-actions') as HTMLElement).appendChild(
+      shareLinkButton({
+        title: `${bandName} — Banda de raid | RaidDominion`,
+        text: `Banda ${bandName} en RaidDominion: horario, roster y reglas.`,
+        url: window.location.href,
+      }),
+    );
 
     const ownerLink = document.getElementById('bv-owner-link') as HTMLAnchorElement;
     const owner = await resolveOwner(band);
@@ -130,6 +146,13 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 
     const meta = document.getElementById('bv-meta') as HTMLElement;
     if (band.schedule) meta.appendChild(iconChip('calendario', `Horario: ${band.schedule}`));
+    if (band.updated_at) {
+      meta.appendChild(iconChip(
+        'reloj',
+        `Actualizada ${new Date(band.updated_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}`,
+        '!text-gray-300',
+      ));
+    }
     if (typeof band.min_gs === 'number' && band.min_gs > 0) meta.appendChild(iconChip('diamante', `GS mínimo: ${band.min_gs}`, '!text-brand-300 !border-brand-500/40'));
     if (band.guild_id && band.is_rank_integrated) {
       meta.appendChild(iconChip('enlace', 'Integrada', '!text-emerald-300 !border-emerald-500/40'));
