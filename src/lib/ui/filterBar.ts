@@ -79,7 +79,8 @@ export interface FilterBarState {
 }
 
 export interface FilterBarOptions<T> {
-  // Contenedor de la barra (la cabecera del panel en los directorios).
+  // Contenedor de la barra (el slot `filters` de PageHeader en los
+  // directorios; la cabecera del panel en pestañas de ficha).
   mount: HTMLElement;
   items: T[];
   // Texto searchable de cada ítem; sin él no se pinta buscador.

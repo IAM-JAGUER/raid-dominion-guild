@@ -85,6 +85,8 @@ const jsonLd = [
       searchPlaceholder: 'Buscar servidor…',
       searchLabel: 'Buscar servidores por nombre',
       resultNoun: (n) => `${n} servidor${n === 1 ? '' : 'es'}`,
+      // El contador total vive en el filtro; el paginador solo da la página.
+      summary: () => '',
       clear: () => clearListItems(list),
       emptyMessage: (state) => `Ningún servidor coincide con "${state.query.trim()}".`,
       renderEmpty: (message) => settleAsyncList(list, 'notice', message),

@@ -1,18 +1,18 @@
 ---
 // Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
-// hermandades). Encapsula el esqueleto común: PageHeader + dividerFadeBoth +
-// dividerFadeRight (separador izquierdo, la página no tiene tabs) +
-// PanelWindow (cabecera con la barra de filtros estándar) + lista asíncrona
-// + dividerFadeLeft. Cada página conserva solo su <script> (card() + fetch +
-// facetas) y monta la barra sobre #filters con src/lib/ui/filterBar.ts.
-// La lista usa el contrato de src/lib/ui/list.ts
-// (`data-rd-list-status/content/empty/frame`) y los ids #grid/#empty siguen
-// siendo el anclaje del script (ver AGENTS.sections/pagina-map.md §2).
+// hermandades). Encapsula el esqueleto común: PageHeader (identidad + barra
+// de filtros en el slot `filters`) + dividerFadeBoth + TABLERO ABIERTO con la
+// lista asíncrona + dividerFadeLeft. No usa PanelWindow: esa ventana es el
+// lenguaje de las fichas y aquí repetiría título/icono del header. Cada página
+// conserva solo su <script> (card() + fetch + facetas) y monta la barra sobre
+// #filters con src/lib/ui/filterBar.ts. La lista usa el contrato de
+// src/lib/ui/list.ts (`data-rd-list-status/content/empty/frame`) y los ids
+// #grid/#empty siguen siendo el anclaje del script
+// (ver AGENTS.sections/pagina-map.md §2).
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
-import PanelWindow from '@/components/ui/PanelWindow.astro';
 import { ui, type Tone } from '@/lib/ui/design';
 import type { IconName } from '@/lib/ui/icons';
 
@@ -30,9 +30,7 @@ interface EmptyConfig {
 interface Props {
   hero: string;
   intro?: string;
-  // Título de la ventana del panel (default: el hero).
-  panelTitle?: string;
-  // Icono temático de la ventana del panel (contrato src/lib/ui/icons.ts).
+  // Icono temático de la placa del directorio (contrato src/lib/ui/icons.ts).
   panelIcon?: IconName;
   // Texto del estado de carga (aria-live).
   loadingText: string;
@@ -61,7 +59,6 @@ interface Props {
 const {
   hero,
   intro,
-  panelTitle = hero,
   panelIcon,
   loadingText,
   gridLabel,
@@ -88,28 +85,26 @@ const toneCls = isTone ? ui.tone[tone] : '';
   imagePosition={heroImagePosition}
   imageMode={heroImageMode}
   tone={tone}
-/>
+>
+  <div slot="filters" id="filters" data-rd-filter-bar class={ui.filter.headerMount}></div>
+</PageHeader>
 <div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
-<div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
-<!-- Lista asíncrona estándar (src/lib/ui/list.ts): los ítems viven en la
-     grilla del cuerpo del panel; el bloque de carga es su único hijo mientras
-     carga y se retira al asentarse (reemplazo in-place, sin salto). El motor
-     de reveal escalona los ítems. La cabecera monta la barra de filtros
-     (buscador + selector dinámico + chips activos) vía
-     src/lib/ui/filterBar.ts sobre #filters. -->
-<div data-rd-list-frame>
-  <PanelWindow title={panelTitle} icon={panelIcon} tone={tone}>
-    <div slot="head" class="mt-4" id="filters" data-rd-filter-bar></div>
-    <section id="grid" data-rd-list-content data-rd-reveal-cards class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" aria-label={gridLabel}>
-      <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
-    </section>
-    <div id="pager" data-rd-list-pager></div>
-  </PanelWindow>
+<!-- Tablero abierto del directorio: la lista vive directamente bajo el header
+     y el divisor central, sin la ventana de contenido de las fichas. El
+     bloque de carga sigue siendo el único hijo de #grid mientras carga y se
+     retira al asentarse. El contador vive en el filtro (header); el paginador
+     solo aporta la posición de página. -->
+<div data-rd-list-frame class={ui.directory.board}>
+  <section id="grid" data-rd-list-content data-rd-reveal-cards class={ui.directory.grid} aria-label={gridLabel}>
+    <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
+  </section>
+  <div id="pager" data-rd-list-pager></div>
 </div>
 
 <EmptyState
   id="empty"
+  cls={ui.directory.empty}
   hidden
   icon={empty.icon}
   eyebrow={empty.eyebrow}

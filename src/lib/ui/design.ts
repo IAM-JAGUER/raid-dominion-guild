@@ -203,20 +203,38 @@ export const ui = {
     chipRemove:
       'inline-flex h-4 w-4 items-center justify-center rounded-md text-brand-300/80 hover:bg-white/10 hover:text-brand-100 transition-colors',
     notice: 'text-[11px] italic text-gray-300',
+    // Montaje del motor en la cabecera de directorio (PageHeader). La franja
+    // nace oculta mientras no hay datos (`empty:hidden`) para no dejar un
+    // hairline fantasma; al montar la barra, aparece debajo de la identidad.
+    headerMount:
+      'relative z-10 mt-5 w-full border-t border-brand-600/20 pt-4 text-left empty:hidden sm:mt-6',
     // Grupo extra inline de la misma fila (tracker: ocultos + selección).
     extraGroup:
       'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto',
   },
 
+  // ── Directorios públicos (2026-11-06) ───────────────────────────────────
+  // Tablero ABIERTO: la lista vive directamente bajo el PageHeader, sin la
+  // ventana de contenido de las fichas ni títulos/iconos repetidos. El
+  // contador vive SOLO en la barra de filtros; el paginador aporta la página.
+  directory: {
+    board: 'relative mt-8',
+    grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6',
+    groups: 'space-y-8',
+    // Respiro del estado vacío cuando el tablero se oculta (mismo hueco que
+    // el separador izquierdo retirado, sin repetir el literal en 2 páginas).
+    empty: 'mt-8',
+  },
+
   // ── Paginador reutilizable (2026-10-19, paginator.ts) ──────────────────
-  // Barra "Página [X] de Y • N ítems": el número de página es un desplegable
-  // de salto directo + controles prev/next. ÚNICA fuente de estas clases
-  // (antes literales del roster en preview.ts).
+  // Barra "Página [X] de Y" (+ resumen opcional): el número de página es un
+  // desplegable de salto directo + controles prev/next. ÚNICA fuente de estas
+  // clases (antes literales del roster en preview.ts).
   pager: {
     // Barra inferior: info a la izquierda, controles a la derecha; en móvil
     // se apila en columna centrada.
     bar: 'mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-brand-600/15 pt-3',
-    // Texto del contador ("Página [sel] de Y • N ítems").
+    // Texto de página ("Página [sel] de Y • resumen opcional").
     info: 'text-xs text-gray-300 italic',
     // Desplegable de salto directo a cualquier página.
     select:

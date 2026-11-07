@@ -120,6 +120,8 @@ const jsonLd = [
           },
         ],
         resultNoun: (n) => `${n} hermandad${n === 1 ? '' : 'es'}`,
+        // El contador total vive en el filtro; el paginador solo da la página.
+        summary: () => '',
         clear: () => clearListItems(list),
         emptyMessage: (state) => state.query.trim()
           ? `Ninguna hermandad coincide con "${state.query.trim()}".`

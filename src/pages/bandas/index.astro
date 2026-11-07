@@ -3,7 +3,6 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
-import PanelWindow from '@/components/ui/PanelWindow.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
@@ -35,30 +34,26 @@ const jsonLd = [
         image="/images/headers/bandas.webp"
         tone="ember"
         intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas compartidos por cada jugador."
-      />
+      >
+        <div slot="filters" id="filters" data-rd-filter-bar class={ui.filter.headerMount}></div>
+      </PageHeader>
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-      <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
-      <!-- Lista asíncrona estándar (src/lib/ui/list.ts): el bloque de carga
-           vive dentro del cuerpo del panel y se retira al asentarse
-           (reemplazo in-place); el marco del panel se mantiene estable.
-           La cabecera monta el panel de filtros estándar (buscador + selector
-           de día y tipo) vía src/lib/ui/filterBar.ts sobre #filters. -->
-      <div id="directorio">
-        <div data-rd-list-frame>
-          <PanelWindow title="Bandas" icon="espadas" tone="ember" bodyCls="space-y-8">
-            <div slot="head" class="mt-4" id="filters" data-rd-filter-bar data-rd-reveal-cards></div>
-            <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
-                 funde escalonados en una sola cascada. -->
-            <div id="bandas-content" data-rd-list-content data-rd-reveal-cards=".rd-card" class="space-y-8">
-              <LoadingBlock text="Cargando bandas…" listStatus pad="md" />
-            </div>
-          </PanelWindow>
+      <!-- Tablero abierto: la lista vive directamente bajo el header, sin la
+           ventana de contenido de las fichas. Los filtros (buscador + selector
+           de día y tipo) viven en el header vía PageHeader → #filters; el
+           contador vive en la barra y el paginador solo aporta la página. -->
+      <div id="directorio" data-rd-list-frame class={ui.directory.board}>
+        <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
+             funde escalonados en una sola cascada. -->
+        <div id="bandas-content" data-rd-list-content data-rd-reveal-cards=".rd-card" class={ui.directory.groups}>
+          <LoadingBlock text="Cargando bandas…" listStatus pad="md" />
         </div>
       </div>
 
       <EmptyState
         id="empty"
+        cls={ui.directory.empty}
         hidden
         icon="espadas"
         title="Aún no hay bandas públicas"

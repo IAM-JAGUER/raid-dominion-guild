@@ -1,7 +1,9 @@
-// Paginador reutilizable (barra "Página [X] de Y • N ítems").
+// Paginador reutilizable (barra "Página [X] de Y" + resumen opcional).
 // Extraído del roster de preview.ts (renderRoster) con markup y
 // comportamiento idénticos (zero visual change, 2026-10-19): el número de
-// página es un desplegable de salto directo + controles prev/next.
+// página es un desplegable de salto directo + controles prev/next. El
+// resumen es opcional: los directorios ya muestran su contador en el filtro
+// y evitan repetirlo aquí.
 // Clases vía token único ui.pager (design.ts); el contenido lo renderiza el
 // caller en su propio contenedor (grid, lista…).
 //
@@ -23,8 +25,8 @@ export interface PaginatorOptions {
   pageSize: number;
   /** Total de ítems a paginar. */
   totalItems: number;
-  /** Texto del resumen tras el desplegable, p. ej. "101 miembros". */
-  summary: string;
+  /** Texto opcional tras el desplegable, p. ej. "101 miembros". */
+  summary?: string;
   /** Rellena el contenedor del caller con los ítems de la página (1-based). */
   renderPage: (page: number) => void;
   /** Si se indica, fuerza el número de páginas (listas empaquetadas). */
@@ -72,7 +74,8 @@ export function createPaginator(opts: PaginatorOptions): Paginator {
     opt.textContent = String(i);
     pageSel.appendChild(opt);
   }
-  info.append('Página ', pageSel, ` de ${totalPages} • ${opts.summary}`);
+  info.append('Página ', pageSel, ` de ${totalPages}`);
+  if (opts.summary) info.append(` • ${opts.summary}`);
   const controls = el('div', 'flex items-center gap-2');
   controls.append(prev, next);
   bar.append(info, controls);

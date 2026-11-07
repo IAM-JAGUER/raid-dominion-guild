@@ -1,11 +1,12 @@
 /**
- * Panel "Bandas" reutilizable (modelo del directorio /bandas): buscador +
- * filtro por día (y tipo, opcional) en el encabezado con el MOTOR ÚNICO
+ * Lista "Bandas" reutilizable (modelo del directorio /bandas): buscador +
+ * filtro por día (y tipo, opcional) en la barra con el MOTOR ÚNICO
  * `src/lib/ui/filterBar.ts`; contenido agrupado por día (lunes → domingo, por
  * hora) en grilla responsive de hasta 3 columnas de día, PAGINADO en bloques
  * de hasta 12 bandas con el paginador compartido (`src/lib/ui/paginator.ts`).
- * ÚNICA fuente del modelo; /bandas y las pestañas Bandas de perfil, personaje,
- * reino y portal de hermandad pasan por aquí. Nada de esto toca el dashboard.
+ * ÚNICA fuente del modelo; /bandas (tablero abierto) y las pestañas Bandas de
+ * perfil, personaje, reino y portal de hermandad (panel) pasan por aquí. Nada
+ * de esto toca el dashboard.
  */
 import { WEEKDAY_LABELS, parseSchedule, groupBandsByDay } from '@/lib/bandSchedule';
 import { ui } from '@/lib/ui/design';
@@ -19,9 +20,11 @@ import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginato
 export type BandType = 'personal' | 'guild';
 
 export interface BandasPanelOptions<T> {
-  // Contenedor de la barra de filtros (slot `head` del panel).
+  // Contenedor de la barra de filtros (slot `filters` del PageHeader en
+  // /bandas; cabecera del panel en las pestañas de ficha).
   filtro: HTMLElement;
-  // Contenedor del contenido agrupado por día (body del panel).
+  // Contenedor del contenido agrupado por día (tablero en /bandas; cuerpo
+  // del panel en las pestañas de ficha).
   content: HTMLElement;
   // Bandas a listar (ya fusionadas/atribuidas por el contexto).
   items: T[];
@@ -141,7 +144,8 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
       pageSize: PAGE_SIZE_GRID,
       totalItems: filtered.length,
       pageCount: pages.length,
-      summary: `${filtered.length} banda${filtered.length === 1 ? '' : 's'}`,
+      // El contador total ya vive en la barra de filtros; aquí solo la página.
+      summary: '',
       renderPage: (pageNo) => {
         grid.innerHTML = '';
         const slices = pages[pageNo - 1] ?? [];

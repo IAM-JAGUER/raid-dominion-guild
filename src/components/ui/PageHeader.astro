@@ -3,10 +3,11 @@
 // medallón del icono temático + eyebrow + h1 hero + descripción. ÚNICA
 // fuente del patrón de cabecera de los 5 directorios (ver
 // AGENTS.sections/pagina-map.md §2). La placa da superficie REAL al texto:
-// suelto sobre la atmósfera se disolvía (design.md §12). El ritmo vertical
-// lo aporta el esqueleto de divisores de la página (DirectoryPage), no un
-// margen propio: así el espacio cabecera→contenido es el mismo en todos los
-// directorios.
+// suelto sobre la atmósfera se disolvía (design.md §12). Ocupa TODO el ancho
+// del contenedor de contenido y expone un slot `filters` para que el motor
+// de filtros viva en la cabecera, no dentro de la ventana de contenido. El
+// ritmo vertical lo aporta el esqueleto de divisores de la página
+// (DirectoryPage), no un margen propio.
 interface Props {
   eyebrow?: string;
   title: string;
@@ -51,7 +52,7 @@ const isTone = tone !== 'steel';
 const toneCls = isTone ? `${ui.tone[tone]} ${ui.toneHead}` : '';
 ---
 <header
-  class={`${ui.plaque} ${toneCls} max-w-3xl mx-auto text-center px-6 animate-fade-in-1 ${
+  class={`${ui.plaque} ${toneCls} w-full min-w-0 text-center px-6 animate-fade-in-1 ${
     isCover
       ? 'pt-0 pb-8 sm:pb-10'
       : isBackground
@@ -104,4 +105,9 @@ const toneCls = isTone ? `${ui.tone[tone]} ${ui.toneHead}` : '';
       </p>
     )}
   </div>
+  {Astro.slots.has('filters') && (
+    <div class="relative z-10" role="search" aria-label={`Filtros de ${title}`}>
+      <slot name="filters" />
+    </div>
+  )}
 </header>

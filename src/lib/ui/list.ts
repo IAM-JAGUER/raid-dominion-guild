@@ -17,9 +17,9 @@ import { createPaginator } from '@/lib/ui/paginator';
 //                         (reemplazo in-place, sin salto de layout).
 //   data-rd-list-status   bloque de carga (LoadingBlock) dentro del content.
 //   data-rd-list-empty    EmptyState: visible SOLO en el estado vacío.
-//   data-rd-list-frame    (opcional) marco que acompaña a la lista (p. ej. el
-//                         PanelWindow de /bandas): se oculta solo cuando
-//                         manda el estado vacío.
+//   data-rd-list-frame    (opcional) marco que acompaña a la lista (el
+//                         tablero abierto de los directorios): se oculta solo
+//                         cuando manda el estado vacío.
 //
 // El REVELADO (fade del bloque + escalonado de ítems) no vive aquí: lo hace
 // el motor `src/lib/ui/reveal.ts` al insertar ítems o desocultar bloques.

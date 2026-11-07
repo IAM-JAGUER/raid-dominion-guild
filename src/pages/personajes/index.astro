@@ -137,6 +137,8 @@ const jsonLd = [
         },
       ],
       resultNoun: (n) => `${n} personaje${n === 1 ? '' : 's'}`,
+      // El contador total vive en el filtro; el paginador solo da la página.
+      summary: () => '',
       clear: () => clearListItems(list),
       emptyMessage: (state) => state.query.trim()
         ? `Ningún personaje coincide con "${state.query.trim()}".`
