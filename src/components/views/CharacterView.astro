@@ -4,6 +4,7 @@
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 ---
 <section id="view-personaje" class="hidden">
@@ -29,18 +30,12 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
          identidad, separadas por la línea espectral del color de clase.
          Solo aparece con 2+ paneles (initAvailableTabs); con 0/1 el dock se
          oculta y el divisor de respaldo sigue separando la ficha. -->
-    <div
+    <FichaDock
       slot="dock"
-      id="pv-tab-dock"
-      class="rd-character-tab-dock relative z-10 hidden -mx-5 -mb-5 mt-6 px-5 py-2.5 sm:-mx-7 sm:-mb-7 sm:px-7"
-    >
-      <nav
-        id="pv-tab-bar"
-        role="tablist"
-        aria-label="Secciones del personaje"
-        class="rd-character-tabs hidden min-w-0"
-      ></nav>
-    </div>
+      dockId="pv-tab-dock"
+      barId="pv-tab-bar"
+      label="Secciones del personaje"
+    />
   </FichaHero>
 
   <FichaSkeleton showBar={false} leftSepId="pv-left-sep" leftSepHidden leftSepCls="mt-8">
@@ -336,7 +331,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       tabs: PERSONAJE_TABS,
       available,
       counts: tabCounts,
-      variant: 'character',
+      variant: 'ficha',
       dockId: 'pv-tab-dock',
       leftSepId: 'pv-left-sep',
     });

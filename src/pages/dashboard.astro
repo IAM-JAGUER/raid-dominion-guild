@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Navigation from "@/components/Navigation.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
+import FichaDock from "@/components/ui/FichaDock.astro";
 import Icon from "@/components/ui/Icon.astro";
 import { ui } from "@/lib/ui/design";
 import { PAGE_META } from "@/lib/seo";
@@ -86,20 +87,16 @@ const meta = PAGE_META['/dashboard'];
             >…</span
           >
         </div>
+        <FichaDock
+          slot="dock"
+          dockId="dashboard-tab-dock"
+          barId="tab-bar"
+          label="Secciones del panel"
+          bleedCls="-mx-4 -mb-5 sm:-mx-6 px-4 sm:px-6"
+        />
         </div>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       </header>
-
-      <!-- Pestañas (generadas desde src/lib/ui/tabs.ts = contrato único;
-           navegación con ←/→/Home/End; activación automática al enfocar) -->
-      <nav
-        id="tab-bar"
-        class={`${ui.zone.tabBar} mb-8 animate-fade-in-1`}
-        style="animation-delay: 0.15s"
-        role="tablist"
-        aria-label="Secciones del panel"
-      >
-      </nav>
 
       <!-- ── Resumen ─────────────────────────────────────────────────────── -->
 

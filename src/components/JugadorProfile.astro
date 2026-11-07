@@ -5,6 +5,7 @@ import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import StatusCard from '@/components/ui/StatusCard.astro';
 import Icon from '@/components/ui/Icon.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 import { ui } from '@/lib/ui/design';
 ---
@@ -50,13 +51,16 @@ import { ui } from '@/lib/ui/design';
         </div>
         <p id="profile-ref" class="hidden text-sm text-gray-300 mt-3"></p>
         <div id="profile-actions" class="flex flex-wrap justify-start gap-2 mt-3"></div>
+        <FichaDock
+          slot="dock"
+          dockId="jugador-tab-dock"
+          barId="profile-tab-bar"
+          label="Secciones del perfil"
+        />
       </FichaHero>
 
       <FichaSkeleton
-        barId="profile-tab-bar"
-        barLabel="Secciones del perfil"
-        barHidden
-        barCls="animate-fade-in-1"
+        showBar={false}
         leftSepId="jugador-left-sep"
         leftSepHidden
       >
@@ -315,9 +319,17 @@ import { ui } from '@/lib/ui/design';
     }
     const available: string[] = ['personajes'];
 
-    await renderPlayerBands(chars, available);
-    await renderPlayerGuilds(p.id, available);
-    initAvailableTabs({ barId: 'profile-tab-bar', tabs: JUGADOR_TABS, available, leftSepId: 'jugador-left-sep' });
+    const bandsCount = await renderPlayerBands(chars, available);
+    const guildsCount = await renderPlayerGuilds(p.id, available);
+    initAvailableTabs({
+      barId: 'profile-tab-bar',
+      tabs: JUGADOR_TABS,
+      available,
+      counts: { personajes: chars.length, bandas: bandsCount, hermandades: guildsCount },
+      variant: 'ficha',
+      dockId: 'jugador-tab-dock',
+      leftSepId: 'jugador-left-sep',
+    });
 
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');
     document.getElementById('profile')?.classList.remove('hidden');
@@ -327,7 +339,7 @@ import { ui } from '@/lib/ui/design';
   // cuenta (dedupe por nombre|horario) → /banda/:slug cuando existe slug. La
   // pestaña solo se genera si hay bandas (available). Usa el modelo compartido
   // /bandas (renderBandasPanel): filtro por día + día/hora agrupados 3×responsive.
-  async function renderPlayerBands(chars: CharacterRow[], available: string[]): Promise<void> {
+  async function renderPlayerBands(chars: CharacterRow[], available: string[]): Promise<number> {
     const seen = new Set<string>();
     const unique: PublicBandSummary[] = [];
     for (const c of chars) {
@@ -363,13 +375,14 @@ import { ui } from '@/lib/ui/design';
       });
       available.push('bandas');
     }
+    return unique.length;
   }
 
   // Panel "Hermandades": hermandades públicas donde el jugador es maestro.
-  async function renderPlayerGuilds(ownerId: string, available: string[]): Promise<void> {
+  async function renderPlayerGuilds(ownerId: string, available: string[]): Promise<number> {
     const res = await getPublicGuildsForPlayer(ownerId);
     const guilds = res.ok ? (res.guilds ?? []) : [];
-    if (guilds.length === 0) return;
+    if (guilds.length === 0) return 0;
 
     const list = document.getElementById('hermandades-list') as HTMLElement;
     const pager = document.getElementById('hermandades-pager') as HTMLElement | null;
@@ -416,6 +429,7 @@ import { ui } from '@/lib/ui/design';
         : 'No hay hermandades que coincidan con los filtros.',
     });
     available.push('hermandades');
+    return guilds.length;
   }
 
   function bandRow(b: PublicBandSummary, owner?: OwnerRef): HTMLElement {

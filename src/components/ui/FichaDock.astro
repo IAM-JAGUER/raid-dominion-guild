@@ -1,0 +1,44 @@
+---
+// Dock de secciones dentro de una placa de identidad (ficha de personaje,
+// jugador, banda, reino, portal de hermandad, dashboard y admin). Sustituye la
+// barra genérica bajo el encabezado: las pestañas pasan a vivir en el borde
+// inferior de la placa, con el acento de clase o del tono ceremonial.
+//
+// El nav se crea vacío; `initAvailableTabs`/`createTabBar` lo rellenan y el
+// consumidor decide cuándo quitar `hidden` (tras resolver datos o permisos).
+interface Props {
+  dockId: string;
+  barId: string;
+  label: string;
+  // Oculto hasta que el consumidor sepa si hay 2+ paneles.
+  hidden?: boolean;
+  // Márgenes negativos que igualan el padding de la placa contenedora.
+  bleedCls?: string;
+  barCls?: string;
+  class?: string;
+}
+
+const {
+  dockId,
+  barId,
+  label,
+  hidden = true,
+  bleedCls = '-mx-5 -mb-5 sm:-mx-7 sm:-mb-7 px-5 sm:px-7',
+  barCls = '',
+  class: extraCls = '',
+} = Astro.props;
+
+const dockCls = [
+  'rd-ficha-tab-dock relative z-10 mt-6 py-2.5',
+  bleedCls,
+  hidden ? 'hidden' : '',
+  extraCls,
+].filter(Boolean).join(' ');
+const navCls = `rd-ficha-tabs${hidden ? ' hidden' : ''} min-w-0 ${barCls}`.trim();
+---
+
+<div id={dockId} class={dockCls}>
+  <nav id={barId} role="tablist" aria-label={label} class={navCls}>
+    <slot />
+  </nav>
+</div>

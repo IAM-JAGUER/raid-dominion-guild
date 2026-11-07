@@ -183,7 +183,7 @@ export function resolveAdminHash(hash: string): { kind: 'list' } | { kind: 'user
 // deep-link por hash y navegación ARIA (flechas/Home/End). Es el mismo patrón
 // visual que la barra del dashboard (tab-btn + rounded-t-lg).
 
-export type TabBarVariant = 'default' | 'character';
+export type TabBarVariant = 'default' | 'ficha';
 
 export type TabActivateSource = 'click' | 'keyboard' | 'hash' | 'api';
 
@@ -191,11 +191,11 @@ export interface TabBarConfig {
   tabs: TabDef[];
   barId: string;
   defaultId: string;
-  // `character` dibuja el dock integrado de la ficha de personaje (icono en
-  // medallón, contador y acento de clase); `default` conserva la barra
-  // genérica de dashboard/portal/banda.
+  // `ficha` dibuja el dock integrado en la placa de identidad (icono en
+  // medallón, contador y acento de clase/tono); `default` conserva la barra
+  // genérica de dashboard/admin.
   variant?: TabBarVariant;
-  // Contadores opcionales por tab (solo se pintan en la variante character).
+  // Contadores opcionales por tab (solo se pintan en la variante ficha).
   counts?: Record<string, number | undefined>;
   // Etiquetas visibles por tab cuando el contexto cambia el nombre (p. ej.
   // Miembros → Jerarquía si el roster es privado). El id/hash no cambia.
@@ -233,9 +233,9 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     return { activate: () => undefined, deactivate: () => undefined };
   }
 
-  const isCharacter = config.variant === 'character';
-  const tabBtnCls = config.btnCls ?? (isCharacter
-    ? 'rd-character-tab'
+  const isDock = config.variant === 'ficha';
+  const tabBtnCls = config.btnCls ?? (isDock
+    ? 'rd-ficha-tab'
     : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400');
   const inactiveClasses = (config.inactiveCls ?? 'text-gray-300').split(/\s+/).filter(Boolean);
   const panelId = (tab: TabDef): string => config.panelIds?.[tab.id] ?? `panel-${tab.id}`;
@@ -253,9 +253,9 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     // En la ficha de personaje el arte vive en un medallón de clase; en el
     // resto se usa el icono suelto de densidad `md` (design.md §10/§12).
     if (t.icon) {
-      if (isCharacter) {
+      if (isDock) {
         const iconWrap = document.createElement('span');
-        iconWrap.className = 'rd-character-tab__icon';
+        iconWrap.className = 'rd-ficha-tab__icon';
         iconWrap.appendChild(iconEl(t.icon, { size: 'sm' }));
         btn.appendChild(iconWrap);
       } else {
@@ -265,9 +265,9 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     }
     btn.appendChild(document.createTextNode(label));
     const count = config.counts?.[t.id];
-    if (isCharacter && typeof count === 'number' && count > 0) {
+    if (isDock && typeof count === 'number' && count > 0) {
       const countEl = document.createElement('span');
-      countEl.className = 'rd-character-tab__count';
+      countEl.className = 'rd-ficha-tab__count';
       countEl.textContent = String(count);
       countEl.setAttribute('aria-hidden', 'true');
       btn.setAttribute('aria-label', `${label} (${count})`);
@@ -276,6 +276,9 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     bar.appendChild(btn);
     return btn;
   });
+  // 5+ secciones: mantener scroll horizontal en móvil; con 2-4 conviene
+  // envolver en dos filas para que ninguna pestaña quede oculta.
+  if (isDock) bar.classList.toggle('rd-ficha-tabs--many', buttons.length > 4);
 
   const activate = (name: string, updateHash = true, source: TabActivateSource = 'api'): void => {
     const valid = config.tabs.some((t) => t.id === name);
@@ -284,7 +287,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
       const active = b.dataset.tab === target;
       b.setAttribute('aria-selected', String(active));
       b.tabIndex = active ? 0 : -1;
-      if (!isCharacter) {
+      if (!isDock) {
         // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
         b.classList.toggle('border-brand-400', active);
         b.classList.toggle('text-brand-200', active);
@@ -312,7 +315,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     buttons.forEach((b) => {
       b.setAttribute('aria-selected', 'false');
       b.tabIndex = -1;
-      if (!isCharacter) {
+      if (!isDock) {
         b.classList.remove('border-brand-400', 'text-brand-200');
         b.classList.add('border-transparent', ...inactiveClasses);
       }

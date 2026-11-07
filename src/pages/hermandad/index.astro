@@ -13,6 +13,7 @@ import EmptyState from '@/components/ui/EmptyState.astro';
 import Icon from '@/components/ui/Icon.astro';
 import StatusCard from '@/components/ui/StatusCard.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
 
@@ -76,6 +77,12 @@ const meta = PAGE_META['/hermandad'];
           <p id="guild-description" class={`${ui.text.body} max-w-md leading-relaxed mt-3`}></p>
           <div id="guild-meta" class="flex flex-wrap gap-2 mt-4"></div>
           <p id="snapshot-updated" class={`hidden mt-3 italic ${ui.text.caption}`}></p>
+          <FichaDock
+            slot="dock"
+            dockId="portal-tab-dock"
+            barId="portal-tab-bar"
+            label="Secciones del portal"
+          />
         </FichaHero>
 
         <!-- Esqueleto de página (modelo dashboard): separador central +
@@ -86,7 +93,6 @@ const meta = PAGE_META['/hermandad'];
 
         <!-- Pestañas: Miembros · Bandas · Reglas -->
         <div id="portal-tabs" data-rd-reveal class="hidden">
-          <nav id="portal-tab-bar" role="tablist" aria-label="Secciones del portal" class={`${ui.zone.tabBar} mt-8 animate-fade-in-1`} style="animation-delay: 0.15s"></nav>
 
           <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
@@ -263,7 +269,7 @@ const meta = PAGE_META['/hermandad'];
   import { setBreadcrumb } from '@/lib/ui/dom';
   import { setPageMeta } from '@/lib/seo';
   import { iconEl, type IconName } from '@/lib/ui/icons';
-  import { createTabBar, PORTAL_TABS, tabFromHash } from '@/lib/ui/tabs';
+  import { createTabBar, PORTAL_TABS } from '@/lib/ui/tabs';
   import { mergeBandPlayers } from '@/lib/bandMerge';
   import { shareLinkButton } from '@/lib/ui/share';
   import { type Facet } from '@/lib/ui/filterBar';
@@ -749,53 +755,23 @@ const meta = PAGE_META['/hermandad'];
           document.getElementById('bandas-empty')?.classList.remove('hidden');
         }
 
-        // Barra de pestañas (deep-link por hash #miembros/#bandas/#reglas).
-        // Las cifras viven en el encabezado (chips en #guild-meta), no en los tabs.
-        // Cifras del encabezado (chips de Miembros/Bandas/Reglas): grupo
-        // segmentado unificado (1px de separador vía gap-px con el fondo del
-        // contenedor) que enlaza a cada tab por hash (#miembros/#bandas/#reglas).
-        // Orden y textos salen SOLO de PORTAL_TABS (contrato único de tabs).
-        const metaEl = document.getElementById('guild-meta') as HTMLElement;
-        const metaChips: Record<string, HTMLAnchorElement> = {};
-        const metaGroup = document.createElement('div');
-        metaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-brand-500/40 bg-brand-600/20 overflow-hidden';
-        PORTAL_TABS.forEach((t) => {
-          const n = t.id === 'miembros' ? members.length : t.id === 'bandas' ? merged.length : rules.length;
-          const chip = document.createElement('a');
-          chip.href = t.href;
-          chip.className = 'px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-300';
-          const chipLabel = t.id === 'miembros' && !memberCountPublic ? 'Jerarquía' : t.label;
-          chip.textContent = t.id === 'miembros' && !memberCountPublic ? chipLabel : `${chipLabel} · ${n}`;
-          metaGroup.appendChild(chip);
-          metaChips[t.id] = chip;
-        });
-        metaEl.appendChild(metaGroup);
-
-        // Ilumina el chip correspondiente a la tab activa (hash); falla a la
-        // tab por defecto igual que createTabBar. Se re-sincroniza al navegar
-        // por hash o al pulsar un botón de la barra (activate usa replaceState,
-        // que no dispara hashchange).
-        const syncMetaChips = (): void => {
-          let active = tabFromHash(window.location.hash);
-          if (!metaChips[active]) active = 'miembros';
-          Object.entries(metaChips).forEach(([id, chip]) => {
-            const on = id === active;
-            chip.classList.toggle('bg-brand-500/20', on);
-            chip.classList.toggle('text-brand-200', on);
-            chip.classList.toggle('text-gray-300', !on);
-            if (on) chip.setAttribute('aria-current', 'page');
-            else chip.removeAttribute('aria-current');
-          });
-        };
+        // Dock de secciones dentro de la placa (deep-link #miembros/#bandas/
+        // #reglas). Los contadores y el renombrado Miembros→Jerarquía viven
+        // en el propio dock, como en la ficha de personaje.
+        document.getElementById('portal-tab-dock')?.classList.remove('hidden');
+        document.getElementById('portal-tab-bar')?.classList.remove('hidden');
         createTabBar({
           tabs: PORTAL_TABS,
           barId: 'portal-tab-bar',
           defaultId: 'miembros',
+          variant: 'ficha',
+          counts: {
+            miembros: memberCountPublic ? members.length : undefined,
+            bandas: merged.length,
+            reglas: rules.length,
+          },
           labels: memberCountPublic ? undefined : { miembros: 'Jerarquía' },
         });
-        syncMetaChips();
-        window.addEventListener('hashchange', syncMetaChips);
-        document.getElementById('portal-tab-bar')?.addEventListener('click', syncMetaChips);
       }
     }
   }

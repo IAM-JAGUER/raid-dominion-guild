@@ -8,6 +8,7 @@
 import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 ---
 <section id="view-banda" class="hidden">
@@ -18,9 +19,16 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
     </div>
     <div id="bv-meta" class="flex flex-wrap gap-2 mt-4"></div>
     <div id="bv-actions" class="flex flex-wrap gap-2 mt-3"></div>
+    <FichaDock
+      slot="dock"
+      dockId="band-tab-dock"
+      barId="band-tab-bar"
+      label="Secciones de la banda"
+      hidden={false}
+    />
   </FichaHero>
 
-  <FichaSkeleton barId="band-tab-bar" barLabel="Secciones de la banda" showLeftSep={false}>
+  <FichaSkeleton showBar={false} showLeftSep={false}>
   <div id="panel-core" role="tabpanel" aria-labelledby="tab-core" class="space-y-6">
     <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
          cabecera contigua (título + controles de filtro) + cuerpo con el
@@ -59,7 +67,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
   import { setPageMeta } from '@/lib/seo';
   import { renderBandCore, coreRoleGroup, CORE_ROLE_LABELS } from '@/lib/ui/preview';
   import { classIconEl } from '@/lib/ui/classIcon';
-  import { createTabBar, BAND_TABS, tabFromHash } from '@/lib/ui/tabs';
+  import { createTabBar, BAND_TABS } from '@/lib/ui/tabs';
   import { ui } from '@/lib/ui/design';
   import { el, iconChip, setBreadcrumb } from '@/lib/ui/dom';
   import { iconEl } from '@/lib/ui/icons';
@@ -335,50 +343,18 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       });
     }
 
-    // Conteos del encabezado (chips de Core/Reglas): grupo segmentado unificado
-    // que enlaza a cada tab por hash (#core/#reglas), igual que la vista de
-    // hermandad (#guild-meta). Los jugadores ocultos no exponen su cifra.
-    const tabMetaChips: Record<string, HTMLAnchorElement> = {};
-    const tabMetaGroup = document.createElement('div');
-    tabMetaGroup.className = 'inline-flex flex-wrap gap-px rounded-md border border-brand-500/40 bg-brand-600/20 overflow-hidden';
-    BAND_TABS.forEach((t) => {
-      const n = t.id === 'core' ? (band.hide_players && !isOwner ? null : players.length) : rules.length;
-      if (n === null) return;
-      const chip = document.createElement('a');
-      chip.href = t.href;
-      chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest transition-all duration-150 bg-gradient-to-b from-brand-900/90 to-brand-950/90 hover:from-brand-900/50 hover:to-brand-950/50 hover:text-brand-200 text-gray-300';
-      if (t.icon) chip.appendChild(iconEl(t.icon, { size: 'xs' }));
-      chip.appendChild(document.createTextNode(`${t.label} · ${n}`));
-      tabMetaGroup.appendChild(chip);
-      tabMetaChips[t.id] = chip;
-    });
-    meta.appendChild(tabMetaGroup);
-
-    // Barra de pestañas Core/Reglas (deep-link #core/#reglas). Los conteos
-    // viven en los chips del encabezado, no en los tabs.
+    // Dock Core/Reglas dentro de la placa (deep-link #core/#reglas). Los
+    // contadores viven en el propio dock, como en la ficha de personaje.
     createTabBar({
       tabs: BAND_TABS,
       barId: 'band-tab-bar',
       defaultId: 'core',
+      variant: 'ficha',
+      counts: {
+        core: band.hide_players && !isOwner ? undefined : players.length,
+        reglas: rules.length,
+      },
     });
-
-    // Ilumina el chip del tab activo (hash); se re-sincroniza al navegar por
-    // hash o al pulsar un botón de la barra (activate usa replaceState).
-    const syncTabMetaChips = (): void => {
-      let active = tabFromHash(window.location.hash);
-      if (!tabMetaChips[active]) active = 'core';
-      Object.entries(tabMetaChips).forEach(([id, chip]) => {
-        const on = id === active;
-        chip.classList.toggle('bg-brand-500/20', on);
-        chip.classList.toggle('text-brand-200', on);
-        chip.classList.toggle('text-gray-300', !on);
-        if (on) chip.setAttribute('aria-current', 'page');
-        else chip.removeAttribute('aria-current');
-      });
-    };
-    syncTabMetaChips();
-    window.addEventListener('hashchange', syncTabMetaChips);
-    document.getElementById('band-tab-bar')?.addEventListener('click', syncTabMetaChips);
 
     showView('view-banda');
   }

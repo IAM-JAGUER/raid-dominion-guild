@@ -790,18 +790,20 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   DOCK DE SECCIONES DE LA FICHA DE PERSONAJE (2026-11-04)
-   Las pestañas de Equipamiento/Metas/Notas/Bandas/Hermandad viven dentro de
-   la placa de identidad, no en una barra genérica debajo del encabezado.
-   El acento es el color de clase; el dock solo aparece con 2+ paneles.
+   DOCK DE SECCIONES DE FICHA (2026-11-04; generalizado 2026-11-06)
+   Las pestañas de la ficha viven dentro de la placa de identidad, no en una
+   barra genérica debajo del encabezado. El acento es el color de clase del
+   personaje o el tono ceremonial de la ficha (ember/valor/arcane); el dock
+   solo aparece con 2+ paneles.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.rd-character-tab-dock {
+.rd-ficha-tab-dock {
+  --rd-dock-accent: var(--class-color, var(--rd-tone-400, var(--accent-primary)));
   position: relative;
   border-top: 1px solid rgba(92, 169, 232, 0.14);
-  background: linear-gradient(180deg, var(--class-tint, transparent), rgba(7, 17, 30, 0.62));
+  background: linear-gradient(180deg, var(--class-tint, var(--rd-tone-soft, transparent)), rgba(7, 17, 30, 0.62));
 }
-.rd-character-tab-dock::before {
+.rd-ficha-tab-dock::before {
   content: "";
   position: absolute;
   inset: -1px 0 auto 0;
@@ -809,14 +811,14 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--class-color, var(--accent-primary)) 18%,
-    var(--class-color, var(--accent-primary)) 82%,
+    var(--rd-dock-accent) 18%,
+    var(--rd-dock-accent) 82%,
     transparent
   );
   opacity: 0.55;
   pointer-events: none;
 }
-.rd-character-tabs {
+.rd-ficha-tabs {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -824,11 +826,13 @@
   overflow-x: auto;
   scrollbar-width: none;
 }
-.rd-character-tabs::-webkit-scrollbar {
+.rd-ficha-tabs::-webkit-scrollbar {
   display: none;
 }
 
-.rd-character-tab {
+
+
+.rd-ficha-tab {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -846,21 +850,21 @@
   white-space: nowrap;
   transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease;
 }
-.rd-character-tab:hover {
+.rd-ficha-tab:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(92, 169, 232, 0.18);
 }
-.rd-character-tab:focus-visible {
+.rd-ficha-tab:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(92, 169, 232, 0.55);
 }
-.rd-character-tab[aria-selected="true"] {
+.rd-ficha-tab[aria-selected="true"] {
   color: #fff;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
   border-color: rgba(92, 169, 232, 0.22);
 }
-.rd-character-tab[aria-selected="true"]::after {
+.rd-ficha-tab[aria-selected="true"]::after {
   content: "";
   position: absolute;
   left: 0.6rem;
@@ -868,10 +872,10 @@
   bottom: 0;
   height: 2px;
   border-radius: 9999px;
-  background: var(--class-color, var(--accent-primary));
-  box-shadow: 0 0 10px var(--class-color, var(--accent-primary));
+  background: var(--rd-dock-accent);
+  box-shadow: 0 0 10px var(--rd-dock-accent);
 }
-.rd-character-tab__icon {
+.rd-ficha-tab__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -882,12 +886,12 @@
   background: rgba(7, 17, 30, 0.45);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-.rd-character-tab[aria-selected="true"] .rd-character-tab__icon {
-  border-color: var(--class-color, var(--accent-primary));
+.rd-ficha-tab[aria-selected="true"] .rd-ficha-tab__icon {
+  border-color: var(--rd-dock-accent);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(7, 17, 30, 0.35));
-  box-shadow: 0 0 14px -6px var(--class-color, var(--accent-primary));
+  box-shadow: 0 0 14px -6px var(--rd-dock-accent);
 }
-.rd-character-tab__count {
+.rd-ficha-tab__count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -903,11 +907,49 @@
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
-.rd-character-tab[aria-selected="true"] .rd-character-tab__count {
-  border-color: var(--class-color, var(--accent-primary));
-  color: var(--class-color, var(--accent-primary));
+.rd-ficha-tab[aria-selected="true"] .rd-ficha-tab__count {
+  border-color: var(--rd-dock-accent);
+  color: var(--rd-dock-accent);
 }
 
+/* En móvil el dock puede envolver: con 3+ secciones, ocultar tabs tras un
+   scroll horizontal sin affordance las vuelve difíciles de descubrir. */
+@media (max-width: 640px) {
+  /* 2-4 secciones: rejilla de dos columnas, sin tabs ocultos. */
+  .rd-ficha-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    overflow: visible;
+  }
+  .rd-ficha-tab {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 11px;
+  }
+  /* 5+ secciones: se conserva el scroll horizontal del dock. */
+  .rd-ficha-tabs--many {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .rd-ficha-tabs--many .rd-ficha-tab {
+    width: auto;
+    flex: 0 0 auto;
+  }
+  .rd-ficha-tab__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .rd-ficha-tab__count {
+    min-width: 1rem;
+    height: 1rem;
+    font-size: 11px;
+  }
+}
 /* ═══════════════════════════════════════════════════════════════════════════
    TONOS CEREMONIALES · PALETA V2 (2026-11-04)
    Familias de color por contexto (bronce, ascuas, arcano, pergamino) sobre
@@ -1228,7 +1270,7 @@
   .rd-class-hover,
   .rd-beast-gauge__fill,
   .rd-beast-gauge__tip,
-  .rd-character-tab {
+  .rd-ficha-tab {
     transition: none;
     transform: none;
   }

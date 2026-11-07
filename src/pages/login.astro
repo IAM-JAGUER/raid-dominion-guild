@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import Icon from '@/components/ui/Icon.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
 
@@ -39,23 +40,28 @@ const meta = PAGE_META['/login'];
           <span id="form-title">Iniciar Sesión</span>
         </h1>
         <p class={`${ui.text.bodyMuted} mt-2 italic`}>Tu espacio en la comunidad de RaidDominion.</p>
+        <FichaDock
+          dockId="login-tab-dock"
+          barId="login-tab-bar"
+          label="Modo de acceso"
+          hidden={false}
+          bleedCls="-mx-6 -mb-6 px-6"
+          barCls="justify-center"
+        >
+          <button id="tab-signin" type="button" role="tab" aria-selected="true" aria-controls="auth-form" tabindex="0" class="rd-ficha-tab">
+            <span class="rd-ficha-tab__icon"><Icon name="portal" size="sm" /></span>
+            Ingresar
+          </button>
+          <button id="tab-signup" type="button" role="tab" aria-selected="false" aria-controls="auth-form" tabindex="-1" class="rd-ficha-tab">
+            <span class="rd-ficha-tab__icon"><Icon name="anadir" size="sm" /></span>
+            Crear cuenta
+          </button>
+        </FichaDock>
       </header>
       <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       <div class={`${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
 
       <section id="auth-panel" class={`${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
-        <!-- Alternancia de modo -->
-        <div class="grid grid-cols-2 border-b border-brand-600/20" role="tablist" aria-label="Modo de acceso">
-          <button id="tab-signin" type="button" role="tab" aria-selected="true"
-            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-brand-400 text-brand-200 bg-brand-900/20`}>
-            <span class="inline-flex items-center gap-1.5"><Icon name="portal" size="sm" />Ingresar</span>
-          </button>
-          <button id="tab-signup" type="button" role="tab" aria-selected="false"
-            class={`px-4 py-3 text-xs font-black uppercase tracking-widest ${ui.transition} border-b-2 border-transparent text-gray-300 hover:text-gray-200`}>
-            <span class="inline-flex items-center gap-1.5"><Icon name="anadir" size="sm" />Crear cuenta</span>
-          </button>
-        </div>
-
         <form id="auth-form" class="p-4 sm:p-6 space-y-4" novalidate>
 <!-- Correo -->
           <div>
@@ -207,11 +213,9 @@ const meta = PAGE_META['/login'];
 
     tabSignin.setAttribute('aria-selected', String(mode === 'signin'));
     tabSignup.setAttribute('aria-selected', String(mode === 'signup'));
-    const on = ['border-brand-400', 'text-brand-200', 'bg-brand-900/20'];
-    const off = ['border-transparent', 'text-gray-300'];
+    tabSignin.tabIndex = mode === 'signin' ? 0 : -1;
+    tabSignup.tabIndex = mode === 'signup' ? 0 : -1;
     if (mode === 'signin') {
-      tabSignin.classList.add(...on); tabSignin.classList.remove(...off);
-      tabSignup.classList.remove(...on); tabSignup.classList.add(...off);
       formTitle.textContent = 'Iniciar Sesión';
       submitLabel.textContent = 'Entrar';
       passwordInput.setAttribute('autocomplete', 'current-password');
@@ -219,8 +223,6 @@ const meta = PAGE_META['/login'];
       passChecklist.classList.add('hidden');
       forgotLink.classList.remove('hidden');
     } else {
-      tabSignup.classList.add(...on); tabSignup.classList.remove(...off);
-      tabSignin.classList.remove(...on); tabSignin.classList.add(...off);
       formTitle.textContent = 'Crear Cuenta';
       submitLabel.textContent = 'Crear mi cuenta';
       passwordInput.setAttribute('autocomplete', 'new-password');
@@ -302,6 +304,18 @@ const meta = PAGE_META['/login'];
   });
   tabSignin.addEventListener('click', () => { submitLabel.parentElement?.classList.remove('hidden'); setMode('signin'); });
   tabSignup.addEventListener('click', () => { submitLabel.parentElement?.classList.remove('hidden'); setMode('signup'); });
+
+  // Navegación por teclado del dock de acceso (←/→/Home/End).
+  [tabSignin, tabSignup].forEach((tab) => {
+    tab.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      e.preventDefault();
+      const target = e.key === 'ArrowRight' || e.key === 'End' ? tabSignup : tabSignin;
+      submitLabel.parentElement?.classList.remove('hidden');
+      setMode(target === tabSignin ? 'signin' : 'signup');
+      target.focus();
+    });
+  });
 
   resetSend.addEventListener('click', async () => {
     const email = emailInput.value.trim();

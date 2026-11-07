@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import StatusCard from '@/components/ui/StatusCard.astro';
+import FichaDock from '@/components/ui/FichaDock.astro';
 import Icon from '@/components/ui/Icon.astro';
 import { ui } from '@/lib/ui/design';
 import { PAGE_META } from '@/lib/seo';
@@ -41,13 +42,17 @@ const meta = PAGE_META['/admin'];
             <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
             <h1 class={`${ui.text.hero} ${ui.titleHero} ${ui.toneTitle}`}>Administración</h1>
             <p class={`${ui.text.bodyMuted} italic mt-2`}>Gestión de usuarios y roles. El acceso inicial lo configura el equipo de administración.</p>
+            <FichaDock
+              slot="dock"
+              dockId="admin-tab-dock"
+              barId="admin-tabs"
+              label="Secciones de administración"
+              bleedCls="-mx-6 -mb-5 px-6"
+            />
           </div>
         </header>
         <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
-        <!-- Pestañas de sección (Usuarios · Discord): barra del esqueleto de
-             página (rd-tabbar) con su separador interno izquierdo. -->
-        <div id="admin-tabs" role="tablist" aria-label="Secciones de administración" class={`${ui.zone.tabBar} mb-8 animate-fade-in-1`}></div>
 
         <!-- Vista: Discord (mercadeo automático) -->
         <div id="view-discord" data-rd-reveal class="hidden space-y-8">
@@ -305,14 +310,16 @@ const meta = PAGE_META['/admin'];
       tabs: ADMIN_TABS,
       barId: 'admin-tabs',
       defaultId: ADMIN_PANELS.LIST,
+      variant: 'ficha',
       managePanels: false,
       syncHash: false,
-      inactiveCls: 'text-gray-400',
       ariaControls: (t) => (t.id === 'discord' ? 'view-discord' : 'view-list'),
       onActivate: (_id, source) => {
         if (source === 'click' || source === 'keyboard') route();
       },
     });
+    document.getElementById('admin-tab-dock')?.classList.remove('hidden');
+    document.getElementById('admin-tabs')?.classList.remove('hidden');
   }
 
   // ── Routing por hash (#lista / #discord / #usuario/<id>) ────────────────

@@ -423,15 +423,12 @@
     // labels y hashes salen SOLO de ahí. La configuración (#cuenta) NO es un
     // tab: se abre con el engranaje y se resuelve fuera de la barra.
     const panels = DASHBOARD_TABS.map((t) => t.id);
-    const tabBtnCls =
-      "tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 hover:text-brand-200";
 
     const tabs = createTabBar({
       tabs: DASHBOARD_TABS,
       barId: "tab-bar",
       defaultId: panels[0],
-      btnCls: tabBtnCls,
-      inactiveCls: "text-gray-400",
+      variant: "ficha",
       hidePanels: [`panel-${DASHBOARD_CONFIG.id}`],
       resolveHash: (hash) => {
         let id = tabFromHash(hash);
@@ -450,6 +447,8 @@
         return panels.includes(target) ? target : panels[0];
       },
     });
+    document.getElementById("dashboard-tab-dock")?.classList.remove("hidden");
+    document.getElementById("tab-bar")?.classList.remove("hidden");
 
     // "Pestaña oculta" de configuración (seguridad y zona de peligro): desactiva
     // la barra y muestra SOLO su panel. Se abre desde el engranaje del
