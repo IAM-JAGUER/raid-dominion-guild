@@ -16,6 +16,7 @@ import { racePortraitEl } from '@/lib/ui/racePortrait';
 import { applyClassAccent, classGauge, itemRow } from '@/lib/ui/card';
 import { TRACKER_FICHA_TABS } from '@/lib/ui/tabs';
 import { ui } from '@/lib/ui/design';
+import { badgeEl, type BadgeTone } from '@/lib/ui/badges';
 import { el } from '@/lib/ui/dom';
 import { formatMoney, fmtEpoch, formatRemaining } from '@/lib/ui/dashboard/format';
 import type { TrackerCharacter } from '@/lib/ui/dashboard/trackerLogic';
@@ -142,22 +143,22 @@ function bandRow(band: BandRow, character: TrackerCharacter): HTMLElement {
   else bandTitle.textContent = bandName.label;
   head.appendChild(bandTitle);
   head.appendChild(bandDetailCta(band.slug, band.name));
-  if (member?.leader) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-brand-200 bg-brand-950/60 border-brand-600/30`, 'Líder'));
-  if (member?.banned) head.appendChild(el('span', `${ui.badge} ${ui.badgeSm} text-red-300 bg-red-950/30 border-red-600/40`, 'Baneado'));
+  if (member?.leader) head.appendChild(badgeEl({ icon: 'corona', label: 'Líder', tone: 'gold', size: 'sm' }));
+  if (member?.banned) head.appendChild(badgeEl({ icon: 'bloqueo-alt', label: 'Baneado', tone: 'danger', size: 'sm' }));
   row.appendChild(head);
 
   const tags = el('div', 'flex flex-wrap gap-1.5 mt-2');
-  const add = (text: string, cls = 'text-gray-300 border-brand-700/40'): void => {
-    tags.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border bg-brand-950/50 ${cls}`, text));
+  const add = (text: string, tone: BadgeTone = 'neutral'): void => {
+    tags.appendChild(badgeEl({ label: text, tone, size: 'sm' }));
   };
-  if (member?.role) add(roleLabel(String(member.role)));
+  if (member?.role) add(roleLabel(String(member.role)), 'steel');
   if (member?.dual) add(`Dual ${String(member.dual)}`);
-  if (band.schedule) add(band.schedule);
-  if (typeof band.min_gs === 'number' && band.min_gs > 0) add(`GS ${band.min_gs}`);
+  if (band.schedule) add(band.schedule, 'steel');
+  if (typeof band.min_gs === 'number' && band.min_gs > 0) add(`GS ${band.min_gs}`, 'gold');
   if (typeof member?.points === 'number') add(`${member.points} pts`);
-  if (member?.sanction) add(String(member.sanction), 'text-red-300 border-red-600/40');
-  if (member?.notes) add(String(member.notes));
-  if (band.integration_status === 'approved') add('Integrada', 'text-emerald-300 border-emerald-600/40');
+  if (member?.sanction) add(String(member.sanction), 'danger');
+  if (member?.notes) add(String(member.notes), 'info');
+  if (band.integration_status === 'approved') add('Integrada', 'success');
   if (tags.children.length > 0) row.appendChild(tags);
   return row;
 }
@@ -342,7 +343,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
         valueEl = el(
           'span',
           remaining <= 0
-            ? 'shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-300'
+            ? 'shrink-0 text-[11px] font-black uppercase tracking-widest text-emerald-300'
             : `${ui.statValue} ${ui.item.value}`,
           remaining <= 0 ? 'Reiniciado' : formatRemaining(remaining),
         );
@@ -400,7 +401,7 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
     notas.appendChild(el('p', 'text-xs text-gray-300 italic', 'Sin nota del juego. Se escribe en el addon y se sincroniza al subir el archivo.'));
   }
   const notePublic = document.createElement('label');
-  notePublic.className = `mt-2 flex items-center gap-2 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${gameNote ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
+  notePublic.className = `mt-2 flex items-center gap-2 select-none text-[11px] font-black uppercase tracking-widest text-gray-300 ${gameNote ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
   const noteCheck = document.createElement('input');
   noteCheck.type = 'checkbox';
   noteCheck.checked = c.notes_public;
@@ -463,7 +464,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
 
   const controls = el('div', 'flex flex-wrap items-center gap-2');
   const hiddenLabel = document.createElement('label');
-  hiddenLabel.className = 'flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 cursor-pointer';
+  hiddenLabel.className = 'flex items-center gap-1.5 select-none text-[11px] font-black uppercase tracking-widest text-gray-300 cursor-pointer';
   hiddenLabel.title = 'Oculta este personaje de tu lista del tracker (no afecta su visibilidad pública).';
   const hiddenCheck = document.createElement('input');
   hiddenCheck.type = 'checkbox';
@@ -479,7 +480,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
   hiddenLabel.append(hiddenCheck, document.createTextNode('Oculto del tracker'));
 
   const publicLabel = document.createElement('label');
-  publicLabel.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${ctx.handlers.canPublish ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
+  publicLabel.className = `flex items-center gap-1.5 select-none text-[11px] font-black uppercase tracking-widest text-gray-300 ${ctx.handlers.canPublish ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`;
   publicLabel.title = ctx.handlers.canPublish ? 'Visible en el directorio público.' : 'Requiere cuenta Miembro validada (2+ personajes).';
   const publicCheck = document.createElement('input');
   publicCheck.type = 'checkbox';
@@ -497,7 +498,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
 
   const back = document.createElement('button');
   back.type = 'button';
-  back.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`;
+  back.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[11px] font-black uppercase tracking-widest`;
   back.textContent = '← Volver a la lista';
   back.addEventListener('click', () => ctx.handlers.onClose());
 
@@ -530,7 +531,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
     ctx.handlers.onTabChange?.(valid);
   };
 
-  const tabBtnCls = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-3 py-2 text-[10px] font-black uppercase tracking-widest border-b-2 rounded-t-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 inline-flex items-center gap-1.5';
+  const tabBtnCls = 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-3 py-2 text-[11px] font-black uppercase tracking-widest border-b-2 rounded-t-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 inline-flex items-center gap-1.5';
   TRACKER_FICHA_TABS.forEach((tab) => {
     const btn = document.createElement('button');
     btn.type = 'button';

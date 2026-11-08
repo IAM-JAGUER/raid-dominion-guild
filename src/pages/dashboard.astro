@@ -4,6 +4,9 @@ import Navigation from "@/components/Navigation.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
 import FichaDock from "@/components/ui/FichaDock.astro";
+import AccountSheet from "@/components/ui/AccountSheet.astro";
+import Badge from "@/components/ui/Badge.astro";
+import StatBadge from "@/components/ui/StatBadge.astro";
 import Icon from "@/components/ui/Icon.astro";
 import { ui } from "@/lib/ui/design";
 import { PAGE_META } from "@/lib/seo";
@@ -23,11 +26,9 @@ const meta = PAGE_META['/dashboard'];
     <div class="max-w-6xl mx-auto">
       <Breadcrumb />
 
-      <!-- Encabezado del espacio personal: mobile-first, alineado a la izquierda,
-           compacto (avatar + identidad + acciones en una fila; badges debajo) -->
-      <header class="mb-8 animate-fade-in-1">
-        <div class={`relative px-4 sm:px-6 py-5 ${ui.plaque}`}>
-        <span class={ui.cardTop} aria-hidden="true"></span>
+      <!-- Ficha de cuenta: identidad + dock + cuerpo en una sola superficie. -->
+      <AccountSheet ariaLabelledby="account-title">
+        <div slot="identity">
         <div class="flex items-start gap-4">
           <div
             id="avatar"
@@ -52,7 +53,7 @@ const meta = PAGE_META['/dashboard'];
           <div class="flex items-center gap-1.5 shrink-0">
             <a
               href="/upload"
-              class={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-[11px] font-black uppercase tracking-widest border bg-brand-900/40 border-brand-500/40 text-brand-300 hover:bg-brand-800/50 hover:border-brand-400/70 ${ui.transition} ${ui.focusRing}`}
+              class={`${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-xs font-bold uppercase tracking-wider`}
               title="Sube el archivo del addon"
               aria-label="Sube el archivo del addon"
             >
@@ -62,30 +63,22 @@ const meta = PAGE_META['/dashboard'];
             <button
               type="button"
               id="config-btn"
-              class={`inline-flex items-center justify-center w-9 h-9 rounded-md text-[11px] font-black uppercase tracking-widest border bg-brand-800/70 border-gray-600 text-gray-300 hover:text-brand-200 hover:border-brand-500/50 ${ui.transition} ${ui.focusRing}`}
+              class={`${ui.btnBase} ${ui.btnGhost} w-9 h-9 border border-brand-600/50`}
+              aria-controls="panel-cuenta"
+              aria-expanded="false"
               aria-label="Configuración de perfil, seguridad y zona de peligro"
               title="Configuración de perfil, seguridad y zona de peligro"
+              aria-pressed="false"
             >
               <Icon name="engranajes" size="sm" />
             </button>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-1.5 mt-3">
-          <span
-            id="role-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-300`}
-            >…</span
-          >
-          <span
-            id="validated-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-400`}
-            >…</span
-          >
-          <span
-            id="public-badge"
-            class={`${ui.badge} ${ui.badgeMd} bg-brand-800/70 border-gray-600 text-gray-400`}
-            >…</span
-          >
+          <Badge id="role-badge" icon="visibilidad" label="…" tone="neutral" ariaLive="polite" />
+          <Badge id="validated-badge" icon="reloj" label="…" tone="neutral" ariaLive="polite" />
+          <Badge id="public-badge" icon="bloqueo-alt" label="…" tone="neutral" ariaLive="polite" />
+        </div>
         </div>
         <FichaDock
           slot="dock"
@@ -94,8 +87,6 @@ const meta = PAGE_META['/dashboard'];
           label="Secciones del panel"
           bleedCls="-mx-4 -mb-5 sm:-mx-6 px-4 sm:px-6"
         />
-        </div>
-      </header>
 
       <!-- ── Resumen ─────────────────────────────────────────────────────── -->
 
@@ -104,11 +95,12 @@ const meta = PAGE_META['/dashboard'];
         id="panel-registro"
         role="tabpanel"
         aria-labelledby="tab-registro"
-        class="hidden space-y-8"
+        class={`hidden ${ui.dashboard.zone}`}
       >
         <!-- Estado vacío -->
         <EmptyState
           id="registro-empty"
+          variant="plain"
           hidden
           icon="subir"
           title="Aún no has subido el archivo del addon"
@@ -134,7 +126,7 @@ const meta = PAGE_META['/dashboard'];
           </div>
         </EmptyState>
 
-        <div id="registro-main" data-rd-reveal class="hidden space-y-8">
+        <div id="registro-main" data-rd-reveal class={`hidden ${ui.dashboard.zone}`}>
           <!-- Contenido plano de la pestaña Registro: el label/icono ya viven
                en el dock; aquí solo el análisis seleccionado y sus controles. -->
           <div>
@@ -159,36 +151,16 @@ const meta = PAGE_META['/dashboard'];
                     class="flex flex-wrap gap-2 mt-3"
                     aria-label="Indicadores del registro"
                   >
-                    <span class={ui.badgeStat}>
-                      Personajes <strong
-                        id="hdr-registro-chars"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
-                    <span class={ui.badgeStat}>
-                      Hermandades <strong
-                        id="hdr-registro-guilds"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
-                    <span class={ui.badgeStat}>
-                      Bandas <strong
-                        id="hdr-registro-bands"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
-                    <span class={ui.badgeStat}>
-                      Reglas <strong
-                        id="hdr-registro-rules"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
+                    <StatBadge icon="personaje" label="Personajes" value={0} valueId="hdr-registro-chars" />
+                    <StatBadge icon="hermandad" label="Hermandades" value={0} valueId="hdr-registro-guilds" />
+                    <StatBadge icon="espadas" label="Bandas" value={0} valueId="hdr-registro-bands" />
+                    <StatBadge icon="pergamino" label="Reglas" value={0} valueId="hdr-registro-rules" />
                   </div>
                 </div>
 
                 <div id="sv-select-wrap" class="md:w-80 shrink-0">
                   <div
-                    class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
+                    class={ui.dashboard.selector}
                   >
                     <div class="flex items-center justify-between gap-2">
                       <label
@@ -317,7 +289,7 @@ const meta = PAGE_META['/dashboard'];
 
               <!-- Hermandades en el registro -->
               <div
-                class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4"
+                class={`${ui.card} p-4`}
               >
                 <h4 class={ui.subTitle}>Hermandades en el registro</h4>
                 <div id="viewer-guilds-filtro" class="mt-3"></div>
@@ -336,114 +308,20 @@ const meta = PAGE_META['/dashboard'];
           aria-labelledby="tab-personajes"
           class="hidden"
         >
-          <!-- Estado vacío: sin personajes detectados. La configuración del
-               perfil vive FUERA de este bloque para seguir disponible incluso
-               cuando la cuenta todavía no tiene personajes. -->
+          <!-- Estado vacío: sin personajes detectados. El perfil se configura
+               desde Configuración y no depende de este bloque. -->
           <EmptyState
             id="characters-empty"
+            variant="plain"
             hidden
             cls="mb-6"
             icon="personaje"
             title="Aún no registras personajes"
             gradient={false}
-            message="Sube el archivo del addon y aparecerán aquí. Puedes configurar tu perfil ahora mismo."
+            message="Sube el archivo del addon y aparecerán aquí. Tu perfil se configura desde el engranaje."
             cta={{ label: "Subir ahora", href: "/upload" }}
             ctaCls="px-6 py-3 text-sm"
           />
-          <!-- Datos del perfil: independientes del roster, siempre disponibles
-             aunque la cuenta no tenga personajes (nombre visible, principal,
-             visibilidad pública y guardar). -->
-          <div
-            id="profile-settings"
-            class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4 mb-6"
-          >
-            <h4 class={`${ui.subTitle} flex items-center gap-1.5`}><Icon name="editar" size="xs" />Datos del perfil</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label for="display-name" class={ui.form.label}
-                  >Nombre visible</label
-                >
-                <input
-                  type="text"
-                  id="display-name"
-                  maxlength="40"
-                  placeholder="Tu nombre en el portal"
-                  class={`${ui.form.input} ${ui.focusRing}`}
-                />
-              </div>
-              <div>
-                <label for="character-main" class={ui.form.label}
-                  >Personaje principal</label
-                >
-                <div class="relative">
-                  <select
-                    id="character-main"
-                    disabled
-                    class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}
-                  >
-                    <option value="">Ninguno</option>
-                  </select>
-                  <svg
-                    aria-hidden="true"
-                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    ><path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"></path></svg
-                  >
-                </div>
-                <p id="character-main-hint" class={ui.form.helperText}>
-                  Solo puedes elegir entre tus personajes públicos.
-                </p>
-              </div>
-            </div>
-
-            <label
-              for="profile-public"
-              class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-brand-600/40 rounded-md p-4 ${ui.transition}`}
-            >
-              <input
-                type="checkbox"
-                id="profile-public"
-                class="mt-0.5 w-4 h-4 accent-brand-500"
-              />
-              <span class={`${ui.text.body} font-medium`}
-                >Perfil y datos públicos
-                <span class={`block ${ui.text.caption} italic mt-0.5`}
-                  >Al activarlo, tu perfil de jugador será visible
-                  públicamente para la comunidad.</span
-                >
-              </span>
-            </label>
-
-            <div class="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                id="save-profile"
-                class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}
-              >
-                Guardar cambios
-              </button>
-              <a
-                id="public-profile-link"
-                href="#"
-                target="_blank"
-                rel="noopener"
-                class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}
-                >Ver perfil público →</a
-              >
-            </div>
-            <p
-              id="profile-msg"
-              class={`hidden mt-3 ${ui.alert}`}
-              role="status"
-            >
-            </p>
-          </div>
-
           <div id="chars-sectionhead" class="relative">
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -453,25 +331,15 @@ const meta = PAGE_META['/dashboard'];
                   class="flex flex-wrap gap-2"
                   aria-label="Indicadores de personajes"
                 >
-                  <span class={ui.badgeStat}>
-                    Personajes <strong
-                      id="hdr-chars-total"
-                      class={`${ui.statValue} text-sm`}>0</strong
-                    >
-                  </span>
-                  <span class={ui.badgeStat}>
-                    Públicos <strong
-                      id="hdr-chars-public"
-                      class={`${ui.statValue} text-sm`}>0</strong
-                    >
-                  </span>
+                  <StatBadge icon="personaje" label="Personajes" value={0} valueId="hdr-chars-total" />
+                  <StatBadge icon="portal" label="Públicos" value={0} valueId="hdr-chars-public" />
                 </div>
               </div>
 
               {/* Ayuda al stat: detecta más personajes subiendo el archivo */}
               <div class="md:w-80 shrink-0">
                 <div
-                  class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
+                  class={ui.dashboard.selector}
                 >
                   <p
                     class="block text-[11px] font-black uppercase tracking-widest text-gray-300"
@@ -610,6 +478,7 @@ const meta = PAGE_META['/dashboard'];
              gestor (mismo modelo que Personajes/Hermandad/Registro). -->
           <EmptyState
             id="bands-empty"
+            variant="plain"
             hidden
             cls="mb-6"
             icon="espadas"
@@ -652,18 +521,8 @@ const meta = PAGE_META['/dashboard'];
                   class="flex flex-wrap gap-2 mt-3"
                   aria-label="Indicadores de la banda seleccionada"
                 >
-                  <span class={ui.badgeStat}>
-                    Jugadores <strong
-                      id="hdr-band-players"
-                      class={`${ui.statValue} text-sm`}>0</strong
-                    >
-                  </span>
-                  <span class={ui.badgeStat}>
-                    Reglas <strong
-                      id="hdr-band-rules"
-                      class={`${ui.statValue} text-sm`}>0</strong
-                    >
-                  </span>
+                  <StatBadge icon="jugadores" label="Jugadores" value={0} valueId="hdr-band-players" />
+                  <StatBadge icon="pergamino" label="Reglas" value={0} valueId="hdr-band-rules" />
                   <span id="hdr-band-status" class="hidden"></span>
                 </div>
               </div>
@@ -671,7 +530,7 @@ const meta = PAGE_META['/dashboard'];
               <!-- Navegador de bandas: el selector elige qué banda se edita. -->
               <div id="band-select-wrap" class="hidden md:w-80 shrink-0">
                 <div
-                  class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
+                  class={ui.dashboard.selector}
                 >
                   <div class="flex items-center justify-between gap-2">
                     <label
@@ -730,11 +589,12 @@ const meta = PAGE_META['/dashboard'];
           id="panel-hermandad"
           role="tabpanel"
           aria-labelledby="tab-hermandad"
-          class="hidden space-y-8"
+          class={`hidden ${ui.dashboard.zone}`}
         >
           {/* Sin hermandad aún: el portal se crea desde el archivo del addon */}
           <EmptyState
             id="guild-empty"
+            variant="plain"
             hidden
             icon="hermandad"
             title="Tu hermandad nace del archivo del addon"
@@ -801,24 +661,9 @@ const meta = PAGE_META['/dashboard'];
                     class="flex flex-wrap gap-2 mt-3"
                     aria-label="Indicadores de la hermandad seleccionada"
                   >
-                    <span class={ui.badgeStat}>
-                      Integrantes <strong
-                        id="hdr-guild-members"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
-                    <span class={ui.badgeStat}>
-                      Bandas integradas <strong
-                        id="hdr-guild-bands"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
-                    <span class={ui.badgeStat}>
-                      Reglas <strong
-                        id="hdr-guild-rules"
-                        class={`${ui.statValue} text-sm`}>0</strong
-                      >
-                    </span>
+                    <StatBadge icon="jugadores" label="Integrantes" value={0} valueId="hdr-guild-members" />
+                    <StatBadge icon="espadas" label="Bandas integradas" value={0} valueId="hdr-guild-bands" />
+                    <StatBadge icon="pergamino" label="Reglas" value={0} valueId="hdr-guild-rules" />
                     <span id="hdr-guild-vis" class="hidden"></span>
                     <span id="hdr-guild-claim" class="hidden"></span>
                   </div>
@@ -827,7 +672,7 @@ const meta = PAGE_META['/dashboard'];
                 <!-- Navegador de hermandades: el selector elige qué ficha se edita. -->
                 <div id="guild-select-wrap" class="hidden md:w-80 shrink-0">
                   <div
-                    class="bg-brand-950/50 border border-brand-700/30 rounded-md p-3 space-y-2"
+                    class={ui.dashboard.selector}
                   >
                     <div class="flex items-center justify-between gap-2">
                       <label
@@ -871,28 +716,151 @@ const meta = PAGE_META['/dashboard'];
           </div>
         </section>
 
-        <!-- ── Panel oculto de configuración (seguridad + zona de peligro) ────
+        <!-- ── Panel oculto de configuración (perfil + seguridad + zona de peligro) ────
            No es una pestaña de la barra: se abre con el ícono de engranaje del
            encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta). El hash
            histórico #perfil se redirige a #cuenta (syncConfigFromHash). -->
         <section
           id="panel-cuenta"
           role="region"
-          aria-label="Configuración de cuenta, seguridad y zona de peligro"
-          class="hidden space-y-8"
+          aria-label="Configuración de cuenta: perfil, seguridad y zona de peligro"
+          class={`hidden ${ui.dashboard.zone}`}
         >
-          <!-- Sección 1: Seguridad (ventana numerada y colapsable) -->
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class={ui.eyebrow}>Cuenta</p>
+              <h2 class={`${ui.text.h2} text-parchment-100`}>Configuración</h2>
+              <p class={`${ui.text.caption} mt-1`}>
+                Perfil, seguridad y zona de peligro en un solo lugar.
+              </p>
+            </div>
+            <button
+              type="button"
+              id="config-back"
+              class={`${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-xs font-bold uppercase tracking-wider`}
+            >
+              Volver a Personajes
+            </button>
+          </div>
+
+          <!-- Sección 1 · Perfil: configuración de cuenta, disponible con o
+               sin personajes. -->
+          <section id="profile-settings" class={`${ui.card} relative overflow-hidden p-4 sm:p-6`}>
+            <span class={ui.cardTop} aria-hidden="true"></span>
+            <div class="flex items-start gap-3 mb-4">
+              <span
+                class="shrink-0 w-8 h-8 rounded-full bg-valor-950/50 border border-valor-500/60 text-valor-200 text-sm font-bold flex items-center justify-center"
+                >1</span
+              >
+              <div class="min-w-0">
+                <p class={ui.eyebrow}>Sección 1 · Perfil</p>
+                <h2 class={`${ui.text.h3} text-parchment-100 flex items-center gap-2`}>
+                  <Icon name="editar" size="sm" />Datos del perfil
+                </h2>
+                <p class={`${ui.text.caption} mt-1`}>
+                  Tu nombre, personaje principal y visibilidad pública.
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="display-name" class={ui.form.label}
+                  >Nombre visible</label
+                >
+                <input
+                  type="text"
+                  id="display-name"
+                  maxlength="40"
+                  placeholder="Tu nombre en el portal"
+                  class={`${ui.form.input} ${ui.focusRing}`}
+                />
+              </div>
+              <div>
+                <label for="character-main" class={ui.form.label}
+                  >Personaje principal</label
+                >
+                <div class="relative">
+                  <select
+                    id="character-main"
+                    disabled
+                    class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}
+                  >
+                    <option value="">Ninguno</option>
+                  </select>
+                  <svg
+                    aria-hidden="true"
+                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"></path></svg
+                  >
+                </div>
+                <p id="character-main-hint" class={ui.form.helperText}>
+                  Solo puedes elegir entre tus personajes públicos.
+                </p>
+              </div>
+            </div>
+
+            <label
+              for="profile-public"
+              class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-brand-700/50 bg-brand-950/40 hover:border-valor-400/50 rounded-md p-4 ${ui.transition}`}
+            >
+              <input
+                type="checkbox"
+                id="profile-public"
+                class="peer sr-only"
+              />
+              <span class={`${ui.toggleTrack} mt-0.5 shrink-0`} aria-hidden="true"></span>
+              <span class={`${ui.text.body} font-medium`}
+                >Perfil y datos públicos
+                <span class={`block ${ui.text.caption} italic mt-0.5`}
+                  >Al activarlo, tu perfil de jugador será visible
+                  públicamente para la comunidad.</span
+                >
+              </span>
+            </label>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                id="save-profile"
+                class={`${ui.btnBase} ${ui.btnPrimary} px-4 py-2 text-xs font-bold uppercase tracking-wider disabled:opacity-50 disabled:pointer-events-none`}
+              >
+                Guardar cambios
+              </button>
+              <a
+                id="public-profile-link"
+                href="#"
+                target="_blank"
+                rel="noopener"
+                class={`hidden px-3 py-2 rounded-md text-xs font-bold uppercase tracking-wider ${ui.status.success}`}
+                >Ver perfil público →</a
+              >
+            </div>
+            <p
+              id="profile-msg"
+              class={`hidden mt-3 ${ui.alert}`}
+              role="status"
+            >
+            </p>
+          </section>
+
+          <!-- Sección 2: Seguridad (ventana numerada y colapsable) -->
           <details
-            class="group border border-brand-600/30 rounded-t-md"
-            aria-label="Sección 1: Seguridad"
+            class="group border border-brand-600/50 rounded-md overflow-hidden"
+            aria-label="Sección 2: Seguridad"
           >
             <summary
-              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-brand-600/30 p-4 sm:p-6"
+              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent border-b border-brand-600/40 p-4 sm:p-6"
             >
               <span class="flex items-center gap-3 min-w-0">
                 <span
-                  class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center"
-                  >1</span
+                  class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-bold flex items-center justify-center"
+                  >2</span
                 >
                 <span class="min-w-0">
                   <span
@@ -900,7 +868,7 @@ const meta = PAGE_META['/dashboard'];
                     >Seguridad</span
                   >
                   <span
-                    class="block text-lg font-bold text-brand-200 leading-tight flex items-center"
+                    class="block font-display text-lg font-semibold text-parchment-100 leading-tight flex items-center"
                     ><Icon name="bloqueo-alt" size="md" class="mr-2.5" />Cuenta y contraseña</span
                   >
                 </span>
@@ -924,7 +892,7 @@ const meta = PAGE_META['/dashboard'];
                 >
               </span>
             </summary>
-            <div class="bg-brand-900/60 backdrop-blur-sm p-4 sm:p-6">
+            <div class="bg-brand-950/60 p-4 sm:p-6">
               <div class="space-y-4">
                 <div>
                   <label for="new-password" class={ui.form.label}
@@ -985,18 +953,18 @@ const meta = PAGE_META['/dashboard'];
             </div>
           </details>
 
-          <!-- Sección 2: Zona de peligro (ventana numerada y colapsable) -->
+          <!-- Sección 3: Zona de peligro (ventana numerada y colapsable) -->
           <details
-            class="group border border-brand-600/30 rounded-t-md"
-            aria-label="Sección 2: Zona de peligro"
+            class="group border border-brand-600/50 rounded-md overflow-hidden"
+            aria-label="Sección 3: Zona de peligro"
           >
             <summary
-              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent rounded-t-md border-b border-brand-600/30 p-4 sm:p-6"
+              class="cursor-pointer select-none list-none flex flex-wrap items-center justify-between gap-3 bg-gradient-to-br from-red-950/20 to-transparent border-b border-brand-600/40 p-4 sm:p-6"
             >
               <span class="flex items-center gap-3 min-w-0">
                 <span
-                  class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-black flex items-center justify-center"
-                  >2</span
+                  class="shrink-0 w-8 h-8 rounded-full bg-red-950/40 border border-red-500/40 text-red-200 text-sm font-bold flex items-center justify-center"
+                  >3</span
                 >
                 <span class="min-w-0">
                   <span
@@ -1004,7 +972,7 @@ const meta = PAGE_META['/dashboard'];
                     >Zona de peligro</span
                   >
                   <span
-                    class="block text-lg font-bold text-red-300 leading-tight flex items-center"
+                    class="block font-display text-lg font-semibold text-red-300 leading-tight flex items-center"
                     ><Icon name="advertencia" size="md" class="mr-2.5" />Acciones destructivas</span
                   >
                 </span>
@@ -1028,7 +996,7 @@ const meta = PAGE_META['/dashboard'];
                 >
               </span>
             </summary>
-            <div class="bg-brand-900/60 backdrop-blur-sm p-4 sm:p-6">
+            <div class="bg-brand-950/60 p-4 sm:p-6">
               <!-- Resetear datos (moderado: conserva la cuenta) -->
               <div
                 class="border border-brand-800/40 bg-brand-950/10 rounded-md p-5"
@@ -1160,6 +1128,8 @@ const meta = PAGE_META['/dashboard'];
             </div>
           </details>
         </section>
+
+      </AccountSheet>
 
         <!-- Modal de confirmación: eliminar un análisis individual -->
         <div

@@ -1,0 +1,25 @@
+---
+// Ficha de cuenta del dashboard: una sola superficie (identidad + dock +
+// cuerpo hundido), igual que FichaHero/DirectorySheet. Los slots conservan
+// los ids y el markup dinámico del dashboard.
+import { ui } from '@/lib/ui/design';
+
+interface Props {
+  class?: string;
+  ariaLabelledby?: string;
+}
+
+const { class: extraCls = '', ariaLabelledby } = Astro.props;
+const cls = `${ui.dashboard.sheet} animate-fade-in-1 ${extraCls}`.trim();
+---
+
+<div class={cls} aria-labelledby={ariaLabelledby}>
+  <span class={`${ui.cardTop} z-20`} aria-hidden="true"></span>
+  <header class={ui.dashboard.identity}>
+    <slot name="identity" />
+    <slot name="dock" />
+  </header>
+  <div class={ui.dashboard.body}>
+    <slot />
+  </div>
+</div>

@@ -6,6 +6,7 @@ import type { CharacterInstance, AccountCurrency } from '@/types/parser';
 import { classColor, classTextColor, hexToRgba } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
 import { ui } from '@/lib/ui/design';
+import { badgeEl, type BadgeTone } from '@/lib/ui/badges';
 import { el } from '@/lib/ui/dom';
 import { classGauge } from '@/lib/ui/card';
 import { formatMoney, fmtEpoch, formatRemaining } from '@/lib/ui/dashboard/format';
@@ -35,13 +36,8 @@ export interface TrackerCardHandlers {
   setNotesPublic: (characterId: string, visible: boolean) => Promise<{ ok: boolean }>;
 }
 
-function badge(icon: Parameters<typeof iconEl>[0], label: string, cls = ''): HTMLElement {
-  const span = el('span', `inline-flex items-center ${cls}`);
-  span.title = label;
-  span.appendChild(iconEl(icon, { size: 'xs' }));
-  const sr = el('span', 'sr-only', label);
-  span.appendChild(sr);
-  return span;
+function badge(icon: Parameters<typeof iconEl>[0], label: string, tone: BadgeTone = 'neutral'): HTMLElement {
+  return badgeEl({ icon, label, tone, size: 'sm', title: label });
 }
 
 function instancesContent(character: TrackerCharacter): HTMLElement {
@@ -52,14 +48,14 @@ function instancesContent(character: TrackerCharacter): HTMLElement {
     const row = el('div', `${ui.tracker.task} justify-between`);
     const left = el('div', 'min-w-0');
     left.appendChild(el('p', 'text-[11px] text-gray-200 truncate', instance.name));
-    if (instance.difficulty) left.appendChild(el('p', 'text-[9px] uppercase tracking-widest text-gray-300', instance.difficulty));
+    if (instance.difficulty) left.appendChild(el('p', 'text-[11px] uppercase tracking-widest text-gray-300', instance.difficulty));
     const remaining = !instance.extended && typeof instance.resetAt === 'number'
       ? instance.resetAt - now
       : null;
     const right = el(
       'span',
       remaining !== null && remaining <= 0
-        ? 'text-[9px] font-black uppercase tracking-widest text-emerald-300'
+        ? 'text-[11px] font-black uppercase tracking-widest text-emerald-300'
         : 'text-[11px] font-bold text-brand-200 tabular-nums',
       remaining === null ? '—' : remaining <= 0 ? 'Reiniciado' : formatRemaining(remaining),
     );
@@ -121,7 +117,7 @@ function ownerToggle(
   onSave: (next: boolean) => Promise<{ ok: boolean }>,
 ): HTMLElement {
   const wrap = document.createElement('label');
-  wrap.className = `flex items-center gap-1.5 select-none text-[10px] font-black uppercase tracking-widest text-gray-300 ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`;
+  wrap.className = `flex items-center gap-1.5 select-none text-[11px] font-black uppercase tracking-widest text-gray-300 ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`;
   wrap.title = title;
   const input = document.createElement('input');
   input.type = 'checkbox';
@@ -194,7 +190,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   collapseBtn.setAttribute('aria-expanded', String(!collapsed));
   collapseBtn.setAttribute('aria-controls', `tracker-body-${id}`);
   collapseBtn.title = collapsed ? 'Expandir personaje' : 'Contraer personaje';
-  const chevron = el('span', `text-[10px] text-brand-300 transition-transform duration-300 ${collapsed ? '-rotate-90' : ''}`, '▼');
+  const chevron = el('span', `text-[11px] text-brand-300 transition-transform duration-300 ${collapsed ? '-rotate-90' : ''}`, '▼');
   chevron.setAttribute('aria-hidden', 'true');
   chevron.dataset.trackerChevron = '';
   collapseBtn.append(chevron, classIconEl(character.class, character.class_file, 'w-6 h-6 rounded-full object-contain shrink-0'));
@@ -217,7 +213,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
 
   const ficha = document.createElement('button');
   ficha.type = 'button';
-  ficha.className = `${ui.btnBase} ${ui.btnSecondary} px-2 py-1 text-[10px] font-black uppercase tracking-widest shrink-0`;
+  ficha.className = `${ui.btnBase} ${ui.btnSecondary} px-2 py-1 text-[11px] font-black uppercase tracking-widest shrink-0`;
   ficha.textContent = 'Ficha';
   ficha.title = `Abrir la ficha de ${character.name}`;
   ficha.addEventListener('click', () => h.onOpenFicha(id));
@@ -251,12 +247,12 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
 
   // Badges
   const badges = el('div', 'flex flex-wrap items-center gap-2 mt-2');
-  if (character.trackerHidden) badges.appendChild(badge('visibilidad', 'Oculto del tracker'));
-  if (character.is_public) badges.appendChild(badge('portal', 'Personaje público'));
-  if (character.member_verified) badges.appendChild(badge('validado', 'Cuenta validada'));
-  if (character.sv_is_gm) badges.appendChild(badge('estrella', 'Maestro de hermandad'));
-  if (character.sv_guild_name) badges.appendChild(badge('hermandad', `Hermandad: ${character.sv_guild_name}`));
-  if (character.gameNote) badges.appendChild(badge('nota', 'Tiene nota del juego'));
+  if (character.trackerHidden) badges.appendChild(badge('visibilidad', 'Oculto del tracker', 'neutral'));
+  if (character.is_public) badges.appendChild(badge('portal', 'Personaje público', 'success'));
+  if (character.member_verified) badges.appendChild(badge('validado', 'Cuenta validada', 'success'));
+  if (character.sv_is_gm) badges.appendChild(badge('estrella', 'Maestro de hermandad', 'gold'));
+  if (character.sv_guild_name) badges.appendChild(badge('hermandad', `Hermandad: ${character.sv_guild_name}`, 'steel'));
+  if (character.gameNote) badges.appendChild(badge('nota', 'Tiene nota del juego', 'info'));
   if (badges.children.length > 0) body.appendChild(badges);
 
   // Stats (sin GS: iLvl, piezas y visto).
@@ -296,7 +292,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
 
   // Nota local del tracker (exclusiva, nunca la del juego).
   const notes = el('div', 'mt-2');
-  const label = el('label', 'block text-[10px] font-black uppercase tracking-widest text-gray-300 mb-1', 'Nota local del tracker');
+  const label = el('label', 'block text-[11px] font-black uppercase tracking-widest text-gray-300 mb-1', 'Nota local del tracker');
   const ta = document.createElement('textarea');
   ta.rows = 2;
   ta.value = character.trackerNote;
@@ -326,8 +322,8 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   ));
   const noteText = (character.gameNote ?? '').trim();
   const noteLabel = noteText
-    ? el('span', 'text-[10px] text-gray-300 truncate max-w-[12rem]', noteText)
-    : el('span', 'text-[10px] text-gray-300 italic', 'Sin nota del juego');
+    ? el('span', 'text-[11px] text-gray-300 truncate max-w-[12rem]', noteText)
+    : el('span', 'text-[11px] text-gray-300 italic', 'Sin nota del juego');
   noteLabel.title = noteText || 'Escribe la nota en el addon y vuelve a subir el archivo.';
   owner.appendChild(noteLabel);
   owner.appendChild(ownerToggle(

@@ -35,6 +35,7 @@
       dashboardTabHead,
     } from "@/lib/ui/tabs";
     import { isVisitor } from "@/lib/roles";
+    import { setBadge, roleBadgeData } from "@/lib/ui/badges";
     import { ui } from "@/lib/ui/design";
     import { el } from "@/lib/ui/dom";
     import { userError } from "@/lib/ui/userError";
@@ -76,8 +77,13 @@
       moderator: "Moderador",
       admin: "Administrador",
     };
-    const ROLE_STYLES = ui.badgeRole;
-
+    const ROLE_SHORT_LABELS: Record<RaiddominionRole, string> = {
+      visitante: "Visitante",
+      member: "Miembro",
+      guild_master: "Maestro",
+      moderator: "Moderador",
+      admin: "Admin",
+    };
     // Badges del encabezado: cuenta validada (rol >= member) y estado público
     // del perfil. Se refrescan en loadProfile, en la promoción a Miembro y en
     // vivo al cambiar el toggle de perfil público de Configuración.
@@ -87,16 +93,19 @@
     const publicBadgeEl = document.getElementById(
       "public-badge",
     ) as HTMLElement;
-    const BADGE_BASE = `${ui.badge} ${ui.badgeMd}`;
-
     function refreshHeaderBadges(): void {
       const validated = !isVisitor(currentRole);
-      validatedBadgeEl.textContent = validated
-        ? "✓ Cuenta validada"
-        : "Cuenta sin validar";
-      validatedBadgeEl.className = `${BADGE_BASE} ${validated ? ui.status.success : "bg-brand-800/70 border-gray-600 text-gray-400"}`;
-      publicBadgeEl.textContent = profilePublic ? "Público" : "Privado";
-      publicBadgeEl.className = `${BADGE_BASE} ${profilePublic ? ui.badgeRole.guild_master : "bg-brand-800/70 border-gray-600 text-gray-400"}`;
+      setBadge(badgeEl, roleBadgeData(currentRole, ROLE_SHORT_LABELS[currentRole] ?? currentRole, ROLE_LABELS[currentRole] ?? currentRole));
+      setBadge(validatedBadgeEl, {
+        icon: validated ? "validado" : "reloj",
+        label: validated ? "Cuenta validada" : "Cuenta sin validar",
+        tone: validated ? "success" : "neutral",
+      });
+      setBadge(publicBadgeEl, {
+        icon: profilePublic ? "portal" : "bloqueo-alt",
+        label: profilePublic ? "Público" : "Privado",
+        tone: profilePublic ? "success" : "neutral",
+      });
     }
 
     // ── Estado reactivo (declarado antes de las llamadas void load*) ─────────
@@ -245,30 +254,22 @@
         "hdr-band-status",
       ) as HTMLElement | null;
       if (!statusEl) return;
-      const chipBase = `${ui.badge} ${ui.badgeMd}`;
       const st = (band?.integration_status ?? "none") as string;
       if (st !== "none") {
-        let text = "";
-        let cls = "";
         if (st === "approved" && band!.guild_id && band!.is_public) {
-          text = "✓ en el portal de la hermandad";
-          cls = "text-emerald-300 bg-emerald-950/30 border-emerald-600/40";
+          setBadge(statusEl, { icon: "portal", label: "En el portal", tone: "success" });
         } else if (st === "approved" && band!.guild_id) {
-          text = "✓ integrada · privada";
-          cls = "text-emerald-300 bg-emerald-950/30 border-emerald-600/40";
+          setBadge(statusEl, { icon: "bloqueo-alt", label: "Integrada · privada", tone: "steel" });
         } else if (st === "pending") {
-          text = "propuesta pendiente";
-          cls = "text-brand-300 bg-brand-950/30 border-brand-600/40";
+          setBadge(statusEl, { icon: "reloj", label: "Propuesta pendiente", tone: "info" });
         } else if (st === "rejected") {
-          text = "✗ propuesta rechazada";
-          cls = "text-red-300 bg-red-950/30 border-red-600/40";
-        }
-        if (text) {
-          statusEl.textContent = text;
-          statusEl.className = chipBase + " " + cls;
-          statusEl.classList.remove("hidden");
+          setBadge(statusEl, { icon: "error", label: "Propuesta rechazada", tone: "danger" });
+        } else {
+          statusEl.classList.add("hidden");
           return;
         }
+        statusEl.classList.remove("hidden");
+        return;
       }
       statusEl.classList.add("hidden");
     }
@@ -303,7 +304,6 @@
         guild ? (guildRulesCount.get(guild.id) ?? 0) : 0,
       );
 
-      const chipBase = `${ui.badge} ${ui.badgeMd}`;
       const visEl = document.getElementById(
         "hdr-guild-vis",
       ) as HTMLElement | null;
@@ -311,12 +311,11 @@
         if (!guild) {
           visEl.classList.add("hidden");
         } else {
-          visEl.textContent = guild.is_public ? "✓ pública" : "privada";
-          visEl.className =
-            chipBase +
-            (guild.is_public
-              ? " text-emerald-300 bg-emerald-950/30 border-emerald-600/40"
-              : " text-gray-400 bg-brand-950/50 border-gray-700/50");
+          setBadge(visEl, {
+            icon: guild.is_public ? "portal" : "bloqueo-alt",
+            label: guild.is_public ? "Pública" : "Privada",
+            tone: guild.is_public ? "success" : "neutral",
+          });
           visEl.classList.remove("hidden");
         }
       }
@@ -329,18 +328,12 @@
           claimEl.classList.add("hidden");
         } else {
           const verified = guild.claim_status === "verified";
-          claimEl.textContent = verified
-            ? "✓ verificada"
-            : guild.claim_status === "rejected"
-              ? "✗ rechazada"
-              : "en revisión";
-          claimEl.className =
-            chipBase +
-            (verified
-              ? " text-emerald-300 bg-emerald-950/30 border-emerald-600/40"
-              : guild.claim_status === "rejected"
-                ? " text-red-300 bg-red-950/30 border-red-600/40"
-                : " text-brand-300 bg-brand-950/30 border-brand-600/40");
+          const rejected = guild.claim_status === "rejected";
+          setBadge(claimEl, verified
+            ? { icon: "medalla", label: "Verificada", tone: "success" }
+            : rejected
+              ? { icon: "error", label: "Rechazada", tone: "danger" }
+              : { icon: "reloj", label: "En revisión", tone: "info" });
           claimEl.classList.remove("hidden");
         }
       }
@@ -424,12 +417,22 @@
     // tab: se abre con el engranaje y se resuelve fuera de la barra.
     const panels = DASHBOARD_TABS.map((t) => t.id);
 
+    function setConfigButton(active: boolean): void {
+      const btn = document.getElementById("config-btn");
+      if (!btn) return;
+      btn.setAttribute("aria-pressed", String(active));
+      btn.setAttribute("aria-expanded", String(active));
+      btn.classList.toggle("!border-valor-400/70", active);
+      btn.classList.toggle("!text-valor-200", active);
+    }
+
     const tabs = createTabBar({
       tabs: DASHBOARD_TABS,
       barId: "tab-bar",
       defaultId: panels[0],
       variant: "ficha",
       hidePanels: [`panel-${DASHBOARD_CONFIG.id}`],
+      onActivate: () => setConfigButton(false),
       resolveHash: (hash) => {
         let id = tabFromHash(hash);
         if (id === "perfil") {
@@ -450,11 +453,12 @@
     document.getElementById("dashboard-tab-dock")?.classList.remove("hidden");
     document.getElementById("tab-bar")?.classList.remove("hidden");
 
-    // "Pestaña oculta" de configuración (seguridad y zona de peligro): desactiva
-    // la barra y muestra SOLO su panel. Se abre desde el engranaje del
-    // encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta).
+    // "Pestaña oculta" de configuración (perfil, seguridad y zona de peligro):
+    // desactiva la barra y muestra SOLO su panel. Se abre desde el engranaje
+    // del encabezado (DASHBOARD_CONFIG en tabs.ts, hash #cuenta).
     function openConfigPanel(updateHash = true): void {
       tabs.deactivate();
+      setConfigButton(true);
       document
         .getElementById(`panel-${DASHBOARD_CONFIG.id}`)
         ?.classList.remove("hidden");
@@ -469,6 +473,9 @@
       "config-btn",
     ) as HTMLButtonElement | null;
     configBtn?.addEventListener("click", () => openConfigPanel());
+    document
+      .getElementById("config-back")
+      ?.addEventListener("click", () => tabs.activate("personajes"));
 
     // Deep-link de configuración: #cuenta (el hash histórico #perfil se
     // redirige a #cuenta). La barra ignora ese hash (resolveHash → null).
@@ -562,7 +569,6 @@
 
       const res = await getMyProfile();
       if (!res.ok || !res.profile) {
-        badgeEl.textContent = "Visitante";
         currentRole = "visitante";
         profilePublic = false;
         refreshHeaderBadges();
@@ -571,8 +577,6 @@
       }
       const p = res.profile;
       currentRole = p.role;
-      badgeEl.textContent = ROLE_LABELS[p.role] ?? p.role;
-      badgeEl.className = `${BADGE_BASE} ${ROLE_STYLES[p.role] ?? ROLE_STYLES.member}`;
       profilePublic = p.is_public === true;
       refreshHeaderBadges();
 
@@ -747,6 +751,7 @@
         };
       });
       myCharacters = items;
+      tabs.setCounts({ personajes: items.length });
       refreshHdrCharacters();
       populateMainCharacterSelect();
       emptyEl.classList.toggle("hidden", items.length > 0);
@@ -840,6 +845,7 @@
       }
       const items = res.items ?? [];
       uploadsCache = items;
+      tabs.setCounts({ registro: items.length });
       refreshHdrRegistro();
 
       if (items.length === 0) {
@@ -1086,8 +1092,6 @@
       const promo = await tryPromoteMember(currentSvId);
       if (promo.ok && promo.data?.promoted) {
         currentRole = "member";
-        badgeEl.textContent = ROLE_LABELS.member ?? "member";
-        badgeEl.className = `${BADGE_BASE} ${ROLE_STYLES.member}`;
         refreshHeaderBadges();
         toast.success(
           "Promovido a Miembro",
@@ -1390,6 +1394,7 @@
       if (rulesRes.ok) rulesCatalog = rulesRes.items ?? [];
       const items = res.items ?? [];
       allBands = items;
+      tabs.setCounts({ bandas: items.length });
       currentBandId = items[0]?.id ?? null;
       const onboardingEl = document.getElementById(
         "bands-onboarding",
@@ -1438,6 +1443,7 @@
       }
       const items = res.items ?? [];
       myGuilds = items;
+      tabs.setCounts({ hermandad: items.length });
       guildMembersCount.clear();
       guildBandsCount.clear();
       guildRulesCount.clear();

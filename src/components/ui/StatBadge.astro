@@ -1,0 +1,27 @@
+---
+// Badge de cifra del dashboard: icono + etiqueta + valor actualizable por id.
+import Icon from '@/components/ui/Icon.astro';
+import { ui } from '@/lib/ui/design';
+import type { IconName } from '@/lib/ui/icons';
+
+interface Props {
+  label: string;
+  value: string | number;
+  valueId?: string;
+  icon?: IconName;
+  class?: string;
+}
+
+const { label, value, valueId, icon, class: extraCls = '' } = Astro.props;
+const cls = [ui.badgeStat, extraCls].filter(Boolean).join(' ');
+---
+
+<span class={cls}>
+  {icon && (
+    <span class={ui.badgeIcon} aria-hidden="true">
+      <Icon name={icon} size="xs" />
+    </span>
+  )}
+  <span class={ui.badgeLabel}>{label}</span>
+  <strong id={valueId} class={ui.badgeStatValue}>{value}</strong>
+</span>

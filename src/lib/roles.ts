@@ -1,6 +1,16 @@
 import type { RaiddominionRole } from '@/types/database';
+import type { IconName } from '@/lib/ui/icons';
 
 export const ROLES: RaiddominionRole[] = ['visitante', 'member', 'guild_master', 'moderator', 'admin'];
+
+// Icono canónico de cada rol para badges del dashboard/admin.
+export const ROLE_ICONS: Record<RaiddominionRole, IconName> = {
+  visitante: 'visibilidad',
+  member: 'perfil',
+  guild_master: 'hermandad',
+  moderator: 'balanza',
+  admin: 'corona',
+};
 
 // El visitante aún no usa el addon activamente; sube su SV para validar su personaje
 export function isVisitor(role: RaiddominionRole): boolean {

@@ -1,0 +1,52 @@
+---
+// Badge canónico del dashboard: etiqueta breve + icono + tono semántico.
+// No cambia la tipografía base (Jost 11px) para no ensanchar las filas.
+import Icon from '@/components/ui/Icon.astro';
+import { ui } from '@/lib/ui/design';
+import type { IconName } from '@/lib/ui/icons';
+
+interface Props {
+  id?: string;
+  icon?: IconName;
+  label: string;
+  value?: string | number;
+  valueId?: string;
+  tone?: keyof typeof ui.badgeTone;
+  size?: 'sm' | 'md';
+  class?: string;
+  title?: string;
+  ariaLive?: 'polite' | 'off';
+}
+
+const {
+  id,
+  icon,
+  label,
+  value,
+  valueId,
+  tone = 'neutral',
+  size = 'md',
+  class: extraCls = '',
+  title,
+  ariaLive = 'off',
+} = Astro.props;
+
+const badgeCls = [
+  ui.badge,
+  size === 'sm' ? ui.badgeSm : ui.badgeMd,
+  ui.badgeTone[tone],
+  extraCls,
+].filter(Boolean).join(' ');
+---
+
+<span id={id} class={badgeCls} title={title} aria-live={ariaLive}>
+  {icon && (
+    <span class={ui.badgeIcon} aria-hidden="true">
+      <Icon name={icon} size="xs" />
+    </span>
+  )}
+  <span class={ui.badgeLabel}>{label}</span>
+  {value !== undefined && (
+    <strong id={valueId} class={ui.badgeStatValue}>{value}</strong>
+  )}
+</span>

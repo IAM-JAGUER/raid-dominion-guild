@@ -546,7 +546,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
     legendMount.classList.toggle('hidden', characters.length === 0);
     const counts: TrackerLegendCounts = legendCounts(characters, catalog.length);
     legendMount.textContent = '';
-    const label = el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300 mr-1', 'Leyenda');
+    const label = el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-300 mr-1', 'Leyenda');
     legendMount.appendChild(label);
     LEGEND_TABS.forEach((tab) => {
       const btn = document.createElement('button');
@@ -659,12 +659,12 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
 
     dockApply = document.createElement('button');
     dockApply.type = 'button';
-    dockApply.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest`;
+    dockApply.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
     dockApply.textContent = 'Aplicar';
 
     const clear = document.createElement('button');
     clear.type = 'button';
-    clear.className = `${ui.btnBase} ${ui.btnGhost} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest`;
+    clear.className = `${ui.btnBase} ${ui.btnGhost} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
     clear.textContent = 'Limpiar';
 
     dockAction.addEventListener('change', syncDockControls);
@@ -1013,7 +1013,7 @@ export function initTracker(options: TrackerInitOptions): TrackerController {
 
     quickApply = document.createElement('button');
     quickApply.type = 'button';
-    quickApply.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest`;
+    quickApply.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
     quickApply.textContent = 'Aplicar';
     quickApply.disabled = true;
     mount.appendChild(quickApply);

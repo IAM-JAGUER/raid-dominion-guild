@@ -7,6 +7,7 @@
 import { el } from '@/lib/ui/preview';
 import { ruleKey } from '@/lib/ui/dashboard/format';
 import { ui } from '@/lib/ui/design';
+import { badgeEl } from '@/lib/ui/badges';
 import { toast } from '@/lib/ui/toast';
 import { card, cardTop } from '@/lib/ui/card';
 import { userError } from '@/lib/ui/userError';
@@ -66,7 +67,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     input.checked = checked;
     const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-valor-500/70 peer-checked:border-valor-300/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
     const textEl = el('span', '', text);
-    const status = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
+    const status = el('span', 'text-[11px] font-bold uppercase tracking-widest', '');
     label.append(input, track, textEl, status);
     if (blocked) {
       input.disabled = true;
@@ -74,7 +75,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       label.classList.add('opacity-70', 'cursor-not-allowed');
       label.title = 'Requiere cuenta Miembro validada (2+ personajes).';
       status.textContent = 'bloqueado';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-300';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-gray-300';
     } else {
       input.addEventListener('change', () => void on(input, status));
     }
@@ -87,14 +88,14 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.is_public, 'Pública', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    status.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandVisibility(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
       b.is_public = input.checked;
       opts.onHdrRefresh();
       status.textContent = input.checked ? '✓ pública' : '✓ privada';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
       toast.success(
         input.checked ? 'Banda publicada' : 'Banda ocultada',
         `"${b.name}" ahora ${input.checked ? 'es visible en el directorio' : 'no aparece en el directorio'}.`,
@@ -102,7 +103,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     } else {
       input.checked = !input.checked;
       status.textContent = '✗ error';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
       toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
@@ -110,13 +111,13 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.hide_players, 'Ocultar jugadores', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    status.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandHidePlayers(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
       b.hide_players = input.checked;
       status.textContent = input.checked ? '✓ ocultos' : '✓ visibles';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
       toast.success(
         input.checked ? 'Jugadores ocultos' : 'Jugadores visibles',
         input.checked
@@ -126,7 +127,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     } else {
       input.checked = !input.checked;
       status.textContent = '✗ error';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
       toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
@@ -138,13 +139,13 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   toggles.appendChild(makeSwitch(b.notes_public, 'Notas públicas', async (input, status) => {
     input.disabled = true;
     status.textContent = 'guardando…';
-    status.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    status.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandNotesPublic(b.id, input.checked);
     input.disabled = false;
     if (res.ok) {
       b.notes_public = input.checked;
       status.textContent = input.checked ? '✓ públicas' : '✓ privadas';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
       toast.success(
         input.checked ? 'Notas publicadas' : 'Notas retiradas',
         input.checked
@@ -154,7 +155,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     } else {
       input.checked = !input.checked;
       status.textContent = '✗ error';
-      status.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      status.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
       toast.error('No se pudo actualizar la banda', userError(res.error, 'Inténtalo de nuevo.'));
     }
     window.setTimeout(() => { status.textContent = ''; }, 2500);
@@ -194,18 +195,18 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     select.appendChild(opt);
   });
   if (!effGuild) personalOpt.selected = true;
-  const gStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
-  const gErr = el('span', 'text-[10px] font-bold uppercase tracking-widest text-red-400', '');
+  const gStatus = el('span', 'text-[11px] font-bold uppercase tracking-widest', '');
+  const gErr = el('span', 'text-[11px] font-bold uppercase tracking-widest text-red-400', '');
   if (blocked) {
     select.disabled = true;
     select.className += ' opacity-40';
     gStatus.textContent = 'bloqueado';
-    gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-gray-300';
+    gStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-gray-300';
   } else {
     select.addEventListener('change', async () => {
       select.disabled = true;
       gStatus.textContent = 'guardando…';
-      gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+      gStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
       gErr.textContent = '';
       const gid = select.value === '' ? null : select.value;
       const res = await setBandGuild(b.id, gid);
@@ -229,7 +230,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
         refreshPropose();
         refreshPropTarget();
         gStatus.textContent = '✓';
-        gStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+        gStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
       } else {
         select.value = b.integration_target_guild_id ?? b.guild_id ?? '';
         gStatus.textContent = '';
@@ -249,7 +250,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   prop.type = 'checkbox';
   prop.className = 'w-4 h-4 accent-brand-500';
   prop.checked = b.integration_status === 'pending';
-  const propStatus = el('span', 'ml-1 text-[10px] font-bold uppercase tracking-widest', '');
+  const propStatus = el('span', 'ml-1 text-[11px] font-bold uppercase tracking-widest', '');
   // Estado del control de propuesta: reactivo al DESTINO (target) y al estado
   // de integración. Se evalúa al renderizar y se re-evalúa al cambiar la
   // hermandad (elegir una guild habilita el check, "Sin hermandad" lo deshabilita).
@@ -276,19 +277,19 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     if (!prop.checked) return; // retirar propuesta = el GM decide; aquí no se despropone
     prop.disabled = true;
     propStatus.textContent = 'proponiendo…';
-    propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    propStatus.className = 'ml-1 text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await proposeBandIntegration(b.id);
     prop.disabled = false;
     if (res.ok) {
       b.integration_status = 'pending';
       prop.checked = true;
       propStatus.textContent = '✓ propuesta enviada al maestro';
-      propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-brand-300';
+      propStatus.className = 'ml-1 text-[11px] font-bold uppercase tracking-widest text-brand-300';
       opts.onHdrRefresh();
     } else {
       prop.checked = false;
       propStatus.textContent = '✗ ' + userError(res.error, 'No se pudo enviar la propuesta.');
-      propStatus.className = 'ml-1 text-[10px] font-bold uppercase tracking-widest text-red-400';
+      propStatus.className = 'ml-1 text-[11px] font-bold uppercase tracking-widest text-red-400';
     }
     window.setTimeout(() => { propStatus.textContent = ''; }, 3500);
   });
@@ -302,7 +303,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   const rulesBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
   const rulesHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
   rulesHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas de esta banda'));
-  const rulesStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
+  const rulesStatus = el('span', 'text-[11px] font-bold uppercase tracking-widest', '');
   rulesHead.appendChild(rulesStatus);
   rulesBox.appendChild(rulesHead);
   // Jerarquía: si la banda está destinada (target) o integrada (guild_id) a
@@ -310,7 +311,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
   // estas reglas son el CONTENIDO que el GM activa/desactiva.
   const genderJ = b.integration_target_guild_id || b.guild_id;
   if (genderJ) {
-    rulesBox.appendChild(el('p', 'text-[10px] text-gray-300 italic', 'Integrada a una hermandad: el maestro decide cuáles de estas reglas se publican en el portal (visor "Bandas propuestas"). Aquí solo editas el contenido del catálogo.'));
+    rulesBox.appendChild(el('p', 'text-[11px] text-gray-300 italic', 'Integrada a una hermandad: el maestro decide cuáles de estas reglas se publican en el portal (visor "Bandas propuestas"). Aquí solo editas el contenido del catálogo.'));
   }
 
   const tagsWrap = el('div', 'flex flex-wrap gap-2');
@@ -324,10 +325,9 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
       return;
     }
     assigned.forEach((r) => {
-      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-brand-100 bg-brand-950/40 border border-brand-600/40 rounded-md pl-2.5 pr-1 py-1');
+      const tag = badgeEl({ label: r.title ?? r.content ?? 'Regla', tone: 'neutral', size: 'sm' });
       const full = r.content && r.content !== r.title ? r.content : undefined;
       tag.title = full ?? '';
-      tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
       if (!blocked) {
         const rm = document.createElement('button');
         rm.type = 'button';
@@ -396,16 +396,16 @@ const prev = bandAssignedRules(b, opts.rulesCatalog).slice();
 
   const saveRules = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
     rulesStatus.textContent = 'guardando…';
-    rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    rulesStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setBandRules(b.id, next);
     if (res.ok) {
       b.rules = next as unknown as BandRow['rules'];
       rulesStatus.textContent = '✓';
-      rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      rulesStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
     } else {
       b.rules = prev as unknown as BandRow['rules'];
       rulesStatus.textContent = '✗ ' + userError(res.error, 'No se pudieron guardar las reglas.');
-      rulesStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      rulesStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
     }
     renderTags();
     rebuildAddSelect();

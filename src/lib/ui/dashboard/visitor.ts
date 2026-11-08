@@ -92,7 +92,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     // (0 = líder). El rango del propio usuario se marca si está disponible.
     if (g.ranks.length > 0) {
       const hier = el('div', 'flex flex-wrap items-center gap-1.5 mt-2');
-      hier.appendChild(el('span', 'text-[10px] font-black uppercase tracking-widest text-gray-300', 'Rangos:'));
+      hier.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-300', 'Rangos:'));
       g.ranks.forEach((r) => {
         const isMine = ownIndex !== undefined
           ? r.index === ownIndex
@@ -103,7 +103,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
           : r.index === 0
             ? 'text-brand-200/90 border-brand-600/30 bg-brand-900/60'
             : 'text-gray-300 border-gray-700/40 bg-brand-900/60';
-        hier.appendChild(el('span', `text-[10px] px-2 py-0.5 rounded-md border ${cls}`,
+        hier.appendChild(el('span', `text-[11px] px-2 py-0.5 rounded-md border ${cls}`,
           `${r.index}: ${label}${isMine ? ' · tú' : ''}`));
       });
       cardEl.appendChild(hier);

@@ -225,12 +225,18 @@ export interface TabBarController {
   activate: (id: string, updateHash?: boolean, source?: TabActivateSource) => void;
   // Desmarca todos los tabs y oculta sus paneles (panel externo, p. ej. config).
   deactivate: () => void;
+  // Actualiza los contadores del variant ficha tras cargas async.
+  setCounts: (counts: Record<string, number | undefined>) => void;
 }
 
 export function createTabBar(config: TabBarConfig): TabBarController {
   const bar = document.getElementById(config.barId) as HTMLElement | null;
   if (!bar) {
-    return { activate: () => undefined, deactivate: () => undefined };
+    return {
+      activate: () => undefined,
+      deactivate: () => undefined,
+      setCounts: () => undefined,
+    };
   }
 
   const isDock = config.variant === 'ficha';
@@ -239,6 +245,22 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 font-display text-xs font-semibold uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400');
   const inactiveClasses = (config.inactiveCls ?? 'text-gray-300').split(/\s+/).filter(Boolean);
   const panelId = (tab: TabDef): string => config.panelIds?.[tab.id] ?? `panel-${tab.id}`;
+
+  function applyCount(btn: HTMLButtonElement, label: string, count: number | undefined): void {
+    if (!isDock) return;
+    const existing = btn.querySelector<HTMLElement>('.rd-ficha-tab__count');
+    if (typeof count !== 'number' || count <= 0) {
+      existing?.remove();
+      btn.removeAttribute('aria-label');
+      return;
+    }
+    const countEl = existing ?? document.createElement('span');
+    countEl.className = 'rd-ficha-tab__count';
+    countEl.textContent = String(count);
+    countEl.setAttribute('aria-hidden', 'true');
+    if (!existing) btn.appendChild(countEl);
+    btn.setAttribute('aria-label', `${label} (${count})`);
+  }
 
   const buttons: HTMLButtonElement[] = config.tabs.map((t) => {
     const label = config.labels?.[t.id] ?? t.label;
@@ -266,12 +288,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
     btn.appendChild(document.createTextNode(label));
     const count = config.counts?.[t.id];
     if (isDock && typeof count === 'number' && count > 0) {
-      const countEl = document.createElement('span');
-      countEl.className = 'rd-ficha-tab__count';
-      countEl.textContent = String(count);
-      countEl.setAttribute('aria-hidden', 'true');
-      btn.setAttribute('aria-label', `${label} (${count})`);
-      btn.appendChild(countEl);
+      applyCount(btn, label, count);
     }
     bar.appendChild(btn);
     return btn;
@@ -352,7 +369,17 @@ export function createTabBar(config: TabBarConfig): TabBarController {
   });
   if (config.syncHash !== false) syncFromHash();
 
-  return { activate, deactivate };
+  return {
+    activate,
+    deactivate,
+    setCounts(counts: Record<string, number | undefined>): void {
+      buttons.forEach((btn) => {
+        const id = btn.dataset.tab ?? '';
+        const label = config.labels?.[id] ?? config.tabs.find((t) => t.id === id)?.label ?? id;
+        applyCount(btn, label, counts[id]);
+      });
+    },
+  };
 }
 
 // Barra de pestañas para vistas públicas (jugador/personaje/reino): construye

@@ -6,6 +6,7 @@
 
 import { el } from '@/lib/ui/preview';
 import { ui } from '@/lib/ui/design';
+import { badgeEl, setBadge } from '@/lib/ui/badges';
 import { toast } from '@/lib/ui/toast';
 import { card, cardTop } from '@/lib/ui/card';
 import { ruleKey, ruleId, escapeHtml } from '@/lib/ui/dashboard/format';
@@ -130,9 +131,9 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
   // viven en `bp`, `selection` y los closures de abajo): `i` es el índice
   // GLOBAL dentro de la lista filtrada, de ahí la numeración.
   function buildRow(bp: GuildBandProposal, i: number): HTMLElement {
-    const row = el('div', 'bg-brand-900/40 border border-brand-600/15 rounded-md px-3 py-2.5');
+    const row = el('div', `${ui.card} p-3`);
     const head = el('div', 'flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-2');
-    const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-brand-900/40 border border-brand-500/40 text-brand-200 text-xs font-black flex items-center justify-center', String(i + 1));
+    const num = el('span', 'shrink-0 w-6 h-6 rounded-full bg-valor-950/50 border border-valor-500/60 text-valor-200 text-xs font-bold flex items-center justify-center', String(i + 1));
     head.appendChild(num);
     const info = el('div', 'min-w-0 flex-1');
     info.appendChild(el('p', 'font-bold text-white text-sm break-words', bp.name));
@@ -140,7 +141,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     // regla al proponente (nunca al aprobante).
     const who = (bp.proposer?.character_name || bp.proposer?.display_name || (bp.proposer?.slug ? `@${bp.proposer.slug.replace(/^perfil-/, '').slice(0, 8)}` : null)) ?? 'cuenta';
     const sub = el('p', 'text-[11px] text-gray-300');
-    const stateChip = el('span', `${ui.badge} ${ui.badgeSm} mt-1 hidden`);
+    const stateChip = el('span', 'mt-1 hidden');
     const refreshState = (): void => {
       if (bp.integration_status === 'pending') {
         sub.textContent = `Propuesta por ${who}${bp.integration_proposed_at ? ' · ' + new Date(bp.integration_proposed_at).toLocaleDateString('es') : ''}`;
@@ -149,10 +150,16 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       }
       const approved = bp.integration_status === 'approved';
       sub.textContent = '';
-      stateChip.textContent = approved ? '✓ Aprobada' : '✗ Rechazada';
-      stateChip.className = `${ui.badge} ${ui.badgeSm} mt-1 ` +
-        (approved ? 'bg-emerald-950/30 border-emerald-600/40 text-emerald-300' : 'bg-red-950/30 border-red-600/40 text-red-300');
-      stateChip.appendChild(document.createTextNode(bp.integration_decided_at ? ' · ' + new Date(bp.integration_decided_at).toLocaleDateString('es') : ''));
+      setBadge(stateChip, {
+        icon: approved ? 'correcto' : 'error',
+        label: approved ? 'Aprobada' : 'Rechazada',
+        tone: approved ? 'success' : 'danger',
+        size: 'sm',
+        title: bp.integration_decided_at
+          ? `Decidida el ${new Date(bp.integration_decided_at).toLocaleDateString('es')}`
+          : undefined,
+      });
+      stateChip.classList.add('mt-1');
       stateChip.classList.remove('hidden');
     };
     info.appendChild(sub);
@@ -162,13 +169,13 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const act = el('div', 'flex flex-col gap-2 sm:flex-row shrink-0 w-full sm:w-auto');
     const approve = document.createElement('button');
     approve.type = 'button';
-    approve.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-emerald-600/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/40 transition-all w-full sm:w-auto';
+    approve.className = `${ui.btnBase} ${ui.status.success} px-3 py-1.5 text-xs font-bold uppercase tracking-wider w-full sm:w-auto`;
     approve.textContent = 'Aprobar';
     const reject = document.createElement('button');
     reject.type = 'button';
-    reject.className = 'px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border border-red-600/40 bg-red-950/30 text-red-300 hover:bg-red-900/40 transition-all w-full sm:w-auto';
+    reject.className = `${ui.btnBase} ${ui.status.error} px-3 py-1.5 text-xs font-bold uppercase tracking-wider w-full sm:w-auto`;
     reject.textContent = 'Rechazar';
-    const saving = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
+    const saving = el('span', 'text-[11px] font-bold uppercase tracking-widest', '');
     act.append(approve, reject, saving);
     // El GM puede re-decidir en cualquier momento: los botones NUNCA se
     // ocultan; solo se desactiva el de la decisión ya aplicada (p. ej. una
@@ -212,7 +219,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       const saved = await setGuildBandIntegrationRules(g.id, map);
       savingRules = false;
       saving.textContent = saved.ok ? '✓' : '✗ ' + userError(saved.error, 'No se pudo guardar');
-      saving.className = 'text-[10px] font-bold uppercase tracking-widest ' + (saved.ok ? 'text-emerald-400' : 'text-red-400');
+      saving.className = 'text-[11px] font-bold uppercase tracking-widest ' + (saved.ok ? 'text-emerald-400' : 'text-red-400');
       window.setTimeout(() => { saving.textContent = ''; }, 1800);
     };
     const renderTags = (): void => {
@@ -260,7 +267,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
     const decide = async (status: 'approved' | 'rejected'): Promise<void> => {
       approve.disabled = true; reject.disabled = true;
       saving.textContent = 'guardando…';
-      saving.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+      saving.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
       // Persistir la selección de esta banda SIEMPRE al aprobar (aunque quede
       // vacía): la selección guardada es la autoridad de lo que se publica
       // en la página de banda. Las reglas del proponente NO se tocan.
@@ -297,7 +304,7 @@ export async function loadBandProposals(g: GuildRow, body: HTMLElement): Promise
       } else {
         toast.error('No se pudo decidir la banda', userError(r.error, 'Inténtalo de nuevo.'));
         saving.textContent = '✗ error';
-        saving.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+        saving.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
         window.setTimeout(() => { saving.textContent = ''; }, 2500);
       }
     };
@@ -484,7 +491,7 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
   const reglasBox = el('div', 'mt-4 border-t border-gray-700/50 pt-3 space-y-2');
   const reglasHead = el('div', 'flex flex-wrap items-center justify-between gap-2');
   reglasHead.appendChild(el('span', `${ui.eyebrow}`, 'Reglas que aplican a tu portal'));
-  const reglasStatus = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
+  const reglasStatus = el('span', 'text-[11px] font-bold uppercase tracking-widest', '');
   reglasHead.appendChild(reglasStatus);
   reglasBox.appendChild(reglasHead);
 
@@ -507,10 +514,9 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
       return;
     }
     guildRules.forEach((r) => {
-      const tag = el('span', 'inline-flex items-center gap-1.5 text-[11px] text-brand-100 bg-brand-950/40 border border-brand-600/40 rounded-md pl-2.5 pr-1 py-1');
+      const tag = badgeEl({ label: r.title ?? r.content ?? 'Regla', tone: 'neutral', size: 'sm' });
       const full = r.content && r.content !== r.title ? r.content : undefined;
       tag.title = full ?? '';
-      tag.appendChild(el('span', '', r.title ?? r.content ?? 'Regla'));
       const rm = document.createElement('button');
       rm.type = 'button';
       rm.className = 'w-4 h-4 shrink-0 rounded-md text-brand-200/70 hover:text-red-300 hover:bg-red-950/40 flex items-center justify-center transition-colors';
@@ -585,17 +591,17 @@ export function renderGuildCard(g: GuildRow, opts: GuildCardOptions): HTMLElemen
 
   const saveGuildReglas = async (next: ContentItem[], prev: ContentItem[]): Promise<void> => {
     reglasStatus.textContent = 'guardando…';
-    reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-brand-300';
+    reglasStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-brand-300';
     const res = await setGuildRules(g.id, next);
     if (res.ok) {
       guildRules = next;
       reglasStatus.textContent = '✓';
-      reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-emerald-400';
+      reglasStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-emerald-400';
       toast.success('Reglas actualizadas', 'Las reglas de tu portal se guardaron correctamente.');
     } else {
       guildRules = prev;
       reglasStatus.textContent = '✗ ' + userError(res.error, 'No se pudieron guardar las reglas.');
-      reglasStatus.className = 'text-[10px] font-bold uppercase tracking-widest text-red-400';
+      reglasStatus.className = 'text-[11px] font-bold uppercase tracking-widest text-red-400';
       toast.error('No se pudieron guardar las reglas', userError(res.error, 'Inténtalo de nuevo.'));
     }
     renderReglasTags();

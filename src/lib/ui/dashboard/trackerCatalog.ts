@@ -64,7 +64,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
   headRow.appendChild(titleBox);
   const back = document.createElement('button');
   back.type = 'button';
-  back.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[10px] font-black uppercase tracking-widest`;
+  back.className = `${ui.btnBase} ${ui.btnSecondary} px-3 py-2 text-[11px] font-black uppercase tracking-widest`;
   back.textContent = '← Volver a la lista';
   back.addEventListener('click', () => handlers.onClose());
   headRow.appendChild(back);
@@ -93,7 +93,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
   newLabel.setAttribute('aria-label', 'Etiqueta de la nueva tarea');
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
-  addBtn.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[10px] font-black uppercase tracking-widest shrink-0`;
+  addBtn.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-2 text-[11px] font-black uppercase tracking-widest shrink-0`;
   addBtn.textContent = 'Añadir';
   const addTask = async (): Promise<void> => {
     const label = newLabel.value.trim();
@@ -122,7 +122,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
 
   // ── Barra masiva ────────────────────────────────────────────────────────
   const bulk = el('div', `${ui.tracker.dock} hidden`);
-  const bulkInfo = el('span', 'text-[10px] font-black uppercase tracking-widest text-brand-200 mr-auto', '0 seleccionadas');
+  const bulkInfo = el('span', 'text-[11px] font-black uppercase tracking-widest text-brand-200 mr-auto', '0 seleccionadas');
   const scopeSel = document.createElement('select');
   scopeSel.className = ui.tracker.select;
   scopeSel.setAttribute('aria-label', 'Ámbito de aplicación');
@@ -144,15 +144,15 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
   });
   const applyBtn = document.createElement('button');
   applyBtn.type = 'button';
-  applyBtn.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest`;
+  applyBtn.className = `${ui.btnBase} ${ui.btnPrimary} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
   applyBtn.textContent = 'Aplicar';
   const deleteBtn = document.createElement('button');
   deleteBtn.type = 'button';
-  deleteBtn.className = `${ui.btnBase} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest border border-red-600/50 bg-red-950/40 text-red-200 hover:bg-red-900/40`;
+  deleteBtn.className = `${ui.btnBase} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest border border-red-600/50 bg-red-950/40 text-red-200 hover:bg-red-900/40`;
   deleteBtn.textContent = 'Eliminar';
   const clearBtn = document.createElement('button');
   clearBtn.type = 'button';
-  clearBtn.className = `${ui.btnBase} ${ui.btnGhost} px-3 py-1.5 text-[10px] font-black uppercase tracking-widest`;
+  clearBtn.className = `${ui.btnBase} ${ui.btnGhost} px-3 py-1.5 text-[11px] font-black uppercase tracking-widest`;
   clearBtn.textContent = 'Limpiar';
   bulk.append(bulkInfo, scopeSel, actionSel, applyBtn, deleteBtn, clearBtn);
   body.appendChild(bulk);
@@ -255,7 +255,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
     });
 
     const used = usage.get(task.id) ?? { active: 0, marked: 0 };
-    const usageEl = el('span', 'text-[10px] text-gray-300 shrink-0', `${used.active} activas · ${used.marked} marcadas`);
+    const usageEl = el('span', 'text-[11px] text-gray-300 shrink-0', `${used.active} activas · ${used.marked} marcadas`);
     usageEl.title = 'Personajes que usan esta tarea (activas · marcadas)';
 
     const controls = el('div', 'flex items-center gap-1 shrink-0 ml-auto');

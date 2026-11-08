@@ -85,14 +85,41 @@ export const ui = {
   btnGhost: 'text-brand-200 hover:text-valor-200 hover:border-valor-400/40',
   btnSizes: { sm: 'px-4 py-2 text-sm', md: 'px-6 py-3 text-base', lg: 'px-8 py-4 text-lg' },
   badge:
-    'inline-flex items-center gap-1.5 rounded-md border font-black uppercase tracking-widest',
+    'inline-flex min-w-0 items-center gap-1.5 rounded-md border font-bold uppercase tracking-wider',
   // Tamaños de badge: sm para chips de cards, md para badges de rol/estado
   // en headers y tablas. Componer siempre con la base ui.badge.
   badgeSm: 'px-2 py-0.5 text-[11px]',
   badgeMd: 'px-2.5 py-1 text-[11px]',
+  // Medallón de icono dentro del badge: arte a color, sin recolorear.
+  badgeIcon:
+    'inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border border-white/10 bg-black/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+  badgeLabel: 'min-w-0 truncate',
+  badgeValue: 'shrink-0 font-sans font-bold tabular-nums text-parchment-100',
+  // Tonos gráficos de badge (sin cambiar la tipografía ni el ancho: Jost 11px).
+  badgeTone: {
+    neutral: 'border-brand-600/50 bg-brand-950/80 text-parchment-200',
+    steel: 'border-brand-600/60 bg-brand-900/70 text-brand-200',
+    gold: 'border-valor-500/60 bg-valor-950/50 text-valor-200',
+    success: 'border-emerald-600/50 bg-emerald-950/40 text-emerald-200',
+    warning: 'border-amber-500/50 bg-amber-950/40 text-amber-200',
+    danger: 'border-red-600/60 bg-red-950/40 text-red-200',
+    info: 'border-brand-500/50 bg-brand-900/60 text-brand-200',
+  } as const,
   // Chip de cifra clave-valor (stat del header/visor): etiqueta + valor.
   badgeStat:
-    'inline-flex items-baseline gap-1.5 px-2.5 py-1 rounded-md border border-brand-700/50 bg-brand-950/70 text-[11px] font-black uppercase tracking-widest text-gray-300',
+    'inline-flex min-w-0 items-center gap-1.5 px-2 py-1 rounded-md border border-brand-700/50 bg-brand-950/70 text-[11px] font-bold uppercase tracking-wider text-parchment-300 shadow-[inset_0_1px_0_rgba(228,208,139,0.05)]',
+  badgeStatValue: 'shrink-0 font-sans text-sm font-bold text-valor-200 tabular-nums',
+  // Toolbar y superficies del dashboard (ficha de cuenta).
+  dashboard: {
+    sheet: `${SHEET_SURFACE} w-full min-w-0`,
+    body: `${SHEET_BODY} px-4 py-5 sm:px-6 sm:py-7`,
+    identity: 'relative px-4 sm:px-6 py-5',
+    toolbar:
+      'flex flex-col gap-4 border-b border-brand-600/25 pb-4 sm:flex-row sm:items-end sm:justify-between',
+    zone: 'space-y-8 lg:space-y-10',
+    selector: 'bg-brand-950/50 border border-brand-700/50 rounded-md p-3 space-y-2',
+    empty: 'py-4',
+  },
   // Superficie de color del badge de rol (única fuente; la consumen
   // dashboard, admin y perfiles). El layout lo aporta ui.badge + ui.badgeMd.
   badgeRole: {
@@ -107,7 +134,7 @@ export const ui = {
   // Subtítulo de bloque dentro de un panel (visores, fichas, listas)
   subTitle: 'font-display text-xs font-semibold uppercase tracking-widest text-valor-300/90 mb-2',
   // Chip de categoría/etiqueta (CON texto → rounded-md obligatorio); el color lo aporta colorClasses
-  chip: 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11px] font-bold uppercase tracking-widest',
+  chip: 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11px] font-bold uppercase tracking-wider',
   // Comando/ruta estilo tecla para material de referencia
   kbd: 'inline-block font-mono text-[11px] leading-none bg-brand-950/90 border border-brand-600/40 rounded px-1.5 py-0.5 text-parchment-200',
 
