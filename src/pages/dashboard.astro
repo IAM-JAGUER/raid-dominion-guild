@@ -336,7 +336,9 @@ const meta = PAGE_META['/dashboard'];
           aria-labelledby="tab-personajes"
           class="hidden"
         >
-          <!-- Estado vacío: sin personajes detectados -->
+          <!-- Estado vacío: sin personajes detectados. La configuración del
+               perfil vive FUERA de este bloque para seguir disponible incluso
+               cuando la cuenta todavía no tiene personajes. -->
           <EmptyState
             id="characters-empty"
             hidden
@@ -344,10 +346,104 @@ const meta = PAGE_META['/dashboard'];
             icon="personaje"
             title="Aún no registras personajes"
             gradient={false}
-            message="Sube el archivo del addon y aparecerán aquí."
+            message="Sube el archivo del addon y aparecerán aquí. Puedes configurar tu perfil ahora mismo."
             cta={{ label: "Subir ahora", href: "/upload" }}
             ctaCls="px-6 py-3 text-sm"
           />
+          <!-- Datos del perfil: independientes del roster, siempre disponibles
+             aunque la cuenta no tenga personajes (nombre visible, principal,
+             visibilidad pública y guardar). -->
+          <div
+            id="profile-settings"
+            class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4 mb-6"
+          >
+            <h4 class={`${ui.subTitle} flex items-center gap-1.5`}><Icon name="editar" size="xs" />Datos del perfil</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="display-name" class={ui.form.label}
+                  >Nombre visible</label
+                >
+                <input
+                  type="text"
+                  id="display-name"
+                  maxlength="40"
+                  placeholder="Tu nombre en el portal"
+                  class={`${ui.form.input} ${ui.focusRing}`}
+                />
+              </div>
+              <div>
+                <label for="character-main" class={ui.form.label}
+                  >Personaje principal</label
+                >
+                <div class="relative">
+                  <select
+                    id="character-main"
+                    disabled
+                    class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}
+                  >
+                    <option value="">Ninguno</option>
+                  </select>
+                  <svg
+                    aria-hidden="true"
+                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"></path></svg
+                  >
+                </div>
+                <p id="character-main-hint" class={ui.form.helperText}>
+                  Solo puedes elegir entre tus personajes públicos.
+                </p>
+              </div>
+            </div>
+
+            <label
+              for="profile-public"
+              class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-brand-600/40 rounded-md p-4 ${ui.transition}`}
+            >
+              <input
+                type="checkbox"
+                id="profile-public"
+                class="mt-0.5 w-4 h-4 accent-brand-500"
+              />
+              <span class={`${ui.text.body} font-medium`}
+                >Perfil y datos públicos
+                <span class={`block ${ui.text.caption} italic mt-0.5`}
+                  >Al activarlo, tu perfil de jugador será visible
+                  públicamente para la comunidad.</span
+                >
+              </span>
+            </label>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                id="save-profile"
+                class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}
+              >
+                Guardar cambios
+              </button>
+              <a
+                id="public-profile-link"
+                href="#"
+                target="_blank"
+                rel="noopener"
+                class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}
+                >Ver perfil público →</a
+              >
+            </div>
+            <p
+              id="profile-msg"
+              class={`hidden mt-3 ${ui.alert}`}
+              role="status"
+            >
+            </p>
+          </div>
+
           <div id="chars-sectionhead" class="relative">
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
@@ -395,102 +491,9 @@ const meta = PAGE_META['/dashboard'];
           </div>
 
           <div id="chars-sectionbody" class="space-y-5">
-            <!-- Datos del perfil: controles dentro del contenido de la ventana de
-               personajes (nombre visible, principal, visibilidad pública, guardar).
-               Estilo de sub-bloque del cuerpo, igual que los bloques del registro. -->
-            <div
-              class="bg-brand-800/50 border border-brand-700/30 rounded-md p-4"
-            >
-              <h4 class={`${ui.subTitle} flex items-center gap-1.5`}><Icon name="editar" size="xs" />Datos del perfil</h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="display-name" class={ui.form.label}
-                    >Nombre visible</label
-                  >
-                  <input
-                    type="text"
-                    id="display-name"
-                    maxlength="40"
-                    placeholder="Tu nombre en el portal"
-                    class={`${ui.form.input} ${ui.focusRing}`}
-                  />
-                </div>
-                <div>
-                  <label for="character-main" class={ui.form.label}
-                    >Personaje principal</label
-                  >
-                  <div class="relative">
-                    <select
-                      id="character-main"
-                      disabled
-                      class={`${ui.form.input} ${ui.focusRing} appearance-none pl-3 pr-10 disabled:opacity-60 disabled:cursor-not-allowed`}
-                    >
-                      <option value="">Ninguno</option>
-                    </select>
-                    <svg
-                      aria-hidden="true"
-                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      ><path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 9l-7 7-7-7"></path></svg
-                    >
-                  </div>
-                  <p id="character-main-hint" class={ui.form.helperText}>
-                    Solo puedes elegir entre tus personajes públicos.
-                  </p>
-                </div>
-              </div>
-
-              <label
-                for="profile-public"
-                class={`mt-4 flex items-start gap-3 cursor-pointer select-none border border-gray-700/60 hover:border-brand-600/40 rounded-md p-4 ${ui.transition}`}
-              >
-                <input
-                  type="checkbox"
-                  id="profile-public"
-                  class="mt-0.5 w-4 h-4 accent-brand-500"
-                />
-                <span class={`${ui.text.body} font-medium`}
-                  >Perfil y datos públicos
-                  <span class={`block ${ui.text.caption} italic mt-0.5`}
-                    >Al activarlo, tu perfil de jugador será visible
-                    públicamente para la comunidad.</span
-                  >
-                </span>
-              </label>
-
-              <div class="mt-4 flex flex-wrap items-center gap-3">
-                <button
-                  id="save-profile"
-                  class={`${ui.btnBase} ${ui.btnPrimary} px-6 py-2.5 text-xs font-black uppercase tracking-widest transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none`}
-                >
-                  Guardar cambios
-                </button>
-                <a
-                  id="public-profile-link"
-                  href="#"
-                  target="_blank"
-                  rel="noopener"
-                  class={`hidden px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest ${ui.status.success}`}
-                  >Ver perfil público →</a
-                >
-              </div>
-              <p
-                id="profile-msg"
-                class={`hidden mt-3 ${ui.alert}`}
-                role="status"
-              >
-              </p>
-            </div>
-
             <!-- ── Task Tracker (adaptación del tracker wow-rd) ───────────────
-                 La sección "Datos del perfil" se mantiene arriba; debajo vive
-                 el seguimiento por personaje con datos de las subidas del addon. -->
+                 El seguimiento por personaje vive dentro del bloque que sí
+                 depende de las subidas del addon. -->
             <div id="tracker-root" class={ui.tracker.shell}>
               <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div class="min-w-0">
