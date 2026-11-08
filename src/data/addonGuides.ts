@@ -134,7 +134,7 @@ export const guides: Guide[] = [
         content: [
           'Abre el menú con /rd y entra en RaidDominion > Registrar: el addon guarda una ficha de tu personaje (equipamiento, iLvl, metas de equipo y moneda, nota, instancias guardadas, bandas y hermandad).',
           'Registra el personaje que usas en raid y repite el paso por cada uno que quieras incluir.',
-          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. Las metas y la nota aparecen en tu [dashboard](/dashboard) según lo que decidas publicar; las instancias guardadas se consultan en el tracker de personajes.',
+          'Sube tu ficha en /upload y el portal la carga al instante: tu perfil, bandas y hermandad quedan listos. La nota aparece en tu [dashboard](/dashboard) según decidas publicarla; las metas de equipo y moneda y las instancias guardadas quedan solo en el tracker privado de personajes.',
           'Re-subir tu ficha mantiene todo al día sin volver a configurar nada.',
         ],
       },
@@ -325,7 +325,7 @@ export const guides: Guide[] = [
         content: [
           'Monedas y emblemas en vivo, con el dinero primero. Fija una meta (cantidad objetivo) por moneda.',
           'El check de seguimiento añade cada moneda vigilada (con su meta y cuánto falta) al tooltip del botón Jugador.',
-          'Las metas de equipo y moneda se publican en la ficha pública del portal (pestaña Metas) al registrar.',
+          'Las metas de equipo y moneda son privadas: se consultan en el tracker de personajes de tu dashboard y no se publican en la ficha pública.',
         ],
       },
     ],

@@ -90,7 +90,7 @@ export const ADDON_FEATURES = [
   },
   {
     title: 'Perfil público',
-    description: 'Comparte tu personaje, equipo, metas y bandas con la comunidad.',
+    description: 'Comparte tu personaje, equipo y bandas con la comunidad.',
     icon: 'perfil-alt',
   },
 ] as const;

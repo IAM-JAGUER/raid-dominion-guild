@@ -38,7 +38,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/upload': {
     title: 'Sube tu archivo del addon — Portal de hermandades RaidDominion',
     description:
-      'Sube tu RaidDominion.lua y convierte el roster, las bandas y las metas de tu hermandad en un portal web gratuito. Sin formularios y en segundos.',
+      'Sube tu RaidDominion.lua y convierte el roster, las bandas y los datos de tu hermandad en un portal web gratuito. Sin formularios y en segundos.',
   },
   '/hermandades': {
     title: 'Directorio de hermandades de WoW 3.3.5a — RaidDominion',
@@ -53,7 +53,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/personajes': {
     title: 'Personajes públicos de WoW 3.3.5a — RaidDominion',
     description:
-      'Explora personajes de WoW 3.3.5a con equipo, iLevel, metas y bandas. Datos públicos sincronizados desde el addon RaidDominion.',
+      'Explora personajes de WoW 3.3.5a con equipo, iLevel y bandas. Datos públicos sincronizados desde el addon RaidDominion.',
   },
   '/jugadores': {
     title: 'Jugadores y perfiles públicos — RaidDominion',
@@ -69,7 +69,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/personaje': {
     title: 'Personaje — RaidDominion',
     description:
-      'Ficha pública de personaje de World of Warcraft 3.3.5a: equipo, iLevel, metas y bandas registradas con RaidDominion.',
+      'Ficha pública de personaje de World of Warcraft 3.3.5a: equipo, iLevel y bandas registradas con RaidDominion.',
   },
   '/banda': {
     title: 'Banda — RaidDominion',

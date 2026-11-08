@@ -137,7 +137,7 @@ import FichaDock from '@/components/ui/FichaDock.astro';
   async function render(c: CharacterRow, p?: ProfileRow): Promise<void> {
     const slug = c.slug ?? currentSlug();
     const path = `/personaje/${slug}`;
-    const description = `Ficha de ${c.name}${c.realm ? ` de ${c.realm}` : ''}: equipo, iLevel, metas y bandas públicas en RaidDominion.`;
+    const description = `Ficha de ${c.name}${c.realm ? ` de ${c.realm}` : ''}: equipo, iLevel y bandas públicas en RaidDominion.`;
     setPageMeta({
       title: `${c.name}${c.realm ? ' — ' + c.realm : ''} — Personaje | RaidDominion`,
       description,
@@ -245,7 +245,7 @@ import FichaDock from '@/components/ui/FichaDock.astro';
     links.appendChild(
       shareLinkButton({
         title: `${c.name}${c.realm ? ` — ${c.realm}` : ''} | RaidDominion`,
-        text: `Ficha de ${c.name} en RaidDominion: equipo, iLevel, metas y bandas.`,
+        text: `Ficha de ${c.name} en RaidDominion: equipo, iLevel y bandas.`,
         url: window.location.href,
       }),
     );
