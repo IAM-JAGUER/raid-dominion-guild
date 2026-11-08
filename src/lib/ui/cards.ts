@@ -383,6 +383,8 @@ export interface BandFallbackInput {
   nameLink?: WowLink | null;
   schedule?: string | null;
   minGS?: number | null;
+  hidePlayers?: boolean;
+  playerCount?: number;
 }
 
 export function renderBandFallbackCard(b: BandFallbackInput): HTMLElement {
@@ -401,9 +403,15 @@ export function renderBandFallbackCard(b: BandFallbackInput): HTMLElement {
   const parts: string[] = [];
   if (b.schedule) parts.push(b.schedule);
   if (typeof b.minGS === 'number' && b.minGS > 0) parts.push(`GS ${b.minGS}`);
-  if (parts.length > 0) {
+  const hasPlayers = b.hidePlayers || typeof b.playerCount === 'number';
+  if (parts.length > 0 || hasPlayers) {
     const chips = el('div', 'flex flex-wrap gap-1.5');
     parts.forEach((part) => chips.appendChild(chip(part)));
+    if (b.hidePlayers) {
+      chips.appendChild(chip('jugadores ocultos', '!text-gray-300'));
+    } else if (typeof b.playerCount === 'number') {
+      chips.appendChild(chip(`${b.playerCount} jugador${b.playerCount === 1 ? '' : 'es'}`));
+    }
     cardEl.appendChild(chips);
   }
   cardEl.appendChild(el('p', 'text-xs text-gray-300 mt-4', 'Sin ficha pública'));

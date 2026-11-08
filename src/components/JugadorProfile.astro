@@ -427,8 +427,8 @@ import { ui } from '@/lib/ui/design';
     // (renderBandCard); sin slug, card no enlazable con el mismo modelo.
     if (b.slug) {
       return renderBandCard(
-        { slug: b.slug, name: b.name, nameLink: b.nameLink ?? null, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null },
-        { integrated: b.integrated, owner },
+        { slug: b.slug, name: b.name, nameLink: b.nameLink ?? null, schedule: b.schedule ?? null, min_gs: b.minGS ?? null, guildId: b.guildId ?? null, hide_players: b.hidePlayers ?? false },
+        { integrated: b.integrated, owner, playerCount: b.playerCount },
       );
     }
     return renderBandFallbackCard({
@@ -436,6 +436,8 @@ import { ui } from '@/lib/ui/design';
       nameLink: b.nameLink ?? null,
       schedule: b.schedule ?? null,
       minGS: b.minGS ?? null,
+      hidePlayers: b.hidePlayers,
+      playerCount: b.playerCount,
     });
   }
 

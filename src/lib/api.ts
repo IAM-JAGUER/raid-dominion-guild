@@ -440,7 +440,8 @@ export async function getRealmOverview(
 //   3. El reino PRINCIPAL del dueño (vista raiddominion_profile_handles)
 //      coincide: cubre bandas de dueños con perfil privado y sin personaje
 //      público en el reino — su banda pública aparece igualmente en su reino.
-// Excluye bandas con hide_players porque su roster es privado.
+// Incluye bandas con hide_players: la vista enmascara su roster y la card
+// muestra «jugadores ocultos».
 export async function getRealmBands(
   realm: string
 ): Promise<{ ok: boolean; bands?: BandRow[]; error?: string }> {
@@ -449,7 +450,6 @@ export async function getRealmBands(
       .from('raiddominion_bands_public')
       .select('*')
       .eq('is_public', true)
-      .eq('hide_players', false)
       .ilike('character_realm', realm)
       .order('name', { ascending: true })
       .limit(200),
@@ -483,7 +483,6 @@ export async function getRealmBands(
       .from('raiddominion_bands_public')
       .select('*')
       .eq('is_public', true)
-      .eq('hide_players', false)
       .in('owner_id', ownerIds)
       .order('name', { ascending: true })
       .limit(200);
@@ -1840,6 +1839,9 @@ export interface PublicBandSummary {
   // Datos de atribución (resolveBandOwners): guild o perfil dueño.
   guildId?: string | null;
   ownerId?: string;
+  // Privacidad del roster y conteo de jugadores visible para el llamador.
+  hidePlayers?: boolean;
+  playerCount?: number;
 }
 
 // Resuelve slugs públicos de /personaje/:slug por nombre. La clave del mapa
@@ -1883,8 +1885,8 @@ export async function getPublicCharacterSlugsByNames(
 // sesión) — porque ese filtro dejaba invisibles las bandas PRIVADAS del propio
 // jugador en su perfil. Aquí se refina en cliente:
 //   - bandas privadas: solo las ve su dueño (autenticado);
-//   - bandas con hide_players: el dueño conserva su membresía y rol; el resto
-//     no ve la banda (el roster oculto la oculta también en las fichas).
+//   - bandas con hide_players: la banda sigue visible, pero la vista enmascara
+//     players[] al público; la card muestra «jugadores ocultos».
 // Se leen TODAS las filas visibles (paginado), sin truncar en el primer lote.
 export async function getPublicBandsForCharacter(
   charName: string,
@@ -1918,8 +1920,6 @@ export async function getPublicBandsForCharacter(
     // RLS ya entregó solo lo que esta sesión puede ver (públicas + propias);
     // aquí se refina el caso propias-privadas sin repetir el filtro en SQL.
     if (!isMine && !b.is_public) continue;
-    // Bandas con hide_players: el dueño las conserva; el público no las ve.
-    if (b.hide_players && !isMine) continue;
     const match = matchBandCharacter(b, name, charRealm);
     if (!match) continue;
     bands.push({
@@ -1932,6 +1932,8 @@ export async function getPublicBandsForCharacter(
       integrated: !!(b.is_rank_integrated && b.guild_id),
       guildId: b.guild_id ?? null,
       ownerId: b.owner_id,
+      hidePlayers: !!b.hide_players,
+      playerCount: Array.isArray(b.players) ? b.players.length : 0,
     });
   }
   return { ok: true, bands };
