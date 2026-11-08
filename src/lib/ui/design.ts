@@ -55,6 +55,9 @@ export const ui = {
   // piedra/energía a las cards, rd-cut bisela esquinas (clip-path) con bisel
   // helado y chispa.
   panel: `${SURFACE} rd-metal rd-frame rounded-md`,
+  // Panel de contenido que continúa una placa/encabezado: mismo filo recto
+  // que el borde inferior del encabezado, sin esquinas redondeadas.
+  panelFlush: '!rounded-none',
   panelHover: 'hover:border-brand-500/50 transition-all duration-300',
   // Ventana estilo terminal del dashboard: cabecera + cuerpo contiguos, sin
   // radio en la junta, esquina inferior cuadrada y esquina sup-derecha RECTA

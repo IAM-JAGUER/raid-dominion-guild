@@ -59,7 +59,7 @@ const meta = PAGE_META['/login'];
         </FichaDock>
       </header>
 
-      <section id="auth-panel" class={`${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
+      <section id="auth-panel" class={`${ui.panel} ${ui.panelFlush} ${ui.tone.arcane} ${ui.tonePanel} shadow-xl shadow-black/30 overflow-hidden animate-fade-in-1`} style="animation-delay: 0.15s">
         <form id="auth-form" class="p-4 sm:p-6 space-y-4" novalidate>
 <!-- Correo -->
           <div>
@@ -124,7 +124,7 @@ const meta = PAGE_META['/login'];
       </section>
 
       <!-- Nueva contraseña (callback de recuperación) -->
-      <section id="recovery-panel" class={`hidden ${ui.panel} ${ui.tone.arcane} ${ui.tonePanel} p-4 sm:p-6 shadow-xl shadow-black/30`}>
+      <section id="recovery-panel" class={`hidden ${ui.panel} ${ui.panelFlush} ${ui.tone.arcane} ${ui.tonePanel} p-4 sm:p-6 shadow-xl shadow-black/30`}>
         <p class={`${ui.text.body} mb-4`}>
           Elige una nueva contraseña para tu cuenta. Después volverás a tu dashboard.
         </p>
