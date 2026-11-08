@@ -1,8 +1,9 @@
 ---
-// Estado vacío reutilizable (patrón de directorios y paneles del dashboard):
-// medallón de icono + eyebrow + título + mensaje + CTA, con variante de
-// cuerpo libre vía slot. ÚNICA fuente del patrón empty (antes 7 bloques
-// casi idénticos — ver AGENTS.sections/pagina-map.md §2).
+// Estado vacío reutilizable (directorios, fichas y paneles del dashboard):
+// medallón de icono + eyebrow + título + mensaje + CTA, con variantes
+// `window`/`panel`/`plain` y cuerpo libre vía slot. ÚNICA fuente del patrón
+// empty (antes 7 bloques casi idénticos — ver AGENTS.sections/pagina-map.md
+// §2).
 interface Props {
   id?: string;
   eyebrow?: string;
@@ -27,9 +28,11 @@ interface Props {
   hidden?: boolean;
   // Clases extra del contenedor (p. ej. `mb-6`).
   cls?: string;
-  // `window`: cabecera + cuerpo (directorios/dashboard). `panel`: tarjeta
-  // simple dentro de un panel (estados vacíos del portal de hermandad).
-  variant?: 'window' | 'panel';
+  // `window`: cabecera + cuerpo (dashboard y estados de página). `panel`:
+  // tarjeta simple dentro de un panel (estados vacíos del portal de
+  // hermandad). `plain`: sin superficie propia, para vivir DENTRO de una
+  // ficha que ya aporta el marco (cuerpo hundido de la ficha de directorio).
+  variant?: 'window' | 'panel' | 'plain';
   // Padding del variant `panel`.
   pad?: 'md' | 'lg';
   // Corte diagonal sup-izq en el variant `panel`.
@@ -64,19 +67,23 @@ import type { IconName } from '@/lib/ui/icons';
 
 const titleTextCls = gradient ? `${titleCls} ${ui.gradientTitle}` : titleCls;
 const isPanel = variant === 'panel';
+const isPlain = variant === 'plain';
 const wrapCls = isPanel
   ? `${hidden ? 'hidden ' : ''}${ui.panel}${cut ? ` ${ui.cut}` : ''} relative overflow-hidden ${pad === 'lg' ? 'p-6 sm:p-8' : 'p-6'} text-center ${cls}`.trim()
-  : `${hidden ? 'hidden ' : ''}max-w-2xl mx-auto ${cls}`.trim();
+  : isPlain
+    ? `${hidden ? 'hidden ' : ''}max-w-2xl mx-auto text-center ${cls}`.trim()
+    : `${hidden ? 'hidden ' : ''}max-w-2xl mx-auto ${cls}`.trim();
 const headCls = align === 'center' ? 'flex items-center justify-center gap-3' : 'flex items-center gap-3';
 ---
 <div id={id} data-rd-reveal data-rd-list-empty class={wrapCls}>
-  {isPanel ? (
+  {isPanel || isPlain ? (
     <>
       <div class={`${ui.iconTile} ${ui.iconTileLg} mx-auto mb-4`} aria-hidden="true">
         <Icon name={icon} size="xl" />
       </div>
       <p class={`${titleTextCls} mb-1`}>{title}</p>
       {message && <p class={messageCls}>{message}</p>}
+      {cta && <a href={cta.href} class={`${ui.btnBase} ${ui.btnPrimary} inline-block px-6 py-2.5 text-xs font-black uppercase tracking-widest mt-6 ${ctaCls}`}>{cta.label}</a>}
       <slot name="body" />
     </>
   ) : (

@@ -6,6 +6,10 @@
 // La cabecera lleva el medallón de punto ámbar + título; los controles de la
 // cabecera (disclosure de filtros, buscador, selector) van en el slot `head`.
 // El contenido principal va en el slot por defecto.
+//
+// `flat`: el panel vive dentro de una ficha/pestaña que YA aporta el icono y
+// el label en su dock. En ese modo no se repite la cabecera: el slot `head`
+// (filtros/controles) y el cuerpo se integran sin superficie de ventana.
 interface Props {
   id?: string;
   title: string;
@@ -33,6 +37,9 @@ interface Props {
   wrapCls?: string;
   role?: 'tabpanel';
   ariaLabelledby?: string;
+  // Integra el contenido sin cabecera ni superficie de ventana (la pestaña
+  // ya muestra icono y label). Conserva id, ARIA, head y body.
+  flat?: boolean;
 }
 
 const {
@@ -50,6 +57,7 @@ const {
   wrapCls = '',
   role,
   ariaLabelledby,
+  flat = false,
 } = Astro.props;
 
 import { ui, type Tone } from '@/lib/ui/design';
@@ -62,26 +70,44 @@ const h2Cls = `${gradient ? `${titleCls} ${ui.gradientTitle}` : titleCls} pb-[0.
 const wrapClsFull = `${hidden ? 'hidden ' : ''}${toneCls} ${wrapCls}`.trim();
 const padCls = ui.panelPad[pad];
 ---
-<div id={id} class={wrapClsFull} role={role} aria-labelledby={ariaLabelledby}>
-  <div class={`${ui.sectionHead} ${ui.cutTop} ${padCls} bg-gradient-to-br from-brand-900/20 to-transparent ${isTone ? ui.toneHead : ''} ${headCls}`}>
-    {isTone && <span class={ui.toneRail} aria-hidden="true"></span>}
-    <h2 class={h2Cls}>
-      {icon ? (
-        isTone ? (
-          <span class={`mr-2.5 inline-flex items-center justify-center rounded-md border p-1.5 ${ui.toneIcon}`}>
-            <Icon name={icon} size="lg" />
-          </span>
+{flat ? (
+  <div
+    id={id}
+    class={`${hidden ? 'hidden ' : ''}${wrapCls}`.trim()}
+    role={role}
+    aria-labelledby={ariaLabelledby}
+  >
+    {Astro.slots.has('head') && (
+      <div class={`relative z-10 mb-5 ${headCls}`.trim()}>
+        <slot name="head" />
+      </div>
+    )}
+    <div class={bodyCls}>
+      <slot />
+    </div>
+  </div>
+) : (
+  <div id={id} class={wrapClsFull} role={role} aria-labelledby={ariaLabelledby}>
+    <div class={`${ui.sectionHead} ${ui.cutTop} ${padCls} bg-gradient-to-br from-brand-900/20 to-transparent ${isTone ? ui.toneHead : ''} ${headCls}`}>
+      {isTone && <span class={ui.toneRail} aria-hidden="true"></span>}
+      <h2 class={h2Cls}>
+        {icon ? (
+          isTone ? (
+            <span class={`mr-2.5 inline-flex items-center justify-center rounded-md border p-1.5 ${ui.toneIcon}`}>
+              <Icon name={icon} size="lg" />
+            </span>
+          ) : (
+            <Icon name={icon} size="lg" class="mr-2.5" />
+          )
         ) : (
-          <Icon name={icon} size="lg" class="mr-2.5" />
-        )
-      ) : (
-        <span class={`w-2 h-2 rounded-full mr-3 ${isTone ? 'rd-tone-dot' : 'bg-brand-500 shadow-[0_0_8px_rgba(0,191,255,0.5)]'}`}></span>
-      )}
-      <span id={titleId}>{title}</span>
-    </h2>
-    <slot name="head" />
+          <span class={`w-2 h-2 rounded-full mr-3 ${isTone ? 'rd-tone-dot' : 'bg-brand-500 shadow-[0_0_8px_rgba(0,191,255,0.5)]'}`}></span>
+        )}
+        <span id={titleId}>{title}</span>
+      </h2>
+      <slot name="head" />
+    </div>
+    <div class={`${ui.sectionBody} ${padCls} ${isTone ? ui.toneBody : ''} ${bodyCls}`}>
+      <slot />
+    </div>
   </div>
-  <div class={`${ui.sectionBody} ${padCls} ${isTone ? ui.toneBody : ''} ${bodyCls}`}>
-    <slot />
-  </div>
-</div>
+)}

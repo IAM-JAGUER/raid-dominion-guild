@@ -9,7 +9,6 @@ import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
 import FichaDock from '@/components/ui/FichaDock.astro';
-import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 ---
 <section id="view-banda" class="hidden">
   <FichaHero image="/images/headers/ficha-banda.webp" icon="espadas" tone="ember">
@@ -26,38 +25,38 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       label="Secciones de la banda"
       hidden={false}
     />
+
+    <div slot="body" class="space-y-8">
+      <div id="panel-core" role="tabpanel" aria-labelledby="tab-core">
+        <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
+             cabecera contigua (título + controles de filtro) + cuerpo con el
+             roster del core. -->
+        <PanelWindow flat title="Core" icon="jugadores" tone="ember">
+          <div slot="head">
+            <!-- Motor único de filtros (src/lib/ui/filterBar.ts): buscador por
+                 nombre + chips de rol y clase. Sin paginador: el core agrupa por
+                 rol en secciones colapsables. -->
+            <div class="mt-4" id="bv-core-filtro"></div>
+          </div>
+          <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center ${ui.surf.row} p-4`}>
+            Ningún jugador coincide con estos filtros.
+          </p>
+          <div id="bv-core"></div>
+        </PanelWindow>
+      </div>
+
+      <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden">
+        <PanelWindow flat title="Reglas" icon="pergamino" tone="parchment">
+          <div slot="head">
+            <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+            <div class="mt-4" id="bv-rules-filtro"></div>
+          </div>
+          <div id="bv-rules"></div>
+          <div id="bv-rules-pager" class="mt-3"></div>
+        </PanelWindow>
+      </div>
+    </div>
   </FichaHero>
-
-  <FichaSkeleton showBar={false} showLeftSep={false}>
-  <div id="panel-core" role="tabpanel" aria-labelledby="tab-core" class="space-y-6">
-    <!-- Mismo modelo de ventana que el roster de hermandad/dashboard:
-         cabecera contigua (título + controles de filtro) + cuerpo con el
-         roster del core. -->
-    <PanelWindow title="Core" icon="jugadores" tone="ember">
-      <div slot="head">
-        <!-- Motor único de filtros (src/lib/ui/filterBar.ts): buscador por
-             nombre + chips de rol y clase. Sin paginador: el core agrupa por
-             rol en secciones colapsables. -->
-        <div class="mt-4" id="bv-core-filtro"></div>
-      </div>
-      <p id="bv-empty-filter" class={`hidden ${ui.text.bodyMuted} italic text-center ${ui.surf.row} p-4`}>
-        Ningún jugador coincide con estos filtros.
-      </p>
-      <div id="bv-core"></div>
-    </PanelWindow>
-  </div>
-
-  <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
-    <PanelWindow title="Reglas" icon="pergamino" tone="parchment">
-      <div slot="head">
-        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
-        <div class="mt-4" id="bv-rules-filtro"></div>
-      </div>
-      <div id="bv-rules"></div>
-      <div id="bv-rules-pager" class="mt-3"></div>
-    </PanelWindow>
-  </div>
-  </FichaSkeleton>
 </section>
 
 <script>
@@ -229,7 +228,7 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
           labelOf: (v) => classLabels.get(v) ?? v,
           iconOf: (v) => v === '__none__'
             ? iconEl('personaje', { size: 'xs' })
-            : classIconEl(classLabels.get(v), undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'),
+            : classIconEl(classLabels.get(v), undefined, 'w-4 h-4 rounded-full shrink-0 object-contain'),
           minValues: 1,
         },
       ];

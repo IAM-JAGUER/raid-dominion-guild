@@ -1,16 +1,16 @@
 ---
 // Plantilla de página DIRECTORIO (servidores, jugadores, personajes, bandas,
-// hermandades). Encapsula el esqueleto común: PageHeader (identidad + barra
-// de filtros en el slot `filters`) + dividerFadeBoth + TABLERO ABIERTO con la
-// lista asíncrona + dividerFadeLeft. No usa PanelWindow: esa ventana es el
-// lenguaje de las fichas y aquí repetiría título/icono del header. Cada página
-// conserva solo su <script> (card() + fetch + facetas) y monta la barra sobre
-// #filters con src/lib/ui/filterBar.ts. La lista usa el contrato de
-// src/lib/ui/list.ts (`data-rd-list-status/content/empty/frame`) y los ids
-// #grid/#empty siguen siendo el anclaje del script
-// (ver AGENTS.sections/pagina-map.md §2).
+// hermandades). Encapsula el esqueleto común: FICHA DE DIRECTORIO
+// (DirectorySheet: identidad + filtros + cuerpo hundido) con la lista
+// asíncrona dentro, el paginador y el estado vacío. No usa PanelWindow: esa
+// ventana es el lenguaje de las fichas de entidad y aquí repetiría el
+// título/icono. Cada página conserva solo su <script> (card() + fetch +
+// facetas) y monta la barra sobre #filters con src/lib/ui/filterBar.ts. La
+// lista usa el contrato de src/lib/ui/list.ts
+// (`data-rd-list-status/content/empty/frame`) y los ids #grid/#empty siguen
+// siendo el anclaje del script (ver AGENTS.sections/pagina-map.md §2).
 import Breadcrumb from '@/components/Breadcrumb.astro';
-import PageHeader from '@/components/ui/PageHeader.astro';
+import DirectorySheet from '@/components/ui/DirectorySheet.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui, type Tone } from '@/lib/ui/design';
@@ -44,8 +44,6 @@ interface Props {
     text: string;
     cta?: { label: string; href: string } | null;
   };
-  // Clases del separador CENTRAL tras el header (por defecto `mt-6`).
-  dividerCls?: string;
   // Clases extra del h1 (p. ej. `rd-title rd-ornament`).
   heroTitleCls?: string;
   // Imagen de portada del encabezado (decorativa; se monta dentro de la placa).
@@ -64,7 +62,6 @@ const {
   gridLabel,
   empty,
   context,
-  dividerCls = 'mt-6',
   heroTitleCls = '',
   heroImage,
   heroImagePosition,
@@ -76,7 +73,7 @@ const toneCls = isTone ? ui.tone[tone] : '';
 ---
 <Breadcrumb />
 
-<PageHeader
+<DirectorySheet
   title={hero}
   intro={intro}
   titleCls={heroTitleCls}
@@ -87,35 +84,35 @@ const toneCls = isTone ? ui.tone[tone] : '';
   tone={tone}
 >
   <div slot="filters" id="filters" data-rd-filter-bar class={ui.filter.headerMount}></div>
-</PageHeader>
-<div class={`${ui.dividerFadeBoth} ${dividerCls}`} aria-hidden="true"></div>
 
-<!-- Tablero abierto del directorio: la lista vive directamente bajo el header
-     y el divisor central, sin la ventana de contenido de las fichas. El
-     bloque de carga sigue siendo el único hijo de #grid mientras carga y se
-     retira al asentarse. El contador vive en el filtro (header); el paginador
-     solo aporta la posición de página. -->
-<div data-rd-list-frame class={ui.directory.board}>
-  <section id="grid" data-rd-list-content data-rd-reveal-cards class={ui.directory.grid} aria-label={gridLabel}>
-    <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
-  </section>
-  <div id="pager" data-rd-list-pager></div>
-</div>
+  <!-- Cuerpo hundido de la ficha: la lista, el paginador y el estado vacío
+       viven DENTRO de la misma superficie. El bloque de carga sigue siendo el
+       único hijo de #grid mientras carga y se retira al asentarse. El contador
+       vive en el filtro; el paginador solo aporta la posición de página. -->
+  <div data-rd-list-frame class={ui.directory.board}>
+    <h2 id="directory-list-title" class="sr-only">{gridLabel}</h2>
+    <section id="grid" data-rd-list-content data-rd-reveal-cards class={ui.directory.grid} aria-labelledby="directory-list-title">
+      <LoadingBlock text={loadingText} listStatus pad="md" class="md:col-span-2 lg:col-span-3" />
+    </section>
+    <div id="pager" data-rd-list-pager></div>
+  </div>
 
-<EmptyState
-  id="empty"
-  cls={ui.directory.empty}
-  hidden
-  icon={empty.icon}
-  eyebrow={empty.eyebrow}
-  title={empty.title}
-  titleCls={empty.titleCls}
-  gradient={empty.gradient}
-  message={empty.message}
-  cta={empty.cta}
-  ctaCls={empty.ctaCls}
-  align="center"
-/>
+  <EmptyState
+    id="empty"
+    variant="plain"
+    cls={ui.directory.empty}
+    hidden
+    icon={empty.icon}
+    eyebrow={empty.eyebrow}
+    title={empty.title}
+    titleCls={empty.titleCls}
+    gradient={empty.gradient}
+    message={empty.message}
+    cta={empty.cta}
+    ctaCls={empty.ctaCls}
+    align="center"
+  />
+</DirectorySheet>
 
 {context && (
   <section class={`${ui.panel} ${toneCls} ${isTone ? ui.tonePanel : ''} relative overflow-hidden mt-10 p-6 sm:p-7`}>
@@ -129,4 +126,3 @@ const toneCls = isTone ? ui.tone[tone] : '';
     )}
   </section>
 )}
-<div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>

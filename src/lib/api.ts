@@ -1310,6 +1310,8 @@ export interface CharacterRow {
   class_file: string | null;
   race: string | null;
   race_file: string | null;
+  // Sexo real ('Male'/'Female') desde UnitSex en "Registrar" (addon v3.3.0).
+  sex: string | null;
   level: number | null;
   talent_spec: string | null;
   avg_ilvl: number | null;

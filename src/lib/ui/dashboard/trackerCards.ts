@@ -14,6 +14,7 @@ import { renderTrackerTasks, setTrackerTab } from '@/lib/ui/dashboard/trackerTas
 import type { TrackerTaskTab } from '@/lib/ui/dashboard/trackerLogic';
 import { inferFactionFromRace } from '@/lib/parser/savedVariables';
 import { currencyIconFor, iconEl, raceIconFor } from '@/lib/ui/icons';
+import { racePortraitEl } from '@/lib/ui/racePortrait';
 
 export interface TrackerCardHandlers {
   catalog: Array<{ id: string; label: string; position: number }>;
@@ -92,7 +93,8 @@ function watermark(character: TrackerCharacter): HTMLElement {
   const wm = el('div', 'absolute inset-0 pointer-events-none overflow-hidden rounded-md');
   wm.setAttribute('aria-hidden', 'true');
   const glyph = el('span', 'absolute -right-6 -bottom-8 opacity-[0.07]');
-  glyph.appendChild(iconEl(raceIconFor(character.race), { size: 'hero' }));
+  const portrait = racePortraitEl(character.race, character.race_file, 'w-24 h-24 object-cover', character.sex);
+  glyph.appendChild(portrait ?? iconEl(raceIconFor(character.race), { size: 'hero' }));
   wm.appendChild(glyph);
   const factionName = inferFactionFromRace(character.race_file ?? undefined, character.race ?? undefined);
   const faction = factionName === 'Horde' ? 'horde' : factionName === 'Alliance' ? 'alliance' : '';
@@ -195,7 +197,7 @@ export function renderTrackerCard(character: TrackerCharacter, h: TrackerCardHan
   const chevron = el('span', `text-[10px] text-brand-300 transition-transform duration-300 ${collapsed ? '-rotate-90' : ''}`, '▼');
   chevron.setAttribute('aria-hidden', 'true');
   chevron.dataset.trackerChevron = '';
-  collapseBtn.append(chevron, classIconEl(character.class, character.class_file, 'w-6 h-6 rounded-md border border-gray-700/50 object-cover shrink-0'));
+  collapseBtn.append(chevron, classIconEl(character.class, character.class_file, 'w-6 h-6 rounded-full object-contain shrink-0'));
   const titleGroup = el('span', 'min-w-0 flex flex-col');
   const title = el('span', `${ui.tracker.cardTitle} block`, character.name);
   title.style.color = classTextColor(character.class, character.class_file);

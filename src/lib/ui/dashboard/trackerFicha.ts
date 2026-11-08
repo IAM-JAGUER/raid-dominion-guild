@@ -12,6 +12,7 @@ import type {
 import { inferFactionFromRace } from '@/lib/parser/savedVariables';
 import { classTextColor } from '@/lib/ui/classColors';
 import { classIconEl } from '@/lib/ui/classIcon';
+import { racePortraitEl } from '@/lib/ui/racePortrait';
 import { applyClassAccent, classGauge, itemRow } from '@/lib/ui/card';
 import { TRACKER_FICHA_TABS } from '@/lib/ui/tabs';
 import { ui } from '@/lib/ui/design';
@@ -195,12 +196,12 @@ function panelsFor(ctx: FichaContext): Map<string, HTMLElement> {
     const tier = ilvlTierFor(ilvl);
     const pct = Math.round((ilvl / WOTLK_MAX_ILVL) * 100);
     detalle.appendChild(classGauge({
-      label: 'Nivel de objeto',
+      label: 'Nivel de equipamiento',
       valueText: `${ilvl}/${WOTLK_MAX_ILVL}`,
       value: ilvl,
       max: WOTLK_MAX_ILVL,
-      ariaLabel: `Nivel de objeto medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
-      tooltip: `iLvl medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
+      ariaLabel: `Nivel de equipamiento medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
+      tooltip: `Nivel de equipamiento medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
       milestones: WOTLK_ILVL_TIERS,
       ticks: false,
       interactive: true,
@@ -448,7 +449,9 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
   head.appendChild(el('span', ui.character.veil));
   const headRow = el('div', 'flex flex-wrap items-start justify-between gap-4');
   const ident = el('div', 'flex items-start gap-3 min-w-0');
-  ident.appendChild(classIconEl(c.class, c.class_file, 'w-12 h-12 rounded-md border border-gray-700/50 object-cover shrink-0'));
+  const racePortrait = racePortraitEl(c.race, c.race_file, 'w-12 h-12 rounded-md border border-gray-700/50 object-cover shrink-0', c.sex);
+  if (racePortrait) ident.appendChild(racePortrait);
+  ident.appendChild(classIconEl(c.class, c.class_file, 'w-12 h-12 rounded-full object-contain shrink-0'));
   const identText = el('div', 'min-w-0');
   identText.appendChild(el('p', ui.eyebrow, 'Personaje · Ficha del tracker'));
   const h2 = el('h2', 'text-xl sm:text-2xl font-black italic uppercase tracking-tight truncate', c.name);

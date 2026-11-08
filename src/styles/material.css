@@ -290,6 +290,139 @@
   );
 }
 
+/* ANILLO/AURA ESPECTRAL DEL MEDALLÓN (ficha de personaje): un anillo de luz
+   recorre el filo del medallón en el color de clase y una aureola respira
+   detrás. El arte del sprite queda intacto: el anillo es un borde enmascarado
+   y el aura vive por fuera. */
+.rd-medallion-spectral {
+  position: relative;
+  isolation: isolate;
+}
+.rd-medallion-spectral::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 48deg,
+    var(--class-color, var(--accent-primary)) 72deg,
+    transparent 108deg 228deg,
+    var(--class-color, var(--accent-primary)) 252deg,
+    transparent 288deg 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: blur(1.5px);
+  opacity: 0.68;
+  pointer-events: none;
+  z-index: 1;
+  animation: rd-medallion-orbit 8s linear infinite;
+}
+@keyframes rd-medallion-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.rd-medallion-spectral::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--class-color, var(--accent-primary)) 0%, transparent 68%);
+  filter: blur(12px);
+  opacity: 0.32;
+  pointer-events: none;
+  z-index: -1;
+  animation: rd-spectral-breathe 6s ease-in-out -1.8s infinite;
+}
+
+/* AURA ESPECTRAL DOBLE DEL NOMBRE (ficha de personaje): dos halos detrás del
+   texto, uno con el color de clase y otro con la paleta de calidad del
+   equipamiento. El texto conserva su color sólido AA. */
+.rd-name-spectral {
+  position: relative;
+  isolation: isolate;
+}
+.rd-name-spectral::before,
+.rd-name-spectral::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0.32;
+  will-change: transform, opacity;
+}
+.rd-name-spectral::before {
+  inset: -14% -6% -10% -12%;
+  filter: blur(16px);
+  background: radial-gradient(
+    ellipse at 26% 50%,
+    var(--class-color, var(--accent-primary)) 0%,
+    transparent 64%
+  );
+  animation: rd-name-class-drift 7s ease-in-out infinite;
+}
+.rd-name-spectral::after {
+  inset: -10% -12% -14% -6%;
+  filter: blur(22px);
+  background:
+    radial-gradient(
+      ellipse at 68% 50%,
+      var(--rd-equip-color, var(--class-color, var(--accent-primary))) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse at 80% 44%,
+      var(--rd-equip-color-2, var(--rd-equip-color, var(--class-color))) 0%,
+      transparent 62%
+    );
+  animation: rd-name-equip-drift 8.6s ease-in-out -2.4s infinite;
+}
+@keyframes rd-spectral-breathe {
+  0%,
+  100% {
+    opacity: 0.26;
+  }
+  50% {
+    opacity: 0.52;
+  }
+}
+@keyframes rd-spectral-breathe-slow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes rd-name-class-drift {
+  0%,
+  100% {
+    transform: translate3d(-2%, 0, 0) scale(0.96);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate3d(3%, -2%, 0) scale(1.06);
+    opacity: 0.56;
+  }
+}
+@keyframes rd-name-equip-drift {
+  0%,
+  100% {
+    transform: translate3d(2%, 1%, 0) scale(1.02);
+    opacity: 0.24;
+  }
+  50% {
+    transform: translate3d(-3%, -1%, 0) scale(0.97);
+    opacity: 0.4;
+  }
+}
 /* RIEL DE CALIDAD (fila de ítem, design.md §12): barra izquierda de 3px con
    el color de calidad del juego (`--rd-q`), integrada al marco de la fila
    (el anfitrión debe ser `relative overflow-hidden`). */
@@ -587,107 +720,40 @@
   background-image: linear-gradient(180deg, rgba(0, 191, 255, 0.12), rgba(0, 191, 255, 0) 55%);
 }
 
-/* ── Sistema de divisores: hairline anti-subpixel + halo de neón ──────────
-   Las líneas de 1px con background-image caen en posiciones fraccionarias de
-   píxel y Chrome las descarta en el primer paint (solo se ven al abrir
-   DevTools, que fuerza un repaint). Pintarlas como border-image las rasteriza
-   siempre a 1px exacto, sin flicker ni desaparición intermitente.
-
-   Sobre el trazo, el efecto ceremonial (neón helado que respira) vive en el
-   ::before: un bloom de DOS capas (núcleo de 6px + resplandor de altura
-   completa, la envolvente `--rd-divider-env` dos veces) con blur suave, que
-   pulsa (breathe: opacidad) y se mece en un vaivén espectral (drift:
-   traslación con deriva vertical e hinchazón scaleY). La LÍNEA también
-   respira: el propio elemento anima opacidad (compuesto, sin layout) y se
-   multiplica con el halo — pulso profundo y perceptible. Delays negativos:
-   ningún latido queda en fase consigo mismo ni con otro de la página. Solo se
-   animan opacity/transform (pseudos pointer-events:none). El envelope del
-   halo sigue el del trazo de cada variante. El separador inferior de
-   `.rd-tabbar` (bajo las pestañas) comparte el sistema. Con
-   `prefers-reduced-motion: reduce` se ATENÚA, no se congela (mismo criterio
-   que las partículas: un estado congelado se percibe roto): sin deriva (cero
-   traslación) pero con respiración lenta de opacidad pura. */
-.rd-divider,
-.rd-divider-both,
-.rd-divider-left,
-.rd-divider-right {
-  position: relative;
-  animation: rd-divider-breathe 6s ease-in-out -2.7s infinite;
+/* ── Borde inferior de las pestañas: hairline + halo ────────────────────
+   El separador de `.rd-tabbar` (bajo las pestañas) conserva su hairline
+   anti-subpixel (`border-image`: a 1px exacto, sin la caída de las líneas
+   con background-image) y su bloom helado. Vive DENTRO del borde inferior
+   (bottom: 0): la barra es scroller horizontal (overflow-x-auto ⇒ overflow-y
+   computed auto) y un pseudo que sobresalga se recortaría y añadiría scroll
+   vertical. El núcleo del bloom va en el filo (position 100%: emana HACIA
+   ARRIBA desde la línea) y el vaivén es corto (drift-soft ±6px) para que el
+   extremo sólido de su fade no se despegue. Con `prefers-reduced-motion:
+   reduce` se ATENÚA, no se congela: sin deriva, solo respiración lenta de
+   opacidad pura. */
+.rd-tabbar {
+  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.45), transparent);
 }
-.rd-divider,
-.rd-divider-both {
-  --rd-divider-env: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.7) 30%, rgba(0, 191, 255, 0.7) 70%, transparent);
-}
-.rd-divider-left {
-  --rd-divider-env: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.5), rgba(0, 191, 255, 0.85));
-}
-/* Espejo del anterior: nace sólido a la IZQUIERDA y se desvanece a la derecha
-   (misma dirección que la hairline interna de `.rd-tabbar`). Es el separador
-   izquierdo del esqueleto cuando la página no tiene barra de pestañas. */
-.rd-divider-right {
-  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.5), transparent);
-}
-.rd-divider {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.7) 30%, rgba(0, 191, 255, 0.7) 70%, transparent) 1 / 1 / 0 stretch;
-}
-.rd-divider-both {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.6), transparent) 1 / 1 / 0 stretch;
-}
-.rd-divider-left {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, transparent, rgba(0, 160, 220, 0.6), rgba(0, 191, 255, 0.85)) 1 / 1 / 0 stretch;
-}
-.rd-divider-right {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.6), transparent) 1 / 1 / 0 stretch;
-}
-/* Bloom helado: núcleo + resplandor; respira (opacidad) y flota (vaivén con
-   deriva vertical e hinchazón scaleY) */
-.rd-divider::before,
-.rd-divider-both::before,
-.rd-divider-left::before,
-.rd-divider-right::before,
 .rd-tabbar::before {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  height: 18px;
+  bottom: 0;
+  height: 14px;
   pointer-events: none;
   filter: blur(5px);
   opacity: 0.55;
   background-image: var(--rd-divider-env), var(--rd-divider-env);
   background-size: 100% 6px, 100% 100%;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-  animation:
-    rd-divider-breathe 6s ease-in-out -1.2s infinite,
-    rd-divider-drift 14s ease-in-out -3.4s infinite alternate;
-}
-.rd-divider::before,
-.rd-divider-both::before,
-.rd-divider-left::before,
-.rd-divider-right::before {
-  top: calc(50% - 9px);
-}
-/* Tab-bar: la hairline propia (fade a la DERECHA) queda como ::after; el halo
-   se posa SOBRE ella. Vive DENTRO del borde inferior (bottom: 0): la barra es
-   scroller horizontal (overflow-x-auto ⇒ overflow-y computed auto) y un
-   pseudo que sobresalga se recortaría y añadiría scroll vertical. El núcleo
-   del bloom va en el filo (position 100%: emana HACIA ARRIBA desde la línea)
-   y el vaivén es más corto (drift-soft ±6px) para que el extremo sólido de su
-   fade no se despegue del borde. */
-.rd-tabbar {
-  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.45), transparent);
-}
-.rd-tabbar::before {
-  bottom: 0;
-  height: 14px;
   background-position: 50% 100%;
+  background-repeat: no-repeat;
   animation-name: rd-divider-breathe, rd-divider-drift-soft;
+  animation-duration: 6s, 14s;
+  animation-timing-function: ease-in-out, ease-in-out;
   animation-delay: -4.6s, -9.1s;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
 }
 @keyframes rd-divider-breathe {
   0%,
@@ -707,17 +773,6 @@
     opacity: 0.8;
   }
 }
-@keyframes rd-divider-drift {
-  from {
-    transform: translate(-15px, 1px) scaleY(0.85);
-  }
-  50% {
-    transform: translate(0, -1.5px) scaleY(1.2);
-  }
-  to {
-    transform: translate(15px, 1px) scaleY(0.85);
-  }
-}
 @keyframes rd-divider-drift-soft {
   from {
     transform: translate(-6px, 1px) scaleY(0.9);
@@ -731,8 +786,8 @@
 }
 /* Tab-bar (hairline): la técnica del trazo, en el ::after inferior. Fade a la
    DERECHA: el borde nace sólido a la izquierda (visible bajo la primera
-   pestaña) y se desvanece hacia la derecha — es parte del diseño de la barra,
-   no un divisor aparte. Late con el halo (mismo breathe, delay propio). */
+   pestaña) y se desvanece hacia la derecha — es parte del diseño de la barra.
+   Late con el halo (mismo breathe, delay propio). */
 .rd-tabbar::after {
   content: "";
   position: absolute;
@@ -1102,16 +1157,56 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 38%);
 }
 
-/* Emblema de raza de fondo: la «forma bestia» detrás del retrato. Es el
-   sprite nativo con opacidad reducida (no se recolorea). */
-.rd-select-emblem {
+/* AVATAR DE RAZA: retrato cuadrado antes del icono de clase, con borde
+   espectral en los colores de calidad del equipamiento. */
+@property --rd-race-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.rd-race-avatar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 0.375rem;
+  isolation: isolate;
+  box-shadow: 0 0 18px -6px var(--rd-equip-color, transparent);
+}
+.rd-race-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.375rem;
+}
+.rd-race-avatar::before {
+  content: "";
   position: absolute;
-  right: -0.75rem;
-  bottom: -1rem;
-  z-index: -1;
-  opacity: 0.08;
+  inset: -3px;
+  padding: 2px;
+  border-radius: 0.5rem;
+  background: conic-gradient(
+    from var(--rd-race-angle),
+    transparent 0deg 40deg,
+    var(--rd-equip-color, var(--accent-primary)) 80deg,
+    transparent 130deg 220deg,
+    var(--rd-equip-color-2, var(--rd-equip-color, var(--accent-primary))) 260deg,
+    transparent 310deg 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: blur(0.5px);
+  opacity: 0.9;
   pointer-events: none;
-  filter: drop-shadow(0 0 18px var(--class-color, transparent));
+  z-index: 1;
+  animation: rd-race-angle 8s linear infinite;
+}
+@keyframes rd-race-angle {
+  to {
+    --rd-race-angle: 360deg;
+  }
 }
 
 /* Tira de energía bajo el nombre display. */
@@ -1157,6 +1252,55 @@
     var(--class-color, var(--accent-primary));
   box-shadow: 0 0 14px -2px var(--class-color, var(--accent-primary));
   transition: width 300ms ease;
+}
+
+/* Gauge espectral de equipamiento: el relleno usa la paleta de calidad del
+   equipamiento (colores del juego) y una banda de luz la recorre. El brillo
+   exterior también sale de esa paleta. */
+.rd-beast-gauge--spectral {
+  border-color: var(--rd-gauge-3, rgba(92, 169, 232, 0.28));
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.55),
+    0 0 14px -4px var(--rd-gauge-3, transparent),
+    0 0 22px -10px var(--rd-gauge-1, transparent);
+}
+.rd-beast-gauge--spectral .rd-beast-gauge__fill {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 55%),
+    var(--rd-gauge-gradient, linear-gradient(90deg, var(--rd-gauge-1), var(--rd-gauge-2) 52%, var(--rd-gauge-3)));
+  box-shadow:
+    0 0 16px -2px var(--rd-gauge-3),
+    0 0 24px -8px var(--rd-gauge-1);
+}
+.rd-beast-gauge--spectral .rd-beast-gauge__fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 24%,
+    rgba(255, 255, 255, 0.55) 45%,
+    var(--rd-gauge-3) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  pointer-events: none;
+  animation: rd-gauge-spectral-sweep 4.8s linear infinite;
+}
+.rd-beast-gauge--spectral .rd-beast-gauge__milestone.is-passed {
+  background: var(--rd-gauge-3);
+  box-shadow: 0 0 6px var(--rd-gauge-3);
+}
+@keyframes rd-gauge-spectral-sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
 }
 .rd-beast-gauge__ticks {
   position: absolute;
@@ -1233,23 +1377,30 @@
   .rd-glow {
     animation: none;
   }
-  /* Divisores/tab-bar: se ATENÚAN, no se congelan (mismo criterio que las
+  /* Borde de las tab bars: se ATENÚA, no se congela (mismo criterio que las
      partículas: un estado congelado se percibe roto). Sin deriva — cero
      traslación/escala — solo respiración lenta de opacidad pura (segura para
      movimiento reducido). Línea y halo con delays distintos: latido vivo. */
-  .rd-divider::before,
-  .rd-divider-both::before,
-  .rd-divider-left::before,
-  .rd-divider-right::before,
   .rd-tabbar::before {
     animation: rd-divider-breathe-slow 11s ease-in-out -2.3s infinite;
   }
-  .rd-divider,
-  .rd-divider-both,
-  .rd-divider-left,
-  .rd-divider-right,
   .rd-tabbar::after {
     animation: rd-divider-breathe-slow 11s ease-in-out -5.2s infinite;
+  }
+  /* Auras espectrales del personaje: sin deriva, solo respiración lenta de
+     opacidad pura. Los anillos de borde conservan su recorrido a velocidad
+     muy baja para que el efecto siga leyéndose en escritorio. */
+  .rd-medallion-spectral::after,
+  .rd-name-spectral::before,
+  .rd-name-spectral::after,
+  .rd-beast-gauge--spectral .rd-beast-gauge__fill::after {
+    animation: rd-spectral-breathe-slow 12s ease-in-out infinite;
+  }
+  .rd-medallion-spectral::before {
+    animation: rd-medallion-orbit 24s linear infinite;
+  }
+  .rd-race-avatar::before {
+    animation: rd-race-angle 24s linear infinite;
   }
   /* Costuras, bandas espectrales y biseles de esquina: respiración lenta y
      suave (opacidad pura; el vaivén espectral se retira: es traslación).

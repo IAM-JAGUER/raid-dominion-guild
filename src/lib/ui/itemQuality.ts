@@ -30,6 +30,24 @@ export function itemQualityTextColor(quality?: number | null): string {
   return ITEM_QUALITY_TEXT_COLORS[quality] ?? itemQualityColor(quality);
 }
 
+// Paleta ESPECTRAL del equipamiento: colores de calidad del juego presentes
+// en el equipo, en el ORDEN DE LA JERARQUÍA (gris → blanco → verde → azul →
+// morado → naranja/legendario → artefacto → reliquia). Es la fuente única
+// del gradiente del gauge y de la segunda aura del nombre.
+export function equipmentQualityPalette(
+  pieces: ReadonlyArray<{ quality?: number | null }>,
+  limit = 8,
+): string[] {
+  const qualities = new Set<number>();
+  for (const piece of pieces) {
+    if (typeof piece.quality === 'number') qualities.add(piece.quality);
+  }
+  return [...qualities]
+    .sort((a, b) => a - b)
+    .slice(0, Math.max(1, limit))
+    .map((quality) => itemQualityColor(quality));
+}
+
 // Nombre de calidad en plural para resúmenes de equipo ("4 épicas", "12 raras").
 const ITEM_QUALITY_LABELS_PLURAL: Record<number, string> = {
   0: 'pobres',
@@ -72,7 +90,7 @@ export function itemQualityCountLabel(quality: number, count: number): string {
 }
 
 // iLvl máximo de World of Warcraft 3.3.5a (Ruby Sanctum 25H / Shadowmourne).
-// Fuente única del denominador del gauge de nivel de objeto.
+// Fuente única del denominador del gauge de nivel de equipamiento.
 export const WOTLK_MAX_ILVL = 284;
 
 export interface IlvlTier {

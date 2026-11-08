@@ -6,7 +6,6 @@ import StatusCard from '@/components/ui/StatusCard.astro';
 import Icon from '@/components/ui/Icon.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
 import FichaDock from '@/components/ui/FichaDock.astro';
-import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 import { ui } from '@/lib/ui/design';
 ---
 
@@ -38,10 +37,8 @@ import { ui } from '@/lib/ui/design';
       ctaCls={`${ui.btnBase} ${ui.btnPrimary} inline-block mt-5 px-6 py-2.5 text-xs font-black uppercase tracking-widest`}
     />
 
-    <!-- Ficha del personaje. Ritmo de zonas póster: header (zone.hero),
-         nav (zone.tabs) y paneles (zone.body) llevan su propio compás; sin
-         `space-y` aquí, que pisaba el `mt-12` del divisor y separaba la tira
-         de contexto (#jugador-context) del separador. -->
+    <!-- Ficha del personaje: encabezado + paneles en la MISMA superficie.
+         La tira de contexto (#jugador-context) queda fuera de la ficha. -->
     <div id="profile" data-rd-reveal class="hidden">
       <FichaHero image="/images/headers/ficha-personaje.webp" icon="personaje" tone="arcane" avatarId="avatar">
         <h1 id="display-name" class={`${ui.titleFicha} break-words ${ui.gradientTitle} ${ui.toneTitle}`}></h1>
@@ -57,52 +54,46 @@ import { ui } from '@/lib/ui/design';
           barId="profile-tab-bar"
           label="Secciones del perfil"
         />
+
+        <!-- Paneles ventana (modelo dashboard): Personajes, Bandas, Hermandades -->
+        <div slot="body" id="profile-panels" class={ui.zone.body}>
+          <PanelWindow flat id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
+            <h3 id="main-title" class={ui.subTitle}></h3>
+            <!-- Filtros/paginador cuando la cuenta no tiene principal declarado
+                 (todos los personajes van en la tarjeta principal). -->
+            <div id="personajes-main-filtro" class="mt-4"></div>
+            <div id="main-card"></div>
+            <div id="personajes-main-pager" class="mt-3"></div>
+            <div id="characters-section" data-rd-reveal class="hidden mt-6">
+              <h3 class={ui.subTitle}>Otros personajes de la cuenta</h3>
+              <!-- Motor único de filtros (src/lib/ui/filterBar.ts) + paginador. -->
+              <div id="personajes-filtro" class="mb-4"></div>
+              <div id="characters-grid" class={ui.gridCards}></div>
+              <div id="personajes-pager" class="mt-3"></div>
+            </div>
+          </PanelWindow>
+
+          <PanelWindow flat id="panel-bandas" title="Bandas" icon="espadas" tone="ember" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+            <div slot="head">
+              <!-- Panel de filtros estándar (buscador + selector de día) del motor
+                   src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
+              <div class="mt-4" id="bandas-filtro" data-rd-reveal-cards></div>
+            </div>
+            <div id="bandas-content" class="space-y-8"></div>
+          </PanelWindow>
+
+          <PanelWindow flat id="panel-hermandades" title="Hermandades" icon="hermandad" tone="valor" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
+            <div slot="head">
+              <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+              <div class="mt-4" id="hermandades-filtro"></div>
+            </div>
+            <div id="hermandades-list" class={ui.gridCards}></div>
+            <div id="hermandades-pager" class="mt-3"></div>
+          </PanelWindow>
+        </div>
       </FichaHero>
-
-      <FichaSkeleton
-        showBar={false}
-        leftSepId="jugador-left-sep"
-        leftSepHidden
-      >
-      <!-- Paneles ventana (modelo dashboard): Personajes, Bandas, Hermandades -->
-      <div id="profile-panels" class={ui.zone.body}>
-        <PanelWindow id="panel-personajes" title="Personajes" icon="personaje" role="tabpanel" ariaLabelledby="tab-personajes" hidden>
-          <h3 id="main-title" class={ui.subTitle}></h3>
-          <!-- Filtros/paginador cuando la cuenta no tiene principal declarado
-               (todos los personajes van en la tarjeta principal). -->
-          <div id="personajes-main-filtro" class="mt-4"></div>
-          <div id="main-card"></div>
-          <div id="personajes-main-pager" class="mt-3"></div>
-          <div id="characters-section" data-rd-reveal class="hidden mt-6">
-            <h3 class={ui.subTitle}>Otros personajes de la cuenta</h3>
-            <!-- Motor único de filtros (src/lib/ui/filterBar.ts) + paginador. -->
-            <div id="personajes-filtro" class="mb-4"></div>
-            <div id="characters-grid" class={ui.gridCards}></div>
-            <div id="personajes-pager" class="mt-3"></div>
-          </div>
-        </PanelWindow>
-
-        <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" tone="ember" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-          <div slot="head">
-            <!-- Panel de filtros estándar (buscador + selector de día) del motor
-                 src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
-            <div class="mt-4" id="bandas-filtro" data-rd-reveal-cards></div>
-          </div>
-          <div id="bandas-content" class="space-y-8"></div>
-        </PanelWindow>
-
-        <PanelWindow id="panel-hermandades" title="Hermandades" icon="hermandad" tone="valor" role="tabpanel" ariaLabelledby="tab-hermandades" hidden>
-          <div slot="head">
-            <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
-            <div class="mt-4" id="hermandades-filtro"></div>
-          </div>
-          <div id="hermandades-list" class={ui.gridCards}></div>
-          <div id="hermandades-pager" class="mt-3"></div>
-        </PanelWindow>
-      </div>
-      </FichaSkeleton>
-      <!-- Contexto del jugador (servidor/reino): va DESPUÉS del separador
-           final para liberar el encabezado. -->
+      <!-- Contexto del jugador (servidor/reino): va DESPUÉS de la ficha
+           unificada para liberar el encabezado. -->
       <div id="jugador-context" class={ui.contextStrip}></div>
 
       <!-- Contexto estático del perfil: visible sin JS y para crawlers. -->
@@ -267,7 +258,7 @@ import { ui } from '@/lib/ui/design';
       // hermandad sí quedan junto al nombre. Sin datos no se desoculta (la
       // fila del helper siempre existe, vacía).
       if (main.server || main.realm) ctxEl.appendChild(serverRealmLinks(main));
-      chipsEl.appendChild(characterChips(main, { stats: true }));
+      chipsEl.appendChild(characterChips(main, { race: true, stats: true }));
     }
     if (p.realm && !main?.realm) ctxEl.appendChild(serverRealmLinks({ server: null, realm: p.realm }));
     if (ctxEl.children.length > 0) ctxEl.classList.remove('hidden');
@@ -301,7 +292,7 @@ import { ui } from '@/lib/ui/design';
       // el mismo buscador/facetas/paginador que "Otros personajes".
       const grid = el('div', ui.gridCards);
       mainCard.appendChild(grid);
-      mainTitle.textContent = 'Personajes';
+      mainTitle.textContent = 'Resumen';
       mountCharacterList(
         chars,
         grid,
@@ -315,7 +306,7 @@ import { ui } from '@/lib/ui/design';
       emptyCard.appendChild(cardTop());
       emptyCard.appendChild(el('p', 'text-sm text-gray-300 italic', 'Este jugador aún no publica personajes.'));
       mainCard.appendChild(emptyCard);
-      mainTitle.textContent = 'Personajes';
+      mainTitle.textContent = 'Resumen';
     }
     const available: string[] = ['personajes'];
 
@@ -328,7 +319,6 @@ import { ui } from '@/lib/ui/design';
       counts: { personajes: chars.length, bandas: bandsCount, hermandades: guildsCount },
       variant: 'ficha',
       dockId: 'jugador-tab-dock',
-      leftSepId: 'jugador-left-sep',
     });
 
     (document.getElementById('loading') as HTMLElement).classList.add('hidden');

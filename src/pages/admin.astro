@@ -51,19 +51,11 @@ const meta = PAGE_META['/admin'];
             />
           </div>
         </header>
-        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-
 
         <!-- Vista: Discord (mercadeo automático) -->
         <div id="view-discord" data-rd-reveal class="hidden space-y-8">
           <section id="discord-panel" class={`${ui.panel} ${ui.tone.ember} ${ui.tonePanel} p-4 sm:p-6 animate-fade-in-1`} style="animation-delay: 0.1s">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <h2 class={`${ui.text.h2} text-brand-200 flex items-center`}>
-                <Icon name="megafono" size="md" class="mr-2.5" />Discord · Mercadeo automático
-              </h2>
-              <span class="text-[11px] font-black uppercase tracking-widest text-gray-300">objetivos reales → mensaje de conversión</span>
-            </div>
-
+            <p class="text-[11px] font-black uppercase tracking-widest text-gray-300 mb-4 text-right">objetivos reales → mensaje de conversión</p>
             <p class="text-xs text-gray-300 mb-4">El asistente evalúa el estado de los objetivos y redacta un mensaje orientado a generar <span class="text-brand-300/80">usuarios y contenido para el addon</span>. Cada objetivo tiene sus dos botones: enviar al <span class="text-brand-300/80">canal de pruebas</span> (privado, sin @everyone) o al <span class="text-brand-300/80">canal público</span> (con @everyone). La campaña automática publica <span class="text-brand-300/80">2 mensajes al día</span> y solo uno de ellos, elegido al azar, usa @everyone.</p>
 
             <!-- Objetivos de conversión -->
@@ -189,7 +181,6 @@ const meta = PAGE_META['/admin'];
           </section>
         </div>
       </div>
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

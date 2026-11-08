@@ -2,7 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import Navigation from '@/components/Navigation.astro';
 import Breadcrumb from '@/components/Breadcrumb.astro';
-import PageHeader from '@/components/ui/PageHeader.astro';
+import DirectorySheet from '@/components/ui/DirectorySheet.astro';
 import EmptyState from '@/components/ui/EmptyState.astro';
 import LoadingBlock from '@/components/ui/LoadingBlock.astro';
 import { ui } from '@/lib/ui/design';
@@ -28,7 +28,7 @@ const jsonLd = [
   <main class="relative py-16">
     <div class="max-w-6xl mx-auto">
       <Breadcrumb />
-      <PageHeader
+      <DirectorySheet
         title="Bandas"
         icon="espadas"
         image="/images/headers/bandas.webp"
@@ -36,34 +36,37 @@ const jsonLd = [
         intro="Descubre bandas de raid públicas de WoW 3.3.5a por día, tipo y reino. Consulta horario, gearscore mínimo, roster y reglas compartidos por cada jugador."
       >
         <div slot="filters" id="filters" data-rd-filter-bar class={ui.filter.headerMount}></div>
-      </PageHeader>
-      <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
 
-      <!-- Tablero abierto: la lista vive directamente bajo el header, sin la
-           ventana de contenido de las fichas. Los filtros (buscador + selector
-           de día y tipo) viven en el header vía PageHeader → #filters; el
-           contador vive en la barra y el paginador solo aporta la página. -->
-      <div id="directorio" data-rd-list-frame class={ui.directory.board}>
-        <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
-             funde escalonados en una sola cascada. -->
-        <div id="bandas-content" data-rd-list-content data-rd-reveal-cards=".rd-card" class={ui.directory.groups}>
-          <LoadingBlock text="Cargando bandas…" listStatus pad="md" />
+        <!-- Cuerpo hundido de la ficha: la lista agrupada por día, sus conteos
+             de sección y el estado vacío viven DENTRO de la misma superficie.
+             Los filtros (buscador + selector de día y tipo) siguen en la
+             franja superior; el contador vive en la barra y el paginador solo
+             aporta la página. -->
+        <div id="directorio" data-rd-list-frame class={ui.directory.board}>
+          <h2 id="bandas-list-title" class="sr-only">Bandas por día</h2>
+          <!-- Ítems anidados (secciones por día): el selector `.rd-card` los
+               funde escalonados en una sola cascada. -->
+          <div id="bandas-content" data-rd-list-content data-rd-reveal-cards=".rd-card" class={ui.directory.groups} aria-labelledby="bandas-list-title">
+            <LoadingBlock text="Cargando bandas…" listStatus pad="md" />
+          </div>
         </div>
-      </div>
 
-      <EmptyState
-        id="empty"
-        cls={ui.directory.empty}
-        hidden
-        icon="espadas"
-        title="Aún no hay bandas públicas"
-        titleCls="font-black italic text-white"
-        gradient={false}
-        message="Publica tus bandas desde tu dashboard subiendo el archivo del addon; cada banda puede ser personal o pertenecer a tu hermandad."
-        cta={{ label: 'Sube el archivo del addon', href: '/upload' }}
-        ctaCls="transform hover:scale-105"
-        align="center"
-      />
+        <EmptyState
+          id="empty"
+          variant="plain"
+          cls={ui.directory.empty}
+          hidden
+          icon="espadas"
+          title="Aún no hay bandas públicas"
+          titleCls="font-black italic text-white"
+          gradient={false}
+          message="Publica tus bandas desde tu dashboard subiendo el archivo del addon; cada banda puede ser personal o pertenecer a tu hermandad."
+          cta={{ label: 'Sube el archivo del addon', href: '/upload' }}
+          ctaCls="transform hover:scale-105"
+          align="center"
+        />
+      </DirectorySheet>
+
       <section class={`${ui.panel} ${ui.tone.ember} ${ui.tonePanel} relative overflow-hidden mt-10 p-6 sm:p-7`}>
         <span class={`${ui.cardTop} ${ui.toneTop}`} aria-hidden="true"></span>
         <h2 class={`${ui.text.h1} ${ui.gradientTitle} ${ui.toneTitle} mb-2`}>¿Cómo publicar tus bandas?</h2>
@@ -73,8 +76,6 @@ const jsonLd = [
         </p>
         <a href="/upload" class={`${ui.btnBase} ${ui.btnPrimary} ${ui.btnSizes.sm} mt-5`}>Subir archivo del addon</a>
       </section>
-
-      <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
     </div>
   </main>
 </Layout>

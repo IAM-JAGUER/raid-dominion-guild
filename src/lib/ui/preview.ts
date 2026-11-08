@@ -86,7 +86,7 @@ export function renderBand(
     band.players.forEach((p) => {
       const row = el('div', 'text-xs text-gray-300 bg-brand-900/40 rounded px-2 py-1');
       const left = el('div', 'flex flex-wrap items-center gap-1.5');
-      left.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+      left.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded-full shrink-0 object-contain'));
       left.appendChild(el('span', 'font-bold text-white', p.name));
       const badges = el('div', 'flex flex-wrap gap-1.5 mt-0.5');
       if (p.role) badges.appendChild(el('span', 'text-[11px] text-brand-300', p.role));
@@ -128,7 +128,7 @@ function renderBandPlayerRow(p: BandPlayer): HTMLElement {
   const color = classColor(p.class);
   const row = cardRow('px-3 py-2 text-xs text-gray-300');
   const head = el('div', 'flex flex-wrap items-center gap-2');
-  head.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+  head.appendChild(classIconEl(p.class, undefined, 'w-5 h-5 rounded-full shrink-0 object-contain'));
   const name = el('span', 'font-bold italic', p.name);
   name.style.color = color;
   head.appendChild(name);
@@ -330,7 +330,7 @@ function renderCorePlayer(p: MergePlayer, isSource: boolean, slug?: string): HTM
   // largo y en horizontal robaría el ancho del nombre.
   const ident = el('div', 'flex flex-col min-w-0');
   const nameRow = el('div', 'flex items-center gap-2 min-w-0');
-  nameRow.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-md border border-gray-700/50 shrink-0 object-cover'));
+  nameRow.appendChild(classIconEl(p.class, undefined, 'w-7 h-7 rounded-full shrink-0 object-contain'));
   const name = el('span', 'font-black italic truncate text-sm tracking-tight');
   name.style.color = classTextColor(p.class);
   name.textContent = p.name || '?';
@@ -439,7 +439,7 @@ export function renderBandPlayers(players: BandPlayer[]): HTMLElement {
     const color = classColor(u.classes.size ? Array.from(u.classes).join(',') : undefined);
     const row = cardRow('px-3 py-2 text-xs text-gray-300 flex flex-wrap items-center justify-between gap-2');
     const left = el('div', 'flex flex-wrap items-center gap-2');
-    left.appendChild(classIconEl(Array.from(u.classes)[0], undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+    left.appendChild(classIconEl(Array.from(u.classes)[0], undefined, 'w-5 h-5 rounded-full shrink-0 object-contain'));
     const name = el('span', 'font-bold italic', u.name);
     name.style.color = color;
     left.appendChild(name);
@@ -568,7 +568,7 @@ export function renderRoster(
 
         const row = el('div', 'flex items-center justify-between gap-2');
         const nameWrap = el('div', 'flex items-center gap-1.5 min-w-0');
-        nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded border border-gray-700/50 shrink-0 object-cover'));
+        nameWrap.appendChild(classIconEl(m.class, undefined, 'w-5 h-5 rounded-full shrink-0 object-contain'));
         const name = el('span', 'font-black italic leading-[1.3] text-sm');
         name.style.color = color;
         name.textContent = m.name;

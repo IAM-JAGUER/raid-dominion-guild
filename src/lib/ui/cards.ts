@@ -144,7 +144,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     num.textContent = String(ctx.number);
     left.appendChild(num);
   }
-  left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-md shrink-0 shadow border border-gray-700/50 object-cover'));
+  left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-full shrink-0 object-contain'));
   const name = el('span', 'font-black italic truncate text-sm tracking-tight');
   name.style.color = classTextColor(c.class, c.class_file);
   name.textContent = `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`;

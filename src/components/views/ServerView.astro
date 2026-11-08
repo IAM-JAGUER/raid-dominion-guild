@@ -1,26 +1,29 @@
 ---
 // Vista de DETALLE DE SERVIDOR (/servidor/:server), resuelta 100% en cliente.
 // Auto-gate: primer segmento "servidor" y exactamente 2 segmentos.
-// Muestra la dirección realmlist del servidor y los reinos que aloja, cada
-// uno enlazando a su vista anidada /servidor/:server/reino/:realm.
+// Extiende la FICHA DE DIRECTORIO (DirectorySheet): una sola superficie con
+// la identidad del servidor, la franja de filtros y el cuerpo hundido con los
+// reinos que aloja, cada uno enlazando a /servidor/:server/reino/:realm.
 import { ui } from '@/lib/ui/design';
-import FichaHero from '@/components/ui/FichaHero.astro';
-import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
-import PanelWindow from '@/components/ui/PanelWindow.astro';
+import DirectorySheet from '@/components/ui/DirectorySheet.astro';
 ---
 <section id="view-servidor" class="hidden">
-  <FichaHero image="/images/headers/server-realm.webp" icon="servidor">
-    <h1 id="sv-server" class={`${ui.titleFicha} break-all ${ui.gradientTitle}`}></h1>
-    <p id="sv-summary" class={`${ui.text.body} italic mt-3 max-w-3xl`}></p>
-  </FichaHero>
+  <DirectorySheet
+    title=""
+    titleId="sv-server"
+    titleStyle="ficha"
+    titleCls="break-all"
+    filtersLabel="Filtros de reinos"
+    icon="servidor"
+    image="/images/headers/server-realm.webp"
+    intro="Servidor con hermandades y personajes públicos de la comunidad RaidDominion."
+  >
+    <div slot="filters" id="sv-realms-filtro" class={ui.filter.headerMount}></div>
 
-  <FichaSkeleton showBar={false}>
-    <PanelWindow title="Reinos" icon="vientos">
-      <div slot="head" class="mt-4" id="sv-realms-filtro"></div>
-      <div id="sv-realms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      <div id="sv-realms-pager" class="mt-3"></div>
-    </PanelWindow>
-  </FichaSkeleton>
+    <h2 id="sv-realms-title" class="sr-only">Reinos</h2>
+    <div id="sv-realms" class={ui.directory.grid} aria-labelledby="sv-realms-title"></div>
+    <div id="sv-realms-pager"></div>
+  </DirectorySheet>
 </section>
 
 <script>
@@ -65,9 +68,6 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     (document.getElementById('sv-server') as HTMLElement).textContent = server;
     setBreadcrumb(server);
 
-    (document.getElementById('sv-summary') as HTMLElement).textContent =
-      'Servidor con hermandades y personajes públicos de la comunidad RaidDominion.';
-
     realms.sort((a, b) => a.localeCompare(b));
 
     const realmsEl = document.getElementById('sv-realms') as HTMLElement;
@@ -96,7 +96,7 @@ import PanelWindow from '@/components/ui/PanelWindow.astro';
     const cardEl = cardLink(`/servidor/${encodeURIComponent(server)}/reino/${encodeURIComponent(slugify(realm))}`, 'p-5');
     const head = el('div', 'flex items-center gap-3 mb-2');
     head.appendChild(iconTileEl('vientos'));
-    head.appendChild(cardTitle(realm, 'text-xl', 'truncate min-w-0'));
+    head.appendChild(cardTitle(realm, 'text-lg', 'truncate min-w-0'));
     cardEl.appendChild(head);
     cardEl.appendChild(el('p', `${ui.text.bodyMuted} mt-2`, 'Hermandades y personajes públicos →'));
     return cardEl;

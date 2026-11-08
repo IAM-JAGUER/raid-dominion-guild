@@ -120,7 +120,7 @@ const jsonLd = [
           // Clave canónica (class_file o nombre esMX): agrupa variantes.
           getValues: (c) => [classKey(c.class, c.class_file) ?? '__none__'],
           labelOf: (v) => (v === '__none__' ? 'Sin clase' : CLASS_LABELS[v] ?? v),
-          iconOf: (v) => (v === '__none__' ? null : classIconEl(v, null, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover')),
+          iconOf: (v) => (v === '__none__' ? null : classIconEl(v, null, 'w-4 h-4 rounded-full shrink-0 object-contain')),
         },
         {
           id: 'reino',

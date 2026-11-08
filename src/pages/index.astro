@@ -37,38 +37,22 @@ const jsonLd = [
 					<GrandLogo></GrandLogo>
 				</section>
 
-				<!-- Esqueleto de página (modelo dashboard): separador central +
-				     separador izquierdo (la landing no tiene barra de tabs). -->
-				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
-				<div class={`${ui.dividerFadeRight} my-8`} aria-hidden="true"></div>
-
 				<!-- Prueba visual: capturas reales del addon -->
 				<AddonShowcase />
-
-				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 
 				<!-- Presentación editorial: qué es, funciones, audiencias y pasos -->
 				<AddonOverview />
 
-				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
-
 				<!-- Sección Addon -->
 				<AddonSection />
-
-				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
 
 				<!-- Sección Donaciones -->
 				<section id="donaciones" class="scroll-mt-16">
 					<Donations></Donations>
 				</section>
 
-				<div class={`${ui.dividerFadeBoth} my-8`} aria-hidden="true"></div>
-
 				<!-- FAQ + glosario (contenido AEO; mismo texto que el FAQPage) -->
 				<Faq />
-
-				<!-- Separador derecho: cierra el contenido principal. -->
-				<div class={`${ui.dividerFadeLeft} my-8`} aria-hidden="true"></div>
 			</div>
 		</div>
 	</main>

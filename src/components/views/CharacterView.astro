@@ -5,79 +5,86 @@ import { ui } from '@/lib/ui/design';
 import PanelWindow from '@/components/ui/PanelWindow.astro';
 import FichaHero from '@/components/ui/FichaHero.astro';
 import FichaDock from '@/components/ui/FichaDock.astro';
-import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
 ---
 <section id="view-personaje" class="hidden">
   <FichaHero
     image="/images/headers/ficha-personaje.webp"
     icon="personaje"
-    avatarSize="heroLg"
-    avatarCls={ui.character.avatar}
+    avatarSize="compact"
+    avatarCls={`${ui.character.avatar} ${ui.character.avatarSpectral} ${ui.character.avatarRound}`}
     avatarId="pv-avatar"
     plaqueId="pv-plaque"
     plaqueCls="isolate"
     identityCls="relative z-10"
     veil
   >
-    <h1 id="pv-name" class={`${ui.character.nameDisplay} break-words`}></h1>
+    <span slot="race" id="pv-race-avatar" class={ui.character.raceAvatar} aria-hidden="true"></span>
+    <img
+      slot="avatar"
+      id="pv-class-icon"
+      src="/images/classes/default.webp"
+      alt=""
+      width="128"
+      height="128"
+      loading="eager"
+      decoding="async"
+      class={ui.character.portrait}
+    />
+    <h1 id="pv-name" class={`${ui.character.nameDisplay} ${ui.character.nameSpectral} break-words`}></h1>
     <span class={`${ui.character.underline} mt-2 max-w-md`} aria-hidden="true"></span>
-    <div id="pv-stats" class="flex flex-wrap items-center mt-5"></div>
-    <div id="pv-gauge" class="hidden mt-4 max-w-md"></div>
-    <div id="pv-chips" class="flex flex-wrap justify-start gap-2 mt-4"></div>
-    <div id="pv-links" class="flex flex-wrap justify-start gap-2 mt-3"></div>
+    <div id="pv-chips" class="flex flex-wrap items-center gap-1.5 mt-3"></div>
+    <div id="pv-gauge" class="hidden mt-3 max-w-md"></div>
+    <div id="pv-links" class="flex flex-wrap justify-start gap-1.5 mt-2.5"></div>
 
     <!-- Dock de secciones: las pestañas viven DENTRO de la placa de
          identidad, separadas por la línea espectral del color de clase.
-         Solo aparece con 2+ paneles (initAvailableTabs); con 0/1 el dock se
-         oculta y el divisor de respaldo sigue separando la ficha. -->
+         Solo aparece con 2+ paneles (initAvailableTabs). -->
     <FichaDock
       slot="dock"
       dockId="pv-tab-dock"
       barId="pv-tab-bar"
       label="Secciones del personaje"
     />
+
+    <div slot="body" id="pv-panels">
+      <PanelWindow flat id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
+        <div slot="head">
+          <div id="pv-equip-summary" class="hidden mt-4"></div>
+          <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
+          <div class="mt-4" id="pv-equip-filtro"></div>
+        </div>
+        <div id="pv-equip-list" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+        <div id="pv-equip-pager" class="mt-3"></div>
+      </PanelWindow>
+
+      <PanelWindow flat id="panel-metas" title="Metas" icon="estrella" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
+        <div slot="head">
+          <div class="mt-4" id="pv-metas-filtro"></div>
+        </div>
+        <div id="pv-metas"></div>
+        <div id="pv-metas-pager" class="mt-3"></div>
+      </PanelWindow>
+
+      <PanelWindow flat id="panel-notas" title="Notas" icon="nota" tone="parchment" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
+        <div id="pv-notas"></div>
+      </PanelWindow>
+
+      <PanelWindow flat id="panel-bandas" title="Bandas" icon="espadas" tone="ember" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
+        <div slot="head">
+          <!-- Panel de filtros estándar (buscador + selector de día) del motor
+               src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
+          <div class="mt-4" id="pv-bandas-filtro" data-rd-reveal-cards></div>
+        </div>
+        <div id="pv-bandas" class="space-y-8"></div>
+      </PanelWindow>
+
+      <PanelWindow flat id="panel-hermandad" title="Hermandad" icon="hermandad" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
+        <div id="pv-guilds" class={ui.gridCards}></div>
+      </PanelWindow>
+    </div>
   </FichaHero>
-
-  <FichaSkeleton showBar={false} leftSepId="pv-left-sep" leftSepHidden leftSepCls="mt-8">
-  <div id="pv-panels" class="mt-8">
-    <PanelWindow id="panel-equipamiento" title="Equipamiento" icon="arma" pad="lg" role="tabpanel" ariaLabelledby="tab-equipamiento" hidden>
-      <div slot="head">
-        <div id="pv-equip-summary" class="hidden mt-4"></div>
-        <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
-        <div class="mt-4" id="pv-equip-filtro"></div>
-      </div>
-      <div id="pv-equip-list" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
-      <div id="pv-equip-pager" class="mt-3"></div>
-    </PanelWindow>
-
-    <PanelWindow id="panel-metas" title="Metas" icon="estrella" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-metas" hidden>
-      <div slot="head">
-        <div class="mt-4" id="pv-metas-filtro"></div>
-      </div>
-      <div id="pv-metas"></div>
-      <div id="pv-metas-pager" class="mt-3"></div>
-    </PanelWindow>
-
-    <PanelWindow id="panel-notas" title="Notas" icon="nota" tone="parchment" pad="lg" role="tabpanel" ariaLabelledby="tab-notas" hidden>
-      <div id="pv-notas"></div>
-    </PanelWindow>
-
-    <PanelWindow id="panel-bandas" title="Bandas" icon="espadas" tone="ember" pad="lg" role="tabpanel" ariaLabelledby="tab-bandas" hidden>
-      <div slot="head">
-        <!-- Panel de filtros estándar (buscador + selector de día) del motor
-             src/lib/ui/filterBar.ts, vía el modelo renderBandasPanel. -->
-        <div class="mt-4" id="pv-bandas-filtro" data-rd-reveal-cards></div>
-      </div>
-      <div id="pv-bandas" class="space-y-8"></div>
-    </PanelWindow>
-
-    <PanelWindow id="panel-hermandad" title="Hermandad" icon="hermandad" tone="valor" pad="lg" role="tabpanel" ariaLabelledby="tab-hermandad" hidden>
-      <div id="pv-guilds" class={ui.gridCards}></div>
-    </PanelWindow>
-  </div>
-  </FichaSkeleton>
-  <!-- Contexto del personaje (servidor/reino): va DESPUÉS del separador
-       final para liberar el encabezado. -->
+  <!-- Contexto del personaje (servidor/reino): va DESPUÉS de la ficha
+       unificada para liberar el encabezado. -->
   <div id="pv-context" class={ui.contextStrip}></div>
 </section>
 
@@ -87,14 +94,15 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
   import { currentSection, currentSlug, showNotFound, showView } from '@/lib/routes';
   import { profilePageSchema, setPageMeta } from '@/lib/seo';
   import { classColor, classTextColor, hexToRgba } from '@/lib/ui/classColors';
+  import { classIconUrl } from '@/lib/ui/classIcon';
   import { safePlayerName, isNamelessSafe, handleFromSlug, declaredPrincipalPublic } from '@/lib/ui/playerNames';
-  import { WOTLK_ILVL_TIERS, WOTLK_MAX_ILVL, ilvlTierFor, itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
+  import { WOTLK_ILVL_TIERS, WOTLK_MAX_ILVL, ilvlTierFor, equipmentQualityPalette, itemQualityColor, itemQualityCountLabel, itemQualityLabel, equipmentSlotLabel } from '@/lib/ui/itemQuality';
   import { applyWowhead, richTextEl, wowheadUrl } from '@/lib/ui/wowhead';
-  import { applyClassAccent, classEmblem, classGauge, itemRow, serverRealmLinks, statCell } from '@/lib/ui/card';
-  import { el, setBreadcrumb } from '@/lib/ui/dom';
-  import { iconEl, raceIconFor } from '@/lib/ui/icons';
+  import { applyClassAccent, classGauge, itemRow, serverRealmLinks } from '@/lib/ui/card';
+  import { chip, el, setBreadcrumb } from '@/lib/ui/dom';
+  import { iconEl } from '@/lib/ui/icons';
+  import { racePortraitEl } from '@/lib/ui/racePortrait';
   import { renderBandCard, renderGuildCard, renderBandFallbackCard } from '@/lib/ui/cards';
-  import { appendCharacterChips } from '@/lib/ui/characterChips';
   import { shareLinkButton } from '@/lib/ui/share';
   import { renderBandasPanel } from '@/lib/ui/bandasPanel';
   import { resolveBandOwners } from '@/lib/bandListing';
@@ -148,14 +156,15 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
     nameEl.style.color = classTextColor(c.class, c.class_file);
     setBreadcrumb(c.name);
 
-    // Acento de clase: riel, velo, emblema y gauge comparten `--class-color`.
+    // Acento de clase: riel, velo, emblema, anillo del medallón y aura del
+    // nombre comparten `--class-color`.
     const plaque = document.getElementById('pv-plaque') as HTMLElement;
     applyClassAccent(plaque, c.class, c.class_file);
 
-    // Emblema de raza de fondo (la «forma bestia» del select screen): sprite
-    // nativo a baja opacidad, sin recolorear.
-    const race = c.race_file || c.race;
-    if (race) plaque.appendChild(classEmblem(raceIconFor(race)));
+    // El medallón usa el retrato de clase; el chip de clase lleva el icono
+    // temático "personaje".
+    const classPortrait = document.getElementById('pv-class-icon') as HTMLImageElement | null;
+    if (classPortrait) classPortrait.src = classIconUrl(c.class, c.class_file);
 
     // Halo del medallón héroe con el color de clase (el arte no se recolorea).
     const avatar = document.getElementById('pv-avatar') as HTMLElement;
@@ -167,12 +176,27 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       avatar.style.borderColor = tint;
     }
 
-    // Tira de cifras del póster: las magnitudes del personaje en grande.
-    const stats = document.getElementById('pv-stats') as HTMLElement;
-    if (typeof c.level === 'number') stats.appendChild(statCell('Nivel', c.level));
-    if (c.avg_ilvl !== null && c.avg_ilvl !== undefined) stats.appendChild(statCell('ilvl medio', c.avg_ilvl));
+    // Segunda aura del nombre + gauge: colores de calidad del equipamiento.
+    const equipPalette = equipmentQualityPalette(c.equipment ?? []);
+    const topEquipColor = equipPalette[equipPalette.length - 1] ?? tint;
+    const nextEquipColor = equipPalette[equipPalette.length - 2] ?? topEquipColor;
+    nameEl.style.setProperty('--rd-equip-color', topEquipColor);
+    nameEl.style.setProperty('--rd-equip-color-2', nextEquipColor);
+
+    // Avatar cuadrado de raza antes del icono de clase, con borde espectral
+    // en los colores del equipamiento.
+    const raceAvatar = document.getElementById('pv-race-avatar');
+    const racePortrait = racePortraitEl(c.race, c.race_file, 'w-full h-full object-cover', c.sex);
+    if (raceAvatar && racePortrait) {
+      racePortrait.loading = 'eager';
+      raceAvatar.appendChild(racePortrait);
+      raceAvatar.style.setProperty('--rd-equip-color', topEquipColor);
+      raceAvatar.style.setProperty('--rd-equip-color-2', nextEquipColor);
+    } else {
+      raceAvatar?.remove();
+    }
+
     const pieces = (c.equipment ?? []).length;
-    if (pieces > 0) stats.appendChild(statCell('Piezas', pieces));
 
     // Gauge de energía por iLvl medio sobre el máximo de WotLK (284).
     // Interactivo: hover/focus muestra el detalle y los hitos alcanzados.
@@ -182,22 +206,31 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       const tier = ilvlTierFor(ilvl);
       const pct = Math.round((ilvl / WOTLK_MAX_ILVL) * 100);
       gauge.appendChild(classGauge({
-        label: 'Nivel de objeto',
+        label: 'Nivel de equipamiento',
         valueText: `${ilvl}/${WOTLK_MAX_ILVL}`,
         value: ilvl,
         max: WOTLK_MAX_ILVL,
-        ariaLabel: `Nivel de objeto medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
-        tooltip: `iLvl medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
+        ariaLabel: `Nivel de equipamiento medio de ${c.name}: ${ilvl} de ${WOTLK_MAX_ILVL}`,
+        tooltip: `Nivel de equipamiento medio ${ilvl} de ${WOTLK_MAX_ILVL} · ${pct}% del máximo de WotLK${tier ? ` · ${tier.label}` : ''}`,
         milestones: WOTLK_ILVL_TIERS,
         ticks: false,
         interactive: true,
+        spectralPalette: equipPalette.length > 0 ? equipPalette : [topEquipColor],
       }));
       if (tier) gauge.appendChild(el('p', 'text-[11px] text-gray-300 mt-1.5', `Tier alcanzado: ${tier.label}`));
       gauge.classList.remove('hidden');
     }
 
+    // Etiquetas compactas: los retratos ya viven en la cabecera; aquí solo
+    // el nombre de raza, la clase y el nivel, sin iconos redundantes.
     const chips = document.getElementById('pv-chips') as HTMLElement;
-    appendCharacterChips(chips, c, { race: true });
+    if (c.race) chips.appendChild(chip(c.race, '', 'md'));
+    if (c.class) {
+      const classChip = chip(c.class, '', 'md');
+      classChip.style.color = classTextColor(c.class, c.class_file);
+      chips.appendChild(classChip);
+    }
+    if (typeof c.level === 'number') chips.appendChild(chip(`Nivel ${c.level}`, '', 'md'));
 
     // Servidor/reino viven en la tira de contexto tras el separador final
     // (#pv-context), no en el encabezado. Sin datos no se desoculta (la fila
@@ -333,7 +366,6 @@ import FichaSkeleton from '@/components/ui/FichaSkeleton.astro';
       counts: tabCounts,
       variant: 'ficha',
       dockId: 'pv-tab-dock',
-      leftSepId: 'pv-left-sep',
     });
 
     wireParticleTheme(c);

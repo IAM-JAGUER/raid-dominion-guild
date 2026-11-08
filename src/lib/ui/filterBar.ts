@@ -79,8 +79,8 @@ export interface FilterBarState {
 }
 
 export interface FilterBarOptions<T> {
-  // Contenedor de la barra (el slot `filters` de PageHeader en los
-  // directorios; la cabecera del panel en pestañas de ficha).
+  // Contenedor de la barra (el slot `filters` de la ficha de directorio en
+  // los directorios; la cabecera del panel en pestañas de ficha).
   mount: HTMLElement;
   items: T[];
   // Texto searchable de cada ítem; sin él no se pinta buscador.
@@ -95,6 +95,8 @@ export interface FilterBarOptions<T> {
   // `disclosure` (default): la barra se pliega en un <details> "Filtros".
   // `inline`: se monta directamente (el contenedor externo controla el panel).
   panel?: 'disclosure' | 'inline';
+  // Estado inicial del <details> en modo disclosure (default: abierto).
+  open?: boolean;
   // Controles extra del consumidor que deben vivir DENTRO de la misma caja
   // de filtros (p. ej. “Ocultos” + selección rápida del tracker).
   extra?: HTMLElement;
@@ -274,7 +276,7 @@ export function createFilterBar<T>(options: FilterBarOptions<T>): FilterBarContr
   if (hasFacets && panelMode === 'disclosure') {
     details = document.createElement('details');
     details.className = ui.filter.disclosure;
-    details.open = true;
+    details.open = options.open ?? false;
     const summary = document.createElement('summary');
     summary.className = ui.filter.disclosureSummary;
     const summaryLeft = el('span', ui.filter.summaryLeft);

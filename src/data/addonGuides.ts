@@ -268,7 +268,7 @@ export const guides: Guide[] = [
           'Cada banda guarda su nombre, horario, gearscore mínimo y sus jugadores con rol y puntos. Se sincroniza con el portal al subir tu ficha: tu roster aparece en el [directorio de hermandades](/hermandades).',
           'Rol del jugador: T (Tanque), H (Healer), R (Rango), M (Melee).',
           'Dual: marca si el jugador tiene doble rol.',
-          'Gearscore: el nivel de objeto del jugador; la banda puede exigir un mínimo.',
+          'Gearscore: el nivel de equipamiento del jugador; la banda puede exigir un mínimo.',
           'Líder: No, Sí o Ayudante.',
           'Asistencia y puntos: los botones + / - del gestor ajustan los puntos del jugador; miden su compromiso y fidelidad con la banda (se acumulan por banda).',
           'Sanción: lag, abandono, rendimiento, baneo, equipamiento (Equip.) o engemado (Eng/Enc).',

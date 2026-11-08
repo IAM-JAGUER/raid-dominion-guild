@@ -63,6 +63,9 @@ export interface PlayerCharacter {
   server?: string;
   race?: string;
   raceFile?: string;
+  // Sexo real de UnitSex (addon v3.3.0). Solo en registry.player; ausente en
+  // SV anteriores (la web infiere el género desde el nombre de raza).
+  sex?: 'Male' | 'Female';
   class?: string;
   classFile?: string;
   level?: number;

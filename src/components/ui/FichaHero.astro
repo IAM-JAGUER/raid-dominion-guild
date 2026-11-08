@@ -1,9 +1,9 @@
 ---
-// Héroe de ficha (servidor, reino, banda, personaje, jugador): placa de
-// identidad + cover + medallón + columna de identidad. Fuente única de la
-// estructura que antes se repetía literal en las cinco vistas.
+// Ficha de entidad: superficie ÚNICA con placa de identidad + cuerpo hundido.
 // La identidad (h1, chips, acciones, dock) vive en slots para conservar los
-// ids y el markup propio de cada ficha.
+// ids y el markup propio de cada ficha; el contenido (paneles/listas) entra
+// por el slot `body` y comparte la MISMA superficie. Sustituye el esquema
+// placa + divisor + ventana suelta (design.md §12).
 import Icon from '@/components/ui/Icon.astro';
 import HeaderCover from '@/components/ui/HeaderCover.astro';
 import { ui, type Tone } from '@/lib/ui/design';
@@ -12,26 +12,28 @@ import type { IconName } from '@/lib/ui/icons';
 interface Props {
   image: string;
   icon: IconName;
-  // Tono ceremonial de la placa (steel = marca).
+  // Tono ceremonial de la ficha (steel = marca).
   tone?: Tone;
   // Tiñe la línea superior y el medallón con el tono.
   tintTop?: boolean;
   tintIcon?: boolean;
-  // Tamaño del medallón: hero (fichas) / heroLg (ficha de personaje).
-  avatarSize?: 'hero' | 'heroLg';
+  // Tamaño del medallón: hero (fichas) / heroLg / compact (igual al avatar de raza).
+  avatarSize?: 'hero' | 'heroLg' | 'compact';
   // Clases extra del medallón (p. ej. acento de clase).
   avatarCls?: string;
   // Id del medallón cuando el consumidor lo manipula por JS.
   avatarId?: string;
-  // Clases extra de la placa (p. ej. isolate en personaje).
+  // Clases extra de la cabecera de identidad (p. ej. isolate en personaje).
   plaqueCls?: string;
-  // Id de la placa cuando el consumidor la manipula por JS.
+  // Id de la cabecera de identidad cuando el consumidor la manipula por JS.
   plaqueId?: string;
   // Clases extra de la fila de identidad (p. ej. relative z-10).
   identityCls?: string;
   // Velo de clase sobre la placa (ficha de personaje).
   veil?: boolean;
-  // Clases extra del header.
+  // Clases extra del cuerpo hundido.
+  bodyCls?: string;
+  // Clases extra del contenedor exterior.
   class?: string;
 }
 
@@ -48,46 +50,59 @@ const {
   plaqueId,
   identityCls = '',
   veil = false,
-  class: headerCls = '',
+  bodyCls = '',
+  class: outerCls = '',
 } = Astro.props;
 
+const isTone = tone !== 'steel';
 const toneCls = ui.tone[tone];
-const toneHeadCls = tone !== 'steel' ? ui.toneHead : '';
-const avatarSizeCls = avatarSize === 'heroLg' ? ui.iconTileHeroLg : ui.iconTileHero;
-const plaque = [
-  ui.plaque,
-  toneCls,
-  toneHeadCls,
-  'p-5 sm:p-7',
-  plaqueCls,
-].filter(Boolean).join(' ');
+const toneHeadCls = isTone ? ui.toneHead : '';
+const toneBodyCls = isTone ? ui.toneBody : '';
+const avatarSizeCls =
+  avatarSize === 'heroLg' ? ui.iconTileHeroLg : avatarSize === 'compact' ? ui.iconTileCompact : ui.iconTileHero;
+const sheet = [ui.ficha.sheet, toneCls, toneBodyCls].filter(Boolean).join(' ');
+const head = ['relative overflow-hidden p-5 sm:p-7', toneHeadCls, plaqueCls].filter(Boolean).join(' ');
 const identity = [
   identityCls,
-  'flex flex-col sm:flex-row items-start gap-6 sm:gap-8',
+  'flex flex-col sm:flex-row items-start gap-4 sm:gap-6',
 ].filter(Boolean).join(' ');
 const avatar = [
   ui.iconTile,
   tintIcon ? ui.toneIcon : '',
   'rd-medallion-hero',
   avatarSizeCls,
-  '-mt-8 relative z-10',
+  avatarSize === 'compact' ? '' : '-mt-8',
+  'relative z-10',
   avatarCls,
 ].filter(Boolean).join(' ');
+const body = [ui.ficha.body, bodyCls].filter(Boolean).join(' ');
 ---
 
-<header class={`animate-fade-in-1 ${ui.zone.hero} ${headerCls}`.trim()}>
-  <div id={plaqueId} class={plaque}>
+<div class={`animate-fade-in-1 ${outerCls}`.trim()}>
+  <div class={sheet}>
     <span class={`${ui.cardTop} z-20${tintTop ? ` ${ui.toneTop}` : ''}`} aria-hidden="true"></span>
-    {veil && <span class={ui.character.veil} aria-hidden="true"></span>}
-    <HeaderCover image={image} extraClass={ui.heroCoverBleed} />
-    <div class={identity}>
-      <div id={avatarId} class={avatar}>
-        <Icon name={icon} size="hero" />
+    <header id={plaqueId} class={head}>
+      {veil && <span class={ui.character.veil} aria-hidden="true"></span>}
+      <HeaderCover image={image} extraClass={ui.heroCoverBleed} />
+      <div class={identity}>
+        <div class="flex items-end gap-2 sm:gap-3 shrink-0">
+          <slot name="race" />
+          <div id={avatarId} class={avatar}>
+            <slot name="avatar">
+              <Icon name={icon} size={avatarSize === 'compact' ? 'xl' : 'hero'} />
+            </slot>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0 text-left">
+          <slot />
+        </div>
       </div>
-      <div class="flex-1 min-w-0 text-left">
-        <slot />
+      <slot name="dock" />
+    </header>
+    {Astro.slots.has('body') && (
+      <div class={body}>
+        <slot name="body" />
       </div>
-    </div>
-    <slot name="dock" />
+    )}
   </div>
-</header>
+</div>

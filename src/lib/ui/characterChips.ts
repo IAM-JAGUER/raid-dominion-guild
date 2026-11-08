@@ -4,9 +4,12 @@
 import { classIconEl } from '@/lib/ui/classIcon';
 import { chip, el, iconChip, statChip } from '@/lib/ui/dom';
 import { raceIconFor } from '@/lib/ui/icons';
+import { racePortraitEl } from '@/lib/ui/racePortrait';
 
 export interface CharacterChipsInput {
   race?: string | null;
+  race_file?: string | null;
+  sex?: string | null;
   class?: string | null;
   class_file?: string | null;
   level?: number | null;
@@ -31,14 +34,20 @@ export function appendCharacterChips(
   opts: CharacterChipsOptions = {},
 ): HTMLElement {
   if (opts.race) {
-    row.appendChild(iconChip(raceIconFor(c.race), c.race || 'Raza', '', 'md'));
+    const portrait = racePortraitEl(c.race, c.race_file, undefined, c.sex);
+    if (portrait) {
+      const raceChip = chip(c.race || 'Raza', '', 'md');
+      raceChip.insertBefore(portrait, raceChip.firstChild);
+      row.appendChild(raceChip);
+    } else {
+      row.appendChild(iconChip(raceIconFor(c.race), c.race || 'Raza', '', 'md'));
+    }
   }
 
   if (c.class) {
-    // La clase lleva su miniatura JPG a 20px (el asset es de 18px: nítido a
-    // este tamaño). El chip nombra la clase, la imagen es decorativa.
+    // El chip usa el MISMO icono de clase nuevo que el medallón, a 20px.
     const clsChip = chip(c.class, '', 'md');
-    const clsImg = classIconEl(c.class, c.class_file, 'w-5 h-5 rounded-[3px] border border-brand-600/30 object-cover shrink-0');
+    const clsImg = classIconEl(c.class, c.class_file, 'w-5 h-5 rounded-full object-contain shrink-0');
     clsImg.alt = '';
     clsChip.insertBefore(clsImg, clsChip.firstChild);
     row.appendChild(clsChip);

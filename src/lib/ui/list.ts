@@ -18,8 +18,8 @@ import { createPaginator } from '@/lib/ui/paginator';
 //   data-rd-list-status   bloque de carga (LoadingBlock) dentro del content.
 //   data-rd-list-empty    EmptyState: visible SOLO en el estado vacío.
 //   data-rd-list-frame    (opcional) marco que acompaña a la lista (el
-//                         tablero abierto de los directorios): se oculta solo
-//                         cuando manda el estado vacío.
+//                         cuerpo hundido de la ficha de directorio): se
+//                         oculta solo cuando manda el estado vacío.
 //
 // El REVELADO (fade del bloque + escalonado de ítems) no vive aquí: lo hace
 // el motor `src/lib/ui/reveal.ts` al insertar ítems o desocultar bloques.
@@ -110,6 +110,7 @@ export interface PagedListOptions<T> {
   facets?: Array<Facet<T>>;
   resultNoun?: (n: number) => string;
   panel?: 'disclosure' | 'inline';
+  open?: boolean;
   extra?: HTMLElement;
   minFacetValues?: number;
 }
@@ -134,6 +135,7 @@ export function mountPagedList<T>(options: PagedListOptions<T>): FilterBarContro
     facets: options.facets,
     resultNoun: options.resultNoun,
     panel: options.panel,
+    open: options.open,
     extra: options.extra,
     minFacetValues: options.minFacetValues,
     onChange: (filtered, state) => {

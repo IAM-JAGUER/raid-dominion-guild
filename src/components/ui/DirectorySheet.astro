@@ -1,0 +1,136 @@
+---
+// FICHA DE DIRECTORIO: superficie ÚNICA de los 5 directorios públicos
+// (servidores, jugadores, personajes, bandas y hermandades). Reúne en una
+// sola pieza la identidad (portada + medallón + h1 + intro), la franja de
+// filtros y el CUERPO HUNDIDO con la lista, el paginador y el estado vacío.
+//
+// Sustituye al antiguo PageHeader (cabecera + divisor + tablero suelto). La
+// ficha conserva la placa ceremonial (corte diagonal, banda espectral, tono)
+// y añade el cuerpo oscuro para que las cards resalten sin anidar la ventana
+// de las fichas de entidad (design.md §12). El slot `filters` sigue alojando
+// el motor de filtros y el slot por defecto, el contenido de la lista.
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  // Clases extra del h1 (p. ej. `tracking-wider` heredado de titleHero).
+  titleCls?: string;
+  // Estilo del h1: `hero` (directorios, mayúsculas con gradiente) o `ficha`
+  // (fichas de entidad como el servidor: itálico en minúsculas con gradiente).
+  titleStyle?: 'hero' | 'ficha';
+  // Id del h1 (el section lo usa como aria-labelledby).
+  titleId?: string;
+  // Etiqueta accesible de la franja de filtros. Por defecto, el título.
+  filtersLabel?: string;
+  // Icono temático del medallón de identidad (contrato src/lib/ui/icons.ts).
+  icon?: IconName;
+  // Imagen de portada del encabezado (decorativa). Se monta DENTRO de la
+  // ficha, como superficie de la identidad —nunca como capa de fondo de
+  // página— y lleva un velo de contraste para que el texto siga respirando
+  // (design.md §3b/§12).
+  image?: string;
+  // Posición del recorte de la imagen (`object-position`).
+  imagePosition?: string;
+  // `background`: la imagen llena la identidad y el texto va encima con velo.
+  // `cover`: banda superior a sangre y texto sobre la superficie sólida.
+  imageMode?: 'background' | 'cover';
+  // Tono ceremonial de la ficha (paleta v2). `steel` = marca.
+  tone?: Tone;
+}
+
+const {
+  eyebrow,
+  title,
+  intro,
+  titleCls = '',
+  titleStyle = 'hero',
+  titleId = 'directory-title',
+  filtersLabel,
+  icon,
+  image,
+  imagePosition = 'center',
+  imageMode = 'cover',
+  tone = 'steel',
+} = Astro.props;
+
+import { ui, type Tone } from '@/lib/ui/design';
+import Icon from '@/components/ui/Icon.astro';
+import HeaderCover from '@/components/ui/HeaderCover.astro';
+import type { IconName } from '@/lib/ui/icons';
+
+const isCover = !!image && imageMode === 'cover';
+const isBackground = !!image && imageMode === 'background';
+const isTone = tone !== 'steel';
+const toneCls = isTone ? ui.tone[tone] : '';
+const modeCls = isCover
+  ? 'pt-0 pb-8 sm:pb-10'
+  : isBackground
+    ? 'min-h-[20rem] py-10 sm:py-14 flex flex-col justify-center'
+    : 'py-8 sm:py-10';
+const sheetCls = [ui.directory.sheet, toneCls, isTone ? ui.toneBody : ''].filter(Boolean).join(' ');
+const identityCls = [ui.directory.identity, modeCls, isTone ? ui.toneHead : ''].filter(Boolean).join(' ');
+const filterLabel = filtersLabel ?? (title ? `Filtros de ${title}` : 'Filtros');
+const titleBase = titleStyle === 'ficha'
+  ? `${ui.titleFicha} ${ui.gradientTitle}`
+  : `${ui.text.hero} ${ui.titleHero}`;
+const titleClass = `${titleBase} ${isTone ? ui.toneTitle : ''} ${titleCls}`.trim();
+---
+<section class={`${sheetCls} animate-fade-in-1`} aria-labelledby={titleId}>
+  <span class={`${ui.cardTop} ${isTone ? ui.toneTop : ''} z-20`} aria-hidden="true"></span>
+  <div class={identityCls}>
+    {isCover && (
+      <HeaderCover image={image ?? ''} position={imagePosition} extraClass="-mx-6" />
+    )}
+    {isBackground && (
+      <>
+        <img
+          src={image}
+          alt=""
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={`object-position:${imagePosition}`}
+          loading="eager"
+          decoding="async"
+          fetchpriority="low"
+        />
+        <span class="pointer-events-none absolute inset-0 bg-brand-950/15" aria-hidden="true"></span>
+        <span
+          class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_58%_90%_at_50%_54%,rgba(7,17,30,0.82)_0%,rgba(7,17,30,0.55)_48%,rgba(7,17,30,0.12)_74%,transparent_100%)]"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/15 to-transparent"
+          aria-hidden="true"
+        ></span>
+      </>
+    )}
+    <div class="relative z-10">
+      {icon && (
+        <div class={`${ui.iconTile} ${ui.iconTileLg} ${isTone ? ui.toneIcon : ''} mx-auto ${isCover ? '-mt-8 mb-4' : 'mb-4'}`}>
+          <Icon name={icon} size="xl" />
+        </div>
+      )}
+      {eyebrow && <p class={`${ui.eyebrow} mb-2`}>{eyebrow}</p>}
+      <h1 id={titleId} class={titleClass}>{title}</h1>
+      {intro && (
+        <p
+          class={`${ui.text.bodyMuted} italic mt-3 max-w-2xl mx-auto ${
+            isBackground ? '!text-gray-300' : ''
+          }`}
+        >
+          {intro}
+        </p>
+      )}
+    </div>
+    {Astro.slots.has('filters') && (
+      <div class="relative z-10" role="search" aria-label={filterLabel}>
+        <slot name="filters" />
+      </div>
+    )}
+  </div>
+  {Astro.slots.has('default') && (
+    <div class={ui.directory.body}>
+      <slot />
+    </div>
+  )}
+</section>

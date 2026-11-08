@@ -110,7 +110,7 @@ export const GLOSSARY: GlossaryItem[] = [
   {
     term: 'iLevel',
     definition:
-      'Nivel de objeto promedio del equipo de un personaje. El portal lo muestra como referencia del progreso de equipo.',
+      'Nivel de equipamiento promedio del equipo de un personaje. El portal lo muestra como referencia del progreso de equipo.',
   },
   {
     term: 'Rol',

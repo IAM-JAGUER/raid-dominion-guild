@@ -139,6 +139,29 @@ test('la nota del personaje viaja en player.note', () => {
   assert.equal(res.registries?.[0]?.player.note, 'Busco grupo de 25H');
 });
 
+test('el sexo real (v3.3.0) viaja en player.sex y descarta tokens inválidos', () => {
+  const ok = parseData(`
+    registry = {
+      ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena", sex = "Female" } },
+    },
+  `);
+  assert.equal(ok.registries?.[0]?.player.sex, 'Female');
+
+  const legacy = parseData(`
+    registry = {
+      ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena" } },
+    },
+  `);
+  assert.equal(legacy.registries?.[0]?.player.sex, undefined);
+
+  const junk = parseData(`
+    registry = {
+      ["Ana-Serena"] = { player = { name = "Ana", realm = "Serena", sex = "?" } },
+    },
+  `);
+  assert.equal(junk.registries?.[0]?.player.sex, undefined);
+});
+
 test('la nota vacía se conserva (permite borrar lo publicado)', () => {
   const res = parseData(`
     registry = {

@@ -95,7 +95,6 @@ const meta = PAGE_META['/dashboard'];
           bleedCls="-mx-4 -mb-5 sm:-mx-6 px-4 sm:px-6"
         />
         </div>
-        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
       </header>
 
       <!-- ── Resumen ─────────────────────────────────────────────────────── -->
@@ -136,26 +135,22 @@ const meta = PAGE_META['/dashboard'];
         </EmptyState>
 
         <div id="registro-main" data-rd-reveal class="hidden space-y-8">
-          <!-- Ventana: cabecera + visor contiguos (sin gap ni radio en la junta,
-               esquina inferior cuadrada) -->
+          <!-- Contenido plano de la pestaña Registro: el label/icono ya viven
+               en el dock; aquí solo el análisis seleccionado y sus controles. -->
           <div>
-            <div
-              class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-arcane rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
-            >
+            <div class="relative">
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
               >
                 <div class="min-w-0">
-                  <p class={`${ui.eyebrow} mb-1`}>Registro del addon</p>
                   <h2
                     id="hdr-registro-title"
                     class="text-lg font-bold text-brand-200 flex items-center"
                   >
-                    <Icon name="bandeja" size="md" class="mr-2.5" />
                     <span
                       id="hdr-registro-title-text"
-                      class={`${ui.gradientTitle} rd-tone-title font-black italic`}
-                      >Registro</span
+                      class="font-black italic"
+                      >Análisis</span
                     >
                   </h2>
                   <!-- Indicadores del análisis seleccionado (liberan el contenido
@@ -245,7 +240,7 @@ const meta = PAGE_META['/dashboard'];
             <div
               id="claim-banner"
               data-rd-reveal
-              class="hidden border border-brand-600/30 border-t-0 bg-gradient-to-br from-brand-950/40 to-brand-900/60 p-4 sm:p-6"
+              class="hidden border border-brand-600/30 rounded-md bg-gradient-to-br from-brand-950/40 to-brand-900/60 p-4 sm:p-6"
             >
               <h3
                 class="text-base font-black uppercase tracking-widest text-brand-300 mb-1"
@@ -301,7 +296,7 @@ const meta = PAGE_META['/dashboard'];
             <!-- Visor único del snapshot seleccionado: fondo sólido distintivo del
                cuerpo. El título y la fecha del análisis viven en el encabezado
                de la pestaña; aquí solo el contenido del registro. -->
-            <div class={`${ui.sectionBody} space-y-5`}>
+            <div class="space-y-5">
               {/* Personajes del registro: fusión de las vistas del archivo,
                  con la card de personaje estandarizada */}
               <div>
@@ -353,28 +348,13 @@ const meta = PAGE_META['/dashboard'];
             cta={{ label: "Subir ahora", href: "/upload" }}
             ctaCls="px-6 py-3 text-sm"
           />
-          <div
-            id="chars-sectionhead"
-            class={`${ui.sectionHead} ${ui.cutTop} bg-gradient-to-br from-brand-900/20 to-transparent`}
-          >
+          <div id="chars-sectionhead" class="relative">
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
             >
               <div class="min-w-0">
-                <p class={`${ui.eyebrow} mb-1`}>Personajes</p>
-                <h2
-                  id="hdr-chars-title"
-                  class="text-lg font-bold text-brand-200 flex items-center"
-                >
-                  <Icon name="personaje" size="md" class="mr-2.5" />
-                  <span
-                    id="hdr-chars-title-text"
-                    class={`${ui.gradientTitle} font-black italic`}
-                    >Mi roster de personajes</span
-                  >
-                </h2>
                 <div
-                  class="flex flex-wrap gap-2 mt-3"
+                  class="flex flex-wrap gap-2"
                   aria-label="Indicadores de personajes"
                 >
                   <span class={ui.badgeStat}>
@@ -414,7 +394,7 @@ const meta = PAGE_META['/dashboard'];
             </div>
           </div>
 
-          <div id="chars-sectionbody" class={`${ui.sectionBody} space-y-5`}>
+          <div id="chars-sectionbody" class="space-y-5">
             <!-- Datos del perfil: controles dentro del contenido de la ventana de
                personajes (nombre visible, principal, visibilidad pública, guardar).
                Estilo de sub-bloque del cuerpo, igual que los bloques del registro. -->
@@ -507,8 +487,6 @@ const meta = PAGE_META['/dashboard'];
               >
               </p>
             </div>
-
-            <div class={`${ui.dividerFadeBoth} my-5`} aria-hidden="true"></div>
 
             <!-- ── Task Tracker (adaptación del tracker wow-rd) ───────────────
                  La sección "Datos del perfil" se mantiene arriba; debajo vive
@@ -639,24 +617,19 @@ const meta = PAGE_META['/dashboard'];
             ctaCls="px-6 py-3 text-sm"
           />
 
-          <div
-            id="bands-sectionhead"
-            class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-ember rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
-          >
+          <div id="bands-sectionhead" class="relative">
             <div
               class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
             >
               <div class="min-w-0">
-                <p class={`${ui.eyebrow} mb-1`}>Gestión de bandas</p>
                 <h2
                   id="hdr-band-name"
                   class="text-lg font-bold text-brand-200 flex flex-wrap items-center gap-2"
                 >
-                  <Icon name="espadas" size="md" />
                   <span
                     id="hdr-band-name-text"
-                    class={`${ui.gradientTitle} rd-tone-title min-w-0 font-black italic`}
-                    >Mis bandas</span
+                    class="min-w-0 font-black italic"
+                    >Selección actual</span
                   >
                   <a
                     id="hdr-band-open"
@@ -734,7 +707,7 @@ const meta = PAGE_META['/dashboard'];
             </div>
           </div>
 
-          <div id="bands-sectionbody" class={`${ui.sectionBody} space-y-5`}>
+          <div id="bands-sectionbody" class="space-y-5">
             <!-- Detalle de la banda seleccionada -->
             <div id="band-detail" data-rd-reveal class="hidden"></div>
             <!-- Onboarding: visitante sin validar no puede publicar bandas -->
@@ -803,23 +776,19 @@ const meta = PAGE_META['/dashboard'];
 
           <!-- Gestión multi-hermandad -->
           <div id="guild-manage" data-rd-reveal class="hidden">
-            <div
-              class={`${ui.sectionHead} ${ui.cutTop} rd-tone rd-tone-valor rd-tone-head bg-gradient-to-br from-brand-900/20 to-transparent`}
-            >
+            <div class="relative">
               <div
                 class="md:flex md:items-start md:justify-between gap-6 space-y-6 md:space-y-0"
               >
                 <div class="min-w-0">
-                  <p class={`${ui.eyebrow} mb-1`}>Gestión de hermandad</p>
                   <h2
                     id="hdr-guild-name"
                     class="text-lg font-bold text-brand-200 flex items-center"
                   >
-                    <Icon name="estandarte" size="md" class="mr-2.5" />
                     <span
                       id="hdr-guild-name-text"
-                      class={`${ui.gradientTitle} rd-tone-title font-black italic`}
-                      >Tus hermandades</span
+                      class="font-black italic"
+                      >Selección actual</span
                     >
                   </h2>
                   <!-- Indicadores de la hermandad seleccionada en el navegador
@@ -893,7 +862,7 @@ const meta = PAGE_META['/dashboard'];
                 </div>
               </div>
             </div>
-            <div class={`${ui.sectionBody} space-y-6`}>
+            <div class="space-y-6">
               <div id="guild-cards" class="space-y-6"></div>
             </div>
           </div>
@@ -1188,7 +1157,6 @@ const meta = PAGE_META['/dashboard'];
             </div>
           </details>
         </section>
-        <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
 
         <!-- Modal de confirmación: eliminar un análisis individual -->
         <div

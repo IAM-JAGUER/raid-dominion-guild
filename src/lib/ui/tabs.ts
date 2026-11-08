@@ -364,9 +364,6 @@ export function initAvailableTabs(config: {
   barId: string;
   tabs: TabDef[];
   available: string[];
-  // Separador izquierdo de respaldo: se muestra cuando la barra queda oculta
-  // (0/1 paneles). Con 2+ paneles la barra visible ya hace de separador.
-  leftSepId?: string;
   // Contenedor del dock integrado (ficha de personaje): se oculta si no hay
   // barra (0/1 paneles) para no dejar una banda vacía bajo la identidad.
   dockId?: string;
@@ -374,11 +371,9 @@ export function initAvailableTabs(config: {
   counts?: Record<string, number | undefined>;
 }): void {
   const shown = config.tabs.filter((t) => config.available.includes(t.id));
-  const leftSep = config.leftSepId ? document.getElementById(config.leftSepId) : null;
   const dock = config.dockId ? document.getElementById(config.dockId) : null;
   const hasBar = shown.length > 1;
   dock?.classList.toggle('hidden', !hasBar);
-  leftSep?.classList.toggle('hidden', hasBar);
   if (shown.length === 0) return;
   if (shown.length === 1) {
     document.getElementById(`panel-${shown[0].id}`)?.classList.remove('hidden');

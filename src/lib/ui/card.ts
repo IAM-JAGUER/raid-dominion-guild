@@ -86,11 +86,6 @@ export function cardRow(cls = ''): HTMLElement {
   return node('div', `${ui.cardRow} ${cls}`.trim());
 }
 
-// Separador interno sutil de card.
-export function divider(): HTMLElement {
-  return node('div', ui.divider);
-}
-
 // Indicador "→" (flecha derecha) para el extremo de cards enlazables. El
 // enlace ya está en la card; el icono lo hace explícito (aria-hidden, el
 // texto del enlace lleva la accesibilidad).
@@ -171,15 +166,6 @@ export function applyClassAccent(
   return color;
 }
 
-// Emblema de raza de fondo (la «forma bestia»): sprite nativo con opacidad
-// reducida; nunca se recolorea (§10).
-export function classEmblem(name: IconName): HTMLElement {
-  const span = node('span', ui.character.emblem);
-  span.setAttribute('aria-hidden', 'true');
-  span.appendChild(iconEl(name, { size: 'hero' }));
-  return span;
-}
-
 export interface GaugeMilestone {
   value: number;
   label: string;
@@ -204,13 +190,17 @@ export interface ClassGaugeOptions {
   ticks?: boolean;
   // Hace el gauge enfocable y muestra el tooltip (hover/focus).
   interactive?: boolean;
+  // Paleta de calidad del equipamiento (colores del juego). Si se pasa, el
+  // relleno/brillo del gauge usa un gradiente espectral en vez de la clase.
+  spectralPalette?: string[];
 }
 
 let gaugeTipSeq = 0;
 
-// Gauge de energía (design.md §12): pista oscura con relleno de clase,
-// glow, marcas segmentadas e hitos. SIEMPRE expone role="progressbar" con
-// rango; con `interactive` es enfocable y describe el valor en un tooltip.
+// Gauge de energía (design.md §12): pista oscura con relleno de clase (o
+// paleta espectral de equipamiento), glow, marcas segmentadas e hitos.
+// SIEMPRE expone role="progressbar" con rango; con `interactive` es
+// enfocable y describe el valor en un tooltip.
 export function classGauge(o: ClassGaugeOptions): HTMLElement {
   const wrap = node('div', 'min-w-0');
   const max = Math.max(1, o.max);
@@ -237,6 +227,20 @@ export function classGauge(o: ClassGaugeOptions): HTMLElement {
   track.setAttribute('aria-valuetext', o.tooltip ?? o.ariaLabel ?? valueText);
   track.setAttribute('aria-label', o.ariaLabel ?? `${o.label ?? 'Progreso'}: ${valueText}`);
   if (o.interactive) track.tabIndex = 0;
+
+  const spectral = (o.spectralPalette ?? []).filter(Boolean);
+  if (spectral.length > 0) {
+    track.classList.add('rd-beast-gauge--spectral');
+    const last = spectral.length - 1;
+    const middle = spectral[Math.floor(last / 2)];
+    track.style.setProperty('--rd-gauge-1', spectral[0]);
+    track.style.setProperty('--rd-gauge-2', middle);
+    track.style.setProperty('--rd-gauge-3', spectral[last]);
+    const stops = spectral
+      .map((color, index) => `${color} ${Math.round((index / Math.max(1, last)) * 100)}%`)
+      .join(', ');
+    track.style.setProperty('--rd-gauge-gradient', `linear-gradient(90deg, ${stops})`);
+  }
 
   const fill = node('span', ui.character.gauge.fill);
   fill.style.width = `${pct}%`;

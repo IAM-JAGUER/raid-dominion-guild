@@ -686,6 +686,7 @@ function asPlayerCharacter(raw: unknown, objectivesRaw?: unknown): PlayerCharact
     server: toCleanStr(e['server']) || undefined,
     race: toCleanStr(e['race']) || undefined,
     raceFile: toStr(e['raceFile']) || undefined,
+    sex: e['sex'] === 'Male' || e['sex'] === 'Female' ? e['sex'] : undefined,
     class: toCleanStr(e['class']) || undefined,
     classFile: toStr(e['classFile']) || undefined,
     level: toNum(e['level']),

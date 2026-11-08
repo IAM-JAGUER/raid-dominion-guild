@@ -48,10 +48,8 @@ const meta = PAGE_META['/hermandad'];
         cta={{ label: 'Ver directorio', href: '/hermandades' }}
       />
 
-      <!-- Portal. Ritmo de zonas póster: cada hijo trae su margen (header
-           zone.hero, banner mb-8); sin `space-y` aquí, que pisaba el `mt-12`
-           del divisor y separaba la tira de contexto (#guild-context) del
-           separador. -->
+      <!-- Portal: encabezado + pestañas en la MISMA ficha. La tira de
+           contexto (#guild-context) queda fuera de la ficha. -->
       <div id="portal" data-rd-reveal class="hidden">
 
         <!-- Vista previa privada (owner) -->
@@ -83,24 +81,18 @@ const meta = PAGE_META['/hermandad'];
             barId="portal-tab-bar"
             label="Secciones del portal"
           />
-        </FichaHero>
 
-        <!-- Esqueleto de página (modelo dashboard): separador central +
-             separador izquierdo (la barra de tabs lo aporta cuando hay paneles;
-             si el portal no tiene contenido, se muestra el divisor de respaldo). -->
-        <div class={`${ui.dividerFadeBoth} mt-6`} aria-hidden="true"></div>
-        <div id="portal-left-sep" class={`hidden ${ui.dividerFadeRight} mt-8 mb-10`} aria-hidden="true"></div>
+          <div slot="body">
+            <!-- Pestañas: Miembros · Bandas · Reglas -->
+            <div id="portal-tabs" data-rd-reveal class="hidden">
 
-        <!-- Pestañas: Miembros · Bandas · Reglas -->
-        <div id="portal-tabs" data-rd-reveal class="hidden">
-
-          <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6 pt-6">
+          <div id="panel-miembros" role="tabpanel" aria-labelledby="tab-miembros" class="space-y-6">
             <!-- Roster con filtros: rangos + clases (mismo chip de barra; las
                  clases conservan su ícono) + buscador por nombre. Todos filtran
                  la lista de jugadores de abajo (renderRoster). Mismo modelo de
                  ventana que los paneles del dashboard — cabecera contigua
                  (título + controles de filtro) + cuerpo con el roster. -->
-            <PanelWindow title="Roster" titleId="roster-panel-title" icon="jugadores" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow flat title="Roster" icon="jugadores">
               <div slot="head">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-start mt-4">
                   <details id="filtro-jerarquia" class={ui.filter.disclosure}>
@@ -153,10 +145,10 @@ const meta = PAGE_META['/hermandad'];
             </PanelWindow>
           </div>
 
-          <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6 pt-6">
+          <div id="panel-bandas" role="tabpanel" aria-labelledby="tab-bandas" class="hidden space-y-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y los paneles del portal. -->
-            <PanelWindow title="Bandas" icon="espadas" tone="ember" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow flat title="Bandas" icon="espadas" tone="ember" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <!-- Panel de filtros estándar (buscador + selector de día) del
                      motor src/lib/ui/filterBar.ts, vía renderBandasPanel. -->
@@ -178,10 +170,10 @@ const meta = PAGE_META['/hermandad'];
             </PanelWindow>
           </div>
 
-          <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6 pt-6">
+          <div id="panel-reglas" role="tabpanel" aria-labelledby="tab-reglas" class="hidden space-y-6">
             <!-- Ventana de panel: cabecera contigua (secciónHead) + cuerpo
                  (sectionBody), mismo modelo que Roster y Bandas. -->
-            <PanelWindow title="Reglas" icon="pergamino" tone="parchment" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
+            <PanelWindow flat title="Reglas" icon="pergamino" tone="parchment" gradient={false} titleCls="text-lg font-bold flex items-center text-brand-200">
               <div slot="head">
                 <!-- Motor único de filtros (src/lib/ui/filterBar.ts). -->
                 <div class="mt-4" id="viewer-rules-filtro"></div>
@@ -203,25 +195,26 @@ const meta = PAGE_META['/hermandad'];
           </div>
         </div>
 
-        <!-- Sin snapshot -->
-        <EmptyState
-          id="no-snapshot"
-          hidden
-          variant="panel"
-          pad="lg"
-          cut
-          icon="cristal"
-          title="Sin análisis público todavía"
-          message="El maestro de esta hermandad aún no publica roster ni bandas."
-          messageCls="text-sm text-gray-300"
-          gradient={false}
-          titleCls="font-bold text-white"
-        />
+            <!-- Sin snapshot -->
+            <EmptyState
+              id="no-snapshot"
+              hidden
+              variant="panel"
+              pad="lg"
+              cut
+              icon="cristal"
+              title="Sin análisis público todavía"
+              message="El maestro de esta hermandad aún no publica roster ni bandas."
+              messageCls="text-sm text-gray-300"
+              gradient={false}
+              titleCls="font-bold text-white"
+            />
+          </div>
+        </FichaHero>
 
-        <div class={`${ui.dividerFadeLeft} mt-12`} aria-hidden="true"></div>
-        <!-- Contexto del portal (servidor/reino): van DESPUÉS del separador
-             final para liberar el encabezado; se rellenan solo con los chips
-             de servidor y reino (la atribución ★ y la facción quedan arriba). -->
+        <!-- Contexto del portal (servidor/reino): va DESPUÉS de la ficha
+             unificada; se rellena solo con los chips de servidor y reino
+             (la atribución ★ y la facción quedan arriba). -->
         <div id="guild-context" class={ui.contextStrip}></div>
       </div>
 
@@ -457,9 +450,6 @@ const meta = PAGE_META['/hermandad'];
       const hasSnapshotContent = (!!snapshot && (snapshot.members.length > 0 || (snapshot.ranks?.length ?? 0) > 0)) || (manualRules?.length ?? 0) > 0;
       if (!hasSnapshotContent && portalBands.length === 0) {
         document.getElementById('no-snapshot')?.classList.remove('hidden');
-        // Sin barra de pestañas, el separador izquierdo del esqueleto lo
-        // aporta el divisor de respaldo.
-        document.getElementById('portal-left-sep')?.classList.remove('hidden');
       } else {
         // Pestañas Miembros / Bandas / Reglas: los conteos viven como badges
         // de la barra (reemplazan al antiguo strip de métricas). Los paneles
@@ -507,8 +497,6 @@ const meta = PAGE_META['/hermandad'];
         const emptyFilter = document.getElementById('roster-empty-filter') as HTMLElement;
         const searchInput = document.getElementById('roster-search') as HTMLInputElement;
         const rosterPrivate = document.getElementById('roster-private') as HTMLElement;
-        const rosterTitle = document.getElementById('roster-panel-title');
-        if (rosterTitle) rosterTitle.textContent = memberCountPublic ? 'Roster' : 'Jerarquía';
 
         if (!memberCountPublic) {
           searchInput.value = '';
@@ -651,7 +639,7 @@ const meta = PAGE_META['/hermandad'];
               .sort((a, b) => b.count - a.count)
               .map((c) => statChip({
                 label: c.label, count: c.count, pct: Math.round((c.count / total) * 100),
-                icon: classIconEl(c.cls, undefined, 'w-4 h-4 rounded-sm border border-gray-700/50 shrink-0 object-cover'),
+                icon: classIconEl(c.cls, undefined, 'w-4 h-4 rounded-full shrink-0 object-contain'),
                 active: state.cls === (c.cls ? c.cls.toLowerCase() : '__none__'),
                 dataset: { 'class-key': c.cls ? c.cls.toLowerCase() : '__none__' },
               }));

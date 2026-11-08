@@ -32,6 +32,15 @@
 // Superficie canónica de paneles/cards: única fuente del literal de borde
 // de marca (R3/R5). Cualquier variante nueva comparte esta constante.
 const SURFACE = 'bg-brand-900/60 backdrop-blur-sm border border-brand-600/30';
+// Superficie única de una ficha (placa de identidad + cuerpo hundido). La
+// comparten los directorios (DirectorySheet) y las fichas de entidad
+// (FichaHero) para que encabezado y lista vivan en la MISMA pieza.
+const SHEET_SURFACE =
+  'relative overflow-hidden rounded-tl-md rounded-tr-none rounded-b-none border border-brand-600/30 bg-brand-900/60 backdrop-blur-sm rd-cut';
+// Cuerpo hundido: fondo más oscuro + luz interior superior. Las cards y
+// ventanas internas resaltan por contraste sin anidar otra ficha.
+const SHEET_BODY =
+  'relative bg-brand-950/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]';
 
 export const ui = {
   container: 'max-w-6xl mx-auto',
@@ -203,9 +212,9 @@ export const ui = {
     chipRemove:
       'inline-flex h-4 w-4 items-center justify-center rounded-md text-brand-300/80 hover:bg-white/10 hover:text-brand-100 transition-colors',
     notice: 'text-[11px] italic text-gray-300',
-    // Montaje del motor en la cabecera de directorio (PageHeader). La franja
-    // nace oculta mientras no hay datos (`empty:hidden`) para no dejar un
-    // hairline fantasma; al montar la barra, aparece debajo de la identidad.
+    // Montaje del motor dentro de la ficha de directorio (DirectorySheet). La
+    // franja nace oculta mientras no hay datos (`empty:hidden`) para no dejar
+    // un hairline fantasma; al montar la barra, aparece debajo de la identidad.
     headerMount:
       'relative z-10 mt-5 w-full border-t border-brand-600/20 pt-4 text-left empty:hidden sm:mt-6',
     // Grupo extra inline de la misma fila (tracker: ocultos + selección).
@@ -213,17 +222,31 @@ export const ui = {
       'flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-950/30 p-1.5 md:w-auto',
   },
 
-  // ── Directorios públicos (2026-11-06) ───────────────────────────────────
-  // Tablero ABIERTO: la lista vive directamente bajo el PageHeader, sin la
-  // ventana de contenido de las fichas ni títulos/iconos repetidos. El
-  // contador vive SOLO en la barra de filtros; el paginador aporta la página.
+  // ── Directorios públicos: ficha de directorio (2026-11-07) ─────────────
+  // Superficie ÚNICA que reúne identidad + filtros + lista + paginador +
+  // estado vacío. La zona de la lista es un cuerpo HUNDIDO (más oscuro + luz
+  // interior superior) para que las cards resalten por contraste, sin anidar
+  // la ventana de las fichas de entidad. El contador vive SOLO en la barra de
+  // filtros; el paginador aporta la página.
   directory: {
-    board: 'relative mt-8',
+    sheet: `${SHEET_SURFACE} w-full min-w-0`,
+    identity: 'relative px-6 text-center',
+    body: `${SHEET_BODY} px-6 py-6 sm:py-8`,
+    board: 'relative',
     grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6',
     groups: 'space-y-8',
-    // Respiro del estado vacío cuando el tablero se oculta (mismo hueco que
-    // el separador izquierdo retirado, sin repetir el literal en 2 páginas).
-    empty: 'mt-8',
+    // Respiro del estado vacío DENTRO del cuerpo hundido (fuera del frame de
+    // la lista, para que settleAsyncList alterne lista y vacío sin anidar).
+    empty: 'py-4',
+  },
+
+  // ── Fichas de entidad (2026-11-07): encabezado + contenido en una ficha ─
+  // FichaHero monta la placa de identidad y, debajo, este cuerpo hundido con
+  // los paneles/listas de la ficha. Sustituye el esquema placa + divisor +
+  // ventana suelta: ahora todo vive en la MISMA superficie.
+  ficha: {
+    sheet: `${SHEET_SURFACE} w-full min-w-0`,
+    body: `${SHEET_BODY} px-4 py-5 sm:px-6 sm:py-6`,
   },
 
   // ── Paginador reutilizable (2026-10-19, paginator.ts) ──────────────────
@@ -405,20 +428,15 @@ export const ui = {
   // Medallón héroe de la FICHA de personaje (2026-11-04): un paso más para
   // que el retrato domine la placa de identidad (lenguaje select screen).
   iconTileHeroLg: 'w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32',
+  // Medallón compacto: iguala el tamaño del avatar de raza (ficha de personaje).
+  iconTileCompact: 'w-14 h-14 sm:w-16 sm:h-16',
 
-  // ── Póster: zonas, superficies y jerarquía (2026-10-17, design.md §12) ──
-  // Ritmo de zonas de una ficha: el héroe respira, las pestañas y el cuerpo
-  // tienen su propio compás (4/8/12/16/24/32). Sustituye el `mb-6` único
-  // que igualaba todas las distancias.
+  // ── Póster: zonas y jerarquía (2026-10-17, design.md §12) ───────────────
+  // Ritmo interno del cuerpo de una ficha: los paneles conservan su compás
+  // (8/10) dentro de la misma superficie. El encabezado ya no aporta margen:
+  // el cuerpo hundido de la ficha lo continúa directamente.
   zone: {
-    hero: 'mb-8 lg:mb-10',
-    tabs: 'mb-8',
     body: 'space-y-8 lg:space-y-10',
-    // Barra de pestañas del esqueleto de página (dashboard, admin, fichas y
-    // portal): layout + scroll horizontal oculto. Los márgenes (`mt-8`,
-    // `mb-8`), `hidden` y `animate-fade-in-1` los aporta cada contexto.
-    tabBar:
-      'flex flex-nowrap items-center gap-1 rd-tabbar relative overflow-x-auto justify-start [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
   },
   // Grilla estándar de cards de directorio/ficha (3 columnas → 2 → 1).
   gridCards: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3',
@@ -431,7 +449,7 @@ export const ui = {
   // helado + chispa, resto recto) y misma superficie (SURFACE), sin metal;
   // la línea de acento (ui.cardTop) va dentro y el borde superior lleva la
   // banda espectral.
-  plaque: 'relative overflow-hidden rounded-tl-md rounded-tr-none rounded-b-none border border-brand-600/30 bg-brand-900/60 backdrop-blur-sm rd-cut',
+  plaque: SHEET_SURFACE,
   // Superficie de FILA de dato (no card de directorio): contenedor REAL
   // (opaco + marco) para que el dato no se disuelva sobre la atmósfera de
   // página. Sustituye el patrón fantasma `bg-brand-900/40 + border-l-2`,
@@ -492,15 +510,23 @@ export const ui = {
     rail: 'rd-class-rail',
     // Velo radial de clase sobre la placa/card (.rd-class-veil).
     veil: 'rd-class-veil',
-    // Emblema de raza de fondo, la «forma bestia» del select screen.
-    emblem: 'rd-select-emblem',
+    // Avatar cuadrado de raza antes del icono de clase (borde de equipamiento).
+    raceAvatar: 'rd-race-avatar w-14 h-14 sm:w-16 sm:h-16',
     // Hover de card de personaje: borde + halo con el color de clase.
     cardHover: 'rd-class-hover',
     // Fondo del medallón héroe teñido con el color de clase (ficha).
     avatar: 'rd-medallion-class',
+    // Contenedor circular del retrato de clase.
+    avatarRound: '!rounded-full',
+    // Anillo/aura espectral del medallón con el color de clase.
+    avatarSpectral: 'rd-medallion-spectral',
+    // Retrato de clase del medallón (WebP 128×128 del sheet wowClasses).
+    portrait: 'w-full h-full object-contain pointer-events-none',
     // Nombre display de ficha: mayúsculas itálicas (select screen). El dato
     // original del DOM no cambia (SEO/lectores conservan el nombre real).
     nameDisplay: 'font-black italic uppercase tracking-tight leading-[1.3] text-4xl sm:text-5xl lg:text-6xl text-balance',
+    // Doble aura espectral del nombre: clase + color de equipamiento.
+    nameSpectral: 'rd-name-spectral',
     // Tira de energía bajo el nombre (hairline de clase con glow).
     underline: 'rd-class-underline',
     // Gauge de energía: relleno + marcas segmentadas con `--class-color`.
@@ -520,28 +546,9 @@ export const ui = {
     md: '',
     lg: '!p-5 sm:!p-7',
   },
-  // Separador ceremonial: trazo hairline con bloom de neón que respira —
-  // la línea y el halo laten (efecto en material.css, «Sistema de
-  // divisores»). Uso actual: landing (index.astro); card.ts lo expone como
-  // separador interno.
-  divider: 'rd-divider w-full',
-  // Separadores del ESQUELETO de página (encabezado → central →
-  // izquierdo/tabs → contenido → derecho):
-  //   dividerFadeBoth — separador CENTRAL: sólido al centro, se desvanece a ambos lados.
-  //   dividerFadeRight — separador IZQUIERDO: sólido a la izquierda, se
-  //     desvanece a la derecha (misma dirección que la hairline interna de
-  //     `rd-tabbar`; sustituye a la barra de tabs cuando no hay tabs).
-  //   dividerFadeLeft — separador DERECHO: sólido a la derecha, se desvanece
-  //     a la izquierda; cierra el contenido principal.
-  // El borde inferior de la navegación de tabs (rd-tabbar, material.css)
-  // comparte el halo del sistema sobre su propia hairline fade-derecha; no usa token.
-  dividerFadeBoth: 'rd-divider-both w-full',
-  dividerFadeRight: 'rd-divider-right w-full',
-  dividerFadeLeft: 'rd-divider-left w-full',
-  // Tira de CONTEXTO de una ficha (chips de servidor/reino tras el divisor
-  // final): cierra la página sin tocar el encabezado. El respiro bajo el
-  // divisor sigue la relación divisor→contenido del directorio (mb-10).
-  // `hidden` inicial: cada vista la desoculta solo cuando aporta datos.
+  // Tira de CONTEXTO de una ficha (chips de servidor/reino): cierra la
+  // página FUERA de la ficha unificada, sin tocar el encabezado ni el
+  // cuerpo. `hidden` inicial: cada vista la desoculta solo cuando aporta datos.
   contextStrip: 'hidden flex flex-wrap gap-2 mt-10',
 
   // ── Materiales y ornamentación (2026-08-30, material.css) ───────────────

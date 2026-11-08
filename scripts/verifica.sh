@@ -44,7 +44,10 @@ WT="$(pwd)"
 sync_src() {
   local LIST
   LIST="$(mktemp)" || return 1
-  git -C "$WT" -c core.quotePath=false ls-files -co --exclude-standard > "$LIST" 2>/dev/null
+  # `git ls-files` también lista archivos rastreados ya eliminados en el
+  # worktree; rsync falla si el origen no existe. Filtramos a rutas vivas.
+  git -C "$WT" -c core.quotePath=false ls-files -co --exclude-standard 2>/dev/null \
+    | while IFS= read -r f; do [[ -e "$WT/$f" ]] && printf '%s\n' "$f"; done > "$LIST"
   rsync -a --delete --files-from="$LIST" "$WT/" "$SB/" \
     --exclude node_modules --exclude .env --exclude dist --exclude .astro
   local rc=$?

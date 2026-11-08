@@ -4,9 +4,9 @@
  * `src/lib/ui/filterBar.ts`; contenido agrupado por día (lunes → domingo, por
  * hora) en grilla responsive de hasta 3 columnas de día, PAGINADO en bloques
  * de hasta 12 bandas con el paginador compartido (`src/lib/ui/paginator.ts`).
- * ÚNICA fuente del modelo; /bandas (tablero abierto) y las pestañas Bandas de
- * perfil, personaje, reino y portal de hermandad (panel) pasan por aquí. Nada
- * de esto toca el dashboard.
+ * ÚNICA fuente del modelo; /bandas (cuerpo de la ficha de directorio) y las
+ * pestañas Bandas de perfil, personaje, reino y portal de hermandad (panel)
+ * pasan por aquí. Nada de esto toca el dashboard.
  */
 import { WEEKDAY_LABELS, parseSchedule, groupBandsByDay } from '@/lib/bandSchedule';
 import { ui } from '@/lib/ui/design';
@@ -20,11 +20,11 @@ import { createPaginator, packSections, PAGE_SIZE_GRID } from '@/lib/ui/paginato
 export type BandType = 'personal' | 'guild';
 
 export interface BandasPanelOptions<T> {
-  // Contenedor de la barra de filtros (slot `filters` del PageHeader en
-  // /bandas; cabecera del panel en las pestañas de ficha).
+  // Contenedor de la barra de filtros (slot `filters` de la ficha de
+  // directorio en /bandas; cabecera del panel en las pestañas de ficha).
   filtro: HTMLElement;
-  // Contenedor del contenido agrupado por día (tablero en /bandas; cuerpo
-  // del panel en las pestañas de ficha).
+  // Contenedor del contenido agrupado por día (cuerpo de la ficha en /bandas;
+  // cuerpo del panel en las pestañas de ficha).
   content: HTMLElement;
   // Bandas a listar (ya fusionadas/atribuidas por el contexto).
   items: T[];
@@ -43,6 +43,8 @@ export interface BandasPanelOptions<T> {
   // resultados" del filtro va a su bloque de estado (notice) y el ready se
   // asienta al pintar; sin él (pestañas) el aviso va como párrafo interno.
   list?: AsyncList;
+  // Estado inicial del panel de filtros (default: abierto).
+  open?: boolean;
 }
 
 export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
@@ -97,6 +99,7 @@ export function renderBandasPanel<T>(options: BandasPanelOptions<T>): void {
     searchLabel: 'Buscar bandas por nombre de banda, jugador, personaje o hermandad',
     facets,
     resultNoun: (n) => `${n} banda${n === 1 ? '' : 's'}`,
+    open: options.open,
     onChange: renderContent,
   });
 
