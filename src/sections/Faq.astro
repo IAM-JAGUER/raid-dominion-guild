@@ -19,7 +19,7 @@ import { GLOSSARY, HOME_FAQ } from '@/data/faq';
       <details class={`${ui.disclosure} group`} open={index === 0}>
         <summary class={ui.disclosureSummary}>
           <span class="flex items-baseline gap-2">
-            <span class="text-brand-400 font-black tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+            <span class="text-valor-300 font-black tabular-nums">{String(index + 1).padStart(2, '0')}</span>
             <span>{item.question}</span>
           </span>
           <Icon name="brujula-alt" size="xs" class="shrink-0 transition-transform group-open:rotate-90" />

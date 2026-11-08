@@ -586,7 +586,7 @@ const meta = PAGE_META['/hermandad'];
             if (memberCountPublic) {
               const barRow = el('div', 'flex items-center gap-2 min-w-0');
               const barWrap = el('div', 'flex-1 min-w-0 h-1.5 rounded-full bg-brand-900/60 overflow-hidden');
-              const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-gradient-to-r from-brand-400 to-brand-300' : 'bg-gradient-to-r from-brand-600 to-brand-400'));
+              const bar = el('div', 'h-full rounded-full ' + (o.leader ? 'bg-gradient-to-r from-valor-300 to-valor-200' : 'bg-gradient-to-r from-brand-600 to-valor-400'));
               bar.style.width = `${Math.max(2, o.pct)}%`;
               barWrap.appendChild(bar);
               barRow.appendChild(barWrap);

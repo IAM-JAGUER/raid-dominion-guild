@@ -26,7 +26,7 @@ export const SITE_CONFIG = {
   DESCRIPTION: 'Addon gratuito y portal comunitario para organizar bandas y hermandades en World of Warcraft 3.3.5a (WotLK).',
   KEYWORDS: ['addon wow 3.3.5a', 'addon wotlk', 'bandas wow', 'hermandades wow', 'raiddominion', 'savedvariables', 'roster de banda'],
   AUTHOR: 'RaidDominion',
-  THEME_COLOR: '#00BFFF', // Energía (paleta azul/acero)
+  THEME_COLOR: '#02090C', // Material v3 del addon (fondo de shell)
   LOCALE: 'es-CO',
 };
 

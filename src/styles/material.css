@@ -18,28 +18,33 @@
 
 :root {
   /* ── FASE 2 · Design tokens ──────────────────────────────────────────── */
-  --bg-void: #07111E;
-  --bg-surface: #0B2338;
-  --surface-primary: #0E2A45;
-  --surface-secondary: #123253;
+  --bg-void: #02090C;
+  --bg-surface: #06171F;
+  --surface-primary: #0F2026;
+  --surface-secondary: #1A343B;
 
-  --metal-dark: #07111E;
-  --metal-mid: #123253;
-  --metal-light: #1E4A73;
+  --metal-dark: #02090C;
+  --metal-mid: #0F2026;
+  --metal-light: #2E5B66;
 
-  --stone-dark: #0A1C2E;
-  --stone-light: #123253;
+  --stone-dark: #02090C;
+  --stone-light: #0F2026;
 
-  --parchment-dark: #0B2338;
-  --parchment-light: #123253;
+  --parchment-dark: #0F2026;
+  --parchment-light: #4C3019;
 
-  --text-primary: #E6F1FB;
-  --text-secondary: #B8D7F1;
-  --text-muted: #7FA8C9;
+  --text-primary: #E6E9E4;
+  --text-secondary: #C9D6DC;
+  --text-muted: #8FA9AF;
 
   --accent-primary: #00BFFF;
   --accent-secondary: #5CA9E8;
-  --accent-danger: #b4472f;
+  --accent-gold: #C8B66F;
+  --accent-gold-light: #D9CD94;
+  --accent-gold-dark: #887533;
+  --frame-line: rgba(116, 147, 159, 0.42);
+  --frame-line-strong: rgba(116, 147, 159, 0.68);
+  --accent-danger: #96181A;
 
   --shadow-deep: 0 18px 50px rgba(0, 0, 0, 0.55), 0 6px 18px rgba(0, 0, 0, 0.35);
   --shadow-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.07);
@@ -58,13 +63,13 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LAYER 01 · ATMÓSFERA
-   Fondo de vacío azul (Acero → Abismo), OPACO: sin tramas procedurales ni
-   velos propios. La ÚNICA capa transparente sobre el fondo es el velo de la
-   atmósfera (`.rd-atmosphere__veil`, 0.3 por defecto).
+   Fondo de vacío negro-teal (Cámara → Abismo), OPACO: sin tramas
+   procedurales ni velos propios. La ÚNICA capa transparente sobre el fondo
+   es el velo de la atmósfera (`.rd-atmosphere__veil`, 0.35 por defecto).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .rd-bg {
-  background: radial-gradient(140% 100% at 50% 0%, #0e2a45 0%, #0a1c2e 55%, #07111e 100%);
+  background: radial-gradient(140% 100% at 50% 0%, #0D2329 0%, #06171F 55%, #02090C 100%);
   background-attachment: fixed;
   background-color: var(--bg-void);
 }
@@ -91,10 +96,10 @@
 .rd-atmosphere__image {
   position: absolute;
   inset: 0;
-  /* Opacidad del fondo (2026-10-17): 45% por defecto — el gradiente de
-     marca (.rd-bg) se integra debajo y el texto respira sobre la imagen
-     sin perder atmósfera. Afinable con --rd-img-opacity. */
-  opacity: var(--rd-img-opacity, 0.45);
+  /* Opacidad del fondo (2026-11-08): 38% por defecto — el gradiente de
+     marca (.rd-bg) se integra debajo y los contenedores negros del addon
+     conservan el contraste. Afinable con --rd-img-opacity. */
+  opacity: var(--rd-img-opacity, 0.38);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -123,9 +128,9 @@
   inset: 0;
   opacity: var(--rd-veil, 0.3);
   background:
-    /* viñeta superior de marca + cierre oscuro azul para legibilidad */
-    radial-gradient(130% 70% at 50% -10%, rgba(7, 17, 30, 0.25), rgba(7, 17, 30, 0.78) 62%),
-    linear-gradient(180deg, rgba(11, 35, 56, 0.35) 0%, rgba(7, 17, 30, 0.6) 55%, rgba(7, 17, 30, 0.9) 100%);
+    /* viñeta superior de marca + cierre oscuro para legibilidad */
+    radial-gradient(130% 70% at 50% -10%, rgba(6, 23, 31, 0.25), rgba(2, 9, 12, 0.82) 62%),
+    linear-gradient(180deg, rgba(6, 23, 31, 0.35) 0%, rgba(2, 9, 12, 0.65) 55%, rgba(2, 9, 12, 0.92) 100%);
 }
 
 .rd-atmosphere__canvas {
@@ -166,16 +171,17 @@
 .rd-metal {
   box-shadow:
     var(--shadow-inner),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
-    0 1px 0 rgba(255, 255, 255, 0.04),
-    0 14px 34px rgba(0, 0, 0, 0.45);
+    inset 0 0 0 1px rgba(116, 147, 159, 0.16),
+    inset 0 0 0 2px rgba(2, 9, 12, 0.85),
+    0 1px 0 rgba(228, 208, 139, 0.05),
+    0 8px 16px rgba(0, 0, 0, 0.38);
 }
 .rd-metal::before {
-  /* superficie forjada + remache esquinero */
+  /* superficie forjada + remache esquinero en oro apagado */
   background-image:
-    radial-gradient(circle at 4px 4px, rgba(0, 191, 255, 0.4), transparent 11px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 42%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
+    radial-gradient(circle at 4px 4px, rgba(200, 182, 111, 0.32), transparent 12px),
+    linear-gradient(180deg, rgba(228, 208, 139, 0.045), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.34) 100%);
 }
 .rd-metal::after {
   /* Costura de forja superior (línea de energía) + BANDA ESPECTRAL que vaga
@@ -188,12 +194,12 @@
   right: 0;
   height: 8px;
   background-image:
-    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent),
-    radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+    linear-gradient(90deg, transparent, rgba(200, 182, 111, 0.42) 20%, rgba(200, 182, 111, 0.42) 80%, transparent),
+    radial-gradient(90% 320% at 50% 0%, rgba(116, 147, 159, 0.24), rgba(116, 147, 159, 0) 62%);
   background-size: 100% 1px, 100% 100%;
   background-position: 0 0, 0 0;
   background-repeat: no-repeat;
-  opacity: 0.7;
+  opacity: 0.72;
   pointer-events: none;
   animation:
     rd-seam-breathe 7s ease-in-out -2.8s infinite,
@@ -210,34 +216,36 @@
    sectionBody para dejar el remache SOLO en los encabezados (sectionHead). */
 .rd-metal.rd-no-rivet::before {
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 42%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 100%);
+    linear-gradient(180deg, rgba(228, 208, 139, 0.035), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.34) 100%);
 }
 
 /* PIEDRA (cards secundarias) */
 .rd-stone {
   box-shadow:
     var(--shadow-inner),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
-    0 6px 18px rgba(0, 0, 0, 0.3);
+    inset 0 0 0 1px rgba(116, 147, 159, 0.12),
+    inset 0 0 0 2px rgba(2, 9, 12, 0.8),
+    0 4px 10px rgba(0, 0, 0, 0.32);
 }
 .rd-stone::before {
   background-image:
-    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 7px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.15));
+    repeating-linear-gradient(115deg, rgba(228, 208, 139, 0.012) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, rgba(228, 208, 139, 0.03), rgba(0, 0, 0, 0.2));
 }
 
 /* ENERGÍA (cards de marca, con lift al hover) */
 .rd-card {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 8px 24px rgba(0, 0, 0, 0.35);
+    inset 0 1px 0 rgba(228, 208, 139, 0.05),
+    inset 0 0 0 1px rgba(116, 147, 159, 0.14),
+    inset 0 0 0 2px rgba(2, 9, 12, 0.82),
+    0 4px 10px rgba(0, 0, 0, 0.34);
 }
 .rd-card::before {
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 30%),
-    radial-gradient(120% 70% at 50% 0%, rgba(0, 191, 255, 0.05), transparent 55%);
+    linear-gradient(180deg, rgba(228, 208, 139, 0.035), rgba(255, 255, 255, 0) 30%),
+    radial-gradient(120% 70% at 50% 0%, rgba(200, 182, 111, 0.06), transparent 55%);
 }
 .rd-card.rd-lift {
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
@@ -245,25 +253,40 @@
 .rd-card.rd-lift:hover {
   transform: translateY(-3px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(0, 191, 255, 0.5),
-    0 16px 34px rgba(0, 0, 0, 0.5),
-    0 0 26px rgba(0, 191, 255, 0.14);
+    inset 0 1px 0 rgba(228, 208, 139, 0.08),
+    inset 0 0 0 1px rgba(116, 147, 159, 0.2),
+    0 0 0 1px rgba(200, 182, 111, 0.42),
+    0 16px 34px rgba(0, 0, 0, 0.55),
+    0 0 26px rgba(200, 182, 111, 0.12);
 }
 
 /* PERGAMINO (misiones, citas, marcos de artefacto) */
 .rd-parchment {
   box-shadow:
-    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
-    inset 0 0 30px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 20px rgba(0, 0, 0, 0.3);
+    inset 0 0 0 1px rgba(116, 147, 159, 0.16),
+    inset 0 0 30px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(228, 208, 139, 0.05),
+    0 4px 10px rgba(0, 0, 0, 0.32);
 }
 .rd-parchment::before {
   background-image:
-    radial-gradient(90% 120% at 50% 0%, rgba(0, 191, 255, 0.05), transparent 55%),
+    radial-gradient(90% 120% at 50% 0%, rgba(200, 182, 111, 0.06), transparent 55%),
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 5px);
+}
+
+/* Marco común del addon: doble filo acero/negro, remache dorado tenue y
+   resplandor frío exterior. Es la superficie de TODOS los contenedores
+   (paneles, cards, fichas, filas) para que no convivan azules distintos. */
+.rd-frame {
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    inset 0 0 0 1px var(--frame-line, rgba(116, 147, 159, 0.42)),
+    inset 0 0 0 2px rgba(2, 9, 12, 0.9),
+    inset 0 1px 0 rgba(228, 208, 139, 0.1),
+    0 0 0 1px rgba(2, 9, 12, 0.9),
+    0 4px 10px rgba(0, 0, 0, 0.34),
+    0 0 10px rgba(20, 104, 132, 0.08);
 }
 
 /* MEDALLÓN HÉROE (fichas, póster): el arte del sprite se muestra a tamaño
@@ -273,8 +296,8 @@
 .rd-medallion-hero {
   box-shadow:
     var(--shadow-inner),
-    0 0 34px -6px var(--rd-hero-tint, var(--rd-tone-strong, rgba(0, 191, 255, 0.55))),
-    0 10px 26px rgba(0, 0, 0, 0.45);
+    0 0 34px -6px var(--rd-hero-tint, var(--rd-tone-strong, rgba(200, 182, 111, 0.5))),
+    0 10px 26px rgba(0, 0, 0, 0.5);
 }
 
 /* Fondo DINÁMICO del medallón en la ficha de personaje: el color de clase
@@ -284,9 +307,9 @@
 .rd-medallion-hero.rd-medallion-class {
   background-image: linear-gradient(
     135deg,
-    var(--rd-hero-bg, rgba(0, 191, 255, 0.26)) 0%,
-    var(--rd-hero-bg-deep, rgba(0, 191, 255, 0.07)) 55%,
-    rgba(7, 17, 30, 0.55) 100%
+    var(--rd-hero-bg, rgba(200, 182, 111, 0.2)) 0%,
+    var(--rd-hero-bg-deep, rgba(200, 182, 111, 0.06)) 55%,
+    rgba(2, 9, 12, 0.72) 100%
   );
 }
 
@@ -450,10 +473,10 @@
   height: 2.25rem;
   overflow: hidden;
   border-radius: 0.375rem;
-  border: 1px solid var(--rd-q, rgba(92, 169, 232, 0.3));
-  background: rgba(7, 17, 30, 0.62);
+  border: 1px solid var(--rd-q, rgba(116, 147, 159, 0.35));
+  background: rgba(2, 9, 12, 0.82);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(228, 208, 139, 0.06),
     0 0 10px -5px var(--rd-q, transparent);
 }
 .rd-item-icon__img {
@@ -501,9 +524,9 @@
   height: 16px;
   pointer-events: none;
   background-image:
-    linear-gradient(135deg, rgba(215, 240, 255, 0.95) 0 9.6px, rgba(215, 240, 255, 0) 9.8px),
-    linear-gradient(135deg, rgba(0, 191, 255, 0.42) 0 10.4px, rgba(0, 191, 255, 0) 13.5px),
-    radial-gradient(circle at 5px 5px, rgba(0, 191, 255, 0.4), rgba(0, 191, 255, 0) 11px);
+    linear-gradient(135deg, rgba(228, 208, 139, 0.92) 0 9.6px, rgba(228, 208, 139, 0) 9.8px),
+    linear-gradient(135deg, rgba(116, 147, 159, 0.45) 0 10.4px, rgba(116, 147, 159, 0) 13.5px),
+    radial-gradient(circle at 5px 5px, rgba(200, 182, 111, 0.36), rgba(200, 182, 111, 0) 11px);
   animation: rd-seam-breathe 7s ease-in-out -3.7s infinite;
 }
 /* BANDA ESPECTRAL de la placa: bloom que vaga por el borde superior (misma
@@ -519,7 +542,7 @@
   right: -1px;
   height: 10px;
   pointer-events: none;
-  background-image: radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+  background-image: radial-gradient(90% 320% at 50% 0%, rgba(116, 147, 159, 0.24), rgba(116, 147, 159, 0) 62%);
   background-repeat: no-repeat;
   opacity: 0.7;
   animation:
@@ -538,10 +561,10 @@
 .rd-metal.rd-cut-t::after {
   height: 16px;
   background-image:
-    linear-gradient(135deg, rgba(215, 240, 255, 0.95) 0 8.2px, rgba(215, 240, 255, 0) 8.4px),
-    linear-gradient(135deg, rgba(0, 191, 255, 0.42) 0 9px, rgba(0, 191, 255, 0) 12.1px),
-    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.45) 20%, rgba(0, 191, 255, 0.45) 80%, transparent),
-    radial-gradient(90% 320% at 50% 0%, rgba(0, 191, 255, 0.3), rgba(0, 191, 255, 0) 62%);
+    linear-gradient(135deg, rgba(228, 208, 139, 0.92) 0 8.2px, rgba(228, 208, 139, 0) 8.4px),
+    linear-gradient(135deg, rgba(116, 147, 159, 0.45) 0 9px, rgba(116, 147, 159, 0) 12.1px),
+    linear-gradient(90deg, transparent, rgba(200, 182, 111, 0.42) 20%, rgba(200, 182, 111, 0.42) 80%, transparent),
+    radial-gradient(90% 320% at 50% 0%, rgba(116, 147, 159, 0.24), rgba(116, 147, 159, 0) 62%);
   background-size: 16px 16px, 16px 16px, 100% 1px, 100% 100%;
   background-position: 0 0, 0 0, 0 0, 0 0;
   background-repeat: no-repeat;
@@ -601,8 +624,8 @@
   height: 9px;
   margin: 0.65em auto 0;
   background:
-    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.9) 18%, rgba(0, 191, 255, 0.9) 82%, transparent) 0 50% / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.35) 30%, rgba(0, 191, 255, 0.35) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, rgba(200, 182, 111, 0.85) 18%, rgba(200, 182, 111, 0.85) 82%, transparent) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(116, 147, 159, 0.4) 30%, rgba(116, 147, 159, 0.4) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
 }
 .rd-title.rd-ornament::before {
   content: "◆";
@@ -610,13 +633,15 @@
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  color: var(--accent-primary);
+  color: var(--accent-gold);
   font-size: 9px;
-  text-shadow: 0 0 8px rgba(0, 191, 255, 0.7);
+  text-shadow: 0 0 8px rgba(200, 182, 111, 0.55);
 }
 
 .rd-eyebrow {
-  letter-spacing: 0.22em;
+  font-family: 'Cinzel Variable', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
@@ -656,9 +681,9 @@
 /* Selección activa: borde energético + brillo inferior */
 .rd-active {
   box-shadow:
-    inset 0 0 0 1px rgba(0, 191, 255, 0.7),
-    inset 0 -2px 0 rgba(0, 191, 255, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 0 0 1px rgba(200, 182, 111, 0.65),
+    inset 0 -2px 0 rgba(200, 182, 111, 0.55),
+    inset 0 1px 0 rgba(228, 208, 139, 0.08);
 }
 
 /* Pulso mágico lento para elementos importantes (energía) */
@@ -678,8 +703,8 @@
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .rd-progress > * {
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 45%), linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
-  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 45%), linear-gradient(180deg, var(--accent-gold-light), var(--accent-gold));
+  box-shadow: 0 0 10px rgba(200, 182, 111, 0.35);
 }
 
 /* Foco ceremonial */
@@ -712,12 +737,12 @@
 }
 .rd-nav-item[aria-current="page"] {
   box-shadow:
-    inset 0 0 0 1px rgba(0, 191, 255, 0.65),
-    inset 0 -2px 0 rgba(0, 191, 255, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    inset 0 0 0 1px rgba(200, 182, 111, 0.6),
+    inset 0 -2px 0 rgba(200, 182, 111, 0.62),
+    inset 0 1px 0 rgba(228, 208, 139, 0.08);
 }
 .rd-nav-item[aria-current="page"]::before {
-  background-image: linear-gradient(180deg, rgba(0, 191, 255, 0.12), rgba(0, 191, 255, 0) 55%);
+  background-image: linear-gradient(180deg, rgba(200, 182, 111, 0.12), rgba(200, 182, 111, 0) 55%);
 }
 
 /* ── Borde inferior de las pestañas: hairline + halo ────────────────────
@@ -732,7 +757,7 @@
    reduce` se ATENÚA, no se congela: sin deriva, solo respiración lenta de
    opacidad pura. */
 .rd-tabbar {
-  --rd-divider-env: linear-gradient(90deg, rgba(0, 191, 255, 0.85), rgba(0, 160, 220, 0.45), transparent);
+  --rd-divider-env: linear-gradient(90deg, rgba(200, 182, 111, 0.72), rgba(116, 147, 159, 0.42), transparent);
 }
 .rd-tabbar::before {
   content: "";
@@ -796,7 +821,7 @@
   bottom: 0;
   height: 1px;
   border-top: 1px solid transparent;
-  border-image: linear-gradient(90deg, rgba(0, 191, 255, 0.7), rgba(0, 160, 220, 0.3), transparent) 1 / 1 / 0 stretch;
+  border-image: linear-gradient(90deg, rgba(200, 182, 111, 0.65), rgba(116, 147, 159, 0.32), transparent) 1 / 1 / 0 stretch;
   pointer-events: none;
   animation: rd-divider-breathe 6s ease-in-out -2.1s infinite;
 }
@@ -853,10 +878,10 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .rd-ficha-tab-dock {
-  --rd-dock-accent: var(--class-color, var(--rd-tone-400, var(--accent-primary)));
+  --rd-dock-accent: var(--class-color, var(--rd-tone-400, var(--accent-gold)));
   position: relative;
-  border-top: 1px solid rgba(92, 169, 232, 0.14);
-  background: linear-gradient(180deg, var(--class-tint, var(--rd-tone-soft, transparent)), rgba(7, 17, 30, 0.62));
+  border-top: 1px solid rgba(116, 147, 159, 0.2);
+  background: linear-gradient(180deg, var(--class-tint, var(--rd-tone-soft, transparent)), rgba(2, 9, 12, 0.78));
 }
 .rd-ficha-tab-dock::before {
   content: "";
@@ -896,28 +921,29 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid transparent;
   border-radius: 0.375rem;
-  color: #d1d5db;
+  color: var(--text-secondary);
+  font-family: 'Cinzel Variable', Georgia, serif;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
   transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease;
 }
 .rd-ficha-tab:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(92, 169, 232, 0.18);
+  color: var(--accent-gold-light);
+  background: rgba(200, 182, 111, 0.06);
+  border-color: rgba(200, 182, 111, 0.22);
 }
 .rd-ficha-tab:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(92, 169, 232, 0.55);
 }
 .rd-ficha-tab[aria-selected="true"] {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
-  border-color: rgba(92, 169, 232, 0.22);
+  color: var(--accent-gold-light);
+  background: linear-gradient(180deg, rgba(200, 182, 111, 0.12), rgba(200, 182, 111, 0.02));
+  border-color: rgba(200, 182, 111, 0.38);
 }
 .rd-ficha-tab[aria-selected="true"]::after {
   content: "";
@@ -937,13 +963,13 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 0.375rem;
-  border: 1px solid rgba(92, 169, 232, 0.18);
-  background: rgba(7, 17, 30, 0.45);
+  border: 1px solid rgba(116, 147, 159, 0.22);
+  background: rgba(2, 9, 12, 0.62);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .rd-ficha-tab[aria-selected="true"] .rd-ficha-tab__icon {
   border-color: var(--rd-dock-accent);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(7, 17, 30, 0.35));
+  background: linear-gradient(135deg, rgba(228, 208, 139, 0.1), rgba(2, 9, 12, 0.5));
   box-shadow: 0 0 14px -6px var(--rd-dock-accent);
 }
 .rd-ficha-tab__count {
@@ -954,9 +980,9 @@
   height: 1.25rem;
   padding: 0 0.3rem;
   border-radius: 0.25rem;
-  border: 1px solid rgba(92, 169, 232, 0.22);
-  background: rgba(7, 17, 30, 0.5);
-  color: #e5e7eb;
+  border: 1px solid rgba(116, 147, 159, 0.28);
+  background: rgba(2, 9, 12, 0.7);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0;
@@ -1014,8 +1040,8 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .rd-tone-valor {
-  --rd-tone-line: rgba(212, 162, 71, 0.36);
-  --rd-tone-soft: rgba(212, 162, 71, 0.14);
+  --rd-tone-line: rgba(200, 182, 111, 0.4);
+  --rd-tone-soft: rgba(200, 182, 111, 0.12);
   --rd-tone-300: #E2BC6B;
   --rd-tone-200: #EED595;
   --rd-tone-400: #D4A247;
@@ -1023,8 +1049,8 @@
   --rd-tone-strong: #D4A247;
 }
 .rd-tone-ember {
-  --rd-tone-line: rgba(217, 92, 69, 0.36);
-  --rd-tone-soft: rgba(217, 92, 69, 0.14);
+  --rd-tone-line: rgba(196, 82, 63, 0.4);
+  --rd-tone-soft: rgba(196, 82, 63, 0.12);
   --rd-tone-300: #EB8C77;
   --rd-tone-200: #F4B8A9;
   --rd-tone-400: #D95C45;
@@ -1032,8 +1058,8 @@
   --rd-tone-strong: #D95C45;
 }
 .rd-tone-arcane {
-  --rd-tone-line: rgba(143, 117, 210, 0.38);
-  --rd-tone-soft: rgba(143, 117, 210, 0.16);
+  --rd-tone-line: rgba(143, 117, 210, 0.4);
+  --rd-tone-soft: rgba(143, 117, 210, 0.13);
   --rd-tone-300: #B29FE4;
   --rd-tone-200: #D0C4F0;
   --rd-tone-400: #8F75D2;
@@ -1041,8 +1067,8 @@
   --rd-tone-strong: #8F75D2;
 }
 .rd-tone-parchment {
-  --rd-tone-line: rgba(195, 162, 100, 0.36);
-  --rd-tone-soft: rgba(195, 162, 100, 0.13);
+  --rd-tone-line: rgba(200, 182, 111, 0.4);
+  --rd-tone-soft: rgba(200, 182, 111, 0.11);
   --rd-tone-300: #D8BE85;
   --rd-tone-200: #E8D7AE;
   --rd-tone-400: #C3A264;
@@ -1054,15 +1080,15 @@
    Las clases funcionan con el tono en un ANCESTRO o en el propio elemento;
    los fallbacks conservan la marca si no hay tono declarado. */
 .rd-tone-head {
-  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
-  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0) 62%);
+  border-color: var(--rd-tone-line, rgba(116, 147, 159, 0.38));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(2, 9, 12, 0) 62%);
 }
 .rd-tone-panel {
-  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
-  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0) 58%);
+  border-color: var(--rd-tone-line, rgba(116, 147, 159, 0.38));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(2, 9, 12, 0) 58%);
 }
 .rd-tone-body {
-  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
+  border-color: var(--rd-tone-line, rgba(116, 147, 159, 0.38));
 }
 .rd-tone-hover:hover {
   border-color: var(--rd-tone-strong, var(--accent-primary));
@@ -1073,20 +1099,20 @@
 .rd-tone-title.bg-clip-text {
   background-image: linear-gradient(
     90deg,
-    var(--rd-tone-200, #B8D7F1),
-    var(--rd-tone-300, #93C4EE) 55%,
-    var(--rd-tone-400, #5CA9E8)
+    var(--rd-tone-200, #E8D7AE),
+    var(--rd-tone-300, #D8BE85) 55%,
+    var(--rd-tone-400, #C3A264)
   );
 }
 .rd-tone-title:not(.bg-clip-text) {
   background-image: none;
-  color: var(--rd-tone-200, #B8D7F1);
+  color: var(--rd-tone-200, #E8D7AE);
 }
 
 /* Medallón de la cabecera: contenedor teñido, arte intacto. */
 .rd-tone-icon {
-  border-color: var(--rd-tone-line, rgba(92, 169, 232, 0.3));
-  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(7, 17, 30, 0.18) 72%);
+  border-color: var(--rd-tone-line, rgba(116, 147, 159, 0.38));
+  background-image: linear-gradient(135deg, var(--rd-tone-soft, transparent) 0%, rgba(2, 9, 12, 0.32) 72%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 0 20px -10px var(--rd-tone-strong, transparent);
@@ -1094,13 +1120,13 @@
 
 /* Punto de cabecera cuando el panel no lleva icono. */
 .rd-tone-dot {
-  background: var(--rd-tone-strong, var(--accent-primary));
-  box-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-primary));
+  background: var(--rd-tone-strong, var(--accent-gold));
+  box-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-gold));
 }
 
 /* Línea de acento superior (cardTop) y riel de la cabecera. */
 .rd-tone-top {
-  background-image: linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-primary)), transparent);
+  background-image: linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-gold)), transparent);
 }
 .rd-tone-rail {
   position: absolute;
@@ -1108,20 +1134,20 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, var(--rd-tone-strong, var(--accent-primary)), transparent);
-  box-shadow: 0 0 12px -2px var(--rd-tone-strong, var(--accent-primary));
+  background: linear-gradient(180deg, var(--rd-tone-strong, var(--accent-gold)), transparent);
+  box-shadow: 0 0 12px -2px var(--rd-tone-strong, var(--accent-gold));
   pointer-events: none;
 }
 
 /* Ornamento (doble línea + diamante): la familia del tono manda. */
 .rd-tone .rd-ornament::before {
-  color: var(--rd-tone-strong, var(--accent-primary));
-  text-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-primary));
+  color: var(--rd-tone-strong, var(--accent-gold));
+  text-shadow: 0 0 8px var(--rd-tone-strong, var(--accent-gold));
 }
 .rd-tone .rd-ornament::after {
   background:
-    linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-primary)) 18%, var(--rd-tone-strong, var(--accent-primary)) 82%, transparent) 0 50% / 100% 1px no-repeat,
-    linear-gradient(90deg, transparent, var(--rd-tone-line, rgba(92, 169, 232, 0.35)) 30%, var(--rd-tone-line, rgba(92, 169, 232, 0.35)) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, var(--rd-tone-strong, var(--accent-gold)) 18%, var(--rd-tone-strong, var(--accent-gold)) 82%, transparent) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, var(--rd-tone-line, rgba(116, 147, 159, 0.35)) 30%, var(--rd-tone-line, rgba(116, 147, 159, 0.35)) 70%, transparent) 0 calc(50% + 4px) / 100% 1px no-repeat;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1153,7 +1179,7 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(120% 100% at 0% 0%, var(--class-tint, rgba(0, 191, 255, 0.10)), transparent 62%),
+    radial-gradient(120% 100% at 0% 0%, var(--class-tint, rgba(200, 182, 111, 0.08)), transparent 62%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 38%);
 }
 
@@ -1240,8 +1266,8 @@
   height: 10px;
   overflow: hidden;
   border-radius: 9999px;
-  border: 1px solid rgba(92, 169, 232, 0.28);
-  background: rgba(7, 17, 30, 0.82);
+  border: 1px solid rgba(116, 147, 159, 0.32);
+  background: rgba(2, 9, 12, 0.86);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 .rd-beast-gauge__fill {
@@ -1258,7 +1284,7 @@
    equipamiento (colores del juego) y una banda de luz la recorre. El brillo
    exterior también sale de esa paleta. */
 .rd-beast-gauge--spectral {
-  border-color: var(--rd-gauge-3, rgba(92, 169, 232, 0.28));
+  border-color: var(--rd-gauge-3, rgba(116, 147, 159, 0.32));
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.55),
     0 0 14px -4px var(--rd-gauge-3, transparent),
@@ -1305,7 +1331,7 @@
 .rd-beast-gauge__ticks {
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(90deg, rgba(7, 17, 30, 0.62) 0 1px, transparent 1px 9px);
+  background-image: repeating-linear-gradient(90deg, rgba(2, 9, 12, 0.72) 0 1px, transparent 1px 9px);
   pointer-events: none;
 }
 
@@ -1343,9 +1369,9 @@
   max-width: min(18rem, 100%);
   padding: 0.35rem 0.55rem;
   border-radius: 0.375rem;
-  border: 1px solid rgba(92, 169, 232, 0.35);
-  background: rgba(7, 17, 30, 0.96);
-  color: #dbeafe;
+  border: 1px solid rgba(116, 147, 159, 0.4);
+  background: rgba(2, 9, 12, 0.97);
+  color: var(--text-secondary);
   font-size: 11px;
   line-height: 1.4;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);

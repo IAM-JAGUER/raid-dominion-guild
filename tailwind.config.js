@@ -9,10 +9,9 @@ export default {
         'dsm': '320px',
       },
       colors: {
-        // ── Paleta de marca RaidDominion (azul/acero) ─────────────────────
-        // Escala 50–950 que ancla los cinco colores de la identidad:
-        // 200 Plata #B8D7F1 · 400 Hielo #5CA9E8 · 500 Energía #00BFFF ·
-        // 800 Acero #123253 · 950 Abismo #07111E (ver design.md §1).
+        // ── Paleta de marca RaidDominion (material v3 del addon) ───────────
+        // 200 Plata/300 Hielo/400/500 Energía conservan el acento; 600-950
+        // son el marco y las superficies negro-teal del addon (design.md §1b).
         brand: {
           50: '#EEF6FE',
           100: '#DCEBFB',
@@ -20,11 +19,14 @@ export default {
           300: '#93C4EE',
           400: '#5CA9E8',
           500: '#00BFFF',
-          600: '#00A0DC',
-          700: '#0C74A8',
-          800: '#123253',
-          900: '#0B2338',
-          950: '#07111E',
+          // Paleta v3 (2026-11-08): las paradas oscuras adoptan el material
+          // del addon (teal/negro casi opaco) mientras 200-500 conservan el
+          // acento hielo/energía para foco, enlaces y estados vivos.
+          600: '#2E5B66',
+          700: '#1A343B',
+          800: '#0F2026',
+          900: '#06171F',
+          950: '#02090C',
         },
         // ── Tonos ceremoniales de la paleta v2 (2026-11-04) ───────────────
         // Bronce/oro (valor, hermandad, metas), ascuas (bandas, core),
@@ -88,6 +90,11 @@ export default {
         secondary: "rgba(0, 0, 0, .8)",
         txtbg: "rgba(0,170,250,.8)",
         txtbg1: "rgba(0,0,0,.6)",
+      },
+      fontFamily: {
+        sans: ['"Jost Variable"', 'system-ui', 'sans-serif'],
+        display: ['"Cinzel Variable"', 'Georgia', 'serif'],
+        editorial: ['"Cormorant Garamond Variable"', 'Georgia', 'serif'],
       },
       boxShadow: {
         "3xl": [

@@ -56,7 +56,7 @@ export function renderGuildCard(g: GuildRow): HTMLElement {
 
   const meta = el('div', 'flex items-center justify-between mt-auto pt-3 border-t border-brand-600/15');
   meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-gray-300', g.realm || 'Reino no especificado'));
-  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-brand-400 group-hover:text-brand-300 transition-colors', 'Ver portal →'));
+  meta.appendChild(el('span', 'text-[11px] font-black uppercase tracking-widest text-valor-300 group-hover:text-valor-200 transition-colors', 'Ver portal →'));
   link.appendChild(meta);
 
   return link;
@@ -145,7 +145,7 @@ export function renderCharacterCard(c: CharacterCardInput, ctx: CharacterCardCtx
     left.appendChild(num);
   }
   left.appendChild(classIconEl(c.class, c.class_file, 'w-7 h-7 rounded-full shrink-0 object-contain'));
-  const name = el('span', 'font-black italic truncate text-sm tracking-tight');
+  const name = el('span', 'font-display font-semibold truncate text-sm tracking-tight');
   name.style.color = classTextColor(c.class, c.class_file);
   name.textContent = `${c.name}${c.realm && !ctx.hideRealm ? '-' + c.realm : ''}`;
   left.appendChild(name);
@@ -336,7 +336,7 @@ export function renderBandCard(band: BandCardInput, opts?: BandCardOpts): HTMLEl
   head.appendChild(iconTileEl('espadas'));
 
   const titleWrap = el('div', 'flex min-w-0 flex-1 items-center gap-2');
-  const title = el('h3', 'min-w-0 font-black italic text-base leading-[1.3] text-white group-hover:text-brand-200 transition-colors');
+  const title = el('h3', 'min-w-0 font-display font-semibold text-base leading-[1.3] text-parchment-100 group-hover:text-valor-200 transition-colors');
   const name = bandNameLink(band.name, band.nameLink ?? band.name_link);
   if (name.anchor) title.appendChild(name.anchor);
   else title.textContent = name.label;
@@ -393,7 +393,7 @@ export function renderBandFallbackCard(b: BandFallbackInput): HTMLElement {
 
   const head = el('div', 'flex items-center gap-3 mb-3');
   head.appendChild(iconTileEl('espadas'));
-  const title = el('h3', 'font-black italic text-base leading-[1.3] text-white');
+  const title = el('h3', 'font-display font-semibold text-base leading-[1.3] text-parchment-100');
   const name = bandNameLink(b.name, b.nameLink);
   if (name.anchor) title.appendChild(name.anchor);
   else title.textContent = name.label;

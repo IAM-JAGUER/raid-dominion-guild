@@ -54,7 +54,7 @@ const LOGOUT_ICON =
             loading="eager"
             decoding="async"
           />
-          <span class="text-xl font-bold bg-clip-text text-brand-200 bg-gradient-to-r from-brand-400 to-brand-500">
+          <span class="font-display text-xl font-semibold tracking-wide bg-clip-text text-parchment-100 bg-gradient-to-r from-parchment-200 to-valor-400">
             {SITE_CONFIG.TITLE}
           </span>
         </a>
@@ -66,7 +66,7 @@ const LOGOUT_ICON =
           {NAV_ITEMS.map((item) => (
             <a
               href={item.href}
-              class="nav-link px-4 py-2.5 rounded-md text-sm font-medium text-brand-200 hover:bg-brand-800/40 hover:text-white transition-all duration-200 hover:scale-105 relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              class="nav-link px-4 py-2.5 rounded-md font-display text-sm font-semibold text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-200 hover:scale-105 relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               <span class="relative z-10">{item.name}</span>
@@ -79,7 +79,7 @@ const LOGOUT_ICON =
             <a
               href={item.href}
               data-directory={item.href}
-              class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-brand-800/40 hover:text-brand-200 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              class="nav-link px-3 py-2 rounded-md font-display text-sm font-semibold text-parchment-300 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-current={currentPath === item.href ? 'page' : undefined}
             >
               <span class="relative z-10">{item.name}</span>
@@ -89,7 +89,7 @@ const LOGOUT_ICON =
           <a
             href="/login"
             data-auth-link="guest"
-            class="ml-3 px-4 py-2 rounded-md text-sm font-bold text-gray-900 bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-300 hover:to-brand-400 transition-all duration-200 hover:scale-105 shadow-lg shadow-brand-500/20"
+            class="ml-3 px-4 py-2 rounded-md font-display text-sm font-semibold text-brand-950 border border-valor-200/50 bg-gradient-to-b from-valor-300 to-valor-500 hover:from-valor-200 hover:to-valor-400 transition-all duration-200 hover:scale-105 shadow-lg shadow-valor-900/30"
           >Iniciar Sesión</a>
           <div class="relative hidden ml-3" data-auth-dropdown="user">
             <button
@@ -98,7 +98,7 @@ const LOGOUT_ICON =
               aria-haspopup="true"
               aria-expanded="false"
               aria-controls="account-dropdown"
-              class="flex items-center justify-center w-9 h-9 rounded-md text-brand-100 border border-brand-500/50 bg-brand-900/40 hover:bg-brand-800/60 transition-all duration-200"
+              class="flex items-center justify-center w-9 h-9 rounded-md text-parchment-100 border border-valor-500/50 bg-brand-950/60 hover:bg-brand-800/60 transition-all duration-200"
               aria-label="Cuenta"
             >
               <Icon name="perfil-alt" size="sm" />
@@ -106,25 +106,25 @@ const LOGOUT_ICON =
             <div
               id="account-dropdown"
               data-dropdown-menu
-              class="hidden absolute right-0 mt-2 w-56 rounded-md border border-brand-600/30 bg-brand-900/95 backdrop-blur-lg shadow-xl shadow-black/40 py-2 z-50"
+              class="hidden absolute right-0 mt-2 w-56 rounded-md border border-brand-600/60 bg-brand-950/95 backdrop-blur-lg shadow-xl shadow-black/40 py-2 z-50"
               role="menu"
               aria-hidden="true"
             >
               {DASHBOARD_TABS.map((t) => (
-                <a href={t.href} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-brand-200 hover:bg-brand-800/40 hover:text-white transition-all duration-150" role="menuitem">
+                <a href={t.href} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-150" role="menuitem">
                   <span class="inline-flex items-center gap-2">
                     <Icon name={t.icon ?? 'perfil-alt'} size="xs" class="shrink-0" />
                     {t.label}
                   </span>
                 </a>
               ))}
-              <a href={`/dashboard${DASHBOARD_CONFIG.hash}`} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-brand-200 hover:bg-brand-800/40 hover:text-white transition-all duration-150" role="menuitem">
+              <a href={`/dashboard${DASHBOARD_CONFIG.hash}`} data-dropdown-item class="account-link block px-4 py-2.5 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-150" role="menuitem">
                 <span class="inline-flex items-center gap-2">
                   <Icon name="engranajes" size="xs" class="shrink-0" />{DASHBOARD_CONFIG.label}
                 </span>
               </a>
               <div class="my-1 border-t border-brand-600/30 hidden" data-staff-sep></div>
-              <a href="/moderate" data-staff-link="moderate" class="hidden account-link block px-4 py-2.5 text-sm text-brand-200 hover:bg-brand-900/30 hover:text-white transition-all duration-150" role="menuitem">
+              <a href="/moderate" data-staff-link="moderate" class="hidden account-link block px-4 py-2.5 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-150" role="menuitem">
                 <span class="inline-flex items-center gap-2">
                   <Icon name="balanza" size="xs" class="shrink-0" />Moderación
                 </span>
@@ -154,7 +154,7 @@ const LOGOUT_ICON =
       <div class="md:hidden">
         <button 
           id="mobile-menu-button" 
-          class="inline-flex items-center justify-center w-10 h-10 rounded-md text-brand-300 border border-brand-600/30 bg-brand-950/20 hover:text-brand-200 hover:border-brand-500/50 hover:bg-brand-900/30 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          class="inline-flex items-center justify-center w-10 h-10 rounded-md text-parchment-200 border border-brand-600/50 bg-brand-950/40 hover:text-valor-200 hover:border-valor-400/60 hover:bg-brand-900/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           aria-label="Menú de navegación"
           aria-expanded="false"
           aria-controls="mobile-menu"
@@ -169,7 +169,7 @@ const LOGOUT_ICON =
            con medallón de ícono + acento lateral ámbar en la ruta activa -->
   <div 
     id="mobile-menu" 
-    class="md:hidden hidden bg-brand-950/90 backdrop-blur-xl border-t border-brand-600/25 shadow-2xl shadow-black/50"
+    class="md:hidden hidden bg-brand-950/95 backdrop-blur-xl border-t border-brand-600/40 shadow-2xl shadow-black/50"
     aria-hidden="true"
   >
     <div class="px-3 py-3">
@@ -194,10 +194,10 @@ const LOGOUT_ICON =
         return (
           <a 
             href={item.href}
-            class="mobile-nav-link group relative flex items-center gap-3 w-full px-3 py-3 rounded-md text-[15px] font-medium text-gray-200 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:bg-brand-950/40 aria-[current=page]:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            class="mobile-nav-link group relative flex items-center gap-3 w-full px-3 py-3 rounded-md font-display text-[15px] font-semibold text-parchment-200 hover:text-valor-200 hover:bg-brand-900/35 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-valor-400 aria-[current=page]:bg-brand-900/50 aria-[current=page]:text-valor-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
-            <span class="w-8 h-8 shrink-0 rounded-md flex items-center justify-center bg-brand-500/10 border border-brand-600/25 text-brand-300 group-hover:bg-brand-500/20 group-hover:border-brand-500/40 transition-colors">
+            <span class="w-8 h-8 shrink-0 rounded-md flex items-center justify-center bg-brand-800/40 border border-brand-600/40 text-parchment-200 group-hover:bg-valor-950/40 group-hover:border-valor-400/50 transition-colors">
               {icon}
             </span>
             <span class="flex-1">{item.name}</span>
@@ -206,13 +206,13 @@ const LOGOUT_ICON =
         );
       })}
       <!-- Comunidad (directorios públicos) -->
-      <div class="mt-3 pt-3 border-t border-brand-600/15 space-y-0.5">
+      <div class="mt-3 pt-3 border-t border-brand-600/30 space-y-0.5">
         <p class="rd-eyebrow px-3 pb-1 pt-0.5 text-[10px] font-black uppercase tracking-widest text-gray-400">Comunidad</p>
         {PUBLIC_LINKS.map((item) => (
           <a
             href={item.href}
             data-directory={item.href}
-            class="mobile-nav-link group flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-brand-900/25 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-brand-500 aria-[current=page]:text-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            class="mobile-nav-link group flex items-center gap-3 w-full px-3 py-2.5 rounded-md font-display text-sm font-semibold text-parchment-300 hover:text-valor-200 hover:bg-brand-900/35 hover:translate-x-1 transition-all duration-200 border-l-2 border-transparent aria-[current=page]:border-valor-400 aria-[current=page]:text-valor-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
             aria-current={currentPath === item.href ? 'page' : undefined}
           >
             <Icon name={item.icon} size="sm" class="shrink-0" />
@@ -222,18 +222,18 @@ const LOGOUT_ICON =
       </div>
       <!-- Entrada de cuenta móvil (visible según sesión): CTA limpio, dropdown
            con filas a la izquierda y punto de color, mismas reglas que el desktop -->
-      <div class="mt-3 pt-3 border-t border-brand-600/15 space-y-2">
+      <div class="mt-3 pt-3 border-t border-brand-600/30 space-y-2">
         <a
           href="/login"
           data-auth-link="guest"
-          class="block w-full px-4 py-3 rounded-md text-[15px] font-bold text-center text-gray-900 bg-gradient-to-r from-brand-400 to-brand-500 hover:from-brand-300 hover:to-brand-400 hover:brightness-105 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          class="block w-full px-4 py-3 rounded-md font-display text-[15px] font-semibold text-center text-brand-950 border border-valor-200/50 bg-gradient-to-b from-valor-300 to-valor-500 hover:from-valor-200 hover:to-valor-400 hover:brightness-105 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >Iniciar Sesión</a>
         <div class="hidden" data-auth-dropdown="user">
-          <div class="rounded-md border border-brand-600/20 bg-brand-950/70 backdrop-blur-sm overflow-hidden">
+          <div class="rounded-md border border-brand-600/50 bg-brand-950/85 backdrop-blur-sm overflow-hidden">
             {DASHBOARD_TABS.map((t) => (
               <a
                 href={t.href}
-                class="flex items-center gap-2.5 px-4 py-3 text-sm text-brand-200 hover:bg-brand-800/40 hover:text-white hover:translate-x-1 transition-all duration-150"
+                class="flex items-center gap-2.5 px-4 py-3 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 hover:translate-x-1 transition-all duration-150"
               >
                 <Icon name={t.icon ?? 'perfil-alt'} size="sm" class="shrink-0" />
                 {t.label}
@@ -241,7 +241,7 @@ const LOGOUT_ICON =
             ))}
             <a
               href={`/dashboard${DASHBOARD_CONFIG.hash}`}
-              class="flex items-center gap-2.5 px-4 py-3 text-sm text-brand-200 hover:bg-brand-800/40 hover:text-white hover:translate-x-1 transition-all duration-150"
+              class="flex items-center gap-2.5 px-4 py-3 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 hover:translate-x-1 transition-all duration-150"
             >
               <Icon name="engranajes" size="sm" class="shrink-0" />
               {DASHBOARD_CONFIG.label}
@@ -250,7 +250,7 @@ const LOGOUT_ICON =
             <a
               href="/moderate"
               data-staff-link="moderate"
-              class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-brand-200 hover:bg-brand-900/30 hover:text-white transition-all duration-150"
+              class="hidden flex items-center gap-2.5 px-4 py-3 text-sm text-parchment-200 hover:bg-brand-800/50 hover:text-valor-200 transition-all duration-150"
             >
               <Icon name="balanza" size="sm" class="shrink-0" />Moderación
             </a>
@@ -279,12 +279,12 @@ const LOGOUT_ICON =
 
 <!-- Botones de navegación flotantes -->
 <div class="fixed right-2 bottom-2 z-40 flex flex-col space-y-3">
-  <button id="scroll-up" aria-label="Ir arriba" class="h-11 w-11 inline-flex items-center justify-center bg-brand-600 hover:bg-brand-500 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+  <button id="scroll-up" aria-label="Ir arriba" class="h-11 w-11 inline-flex items-center justify-center bg-valor-500 hover:bg-valor-400 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
     </svg>
   </button>
-  <button id="scroll-down" aria-label="Ir abajo" class="h-11 w-11 inline-flex items-center justify-center bg-brand-600 hover:bg-brand-500 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
+  <button id="scroll-down" aria-label="Ir abajo" class="h-11 w-11 inline-flex items-center justify-center bg-valor-500 hover:bg-valor-400 text-brand-950 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 opacity-0 translate-y-4">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
     </svg>
@@ -336,7 +336,7 @@ const LOGOUT_ICON =
 
     // Aplica/reparte el resaltado activo a los enlaces de directorio
     // (escritorio y móvil): el que coincide con el dominio recibe
-    // bg-brand-800/50 text-white nav-link-active + aria-current="page"; al
+    // bg-brand-800/60 text-valor-200 nav-link-active + aria-current="page"; al
     // resto se le quita y se reponen sus colores base (text-gray-300
     // escritorio / text-gray-200 móvil).
     function setDirectoryActive(): void {
@@ -344,8 +344,8 @@ const LOGOUT_ICON =
       document.querySelectorAll<HTMLAnchorElement>('[data-directory]').forEach((link) => {
         const active = link.getAttribute('data-directory') === key;
         const isMobile = link.closest('#mobile-menu') !== null;
-        link.classList.toggle('bg-brand-800/50', active);
-        link.classList.toggle('text-white', active);
+        link.classList.toggle('bg-brand-800/60', active);
+        link.classList.toggle('text-valor-200', active);
         link.classList.toggle('nav-link-active', active);
         if (active) {
           link.setAttribute('aria-current', 'page');
@@ -564,9 +564,8 @@ const LOGOUT_ICON =
         if (prevActive) {
           lastActiveSectionId = '';
           document.querySelectorAll<HTMLAnchorElement>('.nav-link:not([data-directory]), #mobile-menu a:not([data-directory]):not(.site-logo)').forEach(link => {
-            link.classList.remove('bg-brand-800/50', 'text-white', 'nav-link-active');
-            link.classList.add('text-brand-200');
-          });
+            link.classList.remove('bg-brand-800/60', 'text-valor-200', 'nav-link-active');
+            });
         }
         return;
       }
@@ -601,8 +600,7 @@ const LOGOUT_ICON =
         lastActiveSectionId = currentSection.id;
         // Primero, quitar la clase activa de todos los enlaces de navegación
         document.querySelectorAll<HTMLAnchorElement>('.nav-link:not([data-directory]), #mobile-menu a:not([data-directory]):not(.site-logo)').forEach(link => {
-          link.classList.remove('bg-brand-800/50', 'text-white', 'nav-link-active');
-          link.classList.add('text-brand-200');
+          link.classList.remove('bg-brand-800/60', 'text-valor-200', 'nav-link-active');
         });
         
         // Luego, agregar la clase activa a los enlaces de navegación correspondientes
@@ -610,8 +608,7 @@ const LOGOUT_ICON =
         const mobileLinks = document.querySelectorAll<HTMLAnchorElement>(`#mobile-menu a[href="#${currentSection.id}"]:not(.site-logo), #mobile-menu a[href="/#${currentSection.id}"]:not(.site-logo)`);
         
         [...desktopLinks, ...mobileLinks].forEach(activeLink => {
-          activeLink.classList.add('bg-brand-800/50', 'text-white', 'nav-link-active');
-          activeLink.classList.remove('text-brand-200');
+          activeLink.classList.add('bg-brand-800/60', 'text-valor-200', 'nav-link-active');
         });
       }
     }
@@ -761,7 +758,7 @@ const LOGOUT_ICON =
     left: 50%;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, #00BFFF, #5CA9E8);
+    background: linear-gradient(90deg, #E4D08B, #C8B66F);
     transition: all 0.3s ease;
     transform: translateX(-50%);
   }
@@ -769,6 +766,11 @@ const LOGOUT_ICON =
   .nav-link:hover::after,
   .nav-link.nav-link-active::after {
     width: 70%;
+  }
+
+  .nav-link.nav-link-active,
+  .mobile-nav-link[aria-current="page"] {
+    color: var(--accent-gold-light);
   }
   
   /* Asegurar que los botones flotantes sean accesibles en móviles */

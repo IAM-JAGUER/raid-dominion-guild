@@ -64,7 +64,7 @@ export function renderBandDetail(b: BandRow, opts: BandDetailOptions): HTMLEleme
     input.type = 'checkbox';
     input.className = 'peer sr-only';
     input.checked = checked;
-    const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-brand-600/70 peer-checked:border-brand-500/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
+    const track = el('span', 'relative w-9 h-5 rounded-full bg-gray-700/80 border border-gray-600/60 transition-colors after:content-[""] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-gray-300 after:shadow after:transition-transform after:duration-200 peer-checked:bg-valor-500/70 peer-checked:border-valor-300/60 peer-checked:after:translate-x-4 peer-checked:after:bg-white');
     const textEl = el('span', '', text);
     const status = el('span', 'text-[10px] font-bold uppercase tracking-widest', '');
     label.append(input, track, textEl, status);

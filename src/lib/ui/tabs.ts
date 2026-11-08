@@ -236,7 +236,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
   const isDock = config.variant === 'ficha';
   const tabBtnCls = config.btnCls ?? (isDock
     ? 'rd-ficha-tab'
-    : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 text-xs font-black uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400');
+    : 'tab-btn shrink-0 whitespace-nowrap px-2 sm:px-4 py-2.5 font-display text-xs font-semibold uppercase tracking-widest border-b-2 rounded-t-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400');
   const inactiveClasses = (config.inactiveCls ?? 'text-gray-300').split(/\s+/).filter(Boolean);
   const panelId = (tab: TabDef): string => config.panelIds?.[tab.id] ?? `panel-${tab.id}`;
 
@@ -289,8 +289,8 @@ export function createTabBar(config: TabBarConfig): TabBarController {
       b.tabIndex = active ? 0 : -1;
       if (!isDock) {
         // Tabs limpios: sin fondo ni caja; solo el borde inferior activo.
-        b.classList.toggle('border-brand-400', active);
-        b.classList.toggle('text-brand-200', active);
+        b.classList.toggle('border-valor-400', active);
+        b.classList.toggle('text-valor-200', active);
         b.classList.toggle('border-transparent', !active);
         inactiveClasses.forEach((cls) => b.classList.toggle(cls, !active));
       }
@@ -316,7 +316,7 @@ export function createTabBar(config: TabBarConfig): TabBarController {
       b.setAttribute('aria-selected', 'false');
       b.tabIndex = -1;
       if (!isDock) {
-        b.classList.remove('border-brand-400', 'text-brand-200');
+        b.classList.remove('border-valor-400', 'text-valor-200');
         b.classList.add('border-transparent', ...inactiveClasses);
       }
     });

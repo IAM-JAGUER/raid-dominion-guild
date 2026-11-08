@@ -17,6 +17,9 @@ import {
   type JsonLdNode,
 } from "@/lib/seo";
 import "@fontsource-variable/jost";
+import "@fontsource-variable/cinzel";
+import "@fontsource-variable/cormorant-garamond";
+import "@fontsource-variable/cormorant-garamond/wght-italic.css";
 import "@/styles/material.css";
 import "@/styles/icons.css";
 
@@ -85,7 +88,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <style is:inline>
       html,
       body {
-        background-color: #07111E;
+        background-color: #02090C;
         color-scheme: dark;
       }
     </style>
@@ -93,7 +96,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
     <meta name="description" content={description} />
     <meta name="robots" content={robots} />
     <meta name="author" content={SITE_NAME} />
-    <meta name="theme-color" content="#00BFFF" />
+    <meta name="theme-color" content="#02090C" />
 
     {canonical && <link rel="canonical" href={canonical} />}
     {autoCanonical && (
@@ -301,7 +304,7 @@ const rdEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) 
   }
 
   ::selection {
-    background: rgba(0, 191, 255, 0.3);
+    background: rgba(200, 182, 111, 0.28);
     color: #fff;
   }
 </style>

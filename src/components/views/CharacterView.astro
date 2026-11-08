@@ -266,7 +266,7 @@ import FichaDock from '@/components/ui/FichaDock.astro';
     if (p?.slug) {
       const a = document.createElement('a');
       a.href = `/jugador/${p.slug}`;
-      a.className = `${ui.badge} ${ui.badgeMd} bg-brand-800/60 border-brand-600/20 text-brand-200 hover:bg-brand-800/80 transition-all`;
+      a.className = `${ui.badge} ${ui.badgeMd} bg-brand-900/70 border-brand-600/40 text-parchment-200 hover:bg-brand-800/80 transition-all`;
       // Un personaje solo se atribuye a un jugador, nunca a otro personaje: si
       // el perfil dueño no declara nombre visible, la cuenta cae al handle
       // estable @hex del perfil, no al personaje público más relevante.

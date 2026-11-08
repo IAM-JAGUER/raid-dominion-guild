@@ -68,7 +68,7 @@ export function renderRegistryGuildCards(wrap: HTMLElement, guilds: RegistryGuil
     const cardEl = card('p-4');
     cardEl.appendChild(cardTop());
     const head = el('div', 'flex flex-wrap items-center gap-2');
-    head.appendChild(el('p', `${ui.gradientTitle} text-sm font-black italic`, g.name));
+    head.appendChild(el('p', `${ui.gradientTitle} text-sm`, g.name));
     if (g.isGM) head.appendChild(iconChip('estrella', 'Maestro', '!text-brand-300 !border-brand-500/40', 'md'));
     cardEl.appendChild(head);
 

@@ -58,7 +58,7 @@ export function renderTrackerCatalog(handlers: TrackerCatalogHandlers): TrackerC
   const headRow = el('div', 'flex flex-wrap items-start justify-between gap-3');
   const titleBox = el('div', 'min-w-0');
   titleBox.appendChild(el('p', ui.eyebrow, 'Task Tracker'));
-  const title = el('h2', `${ui.gradientTitle} text-xl sm:text-2xl font-black italic`, 'Catálogo de tareas');
+  const title = el('h2', `${ui.gradientTitle} text-xl sm:text-2xl`, 'Catálogo de tareas');
   titleBox.appendChild(title);
   titleBox.appendChild(el('p', `${ui.text.caption} mt-1`, 'Tareas manuales compartidas por todos tus personajes. Son tuyas y no dependen del addon.'));
   headRow.appendChild(titleBox);

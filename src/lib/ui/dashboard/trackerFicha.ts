@@ -136,7 +136,7 @@ function bandRow(band: BandRow, character: TrackerCharacter): HTMLElement {
   const row = el('div', `${ui.surf.row} p-3`);
   const head = el('div', 'flex flex-wrap items-center gap-2');
   head.appendChild(iconEl('espadas', { size: 'sm' }));
-  const bandTitle = el('p', 'font-black italic text-sm text-brand-100');
+  const bandTitle = el('p', 'font-display font-semibold text-sm text-parchment-100');
   const bandName = bandNameLink(band.name, band.name_link);
   if (bandName.anchor) bandTitle.appendChild(bandName.anchor);
   else bandTitle.textContent = bandName.label;
@@ -454,7 +454,7 @@ export function renderTrackerFicha(ctx: FichaContext): TrackerFichaView {
   ident.appendChild(classIconEl(c.class, c.class_file, 'w-12 h-12 rounded-full object-contain shrink-0'));
   const identText = el('div', 'min-w-0');
   identText.appendChild(el('p', ui.eyebrow, 'Personaje · Ficha del tracker'));
-  const h2 = el('h2', 'text-xl sm:text-2xl font-black italic uppercase tracking-tight truncate', c.name);
+  const h2 = el('h2', 'font-display text-xl sm:text-2xl font-semibold uppercase tracking-tight truncate', c.name);
   h2.style.color = classTextColor(c.class, c.class_file);
   identText.appendChild(h2);
   identText.appendChild(el('p', `${ui.text.caption} mt-0.5`, [c.realm, c.race, c.class, c.level ? `Nivel ${c.level}` : '', c.sv_guild_name].filter(Boolean).join(' · ')));

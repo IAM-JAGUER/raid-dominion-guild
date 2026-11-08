@@ -75,14 +75,14 @@ const meta = PAGE_META['/login'];
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="password" class={ui.form.label}>Contraseña</label>
-              <button type="button" id="forgot-link" class={`hidden inline-flex items-center gap-1 text-[11px] text-brand-400/90 hover:text-brand-300 underline underline-offset-2 ${ui.transition} ${ui.focusRing}`}><Icon name="ayuda" size="xs" />¿Olvidaste tu contraseña?</button>
+              <button type="button" id="forgot-link" class={`hidden inline-flex items-center gap-1 text-[11px] text-valor-300 hover:text-valor-200 underline underline-offset-2 ${ui.transition} ${ui.focusRing}`}><Icon name="ayuda" size="xs" />¿Olvidaste tu contraseña?</button>
             </div>
             <div class="relative">
               <Icon name="bloqueo-alt" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" aria-describedby="auth-error"
                 class={`${ui.form.input} ${ui.focusRing} pl-10 pr-11`} />
               <button type="button" id="toggle-pass" aria-label="Mostrar u ocultar contraseña" aria-pressed="false"
-                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-300 hover:text-brand-200 ${ui.transition} ${ui.focusRing}`}>
+                class={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-brand-300 hover:text-valor-200 ${ui.transition} ${ui.focusRing}`}>
                 <Icon id="eye-open" name="visibilidad" size="md" />
                 <Icon id="eye-closed" name="bloqueo" size="md" class="hidden" />
               </button>
@@ -155,7 +155,7 @@ const meta = PAGE_META['/login'];
 
       <p class={`${ui.text.caption} text-center mt-6`}>
         Portal comunitario del addon RaidDominion para WoW 3.3.5a.<br />
-        <a href="/" class={`hover:text-brand-300 ${ui.transition}`}>← Volver al portal</a>
+        <a href="/" class={`hover:text-valor-200 ${ui.transition}`}>← Volver al portal</a>
       </p>
     </div>
   </main>

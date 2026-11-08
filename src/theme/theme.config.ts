@@ -1,6 +1,6 @@
 // Colores del tema
 export const colors = {
-  // Paleta de marca (azul/acero): mismos stops que tailwind.config.js.
+  // Paleta de marca (material v3 del addon): mismos stops que tailwind.config.js.
   brand: {
     50: '#EEF6FE',
     100: '#DCEBFB',
@@ -8,11 +8,11 @@ export const colors = {
     300: '#93C4EE',
     400: '#5CA9E8',
     500: '#00BFFF',
-    600: '#00A0DC',
-    700: '#0C74A8',
-    800: '#123253',
-    900: '#0B2338',
-    950: '#07111E',
+    600: '#2E5B66',
+    700: '#1A343B',
+    800: '#0F2026',
+    900: '#06171F',
+    950: '#02090C',
   },
   gray: {
     50: '#f9fafb',

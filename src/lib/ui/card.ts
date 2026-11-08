@@ -78,7 +78,7 @@ export function stat(value: string | number, sizeCls = 'text-lg', cls = ''): HTM
 
 // Título de card con degradado de marca (h2/h3).
 export function cardTitle(text: string, sizeCls = 'text-base', cls = ''): HTMLElement {
-  return node('h3', `${ui.gradientTitle} ${sizeCls} font-black italic ${cls}`.trim(), text);
+  return node('h3', `${ui.gradientTitle} ${sizeCls} ${cls}`.trim(), text);
 }
 
 // Fila de card (roster/núcleos): superficie tenue con hover de borde.
@@ -90,7 +90,7 @@ export function cardRow(cls = ''): HTMLElement {
 // enlace ya está en la card; el icono lo hace explícito (aria-hidden, el
 // texto del enlace lleva la accesibilidad).
 export function arrowIcon(): HTMLElement {
-  const span = node('span', 'shrink-0 inline-flex items-center justify-center text-brand-400 group-hover:text-brand-300 transition-colors');
+  const span = node('span', 'shrink-0 inline-flex items-center justify-center text-valor-300 group-hover:text-valor-200 transition-colors');
   span.setAttribute('aria-hidden', 'true');
   const svg = node('svg', 'w-4 h-4');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -118,7 +118,7 @@ export interface ServerRealmRef {
 export function serverRealmLinks(c: ServerRealmRef): HTMLElement {
   const row = node('div', 'flex flex-wrap gap-2');
   if (c.server) {
-    const s = node('a', `${ui.badge} ${ui.badgeMd} text-brand-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-brand-500/60 transition-all`) as HTMLAnchorElement;
+    const s = node('a', `${ui.badge} ${ui.badgeMd} text-parchment-200 bg-brand-950/70 border-brand-600/40 hover:bg-brand-900/50 hover:border-valor-400/60 transition-all`) as HTMLAnchorElement;
     s.href = `/servidor/${encodeURIComponent(c.server)}`;
     s.appendChild(iconEl('servidor', { size: 'sm', cls: 'shrink-0' }));
     s.appendChild(document.createTextNode(c.server));
@@ -128,7 +128,7 @@ export function serverRealmLinks(c: ServerRealmRef): HTMLElement {
     const cls = `${ui.badge} ${ui.badgeMd} text-gray-300 bg-brand-950/70 border-brand-600/25`;
     const r = node(
       c.server ? 'a' : 'span',
-      c.server ? `${cls} hover:bg-brand-900/50 hover:border-brand-500/60 transition-all` : cls
+      c.server ? `${cls} hover:bg-brand-900/50 hover:border-valor-400/60 transition-all` : cls
     );
     if (c.server) {
       (r as HTMLAnchorElement).href = `/servidor/${encodeURIComponent(c.server)}/reino/${encodeURIComponent(slugify(c.realm))}`;

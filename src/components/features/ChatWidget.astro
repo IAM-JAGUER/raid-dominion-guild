@@ -20,7 +20,7 @@ const { className = '' } = Astro.props;
   aria-expanded="false"
   aria-controls="chat-widget-panel"
   aria-label="Abrir guía RaidDominion"
-  class={`fixed bottom-2 left-2 z-[60] inline-flex items-center gap-2 rounded-full border border-brand-500/50 bg-brand-900/90 backdrop-blur px-3 py-2 sm:px-4 sm:py-2.5 text-brand-200 shadow-lg shadow-black/40 hover:bg-brand-900/40 hover:border-brand-400 hover:shadow-brand-500/20 ${ui.transition} ${ui.focusRing} ${className}`}
+  class={`fixed bottom-2 left-2 z-[60] inline-flex items-center gap-2 rounded-full border border-valor-500/50 bg-brand-950/95 backdrop-blur px-3 py-2 sm:px-4 sm:py-2.5 text-parchment-200 shadow-lg shadow-black/50 hover:bg-brand-900/70 hover:border-valor-400 hover:shadow-valor-500/20 ${ui.transition} ${ui.focusRing} ${className}`}
 >
   <Icon name="ayuda" size="md" />
   <span class="hidden sm:inline text-xs font-bold uppercase tracking-widest">Guía RD</span>
@@ -36,14 +36,14 @@ const { className = '' } = Astro.props;
     <div class="flex items-center gap-2 min-w-0">
       <Icon name="emblema" size="lg" />
       <div class="min-w-0">
-        <p class="text-sm font-bold text-brand-200 truncate">Guía RaidDominion</p>
+        <p class="font-display text-sm font-semibold text-parchment-100 truncate">Guía RaidDominion</p>
       </div>
     </div>
     <button
       type="button"
       id="chat-widget-close"
       aria-label="Cerrar chat"
-      class="shrink-0 p-1.5 rounded-md text-gray-400 hover:text-brand-200 hover:bg-brand-900/30 ${ui.transition} ${ui.focusRing}"
+      class="shrink-0 p-1.5 rounded-md text-brand-300 hover:text-valor-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}"
     >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -53,10 +53,10 @@ const { className = '' } = Astro.props;
   <div class={`${ui.sectionBody} !p-0 rounded-b-md flex-1 min-h-0 flex flex-col overflow-hidden shadow-2xl shadow-black/50 backdrop-blur-lg`}>
   <!-- Sugerencias -->
   <div id="chat-widget-suggestions" class="flex shrink-0 flex-wrap gap-1.5 px-3 pt-3">
-    <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="hermandad" size="xs" />Hermandades</button>
-    <button type="button" data-suggestion="¿Qué hace el addon de RaidDominion?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="libro" size="xs" />El addon</button>
-    <button type="button" data-suggestion="¿Cómo subo el archivo del addon?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="subir" size="xs" />Subir archivo</button>
-    <button type="button" data-suggestion="¿Qué bandas públicas hay?" class={`${ui.chip} border-brand-500/40 bg-brand-950/30 text-brand-200 hover:bg-brand-900/40 ${ui.transition} ${ui.focusRing}`}><Icon name="espadas" size="xs" />Bandas</button>
+    <button type="button" data-suggestion="¿Cuántas hermandades hay registradas?" class={`${ui.chip} border-valor-500/40 bg-brand-950/60 text-parchment-200 hover:bg-brand-900/60 ${ui.transition} ${ui.focusRing}`}><Icon name="hermandad" size="xs" />Hermandades</button>
+    <button type="button" data-suggestion="¿Qué hace el addon de RaidDominion?" class={`${ui.chip} border-valor-500/40 bg-brand-950/60 text-parchment-200 hover:bg-brand-900/60 ${ui.transition} ${ui.focusRing}`}><Icon name="libro" size="xs" />El addon</button>
+    <button type="button" data-suggestion="¿Cómo subo el archivo del addon?" class={`${ui.chip} border-valor-500/40 bg-brand-950/60 text-parchment-200 hover:bg-brand-900/60 ${ui.transition} ${ui.focusRing}`}><Icon name="subir" size="xs" />Subir archivo</button>
+    <button type="button" data-suggestion="¿Qué bandas públicas hay?" class={`${ui.chip} border-valor-500/40 bg-brand-950/60 text-parchment-200 hover:bg-brand-900/60 ${ui.transition} ${ui.focusRing}`}><Icon name="espadas" size="xs" />Bandas</button>
   </div>
 
   <!-- Conversación -->
@@ -67,7 +67,7 @@ const { className = '' } = Astro.props;
     aria-label="Conversación con la guía"
   >
     <div data-bubble="assistant" class="flex justify-start">
-      <div class={`max-w-[85%] rounded-md px-3 py-2 text-sm text-gray-200 bg-brand-800/70 border border-gray-700/50 ${ui.cardRow}`}>
+      <div class={`max-w-[85%] rounded-md px-3 py-2 text-sm text-gray-200 bg-brand-900/70 border border-brand-700/60 ${ui.cardRow}`}>
         <span>¡Hola! Soy la guía de RaidDominion.</span>
         <Icon name="espadas" size="xs" class="mx-1" />
         <span>Pregúntame por hermandades, personajes, bandas o el addon.</span>
@@ -83,7 +83,7 @@ const { className = '' } = Astro.props;
   <p id="chat-widget-error" class="hidden mx-3 mb-1 shrink-0 ${ui.status.error} text-sm rounded-md px-3 py-2" role="alert"></p>
 
   <!-- Formulario -->
-  <form id="chat-widget-form" class="shrink-0 p-3 border-t border-brand-600/20">
+  <form id="chat-widget-form" class="shrink-0 p-3 border-t border-brand-600/40">
     <label for="chat-widget-input" class="sr-only">Tu pregunta</label>
     <div class="flex gap-2">
       <input

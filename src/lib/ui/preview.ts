@@ -548,7 +548,7 @@ export function renderRoster(
       entries.slice(start, start + PAGE_SIZE).forEach(({ m, groupStart, groupLabel }) => {
         if (groupStart && groupLabel) {
           const hdr = el('div', 'col-span-full flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-brand-300 border-b border-brand-600/20 pb-1 mt-1');
-          hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0', ''));
+          hdr.appendChild(el('span', 'w-1.5 h-1.5 rounded-full bg-valor-400 shrink-0', ''));
           hdr.appendChild(el('span', '', groupLabel));
           grid.appendChild(hdr);
         }

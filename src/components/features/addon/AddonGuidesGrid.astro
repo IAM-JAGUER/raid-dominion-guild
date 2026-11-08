@@ -53,7 +53,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 ---
 
 <div class="mt-8" id="addon-guides">
-  <p class="text-gray-300 text-sm text-center mb-8 italic">
+  <p class="font-editorial text-gray-300 text-base text-center mb-8 italic">
     Aprende a usar RaidDominion en WoW 3.3.5a: menú flotante, bandas, botín, spammers y comandos.
   </p>
 
@@ -71,7 +71,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
           <div class="relative px-6 py-5 bg-gradient-to-r from-brand-900/80 to-brand-800/40 border-b border-brand-600/30">
             <button
               type="button"
-              class="guide-close absolute top-1.5 right-1.5 p-2 rounded-md bg-brand-800/80 border border-brand-600/30 text-brand-200 hover:bg-brand-900/40 hover:text-white transition-all leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              class="guide-close absolute top-1.5 right-1.5 p-2 rounded-md bg-brand-950/90 border border-brand-600/50 text-parchment-200 hover:bg-brand-800/70 hover:text-valor-200 transition-all leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               data-guide-index={index}
               aria-label="Cerrar guía"
             >
@@ -82,7 +82,7 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 <Icon name={guide.icon} size="lg" />
               </div>
               <div>
-                <h3 class="text-xl font-bold text-brand-300">
+                <h3 class="font-display text-xl font-semibold text-parchment-200">
                   <span class="text-brand-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
                 </h3>
                 <span class={`${ui.chip} ${c.iconBg} ${c.iconBorder} ${c.iconText}`}>
@@ -94,14 +94,14 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
 
           <!-- Contenido (accordion de secciones) -->
           <div class="p-2 sm:p-6">
-            <p class="text-gray-300 text-sm italic mb-6">{guide.description}</p>
+            <p class="font-editorial text-gray-300 text-base italic mb-6">{guide.description}</p>
             <div class="space-y-4">
               {guide.sections.map((section, sIdx) => (
                 <details
-                  class="group bg-brand-800/50 border border-brand-600/30 rounded-md overflow-hidden"
+                  class="group bg-brand-900/70 border border-brand-600/50 rounded-md overflow-hidden"
                   open
                 >
-                  <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between text-brand-200 font-bold text-sm hover:bg-brand-900/10 group-open:bg-brand-900/20 border-l-2 border-l-brand-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400 transition-all">
+                  <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between font-display font-semibold text-parchment-200 text-sm hover:bg-brand-900/40 group-open:bg-brand-900/50 border-l-2 border-l-valor-400/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400 transition-all">
                     <span class="inline-flex items-baseline gap-2">
                       <span class="text-brand-400 font-black tabular-nums">{sIdx + 1}.</span>
                       <span>{section.title}</span>
@@ -197,10 +197,10 @@ const navBtn = `${ui.btnBase} ${ui.btnGhost} ${ui.btnSizes.sm} border border-tra
                 {guide.category}
               </span>
             </div>
-            <h3 class={`text-base font-black italic mb-4 leading-[1.35] ${ui.gradientTitle}`}>
+            <h3 class={`text-base mb-4 leading-[1.35] ${ui.gradientTitle}`}>
               <span class="text-brand-400/90 font-black tabular-nums mr-1">{index + 1}.</span>{guide.title}
             </h3>
-            <p class="text-gray-300 text-xs leading-relaxed mb-4 flex-grow italic text-pretty">
+            <p class="font-editorial text-gray-300 text-sm leading-relaxed mb-4 flex-grow italic text-pretty">
               {guide.description}
             </p>
             <div class="pt-3 border-t border-brand-600/20">

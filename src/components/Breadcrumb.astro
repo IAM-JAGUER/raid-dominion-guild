@@ -11,8 +11,8 @@ interface Props {
 const { className = '' } = Astro.props;
 ---
 
-<nav aria-label="Migas de pan" class={`breadcrumb inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-md border border-brand-600/20 bg-brand-950/55 px-2.5 py-1.5 text-[11px] text-gray-300 backdrop-blur-sm mt-6 mb-6 ${className}`}>
-  <span class="crumb-link"><a href="/" class="hover:text-brand-300 transition-colors">Inicio</a></span>
+<nav aria-label="Migas de pan" class={`breadcrumb inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-md border border-brand-600/40 bg-brand-950/70 px-2.5 py-1.5 text-[11px] text-gray-300 backdrop-blur-sm mt-6 mb-6 ${className}`}>
+  <span class="crumb-link"><a href="/" class="hover:text-valor-200 transition-colors">Inicio</a></span>
 </nav>
 
 <script>
@@ -87,19 +87,19 @@ const { className = '' } = Astro.props;
       if (i > 0) {
         const sep = document.createElement('span');
         sep.setAttribute('aria-hidden', 'true');
-        sep.className = 'text-brand-600/60';
+        sep.className = 'text-brand-600/70';
         sep.textContent = '›';
         wrap.appendChild(sep);
       }
       if (crumb.href && i < lastIndex) {
         const a = document.createElement('a');
         a.href = crumb.href;
-        a.className = 'hover:text-brand-300 transition-colors';
+        a.className = 'hover:text-valor-200 transition-colors';
         a.textContent = crumb.label;
         wrap.appendChild(a);
       } else {
         const cur = document.createElement('span');
-        cur.className = 'crumb-current text-brand-200 font-medium';
+        cur.className = 'crumb-current text-valor-200 font-medium';
         cur.setAttribute('aria-current', 'page');
         cur.textContent = crumb.label;
         wrap.appendChild(cur);
