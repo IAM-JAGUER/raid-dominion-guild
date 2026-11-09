@@ -579,6 +579,26 @@ export const ui = {
       tip: 'rd-beast-gauge__tip',
     },
   },
+  // ── Portal de hermandad (2026-11-09) ──────────────────────────────────
+  // Resaltado heráldico propio del portal: medallón y nombre comparten un
+  // aura oro/acero, distinta de las auras de clase/equipamiento de la ficha
+  // de personaje. El arte del icono no se recolorea (§10).
+  guild: {
+    medallion: 'rd-medallion-guild',
+    name: 'rd-name-guild',
+  },
+  // ── Reglas publicadas (2026-11-09) ─────────────────────────────────────
+  // Las reglas suelen ser textos largos: superficie propia con riel dorado y
+  // una escala de lectura por encima del cuerpo (título 16/18, contenido
+  // 14/15 con interlineado relajado y ancho de línea acotado).
+  rules: {
+    list: 'space-y-3',
+    card: 'relative overflow-hidden rounded-md border border-brand-600/25 bg-brand-900/35 py-3.5 pl-5 pr-4 transition-colors hover:border-valor-400/35 sm:py-4 sm:pl-6 sm:pr-5',
+    rail: 'absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-valor-300/75 via-brand-500/40 to-transparent',
+    title: 'font-display text-base sm:text-lg font-semibold leading-snug text-parchment-100 text-balance',
+    content: 'mt-2 max-w-prose whitespace-pre-line break-words text-sm leading-relaxed text-gray-200 sm:text-[15px]',
+  },
+
   // Padding ampliable del cuerpo/cabecera de un PanelWindow protagonista
   // (prop `pad="lg"`): overrides explícitos sobre el padding del token.
   panelPad: {
