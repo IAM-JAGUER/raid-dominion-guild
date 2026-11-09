@@ -31,8 +31,8 @@ const jsonLd = [
         intro="Explora servidores y reinos de WoW 3.3.5a con hermandades, personajes y bandas públicas. Los datos provienen de los archivos que la comunidad decide compartir."
         loadingText="Cargando servidores…"
         context={{
-          title: '¿Qué es un servidor en RaidDominion?',
-          text: 'El servidor es la dirección realmlist del cliente de WoW 3.3.5a (por ejemplo, logon.ejemplo.com). Cada servidor agrupa reinos, y cada reino reúne las hermandades, personajes y bandas públicas registradas.',
+          title: '¿Cómo aparecer en este directorio?',
+          text: 'Sube el archivo del addon y valida tu cuenta. Los reinos, hermandades, personajes y bandas que decidas hacer públicos aparecerán aquí; puedes gestionar su visibilidad desde tu dashboard.',
           cta: { label: 'Subir archivo del addon', href: '/upload' },
         }}
         gridLabel="Listado de servidores"
@@ -62,8 +62,8 @@ const jsonLd = [
   const filtersEl = document.getElementById('filters') as HTMLElement;
   const pagerEl = document.getElementById('pager') as HTMLElement;
 
-  // El servidor es la dirección realmlist (p. ej. logon.ultimowow.com); cada
-  // servidor aloja uno o varios reinos (la capa siguiente en la jerarquía).
+  // Cada registro de servidor agrupa uno o varios reinos (la capa siguiente
+  // en la jerarquía).
   const res = await listPublicServers();
   if (!res.ok || !res.servers) {
     settleAsyncList(list, 'notice', 'No se pudo cargar el directorio de servidores.');
@@ -106,7 +106,7 @@ const jsonLd = [
 
     const meta = document.createElement('div');
     meta.className = 'flex flex-wrap gap-1.5';
-    meta.appendChild(chip('Servidor realmlist'));
+    meta.appendChild(chip('Servidor'));
     link.appendChild(meta);
 
     const foot = document.createElement('p');
